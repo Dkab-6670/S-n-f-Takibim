@@ -8,30 +8,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icon Set -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS (Excel Dışa Aktarımı İçin) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         @media print {
-            body * {
-                visibility: hidden;
-            }
-            #reportModal, #reportModal * {
-                visibility: visible;
-            }
-            #reportModal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .page-break {
-                page-break-after: always;
-                break-after: page;
-            }
+            body * { visibility: hidden; }
+            #reportModal, #reportModal * { visibility: visible; }
+            #reportModal { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            .page-break { page-break-after: always; break-after: page; }
         }
     </style>
 </head>
@@ -44,20 +29,28 @@
                 <i class="fa-solid fa-graduation-cap text-3xl text-indigo-200"></i>
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight">Sınıf Takip & Ezber Yönetimi</h1>
-                    <p class="text-xs text-indigo-200">Ders Bazlı Takip ve Kur'an-ı Kerim Ezber Sistemi</p>
+                    <p class="text-xs text-indigo-200 flex items-center gap-2">
+                        <span>Ders Bazlı Takip ve Kur'an-ı Kerim Ezber Sistemi</span>
+                        <span class="bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-2 py-0.5 rounded-full text-[10px] font-semibold">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Otomatik Günlük Arşiv Aktif
+                        </span>
+                    </p>
                 </div>
             </div>
 
             <!-- Eylem Butonları -->
             <div class="flex flex-wrap items-center gap-2">
+                <button onclick="manualStartNewLesson()" class="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold px-3 py-2 rounded-lg transition flex items-center gap-2 shadow" title="Günü Manuel Sıfırla">
+                    <i class="fa-solid fa-rotate-right"></i> Günü Sıfırla
+                </button>
                 <button onclick="openModal('importModal')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow">
                     <i class="fa-solid fa-file-import"></i> Toplu Öğrenci Ekle
                 </button>
-                <button onclick="exportData()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow">
-                    <i class="fa-solid fa-file-export"></i> Verileri İndir (JSON)
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-file-excel"></i> Excel İndir (.xlsx)
                 </button>
-                <button onclick="openModal('addSingleModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow">
-                    <i class="fa-solid fa-user-plus"></i> Tek Ekle
+                <button onclick="exportDataJSON()" class="bg-indigo-800 hover:bg-indigo-900 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition flex items-center gap-1.5 opacity-80" title="Sistem Yedeği Al">
+                    <i class="fa-solid fa-database"></i> Yedek (JSON)
                 </button>
             </div>
         </div>
@@ -68,18 +61,15 @@
         <!-- Ders ve Sınıf Filtre Alanı -->
         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                
-                <!-- Aktif Ders Seçimi -->
                 <div class="flex items-center gap-2">
                     <label for="subjectSelect" class="text-sm font-bold text-slate-700 whitespace-nowrap">Ders:</label>
                     <select id="subjectSelect" onchange="changeSubject()" class="bg-indigo-50 border border-indigo-200 text-indigo-900 text-sm font-semibold rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5">
                     </select>
                     <button onclick="openModal('addSubjectModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-2 rounded-lg border border-slate-300 font-medium" title="Yeni Ders Ekle">
-                        <i class="fa-solid fa-plus"></i> Ders Ekle
+                        <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
 
-                <!-- Sınıf Seçimi -->
                 <div class="flex items-center gap-2">
                     <label for="classFilter" class="text-sm font-bold text-slate-700 whitespace-nowrap">Sınıf:</label>
                     <select id="classFilter" onchange="renderStudents()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5">
@@ -87,23 +77,19 @@
                     </select>
                 </div>
 
-                <!-- Sınıf Karnesi / Toplu Rapor Al Butonu -->
                 <button id="classReportBtn" onclick="generateClassReport()" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
-                    <i class="fa-solid fa-print"></i> Sınıf Karnesi Al
+                    <i class="fa-solid fa-print"></i> Sınıf Karnesi / PDF
                 </button>
 
-                <!-- Kur'an Dersi Özel: Sınıf Ezber Listesi Tanımlama Butonu -->
                 <button id="quranConfigBtn" onclick="openQuranConfigModal()" class="hidden bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5">
                     <i class="fa-solid fa-book-quran"></i> Sınıfa Ezber Tanımla
                 </button>
 
-                <!-- Seçili Sınıfı Sil Butonu -->
                 <button id="deleteClassBtn" onclick="deleteCurrentClass()" class="hidden bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5">
                     <i class="fa-solid fa-trash-can"></i> Sınıfı Sil
                 </button>
             </div>
 
-            <!-- Arama Kutusu -->
             <div class="relative w-full md:w-64">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -146,16 +132,14 @@
                 <div class="p-3 bg-purple-100 text-purple-600 rounded-lg"><i class="fa-solid fa-star text-xl"></i></div>
                 <div>
                     <div class="text-2xl font-bold" id="statAvgScore">0</div>
-                    <div class="text-xs text-slate-500 font-medium">Ortalama Katılım</div>
+                    <div class="text-xs text-slate-500 font-medium">Bugünkü Ort. Katılım</div>
                 </div>
             </div>
         </div>
 
         <!-- Öğrenci Kartları Izgarası -->
-        <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        </div>
+        <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 
-        <!-- Boş Durum -->
         <div id="emptyState" class="hidden text-center py-12 bg-white rounded-xl border border-dashed border-slate-300">
             <i class="fa-solid fa-users-slash text-4xl text-slate-300 mb-3"></i>
             <h3 class="text-lg font-medium text-slate-700">Öğrenci Bulunamadı</h3>
@@ -167,16 +151,25 @@
     <div id="reportModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
         <div class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-xl relative border border-slate-200 my-8">
             <button onclick="closeModal('reportModal')" class="no-print absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-            
-            <div id="reportContent">
-                <!-- JS ile tekil veya sınıf raporu buraya eklenecek -->
-            </div>
-
+            <div id="reportContent"></div>
             <div class="no-print flex justify-end gap-2 mt-6 pt-4 border-t border-slate-100">
                 <button onclick="closeModal('reportModal')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">Kapat</button>
                 <button onclick="window.print()" class="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium shadow flex items-center gap-2">
                     <i class="fa-solid fa-print"></i> Yazdır / PDF İndir
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ders Geçmişi Gösterimi -->
+    <div id="historyModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl relative max-h-[80vh] flex flex-col">
+            <button onclick="closeModal('historyModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-lg font-bold text-slate-800 mb-1" id="historyModalTitle">Ders Geçmişi</h2>
+            <p class="text-xs text-slate-500 mb-4">Öğrencinin geçmiş derslerdeki puan, devamsızlık ve öğretmen notları.</p>
+            <div id="historyList" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
+            <div class="mt-4 pt-3 border-t flex justify-end">
+                <button onclick="closeModal('historyModal')" class="px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium">Kapat</button>
             </div>
         </div>
     </div>
@@ -229,57 +222,103 @@
         </div>
     </div>
 
-    <!-- Modal: Tek Öğrenci Ekle -->
-    <div id="addSingleModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
-            <button onclick="closeModal('addSingleModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <h2 class="text-lg font-bold text-slate-800 mb-4">Yeni Öğrenci Ekle</h2>
-            <form id="addStudentForm" onsubmit="handleAddSingleStudent(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Adı Soyadı</label>
-                    <input type="text" id="addName" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm" placeholder="Ahmet Yılmaz">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Okul No</label>
-                        <input type="text" id="addNumber" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm" placeholder="105">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Sınıf / Şube</label>
-                        <input type="text" id="addClass" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm" placeholder="5/C">
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('addSingleModal')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">İptal</button>
-                    <button type="submit" class="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium shadow">Kaydet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- JS Mantığı -->
     <script>
         let students = [];
         let subjects = ["Kur'an-ı Kerim", "Matematik", "Türkçe", "Din Kültürü"];
         let currentSubject = "Kur'an-ı Kerim";
         let classQuranConfigs = {};
+        let lastActiveDate = "";
 
         document.addEventListener('DOMContentLoaded', () => {
-            const savedData = localStorage.getItem('app_students_v2');
+            const savedData = localStorage.getItem('app_students_v3');
             const savedSubjects = localStorage.getItem('app_subjects');
             const savedQuranConfigs = localStorage.getItem('app_quran_configs');
+            lastActiveDate = localStorage.getItem('app_last_active_date') || "";
 
             if (savedData) students = JSON.parse(savedData);
             if (savedSubjects) subjects = JSON.parse(savedSubjects);
             if (savedQuranConfigs) classQuranConfigs = JSON.parse(savedQuranConfigs);
 
+            // Uygulama açılışında tarih kontrolü ve otomatik arşivleme
+            checkAndAutoArchiveDate();
+
             renderSubjectOptions();
             updateClassOptions();
             renderStudents();
+
+            // Açık kalan sekmeler için her 60 saniyede bir tarih değişimini denetle
+            setInterval(checkAndAutoArchiveDate, 60000);
         });
 
+        // Tarih Değişimini Kontrol Eden ve Otomatik Arşivleyen Fonksiyon
+        function checkAndAutoArchiveDate() {
+            const todayStr = new Date().toLocaleDateString('tr-TR');
+
+            if (!lastActiveDate) {
+                // İlk kez çalışıyorsa bugünün tarihini kaydet
+                lastActiveDate = todayStr;
+                localStorage.setItem('app_last_active_date', todayStr);
+                return;
+            }
+
+            // Eğer kaydedilen son tarih bugün değilse (gün değişmişse)
+            if (lastActiveDate !== todayStr) {
+                archiveAndResetForNewDay(lastActiveDate);
+                lastActiveDate = todayStr;
+                localStorage.setItem('app_last_active_date', todayStr);
+            }
+        }
+
+        // Arşivleme ve Sıfırlama Mantığı
+        function archiveAndResetForNewDay(archiveDate) {
+            let archivedCount = 0;
+
+            students.forEach(student => {
+                if (!student.history) student.history = [];
+
+                // Yalnızca o gün puan girilmiş, not yazılmış veya devamsızlık işlenmişse geçmişe kaydet
+                const hasActivity = (student.score && student.score !== 0) || 
+                                    (student.note && student.note.trim() !== "") || 
+                                    (!student.isPresent) || 
+                                    (!student.homeworkDone);
+
+                if (hasActivity) {
+                    student.history.push({
+                        date: archiveDate,
+                        subject: currentSubject,
+                        score: student.score || 0,
+                        isPresent: student.isPresent,
+                        homeworkDone: student.homeworkDone,
+                        note: student.note || ""
+                    });
+                    archivedCount++;
+                }
+
+                // Bugünün alanlarını yeni gün için temizle
+                student.score = 0;
+                student.note = "";
+                student.isPresent = true;
+                student.homeworkDone = true;
+            });
+
+            saveData();
+            if (archivedCount > 0) {
+                console.log(`Otomatik Gün Güncellemesi: ${archiveDate} tarihine ait ${archivedCount} öğrenci kaydı geçmişe aktarıldı.`);
+            }
+        }
+
+        // Manuel Sıfırlama Butonu
+        function manualStartNewLesson() {
+            if (!confirm('Geçerli ders/gün verileri geçmişe kaydedilip katılım puanları ve öğretmen notları bugünün dersi için sıfırlanacaktır. Onaylıyor musunuz?')) {
+                return;
+            }
+            const todayStr = new Date().toLocaleDateString('tr-TR');
+            archiveAndResetForNewDay(todayStr);
+            alert('Günü sıfırlama işlemi tamamlandı. Veriler öğrenci geçmişine aktarıldı!');
+        }
+
         function saveData() {
-            localStorage.setItem('app_students_v2', JSON.stringify(students));
+            localStorage.setItem('app_students_v3', JSON.stringify(students));
             localStorage.setItem('app_subjects', JSON.stringify(subjects));
             localStorage.setItem('app_quran_configs', JSON.stringify(classQuranConfigs));
             updateClassOptions();
@@ -425,7 +464,6 @@
                     <div class="mt-3 pt-3 border-t border-slate-100">
                         <div class="text-[11px] font-bold text-amber-800 mb-1.5 flex items-center justify-between">
                             <span><i class="fa-solid fa-book-quran"></i> Ezber & Okuma Takibi</span>
-                            <span class="text-[9px] font-normal text-slate-400">(Tıklayarak Değiştir)</span>
                         </div>
                         <div class="flex flex-wrap gap-1">
                             ${surahBadges}
@@ -433,6 +471,8 @@
                     </div>
                 `;
             }
+
+            const historyCount = (student.history || []).length;
 
             card.innerHTML = `
                 <div class="p-4">
@@ -443,17 +483,21 @@
                             <p class="text-xs text-slate-500">No: ${student.number}</p>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button onclick="generateStudentReport('${student.id}')" class="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 p-1.5 rounded transition" title="Veli / Dönem Sonu Raporu Al">
+                            <button onclick="showHistory('${student.id}')" class="text-amber-600 hover:bg-amber-50 p-1.5 rounded transition relative" title="Geçmiş Ders Notları">
+                                <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+                                ${historyCount > 0 ? `<span class="absolute -top-1 -right-1 bg-amber-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">${historyCount}</span>` : ''}
+                            </button>
+                            <button onclick="generateStudentReport('${student.id}')" class="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 p-1.5 rounded transition" title="Veli / Karne Raporu Al">
                                 <i class="fa-solid fa-print text-sm"></i>
                             </button>
-                            <button onclick="deleteStudent('${student.id}')" class="text-slate-300 hover:text-rose-600 p-1.5 rounded transition" title="Öğrenciyi Sil">
+                            <button onclick="deleteStudent('${student.id}')" class="text-slate-300 hover:text-rose-600 p-1.5 rounded transition" title="Sil">
                                 <i class="fa-solid fa-trash-can text-sm"></i>
                             </button>
                         </div>
                     </div>
 
                     <div class="bg-slate-50 rounded-lg p-2 my-2 flex items-center justify-between border border-slate-100">
-                        <span class="text-xs font-medium text-slate-600">Katılım Puanı:</span>
+                        <span class="text-xs font-medium text-slate-600">Bugünkü Puan:</span>
                         <div class="flex items-center gap-2">
                             <button onclick="adjustScore('${student.id}', -1)" class="w-6 h-6 bg-white hover:bg-rose-100 text-rose-600 border border-slate-200 rounded flex items-center justify-center font-bold text-xs">-</button>
                             <span class="font-bold text-xs min-w-[16px] text-center ${student.score > 0 ? 'text-emerald-600' : student.score < 0 ? 'text-rose-600' : 'text-slate-700'}">${student.score || 0}</span>
@@ -475,18 +519,95 @@
                     ${quranSection}
 
                     <div class="mt-2">
-                        <input type="text" value="${student.note || ''}" onchange="updateNote('${student.id}', this.value)" placeholder="Ders notu ekle..." class="w-full text-xs p-1.5 bg-slate-50 border border-slate-200 rounded focus:bg-white focus:outline-none">
+                        <input type="text" value="${student.note || ''}" onchange="updateNote('${student.id}', this.value)" placeholder="Bugünkü ders notu..." class="w-full text-xs p-1.5 bg-slate-50 border border-slate-200 rounded focus:bg-white focus:outline-none">
                     </div>
                 </div>
             `;
             return card;
         }
 
-        // Tekli Öğrenci Raporu
+        // Ders Geçmişi Gösterimi
+        function showHistory(studentId) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+
+            document.getElementById('historyModalTitle').textContent = `${student.name} - Ders Geçmişi`;
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+
+            const history = student.history || [];
+            if (history.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Henüz geçmiş ders kaydı yok.</p>`;
+            } else {
+                history.slice().reverse().forEach(h => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1';
+                    item.innerHTML = `
+                        <div class="flex items-center justify-between font-bold text-slate-700">
+                            <span><i class="fa-regular fa-calendar-check text-indigo-500"></i> ${h.date} (${h.subject})</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] ${h.isPresent ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${h.isPresent ? 'Derste' : 'Yok'}</span>
+                        </div>
+                        <div class="flex gap-4 text-slate-600">
+                            <span>Puan: <b>${h.score}</b></span>
+                            <span>Ödev: <b>${h.homeworkDone ? 'Tam' : 'Eksik'}</b></span>
+                        </div>
+                        ${h.note ? `<div class="text-amber-800 bg-amber-50 p-1.5 rounded border border-amber-100 mt-1"><b>Not:</b> ${h.note}</div>` : ''}
+                    `;
+                    list.appendChild(item);
+                });
+            }
+
+            openModal('historyModal');
+        }
+
+        // Excel İndirme (.xlsx)
+        function exportToExcel() {
+            const classFilter = document.getElementById('classFilter').value;
+            const targetStudents = classFilter === 'ALL' ? students : students.filter(s => s.classGroup === classFilter);
+
+            if (targetStudents.length === 0) {
+                alert('İndirilecek öğrenci verisi bulunamadı!');
+                return;
+            }
+
+            const excelData = targetStudents.map((s, index) => {
+                const historyNotes = (s.history || []).map(h => `${h.date} [${h.subject}]: Puan ${h.score}, Not: ${h.note || '-'}`).join(' | ');
+
+                const baseObj = {
+                    "Sıra No": index + 1,
+                    "Okul No": s.number,
+                    "Sınıf": s.classGroup,
+                    "Adı Soyadı": s.name,
+                    "Bugünkü Puan": s.score || 0,
+                    "Bugünkü Devamsızlık": s.isPresent ? "Derste" : "Yok",
+                    "Bugünkü Ödev": s.homeworkDone ? "Tam" : "Eksik",
+                    "Bugünkü Not": s.note || "",
+                    "Tüm Geçmiş Ders Yorumları & Puanları": historyNotes
+                };
+
+                if (currentSubject === "Kur'an-ı Kerim") {
+                    const classSurahs = classQuranConfigs[s.classGroup] || ["Fatiha", "Ayetel Kursi", "Ihlas", "Felak", "Nas"];
+                    const qData = s.quranData || {};
+                    classSurahs.forEach(surah => {
+                        const status = qData[surah] || 'none';
+                        baseObj[surah] = status === 'done' ? 'Tamamlandı' : status === 'working' ? 'Çalışıyor' : 'Okunmadı';
+                    });
+                }
+
+                return baseObj;
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Öğrenci Listesi");
+
+            const fileName = `Sinif_Takip_Raporu_${classFilter}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+        }
+
         function generateStudentReport(id) {
             const student = students.find(s => s.id === id);
             if (!student) return;
-
             document.getElementById('reportContent').innerHTML = renderSingleReportHTML(student);
             openModal('reportModal');
         }
@@ -517,6 +638,23 @@
                 `;
             }
 
+            const historyListHTML = (student.history || []).length > 0 ? `
+                <div class="mt-4 pt-3 border-t">
+                    <h4 class="font-bold text-xs text-slate-700 mb-2">Önceki Ders Geçmişi & Yorumlar</h4>
+                    <div class="space-y-1.5 max-h-40 overflow-y-auto">
+                        ${student.history.slice().reverse().map(h => `
+                            <div class="p-2 bg-slate-50 border rounded text-[11px] flex justify-between items-start gap-2">
+                                <div>
+                                    <span class="font-bold text-slate-700">${h.date} (${h.subject}):</span>
+                                    <span class="text-slate-600">${h.note || 'Not girilmedi.'}</span>
+                                </div>
+                                <span class="font-bold text-indigo-600">${h.score} Puan</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : '';
+
             const today = new Date().toLocaleDateString('tr-TR');
 
             return `
@@ -534,27 +672,28 @@
 
                     <div class="grid grid-cols-3 gap-2 text-center text-xs mb-3">
                         <div class="p-2 bg-slate-50 border rounded-lg">
-                            <div class="text-[10px] text-slate-500">Derse Katılım</div>
+                            <div class="text-[10px] text-slate-500">Bugünkü Katılım</div>
                             <div class="font-bold ${student.isPresent ? 'text-emerald-600' : 'text-rose-600'}">${student.isPresent ? 'Mevcut' : 'Yok'}</div>
                         </div>
                         <div class="p-2 bg-slate-50 border rounded-lg">
-                            <div class="text-[10px] text-slate-500">Ödev Kontrolü</div>
+                            <div class="text-[10px] text-slate-500">Bugünkü Ödev</div>
                             <div class="font-bold ${student.homeworkDone ? 'text-emerald-600' : 'text-amber-600'}">${student.homeworkDone ? 'Tam' : 'Eksik'}</div>
                         </div>
                         <div class="p-2 bg-slate-50 border rounded-lg">
-                            <div class="text-[10px] text-slate-500">Etkinlik Puanı</div>
+                            <div class="text-[10px] text-slate-500">Bugünkü Puan</div>
                             <div class="font-bold text-indigo-600">${student.score || 0} Puan</div>
                         </div>
                     </div>
 
                     ${student.note ? `
                         <div class="p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs mb-2">
-                            <span class="font-bold text-amber-800 block text-[11px]">Öğretmen Notu:</span>
+                            <span class="font-bold text-amber-800 block text-[11px]">Bugünkü Öğretmen Notu:</span>
                             <p class="text-amber-900 text-xs">${student.note}</p>
                         </div>
                     ` : ''}
 
                     ${ezberHTML}
+                    ${historyListHTML}
 
                     <div class="mt-4 pt-2 border-t flex justify-between text-[10px] text-slate-400">
                         <div>Ders Öğretmeni İmza</div>
@@ -564,7 +703,6 @@
             `;
         }
 
-        // Tüm Sınıf Toplu Raporu
         function generateClassReport() {
             const currentClass = document.getElementById('classFilter').value;
             if (currentClass === 'ALL') return;
@@ -576,16 +714,13 @@
 
             let html = `
                 <div class="text-center pb-4 border-b mb-6">
-                    <h2 class="text-xl font-bold text-slate-800">${currentClass} SINIFI DÖNEM SONU VE VELİ BİLGİLENDİRME KARNELERİ</h2>
+                    <h2 class="text-xl font-bold text-slate-800">${currentClass} SINIFI GELİŞİM KARNELERİ</h2>
                     <p class="text-xs text-slate-500 mt-1">${currentSubject} Dersi | Toplam Öğrenci: ${classStudents.length} | Tarih: ${today}</p>
                 </div>
             `;
 
-            // Her sayfaya 2 öğrenci gelecek şekilde karneleri oluştur
             for (let i = 0; i < classStudents.length; i++) {
                 html += renderSingleReportHTML(classStudents[i]);
-                
-                // Her 2 öğrencide bir sayfa sonu ekle (yazdırırken düzenli dursun)
                 if ((i + 1) % 2 === 0 && i !== classStudents.length - 1) {
                     html += `<div class="page-break"></div>`;
                 }
@@ -667,30 +802,6 @@
             }
         }
 
-        function handleAddSingleStudent(e) {
-            e.preventDefault();
-            const name = document.getElementById('addName').value.trim();
-            const number = document.getElementById('addNumber').value.trim();
-            const classGroup = document.getElementById('addClass').value.trim().toUpperCase();
-
-            if (name && number && classGroup) {
-                students.push({
-                    id: Date.now().toString(),
-                    name: name,
-                    number: number,
-                    classGroup: classGroup,
-                    isPresent: true,
-                    homeworkDone: true,
-                    score: 0,
-                    note: '',
-                    quranData: {}
-                });
-                saveData();
-                closeModal('addSingleModal');
-                document.getElementById('addStudentForm').reset();
-            }
-        }
-
         function processImportText() {
             const text = document.getElementById('importTextarea').value.trim();
             if (!text) return;
@@ -736,7 +847,8 @@
                         homeworkDone: true,
                         score: 0,
                         note: '',
-                        quranData: {}
+                        quranData: {},
+                        history: []
                     });
                     addedCount++;
                 }
@@ -746,9 +858,7 @@
                 saveData();
                 closeModal('importModal');
                 document.getElementById('importTextarea').value = '';
-                alert(`${addedCount} öğrenci e-Okul listesinden başarıyla aktarıldı!`);
-            } else {
-                alert('Geçerli bir e-Okul liste verisi okunamadı.');
+                alert(`${addedCount} öğrenci başarıyla eklendi!`);
             }
         }
 
@@ -756,13 +866,13 @@
             document.getElementById('importTextarea').value = `1\t10\t5\tc\tERTUĞRUL KADİR KIYAK\n2\t91\t5\tc\tMUSA EMİR KİRİŞ\n3\t92\t5\tc\tMEHMET EMİN YILDIZ`;
         }
 
-        function exportData() {
+        function exportDataJSON() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
                 students, subjects, classQuranConfigs
             }, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `sinif_ezber_takip_${new Date().toISOString().slice(0,10)}.json`);
+            downloadAnchor.setAttribute("download", `sinif_takip_yedek_${new Date().toISOString().slice(0,10)}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
