@@ -71,10 +71,18 @@
                         <label class="block text-xs text-slate-500 font-semibold mb-1">Tarih Seçimi</label>
                         <input type="date" id="selectedDate" onchange="renderTakipTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
+                    <!-- Sınıf Filtresi -->
                     <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf/Şube Filtre</label>
-                        <select id="filterSube" onchange="renderTakipTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
+                        <select id="filterSinif" onchange="renderTakipTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                             <option value="ALL">Tüm Sınıflar</option>
+                        </select>
+                    </div>
+                    <!-- Şube Filtresi -->
+                    <div>
+                        <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
+                        <select id="filterSube" onchange="renderTakipTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="ALL">Tüm Şubeler</option>
                         </select>
                     </div>
                 </div>
@@ -90,8 +98,8 @@
                 <table class="w-full text-left text-sm border-collapse">
                     <thead>
                         <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                            <th class="p-3 font-semibold w-12 text-center">No</th>
-                            <th class="p-3 font-semibold w-20">Sınıf/Şube</th>
+                            <th class="p-3 font-semibold w-12 text-center">S.No</th>
+                            <th class="p-3 font-semibold w-24">Sınıf / Şube</th>
                             <th class="p-3 font-semibold">Öğrenci Adı Soyadı</th>
                             <th class="p-3 font-semibold text-center w-28">Devamsızlık</th>
                             <th class="p-3 font-semibold text-center">Ders & Ezber Durumları</th>
@@ -181,7 +189,7 @@
     <!-- Modal: Sınıf / Oda Değiştirme -->
     <div id="roomModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
-            <h2 class="text-xl font-bold text-slate-800 mb-2">Canlı Senkronizasyon Olası</h2>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Canlı Senkronizasyon Bağlantısı</h2>
             <p class="text-xs text-slate-500 mb-6">Aynı sınıf kodunu telefon ve bilgisayarınıza girerek verileri anlık olarak senkronize edebilirsiniz.</p>
             
             <div class="space-y-4">
@@ -206,7 +214,7 @@
 
     <!-- Application JavaScript Code -->
     <script>
-        // --- Firebase Config (Açık PubSub Yapısı) ---
+        // --- Firebase Config ---
         const firebaseConfig = {
             databaseURL: "https://sinif-takip-default-rtdb.firebaseio.com"
         };
@@ -219,7 +227,7 @@
         let currentRoom = localStorage.getItem('sync_room_code') || generateRoomCode();
         let students = [];
         let lessons = ["Kur'an Okuma", "Yasin Suresi", "Tecvid Kuralları", "Siyer"];
-        let dailyRecords = {}; // Format: { "YYYY-MM-DD": { studentId: { status, notes, scores: {lessonId: score} } } }
+        let dailyRecords = {};
 
         document.getElementById('selectedDate').value = new Date().toISOString().split('T')[0];
 
@@ -237,13 +245,11 @@
             localStorage.setItem('sync_room_code', currentRoom);
             document.getElementById('roomCodeDisplay').innerText = currentRoom;
 
-            // Update Sync Status Visual
             const dot = document.getElementById('syncStatusDot');
             const text = document.getElementById('syncStatusText');
             dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
             text.innerText = "Bağlanıyor...";
 
-            // Firebase Event Listeners
             const roomRef = db.ref('rooms/' + currentRoom);
             
             roomRef.on('value', (snapshot) => {
@@ -253,7 +259,6 @@
                     lessons = data.lessons || ["Kur'an Okuma", "Yasin Suresi", "Tecvid Kuralları"];
                     dailyRecords = data.dailyRecords || {};
                 } else {
-                    // Pre-fill defaults if room is empty
                     saveDataToFirebase();
                 }
                 
@@ -287,25 +292,58 @@
             document.getElementById('tab-' + tabName).classList.add('tab-active');
         }
 
-        // Render Functions
+        // Render All
         function renderAll() {
             renderStudentTable();
-            renderSubeFilterOptions();
+            renderFilterOptions();
             renderTakipTable();
             renderLessonsList();
+        }
+
+        // Dynamic Filter Options Generator
+        function renderFilterOptions() {
+            const sinifSelect = document.getElementById('filterSinif');
+            const subeSelect = document.getElementById('filterSube');
+
+            const currentSelectedSinif = sinifSelect.value;
+            const currentSelectedSube = subeSelect.value;
+
+            // Benzersiz Sınıfları ve Şubeleri Topla
+            const siniflar = [...new Set(students.map(s => String(s.sinif).trim()))].filter(Boolean).sort();
+            const subeler = [...new Set(students.map(s => String(s.sube).trim().toLowerCase()))].filter(Boolean).sort();
+
+            // Sınıf Dropdown
+            sinifSelect.innerHTML = '<option value="ALL">Tüm Sınıflar</option>';
+            siniflar.forEach(s => {
+                sinifSelect.innerHTML += `<option value="${s}">${s}. Sınıf</option>`;
+            });
+            if (siniflar.includes(currentSelectedSinif)) sinifSelect.value = currentSelectedSinif;
+
+            // Şube Dropdown
+            subeSelect.innerHTML = '<option value="ALL">Tüm Şubeler</option>';
+            subeler.forEach(s => {
+                subeSelect.innerHTML += `<option value="${s}">${s.toUpperCase()} Şubesi</option>`;
+            });
+            if (subeler.includes(currentSelectedSube)) subeSelect.value = currentSelectedSube;
         }
 
         // TAB 1: Render Takip Table
         function renderTakipTable() {
             const date = document.getElementById('selectedDate').value;
+            const sinifFilter = document.getElementById('filterSinif').value;
             const subeFilter = document.getElementById('filterSube').value;
             const tbody = document.getElementById('takipTableBody');
             tbody.innerHTML = '';
 
-            const filteredStudents = students.filter(s => subeFilter === 'ALL' || s.sube === subeFilter);
+            // Çift Filtreleme Mantığı (Hem Sınıf Hem Şube)
+            const filteredStudents = students.filter(s => {
+                const matchesSinif = (sinifFilter === 'ALL' || String(s.sinif).trim() === sinifFilter);
+                const matchesSube = (subeFilter === 'ALL' || String(s.sube).trim().toLowerCase() === subeFilter);
+                return matchesSinif && matchesSube;
+            });
 
             if (filteredStudents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Kayıtlı öğrenci bulunamadı.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Seçilen kriterlere uygun öğrenci bulunamadı.</td></tr>`;
                 return;
             }
 
@@ -356,7 +394,7 @@
             });
         }
 
-        // Updates
+        // Record Updates
         function updateAttendance(date, stId, status) {
             ensureRecordPath(date, stId);
             dailyRecords[date][stId].status = status;
@@ -532,16 +570,6 @@
                 lessons.splice(index, 1);
                 saveDataToFirebase();
             }
-        }
-
-        function renderSubeFilterOptions() {
-            const select = document.getElementById('filterSube');
-            const subeler = [...new Set(students.map(s => s.sube))];
-            
-            select.innerHTML = '<option value="ALL">Tüm Sınıflar</option>';
-            subeler.forEach(s => {
-                select.innerHTML += `<option value="${s}">Sınıf/Şube: ${s.toUpperCase()}</option>`;
-            });
         }
 
         // Room Modals & Utils
