@@ -15,6 +15,36 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: 600; }
+        
+        /* Renk Değiştiren Ezber Butonu Stilleri */
+        .ezber-btn {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            user-select: none;
+        }
+        .ezber-red {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .ezber-red:hover { background-color: #fee2e2; }
+        
+        .ezber-yellow {
+            background-color: #fefce8;
+            color: #854d0e;
+            border: 1px solid #fef08a;
+            font-weight: 600;
+        }
+        .ezber-yellow:hover { background-color: #fef9c3; }
+
+        .ezber-green {
+            background-color: #10b981;
+            color: #ffffff;
+            border: 1px solid #059669;
+            font-weight: 700;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .ezber-green:hover { background-color: #059669; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -51,11 +81,11 @@
 
         <!-- Navigation Tabs -->
         <div class="flex border-b border-slate-300 bg-white rounded-t-xl px-4 pt-2 shadow-sm overflow-x-auto">
-            <button onclick="switchTab('dersTakip')" id="tab-dersTakip" class="px-5 py-3 tab-active flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-book-open"></i> 📚 Ders Takibi
+            <button onclick="switchTab('ezberTakip')" id="tab-ezberTakip" class="px-5 py-3 tab-active flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-quran text-emerald-600"></i> 📖 Kur'an & Ezber Takibi
             </button>
-            <button onclick="switchTab('ezberTakip')" id="tab-ezberTakip" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-quran"></i> 📖 Ezber Takibi
+            <button onclick="switchTab('dersTakip')" id="tab-dersTakip" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-book-open text-indigo-600"></i> 📚 Günlük Ders Takibi
             </button>
             <button onclick="switchTab('ogrenciler')" id="tab-ogrenciler" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-users"></i> 👥 Öğrenci Yönetimi
@@ -65,8 +95,56 @@
             </button>
         </div>
 
-        <!-- TAB 1: Ders Takibi -->
-        <div id="content-dersTakip" class="bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
+        <!-- TAB 1: EZBER TAKİBİ (Renkli Buton Mantığı) -->
+        <div id="content-ezberTakip" class="bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
+            <!-- Bilgilendirme Kutusu -->
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-4 bg-emerald-50/60 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900">
+                <div class="flex items-center gap-4 flex-wrap">
+                    <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> Tıklama Rehberi:</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span> 🔴 Başlamadı</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> 🟡 Verildi / Çalışıyor</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> 🟢 Ezberlendi (Tamam)</span>
+                </div>
+                <button onclick="exportExcelEzber()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm font-medium">
+                    <i class="fa-solid fa-file-excel"></i> Ezber Raporu İndir
+                </button>
+            </div>
+
+            <!-- Filtreler -->
+            <div class="flex flex-wrap items-center gap-3 mb-6 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <div>
+                    <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
+                    <select id="filterSinifEzber" onchange="onSinifEzberFilterChange()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="ALL">Tüm Sınıflar</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
+                    <select id="filterSubeEzber" onchange="renderEzberTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="ALL">Tüm Şubeler</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Ezber Tablosu -->
+            <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-emerald-700 text-white border-b border-emerald-800">
+                            <th class="p-3 font-semibold w-12 text-center">S.No</th>
+                            <th class="p-3 font-semibold w-24">Sınıf/Şube</th>
+                            <th class="p-3 font-semibold w-48">Öğrenci Adı Soyadı</th>
+                            <th class="p-3 font-semibold text-center">Ezberlenecek Sureler & Cüzler (Tıklayarak Değiştirin)</th>
+                            <th class="p-3 font-semibold w-48">Son Kaldığı Ayet / Sayfa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ezberTableBody" class="divide-y divide-slate-200"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: DERS TAKİBİ -->
+        <div id="content-dersTakip" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
             <div class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div class="flex flex-wrap items-center gap-3">
                     <div>
@@ -86,8 +164,8 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="exportExcelDers()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-file-excel"></i> Ders İndir (Excel)
+                <button onclick="exportExcelDers()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-file-excel"></i> Ders Raporu İndir (Excel)
                 </button>
             </div>
 
@@ -100,7 +178,7 @@
                             <th class="p-3 font-semibold">Öğrenci Adı Soyadı</th>
                             <th class="p-3 font-semibold text-center w-28">Devamsızlık</th>
                             <th class="p-3 font-semibold text-center">Ders Puanları (1-5)</th>
-                            <th class="p-3 font-semibold w-40">Notlar</th>
+                            <th class="p-3 font-semibold w-40">Notlar / Açıklama</th>
                         </tr>
                     </thead>
                     <tbody id="dersTableBody" class="divide-y divide-slate-200"></tbody>
@@ -108,45 +186,7 @@
             </div>
         </div>
 
-        <!-- TAB 2: Ezber Takibi -->
-        <div id="content-ezberTakip" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
-            <div class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <div class="flex flex-wrap items-center gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
-                        <select id="filterSinifEzber" onchange="onSinifEzberFilterChange()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="ALL">Tüm Sınıflar</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
-                        <select id="filterSubeEzber" onchange="renderEzberTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="ALL">Tüm Şubeler</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="exportExcelEzber()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-file-excel"></i> Ezber İndir (Excel)
-                </button>
-            </div>
-
-            <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="bg-amber-50 text-amber-900 border-b border-amber-200">
-                            <th class="p-3 font-semibold w-12 text-center">S.No</th>
-                            <th class="p-3 font-semibold w-24">Sınıf/Şube</th>
-                            <th class="p-3 font-semibold">Öğrenci Adı Soyadı</th>
-                            <th class="p-3 font-semibold text-center">Ezber Konuları & Sure Durumları</th>
-                            <th class="p-3 font-semibold w-48">Ayet/Sayfa Notu</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ezberTableBody" class="divide-y divide-slate-200"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TAB 3: Öğrenci Yönetimi -->
+        <!-- TAB 3: ÖĞRENCİ YÖNETİMİ -->
         <div id="content-ogrenciler" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -190,10 +230,22 @@
             </div>
         </div>
 
-        <!-- TAB 4: Ders & Ezber Tanımları -->
+        <!-- TAB 4: DERS & EZBER TANIMLARI -->
         <div id="content-ayarlar" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Ders Yönetimi -->
+                <!-- Ezber Konuları Yönetimi -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-quran text-emerald-600"></i> Ezberlenecek Sureler / Cüzler
+                    </h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="newEzberInput" placeholder="Örn: Yasin Suresi, Mülk Suresi, Amme Cüzü" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
+                        <button onclick="addEzberItem()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-4 py-2 rounded-lg">Ekle</button>
+                    </div>
+                    <div id="ezberList" class="space-y-2"></div>
+                </div>
+
+                <!-- Okul Dersleri Yönetimi -->
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-book text-indigo-600"></i> Okul Dersleri
@@ -203,18 +255,6 @@
                         <button onclick="addLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg">Ekle</button>
                     </div>
                     <div id="lessonList" class="space-y-2"></div>
-                </div>
-
-                <!-- Ezber Konuları Yönetimi -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-quran text-amber-600"></i> Ezber Sure/Cüz Listesi
-                    </h3>
-                    <div class="flex gap-2 mb-4">
-                        <input type="text" id="newEzberInput" placeholder="Örn: Yasin Suresi, Amme Cüzü, 1. Sayfa" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none">
-                        <button onclick="addEzberItem()" class="bg-amber-600 hover:bg-amber-700 text-white text-sm px-4 py-2 rounded-lg">Ekle</button>
-                    </div>
-                    <div id="ezberList" class="space-y-2"></div>
                 </div>
             </div>
         </div>
@@ -250,7 +290,7 @@
         let currentRoom = localStorage.getItem('sync_room_code') || generateRoomCode();
         let students = [];
         let lessons = ["Tecvid Kuralları", "Siyer", "Ahlak"];
-        let ezberItems = ["Yasin Suresi", "Mülk Suresi", "Nebe Suresi", "Kısa Sureler"];
+        let ezberItems = ["Yasin Suresi", "Mülk Suresi", "Nebe Suresi", "Fetih Suresi", "Kısa Sureler"];
         let dailyRecords = {}; 
         let ezberRecords = {}; 
 
@@ -275,7 +315,7 @@
                 if (data) {
                     students = data.students || [];
                     lessons = data.lessons || ["Tecvid Kuralları", "Siyer"];
-                    ezberItems = data.ezberItems || ["Yasin Suresi", "Mülk Suresi"];
+                    ezberItems = data.ezberItems || ["Yasin Suresi", "Mülk Suresi", "Nebe Suresi"];
                     dailyRecords = data.dailyRecords || {};
                     ezberRecords = data.ezberRecords || {};
                 } else {
@@ -302,7 +342,7 @@
         }
 
         function switchTab(tabName) {
-            ['dersTakip', 'ezberTakip', 'ogrenciler', 'ayarlar'].forEach(t => {
+            ['ezberTakip', 'dersTakip', 'ogrenciler', 'ayarlar'].forEach(t => {
                 document.getElementById('content-' + t).classList.add('hidden');
                 document.getElementById('tab-' + t).classList.remove('tab-active');
                 document.getElementById('tab-' + t).classList.add('text-slate-600');
@@ -314,13 +354,13 @@
         function renderAll() {
             renderStudentTable();
             renderFilterOptions();
-            renderDersTable();
             renderEzberTable();
+            renderDersTable();
             renderSettingsLists();
         }
 
         function renderFilterOptions() {
-            ['Ders', 'Ezber'].forEach(type => {
+            ['Ezber', 'Ders'].forEach(type => {
                 const sinifSelect = document.getElementById('filterSinif' + type);
                 const currentSinif = sinifSelect.value;
                 const siniflar = [...new Set(students.map(s => String(s.sinif).trim()))].filter(Boolean).sort();
@@ -329,15 +369,15 @@
                 siniflar.forEach(s => sinifSelect.innerHTML += `<option value="${s}">${s}. Sınıf</option>`);
                 sinifSelect.value = siniflar.includes(currentSinif) ? currentSinif : 'ALL';
 
-                type === 'Ders' ? renderSubeDersOptions() : renderSubeEzberOptions();
+                type === 'Ezber' ? renderSubeEzberOptions() : renderSubeDersOptions();
             });
         }
 
-        function onSinifDersFilterChange() { renderSubeDersOptions(); renderDersTable(); }
         function onSinifEzberFilterChange() { renderSubeEzberOptions(); renderEzberTable(); }
+        function onSinifDersFilterChange() { renderSubeDersOptions(); renderDersTable(); }
 
-        function renderSubeDersOptions() { renderSubeOptionsGeneric('Ders'); }
         function renderSubeEzberOptions() { renderSubeOptionsGeneric('Ezber'); }
+        function renderSubeDersOptions() { renderSubeOptionsGeneric('Ders'); }
 
         function renderSubeOptionsGeneric(type) {
             const sinifVal = document.getElementById('filterSinif' + type).value;
@@ -353,7 +393,85 @@
             subeSelect.value = subeler.includes(currentSube) ? currentSube : 'ALL';
         }
 
-        // --- TAB 1: DERS TAKİBİ ---
+        // --- TAB 1: EZBER TAKİBİ (Tıklayınca Yeşil Olan Yapı) ---
+        function renderEzberTable() {
+            const sinifFilter = document.getElementById('filterSinifEzber').value;
+            const subeFilter = document.getElementById('filterSubeEzber').value;
+            const tbody = document.getElementById('ezberTableBody');
+            tbody.innerHTML = '';
+
+            const filteredStudents = students.filter(s => {
+                const mSinif = (sinifFilter === 'ALL' || String(s.sinif).trim() === sinifFilter);
+                const mSube = (subeFilter === 'ALL' || String(s.sube).trim().toLowerCase() === subeFilter);
+                return mSinif && mSube;
+            });
+
+            if (filteredStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Öğrenci bulunamadı.</td></tr>`;
+                return;
+            }
+
+            filteredStudents.forEach((st, idx) => {
+                const stEzber = ezberRecords[st.id] || { status: {}, notes: '' };
+
+                let ezberHtml = ezberItems.map(item => {
+                    const status = (stEzber.status && stEzber.status[item]) || 'Baslamadi';
+                    
+                    let btnClass = "ezber-red";
+                    let iconHtml = '<i class="fa-regular fa-circle text-[10px]"></i>';
+                    
+                    if (status === 'DevamEdiyor') {
+                        btnClass = "ezber-yellow";
+                        iconHtml = '<i class="fa-solid fa-hourglass-half text-[10px]"></i>';
+                    } else if (status === 'Tamamlandi') {
+                        btnClass = "ezber-green";
+                        iconHtml = '<i class="fa-solid fa-check text-xs"></i>';
+                    }
+
+                    // Tıklayınca Sırayla Değiştir: Baslamadi -> DevamEdiyor -> Tamamlandi -> Baslamadi
+                    return `
+                        <button onclick="toggleEzberState('${st.id}', '${item}')" class="ezber-btn ${btnClass} text-xs px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
+                            ${iconHtml}
+                            <span>${item}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-xs font-mono text-slate-500">${st.sno || (idx + 1)}</td>
+                    <td class="p-3 text-xs"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">${st.sinif}/${st.sube.toUpperCase()}</span></td>
+                    <td class="p-3"><div class="font-semibold text-slate-800 text-sm">${st.name}</div><div class="text-[11px] text-slate-400 font-mono">No: ${st.no}</div></td>
+                    <td class="p-3"><div class="flex flex-wrap gap-2 items-center">${ezberHtml}</div></td>
+                    <td class="p-3"><input type="text" value="${stEzber.notes || ''}" placeholder="Örn: 1-15. ayetler..." onblur="updateEzberNote('${st.id}', this.value)" class="w-full border border-slate-300 rounded px-2 py-1 text-xs outline-none focus:ring-1 focus:ring-emerald-500"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Tıklama Döngüsü (Kırmızı -> Sarı -> Yeşil -> Kırmızı)
+        function toggleEzberState(stId, item) {
+            if (!ezberRecords[stId]) ezberRecords[stId] = { status: {}, notes: '' };
+            if (!ezberRecords[stId].status) ezberRecords[stId].status = {};
+
+            const current = ezberRecords[stId].status[item] || 'Baslamadi';
+            let next = 'DevamEdiyor';
+
+            if (current === 'DevamEdiyor') next = 'Tamamlandi';
+            else if (current === 'Tamamlandi') next = 'Baslamadi';
+
+            ezberRecords[stId].status[item] = next;
+            saveDataToFirebase();
+        }
+
+        function updateEzberNote(stId, note) {
+            if (!ezberRecords[stId]) ezberRecords[stId] = { status: {}, notes: '' };
+            ezberRecords[stId].notes = note;
+            saveDataToFirebase();
+        }
+
+        // --- TAB 2: DERS TAKİBİ ---
         function renderDersTable() {
             const date = document.getElementById('selectedDateDers').value;
             const sinifFilter = document.getElementById('filterSinifDers').value;
@@ -433,71 +551,6 @@
             if (!dailyRecords[date][stId]) dailyRecords[date][stId] = { status: 'Var', notes: '', scores: {} };
         }
 
-        // --- TAB 2: EZBER TAKİBİ (İlk Tasarım Tarzı) ---
-        function renderEzberTable() {
-            const sinifFilter = document.getElementById('filterSinifEzber').value;
-            const subeFilter = document.getElementById('filterSubeEzber').value;
-            const tbody = document.getElementById('ezberTableBody');
-            tbody.innerHTML = '';
-
-            const filteredStudents = students.filter(s => {
-                const mSinif = (sinifFilter === 'ALL' || String(s.sinif).trim() === sinifFilter);
-                const mSube = (subeFilter === 'ALL' || String(s.sube).trim().toLowerCase() === subeFilter);
-                return mSinif && mSube;
-            });
-
-            if (filteredStudents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">Öğrenci bulunamadı.</td></tr>`;
-                return;
-            }
-
-            filteredStudents.forEach((st, idx) => {
-                const stEzber = ezberRecords[st.id] || { status: {}, notes: '' };
-
-                let ezberHtml = ezberItems.map(item => {
-                    const status = (stEzber.status && stEzber.status[item]) || 'Baslamadi';
-                    let bg = "bg-slate-100 text-slate-600 border-slate-300";
-                    if (status === 'Tamamlandi') bg = "bg-emerald-100 text-emerald-800 border-emerald-400 font-bold";
-                    if (status === 'DevamEdiyor') bg = "bg-amber-100 text-amber-800 border-amber-400 font-semibold";
-
-                    return `
-                        <div class="inline-flex flex-col items-center p-1.5 rounded border ${bg}">
-                            <span class="text-[10px] truncate max-w-[85px]" title="${item}">${item}</span>
-                            <select onchange="updateEzberStatus('${st.id}', '${item}', this.value)" class="text-xs border rounded px-1 py-0.5 mt-0.5 bg-white text-slate-800">
-                                <option value="Baslamadi" ${status==='Baslamadi'?'selected':''}>🔴 Başlamadı</option>
-                                <option value="DevamEdiyor" ${status==='DevamEdiyor'?'selected':''}>🟡 Verildi / Çalışıyor</option>
-                                <option value="Tamamlandi" ${status==='Tamamlandi'?'selected':''}>🟢 Dinlendi / Tamam</option>
-                            </select>
-                        </div>
-                    `;
-                }).join('');
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-amber-50/50 transition";
-                tr.innerHTML = `
-                    <td class="p-3 text-center text-xs font-mono text-slate-500">${st.sno || (idx + 1)}</td>
-                    <td class="p-3 text-xs"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">${st.sinif}/${st.sube.toUpperCase()}</span></td>
-                    <td class="p-3"><div class="font-semibold text-slate-800 text-sm">${st.name}</div><div class="text-[11px] text-slate-400 font-mono">No: ${st.no}</div></td>
-                    <td class="p-3"><div class="flex flex-wrap gap-1.5 items-center">${ezberHtml}</div></td>
-                    <td class="p-3"><input type="text" value="${stEzber.notes || ''}" placeholder="Örn: Yasin 1-20. ayetler verildi..." onblur="updateEzberNote('${st.id}', this.value)" class="w-full border rounded px-2 py-1 text-xs outline-none"></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function updateEzberStatus(stId, item, status) {
-            if (!ezberRecords[stId]) ezberRecords[stId] = { status: {}, notes: '' };
-            if (!ezberRecords[stId].status) ezberRecords[stId].status = {};
-            ezberRecords[stId].status[item] = status;
-            saveDataToFirebase();
-        }
-
-        function updateEzberNote(stId, note) {
-            if (!ezberRecords[stId]) ezberRecords[stId] = { status: {}, notes: '' };
-            ezberRecords[stId].notes = note;
-            saveDataToFirebase();
-        }
-
         // --- TAB 3: ÖĞRENCİ YÖNETİMİ ---
         function processBulkStudents() {
             const raw = document.getElementById('bulkStudentInput').value.trim();
@@ -568,17 +621,6 @@
 
         // --- TAB 4: TANIMLAR ---
         function renderSettingsLists() {
-            // Ders Listesi
-            const lessonContainer = document.getElementById('lessonList');
-            lessonContainer.innerHTML = '';
-            lessons.forEach((l, idx) => {
-                lessonContainer.innerHTML += `
-                    <div class="flex justify-between items-center bg-white border p-2.5 rounded-lg text-sm">
-                        <span>${l}</span>
-                        <button onclick="removeLesson(${idx})" class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">Sil</button>
-                    </div>`;
-            });
-
             // Ezber Listesi
             const ezberContainer = document.getElementById('ezberList');
             ezberContainer.innerHTML = '';
@@ -589,14 +631,17 @@
                         <button onclick="removeEzberItem(${idx})" class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">Sil</button>
                     </div>`;
             });
-        }
 
-        function addLesson() {
-            const v = document.getElementById('newLessonInput').value.trim();
-            if (v && !lessons.includes(v)) { lessons.push(v); saveDataToFirebase(); document.getElementById('newLessonInput').value = ''; }
-        }
-        function removeLesson(idx) {
-            if (confirm("Ders silinsin mi?")) { lessons.splice(idx, 1); saveDataToFirebase(); }
+            // Ders Listesi
+            const lessonContainer = document.getElementById('lessonList');
+            lessonContainer.innerHTML = '';
+            lessons.forEach((l, idx) => {
+                lessonContainer.innerHTML += `
+                    <div class="flex justify-between items-center bg-white border p-2.5 rounded-lg text-sm">
+                        <span>${l}</span>
+                        <button onclick="removeLesson(${idx})" class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">Sil</button>
+                    </div>`;
+            });
         }
 
         function addEzberItem() {
@@ -605,6 +650,14 @@
         }
         function removeEzberItem(idx) {
             if (confirm("Ezber konusu silinsin mi?")) { ezberItems.splice(idx, 1); saveDataToFirebase(); }
+        }
+
+        function addLesson() {
+            const v = document.getElementById('newLessonInput').value.trim();
+            if (v && !lessons.includes(v)) { lessons.push(v); saveDataToFirebase(); document.getElementById('newLessonInput').value = ''; }
+        }
+        function removeLesson(idx) {
+            if (confirm("Ders silinsin mi?")) { lessons.splice(idx, 1); saveDataToFirebase(); }
         }
 
         // --- ODA & EXPORT ---
@@ -619,6 +672,16 @@
         }
         function copyRoomCode() { navigator.clipboard.writeText(currentRoom); alert("Kopyalandı: " + currentRoom); }
 
+        function exportExcelEzber() {
+            let csv = "data:text/csv;charset=utf-8,S.No;Okul No;Sinif;Sube;Adi Soyadi;" + ezberItems.join(";") + ";Ayet_Acliklama\n";
+            students.forEach((st, idx) => {
+                const rec = ezberRecords[st.id] || { status: {}, notes: '' };
+                const ezbers = ezberItems.map(e => (rec.status && rec.status[e]) || 'Baslamadi').join(";");
+                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${ezbers};${rec.notes||''}\n`;
+            });
+            downloadCSV(csv, `Ezber_Takip_Raporu.csv`);
+        }
+
         function exportExcelDers() {
             const date = document.getElementById('selectedDateDers').value;
             let csv = "data:text/csv;charset=utf-8,S.No;Okul No;Sinif;Sube;Adi Soyadi;Devamsizlik;" + lessons.join(";") + ";Notlar\n";
@@ -628,16 +691,6 @@
                 csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${rec.status};${scores};${rec.notes||''}\n`;
             });
             downloadCSV(csv, `Ders_Takip_${date}.csv`);
-        }
-
-        function exportExcelEzber() {
-            let csv = "data:text/csv;charset=utf-8,S.No;Okul No;Sinif;Sube;Adi Soyadi;" + ezberItems.join(";") + ";Ayet_Notu\n";
-            students.forEach((st, idx) => {
-                const rec = ezberRecords[st.id] || { status: {}, notes: '' };
-                const ezbers = ezberItems.map(e => (rec.status && rec.status[e]) || 'Baslamadi').join(";");
-                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${ezbers};${rec.notes||''}\n`;
-            });
-            downloadCSV(csv, `Ezber_Takip.csv`);
         }
 
         function downloadCSV(csvContent, fileName) {
