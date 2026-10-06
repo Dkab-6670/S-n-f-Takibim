@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınıf İçi Öğrenci Takip Sistemi</title>
+    <title>Sınıf İçi Öğrenci ve Ezber Takip Sistemi</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icon Set -->
@@ -17,8 +17,8 @@
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-graduation-cap text-3xl text-indigo-200"></i>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Sınıf Takip Sistemi</h1>
-                    <p class="text-xs text-indigo-200">Öğrenci Katılım, Ödev ve Yoklama Yönetimi</p>
+                    <h1 class="text-2xl font-bold tracking-tight">Sınıf Takip & Ezber Yönetimi</h1>
+                    <p class="text-xs text-indigo-200">Ders Bazlı Takip ve Kur'an-ı Kerim Ezber Sistemi</p>
                 </div>
             </div>
 
@@ -39,13 +39,56 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
+        <!-- Ders ve Sınıf Filtre Alanı -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                
+                <!-- Aktif Ders Seçimi -->
+                <div class="flex items-center gap-2">
+                    <label for="subjectSelect" class="text-sm font-bold text-slate-700 whitespace-nowrap">Ders:</label>
+                    <select id="subjectSelect" onchange="changeSubject()" class="bg-indigo-50 border border-indigo-200 text-indigo-900 text-sm font-semibold rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5">
+                        <!-- JS ile doldurulacak -->
+                    </select>
+                    <button onclick="openModal('addSubjectModal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-2 rounded-lg border border-slate-300 font-medium" title="Yeni Ders Ekle">
+                        <i class="fa-solid fa-plus"></i> Ders Ekle
+                    </button>
+                </div>
+
+                <!-- Sınıf Seçimi -->
+                <div class="flex items-center gap-2">
+                    <label for="classFilter" class="text-sm font-bold text-slate-700 whitespace-nowrap">Sınıf:</label>
+                    <select id="classFilter" onchange="renderStudents()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5">
+                        <option value="ALL">Tüm Sınıflar</option>
+                    </select>
+                </div>
+
+                <!-- Seçili Sınıfı Sil Butonu -->
+                <button id="deleteClassBtn" onclick="deleteCurrentClass()" class="hidden bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> Sınıfı Sil
+                </button>
+
+                <!-- Kur'an Dersi Özel: Sınıf Ezber Listesi Tanımlama Butonu -->
+                <button id="quranConfigBtn" onclick="openQuranConfigModal()" class="hidden bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-book-quran"></i> Sınıfa Ezber Tanımla
+                </button>
+            </div>
+
+            <!-- Arama Kutusu -->
+            <div class="relative w-full md:w-64">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input type="text" id="searchInput" oninput="renderStudents()" placeholder="Öğrenci veya No ara..." class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2.5">
+            </div>
+        </div>
+
         <!-- İstatistikler -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
                 <div class="p-3 bg-blue-100 text-blue-600 rounded-lg"><i class="fa-solid fa-users text-xl"></i></div>
                 <div>
                     <div class="text-2xl font-bold" id="statTotal">0</div>
-                    <div class="text-xs text-slate-500 font-medium">Toplam Öğrenci</div>
+                    <div class="text-xs text-slate-500 font-medium">Öğrenci Sayısı</div>
                 </div>
             </div>
             <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
@@ -78,65 +121,59 @@
             </div>
         </div>
 
-        <!-- Filtreleme ve Arama Çubuğu -->
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                <!-- Sınıf Seçimi -->
-                <div class="flex items-center gap-2">
-                    <label for="classFilter" class="text-sm font-medium text-slate-600 whitespace-nowrap">Sınıf:</label>
-                    <select id="classFilter" onchange="renderStudents()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5">
-                        <option value="ALL">Tüm Sınıflar</option>
-                    </select>
-                </div>
-
-                <!-- Seçili Sınıfı Sil Butonu -->
-                <button id="deleteClassBtn" onclick="deleteCurrentClass()" class="hidden bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-trash-can"></i> Sınıfı Sil
-                </button>
-            </div>
-
-            <!-- Arama Kutusı -->
-            <div class="relative w-full md:w-72">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </div>
-                <input type="text" id="searchInput" oninput="renderStudents()" placeholder="Öğrenci adı veya numara ara..." class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2.5">
-            </div>
-        </div>
-
-        <!-- Öğrenci Kartları Izgarası (Grid) -->
+        <!-- Öğrenci Kartları Izgarası -->
         <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <!-- Öğrenciler JS ile buraya yüklenecektir -->
+            <!-- JS ile kartlar buraya gelecek -->
         </div>
 
-        <!-- Boş Durum (Öğrenci Yoksa) -->
+        <!-- Boş Durum -->
         <div id="emptyState" class="hidden text-center py-12 bg-white rounded-xl border border-dashed border-slate-300">
             <i class="fa-solid fa-users-slash text-4xl text-slate-300 mb-3"></i>
             <h3 class="text-lg font-medium text-slate-700">Öğrenci Bulunamadı</h3>
-            <p class="text-slate-500 text-sm mt-1">Lütfen yukarıdaki butonlardan sınıf listenizi yükleyin veya yeni öğrenci ekleyin.</p>
+            <p class="text-slate-500 text-sm mt-1">Lütfen toplu liste yükleyin veya tek öğrenci ekleyin.</p>
         </div>
     </main>
 
-    <!-- Modal: Toplu Öğrenci Ekle (Excel / Format Uyumlu) -->
+    <!-- Modal: Yeni Ders Ekle -->
+    <div id="addSubjectModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl relative">
+            <button onclick="closeModal('addSubjectModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Yeni Ders Ekle</h2>
+            <input type="text" id="newSubjectInput" placeholder="Örn: Din Kültürü, Fen Bilgisi..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm mb-4">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('addSubjectModal')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">İptal</button>
+                <button onclick="addNewSubject()" class="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium">Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Sınıfa Ezber Tanımlama (Kur'an Dersi İçin) -->
+    <div id="quranConfigModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
+            <button onclick="closeModal('quranConfigModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-book-quran text-amber-600"></i> <span id="quranModalClassTitle">Sınıf</span> Ezber Listesi
+            </h2>
+            <p class="text-xs text-slate-500 mb-4">Bu sınıfın sorumlu olduğu sure/duaları virgülle ayırarak giriniz.</p>
+            <textarea id="quranSurahInput" rows="4" placeholder="Örn: Fatiha, Ayetel Kursi, Amenerrasulu, Ihlas, Felak, Nas" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono mb-4"></textarea>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('quranConfigModal')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">İptal</button>
+                <button onclick="saveClassQuranConfig()" class="px-4 py-2 text-sm bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Toplu Öğrenci Ekle -->
     <div id="importModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl relative max-h-[90vh] flex flex-col">
-            <button onclick="closeModal('importModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
+            <button onclick="closeModal('importModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
                 <i class="fa-solid fa-file-csv text-indigo-600"></i> Excel / e-Okul Listesi Yapıştır
             </h2>
-            <p class="text-xs text-slate-500 mb-4">
-                Excel veya e-Okul'dan kopyaladığınız sütunları doğrudan aşağıdaki kutuya yapıştırabilirsiniz. <br>
-                Sistem <b>S. | Okul No | Düzey | Şube | Adı Soyadı</b> formatını otomatik algılar.
-            </p>
-
-            <textarea id="importTextarea" rows="8" placeholder="Örnek Formatlar:&#10;1  10  5  c  ERTUĞRUL KADİR KIYAK&#10;2  91  5  c  MUSA EMİR KİRİŞ&#10;veya Tab ile ayrılmış Excel sütunları..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4 flex-grow resize-none"></textarea>
-
+            <p class="text-xs text-slate-500 mb-4">Sistem <b>S. | Okul No | Düzey | Şube | Adı Soyadı</b> formatını otomatik algılar.</p>
+            <textarea id="importTextarea" rows="8" placeholder="1  10  5  c  ERTUĞRUL KADİR KIYAK&#10;2  91  5  c  MUSA EMİR KİRİŞ" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs text-slate-800 mb-4 flex-grow resize-none"></textarea>
             <div class="flex items-center justify-between gap-3">
-                <button onclick="loadSampleData()" class="text-xs text-indigo-600 hover:underline font-medium">
-                    <i class="fa-solid fa-magic"></i> Örnek Liste Yükle (5/C)
-                </button>
+                <button onclick="loadSampleData()" class="text-xs text-indigo-600 hover:underline font-medium"><i class="fa-solid fa-magic"></i> Örnek Liste Yükle (5/C)</button>
                 <div class="flex gap-2">
                     <button onclick="closeModal('importModal')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">İptal</button>
                     <button onclick="processImportText()" class="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium shadow">Listeyi Ekle</button>
@@ -148,9 +185,7 @@
     <!-- Modal: Tek Öğrenci Ekle -->
     <div id="addSingleModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
-            <button onclick="closeModal('addSingleModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
+            <button onclick="closeModal('addSingleModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h2 class="text-lg font-bold text-slate-800 mb-4">Yeni Öğrenci Ekle</h2>
             <form id="addStudentForm" onsubmit="handleAddSingleStudent(event)" class="space-y-4">
                 <div>
@@ -175,33 +210,66 @@
         </div>
     </div>
 
-    <!-- JavaScript Mantığı -->
+    <!-- JS Mantığı -->
     <script>
-        // Uygulama Durumu (State)
         let students = [];
+        let subjects = ["Kur'an-ı Kerim", "Matematik", "Türkçe", "Din Kültürü"];
+        let currentSubject = "Kur'an-ı Kerim";
+        let classQuranConfigs = {};
 
-        // Başlangıçta Saklanan Verileri Yükle
         document.addEventListener('DOMContentLoaded', () => {
-            const savedData = localStorage.getItem('app_students_data');
-            if (savedData) {
-                try {
-                    students = JSON.parse(savedData);
-                } catch (e) {
-                    students = [];
-                }
-            }
+            const savedData = localStorage.getItem('app_students_v2');
+            const savedSubjects = localStorage.getItem('app_subjects');
+            const savedQuranConfigs = localStorage.getItem('app_quran_configs');
+
+            if (savedData) students = JSON.parse(savedData);
+            if (savedSubjects) subjects = JSON.parse(savedSubjects);
+            if (savedQuranConfigs) classQuranConfigs = JSON.parse(savedQuranConfigs);
+
+            renderSubjectOptions();
             updateClassOptions();
             renderStudents();
         });
 
-        // Verileri Sakla (localStorage)
         function saveData() {
-            localStorage.setItem('app_students_data', JSON.stringify(students));
+            localStorage.setItem('app_students_v2', JSON.stringify(students));
+            localStorage.setItem('app_subjects', JSON.stringify(subjects));
+            localStorage.setItem('app_quran_configs', JSON.stringify(classQuranConfigs));
             updateClassOptions();
             renderStudents();
         }
 
-        // Sınıf Filtresi Seçeneklerini Güncelle
+        function renderSubjectOptions() {
+            const select = document.getElementById('subjectSelect');
+            select.innerHTML = '';
+            subjects.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub;
+                opt.textContent = sub;
+                if(sub === currentSubject) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function changeSubject() {
+            currentSubject = document.getElementById('subjectSelect').value;
+            updateClassOptions();
+            renderStudents();
+        }
+
+        function addNewSubject() {
+            const input = document.getElementById('newSubjectInput');
+            const val = input.value.trim();
+            if (val && !subjects.includes(val)) {
+                subjects.push(val);
+                currentSubject = val;
+                saveData();
+                renderSubjectOptions();
+                closeModal('addSubjectModal');
+                input.value = '';
+            }
+        }
+
         function updateClassOptions() {
             const select = document.getElementById('classFilter');
             const currentValue = select.value;
@@ -221,23 +289,28 @@
                 select.value = 'ALL';
             }
 
-            // Sınıfı Sil Butonu Görünürlüğü
             const deleteBtn = document.getElementById('deleteClassBtn');
+            const quranBtn = document.getElementById('quranConfigBtn');
+
             if (select.value !== 'ALL') {
                 deleteBtn.classList.remove('hidden');
+                if (currentSubject === "Kur'an-ı Kerim") {
+                    quranBtn.classList.remove('hidden');
+                } else {
+                    quranBtn.classList.add('hidden');
+                }
             } else {
                 deleteBtn.classList.add('hidden');
+                quranBtn.classList.add('hidden');
             }
         }
 
-        // Öğrencileri Ekrana Bas ve İstatistikleri Hesapla
         function renderStudents() {
             const grid = document.getElementById('studentGrid');
             const emptyState = document.getElementById('emptyState');
             const classFilter = document.getElementById('classFilter').value;
             const searchInput = document.getElementById('searchInput').value.toLowerCase().trim();
 
-            // Filtreleme
             const filtered = students.filter(s => {
                 const matchClass = (classFilter === 'ALL' || s.classGroup === classFilter);
                 const matchSearch = (s.name.toLowerCase().includes(searchInput) || String(s.number).includes(searchInput));
@@ -255,7 +328,6 @@
                 });
             }
 
-            // İstatistik Güncelleme (Filtrelenmiş veya Tüm Veriye Göre)
             const targetSet = classFilter === 'ALL' ? students : students.filter(s => s.classGroup === classFilter);
             document.getElementById('statTotal').textContent = targetSet.length;
             document.getElementById('statPresent').textContent = targetSet.filter(s => s.isPresent).length;
@@ -270,14 +342,50 @@
             document.getElementById('statAvgScore').textContent = avgScore;
         }
 
-        // Tek Bir Öğrenci Kartı Oluşturma HTML
         function createStudentCard(student) {
             const card = document.createElement('div');
             card.className = `bg-white rounded-xl shadow-sm border transition-all duration-200 overflow-hidden flex flex-col justify-between ${student.isPresent ? 'border-slate-200 hover:shadow-md' : 'border-rose-300 bg-rose-50/40'}`;
 
+            let quranSection = '';
+            if (currentSubject === "Kur'an-ı Kerim") {
+                const classSurahs = classQuranConfigs[student.classGroup] || ["Fatiha", "Ayetel Kursi", "Ihlas", "Felak", "Nas"];
+                const studentQuranData = student.quranData || {};
+
+                let surahBadges = classSurahs.map(surah => {
+                    const status = studentQuranData[surah] || 'none';
+                    let bgClass = 'bg-slate-100 text-slate-600 border-slate-200';
+                    let icon = 'fa-circle';
+
+                    if (status === 'done') {
+                        bgClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
+                        icon = 'fa-circle-check';
+                    } else if (status === 'working') {
+                        bgClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                        icon = 'fa-spinner';
+                    }
+
+                    return `
+                        <button onclick="cycleSurahStatus('${student.id}', '${surah}')" class="px-2 py-1 rounded text-[11px] border flex items-center gap-1 transition ${bgClass}">
+                            <i class="fa-solid ${icon} text-[9px]"></i> ${surah}
+                        </button>
+                    `;
+                }).join('');
+
+                quranSection = `
+                    <div class="mt-3 pt-3 border-t border-slate-100">
+                        <div class="text-[11px] font-bold text-amber-800 mb-1.5 flex items-center justify-between">
+                            <span><i class="fa-solid fa-book-quran"></i> Ezber & Okuma Takibi</span>
+                            <span class="text-[9px] font-normal text-slate-400">(Tıklayarak Değiştir)</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            ${surahBadges}
+                        </div>
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
                 <div class="p-4">
-                    <!-- Üst Bilgi Satırı -->
                     <div class="flex items-start justify-between gap-2 mb-2">
                         <div>
                             <span class="inline-block px-2 py-0.5 text-xs font-semibold bg-indigo-50 text-indigo-700 rounded-md mb-1">${student.classGroup}</span>
@@ -289,78 +397,97 @@
                         </button>
                     </div>
 
-                    <!-- Katılım Puanı & Butonları -->
-                    <div class="bg-slate-50 rounded-lg p-2.5 my-3 flex items-center justify-between border border-slate-100">
+                    <div class="bg-slate-50 rounded-lg p-2 my-2 flex items-center justify-between border border-slate-100">
                         <span class="text-xs font-medium text-slate-600">Katılım Puanı:</span>
                         <div class="flex items-center gap-2">
-                            <button onclick="adjustScore('${student.id}', -1)" class="w-7 h-7 bg-white hover:bg-rose-100 text-rose-600 border border-slate-200 rounded-lg flex items-center justify-center font-bold shadow-sm transition">-</button>
-                            <span class="font-bold text-sm min-w-[20px] text-center ${student.score > 0 ? 'text-emerald-600' : student.score < 0 ? 'text-rose-600' : 'text-slate-700'}">${student.score || 0}</span>
-                            <button onclick="adjustScore('${student.id}', 1)" class="w-7 h-7 bg-white hover:bg-emerald-100 text-emerald-600 border border-slate-200 rounded-lg flex items-center justify-center font-bold shadow-sm transition">+</button>
+                            <button onclick="adjustScore('${student.id}', -1)" class="w-6 h-6 bg-white hover:bg-rose-100 text-rose-600 border border-slate-200 rounded flex items-center justify-center font-bold text-xs">-</button>
+                            <span class="font-bold text-xs min-w-[16px] text-center ${student.score > 0 ? 'text-emerald-600' : student.score < 0 ? 'text-rose-600' : 'text-slate-700'}">${student.score || 0}</span>
+                            <button onclick="adjustScore('${student.id}', 1)" class="w-6 h-6 bg-white hover:bg-emerald-100 text-emerald-600 border border-slate-200 rounded flex items-center justify-center font-bold text-xs">+</button>
                         </div>
                     </div>
 
-                    <!-- Yoklama & Ödev Durum Düğmeleri -->
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <button onclick="toggleAttendance('${student.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${student.isPresent ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}">
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <button onclick="toggleAttendance('${student.id}')" class="px-2 py-1 rounded text-xs font-semibold flex items-center justify-center gap-1 transition ${student.isPresent ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}">
                             <i class="fa-solid ${student.isPresent ? 'fa-user-check' : 'fa-user-xmark'}"></i>
                             ${student.isPresent ? 'Derste' : 'Yok'}
                         </button>
-                        <button onclick="toggleHomework('${student.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${student.homeworkDone ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                        <button onclick="toggleHomework('${student.id}')" class="px-2 py-1 rounded text-xs font-semibold flex items-center justify-center gap-1 transition ${student.homeworkDone ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
                             <i class="fa-solid ${student.homeworkDone ? 'fa-check' : 'fa-xmark'}"></i>
                             Ödev: ${student.homeworkDone ? 'Tam' : 'Eksik'}
                         </button>
                     </div>
 
-                    <!-- Öğretmen Not Alanı -->
-                    <div>
-                        <input type="text" value="${student.note || ''}" onchange="updateNote('${student.id}', this.value)" placeholder="Özel not ekle..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                    ${quranSection}
+
+                    <div class="mt-2">
+                        <input type="text" value="${student.note || ''}" onchange="updateNote('${student.id}', this.value)" placeholder="Ders notu ekle..." class="w-full text-xs p-1.5 bg-slate-50 border border-slate-200 rounded focus:bg-white focus:outline-none">
                     </div>
                 </div>
             `;
             return card;
         }
 
-        // Öğrenci İşlem Fonksiyonları
-        function adjustScore(id, delta) {
-            const student = students.find(s => s.id === id);
+        function cycleSurahStatus(studentId, surah) {
+            const student = students.find(s => s.id === studentId);
             if (student) {
-                student.score = (student.score || 0) + delta;
+                if (!student.quranData) student.quranData = {};
+                const current = student.quranData[surah] || 'none';
+                if (current === 'none') student.quranData[surah] = 'working';
+                else if (current === 'working') student.quranData[surah] = 'done';
+                else student.quranData[surah] = 'none';
                 saveData();
             }
+        }
+
+        function openQuranConfigModal() {
+            const currentClass = document.getElementById('classFilter').value;
+            if (currentClass === 'ALL') return;
+
+            document.getElementById('quranModalClassTitle').textContent = currentClass;
+            const existing = classQuranConfigs[currentClass] || ["Fatiha", "Ayetel Kursi", "Ihlas", "Felak", "Nas"];
+            document.getElementById('quranSurahInput').value = existing.join(', ');
+            openModal('quranConfigModal');
+        }
+
+        function saveClassQuranConfig() {
+            const currentClass = document.getElementById('classFilter').value;
+            const text = document.getElementById('quranSurahInput').value;
+            const surahs = text.split(',').map(s => s.trim()).filter(Boolean);
+
+            if (surahs.length > 0) {
+                classQuranConfigs[currentClass] = surahs;
+                saveData();
+                closeModal('quranConfigModal');
+            }
+        }
+
+        function adjustScore(id, delta) {
+            const student = students.find(s => s.id === id);
+            if (student) { student.score = (student.score || 0) + delta; saveData(); }
         }
 
         function toggleAttendance(id) {
             const student = students.find(s => s.id === id);
-            if (student) {
-                student.isPresent = !student.isPresent;
-                saveData();
-            }
+            if (student) { student.isPresent = !student.isPresent; saveData(); }
         }
 
         function toggleHomework(id) {
             const student = students.find(s => s.id === id);
-            if (student) {
-                student.homeworkDone = !student.homeworkDone;
-                saveData();
-            }
+            if (student) { student.homeworkDone = !student.homeworkDone; saveData(); }
         }
 
         function updateNote(id, note) {
             const student = students.find(s => s.id === id);
-            if (student) {
-                student.note = note;
-                saveData();
-            }
+            if (student) { student.note = note; saveData(); }
         }
 
         function deleteStudent(id) {
-            if (confirm('Bu öğrenciyi silmek istediğinize emin misiniz?')) {
+            if (confirm('Öğrenciyi silmek istediğinize emin misiniz?')) {
                 students = students.filter(s => s.id !== id);
                 saveData();
             }
         }
 
-        // Seçili Sınıfı Silme İşlemi
         function deleteCurrentClass() {
             const currentClass = document.getElementById('classFilter').value;
             if (currentClass === 'ALL') return;
@@ -372,7 +499,6 @@
             }
         }
 
-        // Tek Öğrenci Ekleme Formu
         function handleAddSingleStudent(e) {
             e.preventDefault();
             const name = document.getElementById('addName').value.trim();
@@ -388,7 +514,8 @@
                     isPresent: true,
                     homeworkDone: true,
                     score: 0,
-                    note: ''
+                    note: '',
+                    quranData: {}
                 });
                 saveData();
                 closeModal('addSingleModal');
@@ -396,7 +523,6 @@
             }
         }
 
-        // Görseldeki Format (S., Okul No, Düzey, Şube, Adı Soyadı) ve Genel Format Ayrıştırıcı
         function processImportText() {
             const text = document.getElementById('importTextarea').value.trim();
             if (!text) return;
@@ -408,30 +534,24 @@
                 const trimmed = line.trim();
                 if (!trimmed) return;
 
-                // Tab, Virgül veya Birden fazla Boşluğa göre böl
                 const parts = trimmed.split(/[\t,;]+| {2,}/).map(p => p.trim()).filter(Boolean);
-
                 let number = '';
                 let classGroup = '5/C';
                 let name = '';
 
-                // Görseldeki Formata Uyum: [SıraNo, ÖğrenciNo, SınıfDüzeyi, Şube, AdSoyad] (Örn: 1  10  5  c  ERTUĞRUL KADİR KIYAK)
-                if (parts.length >= 5 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                if (parts.length >= 5 && !isNaN(parts[0].replace('.', '')) && !isNaN(parts[1])) {
                     number = parts[1];
                     classGroup = `${parts[2]}/${parts[3].toUpperCase()}`;
                     name = parts.slice(4).join(' ');
-                } 
-                // Alternatif Parçalama (Tek Boşluklu Satırlar)
-                else {
+                } else {
                     const spaceParts = trimmed.split(/\s+/);
-                    if (spaceParts.length >= 5 && !isNaN(spaceParts[0]) && !isNaN(spaceParts[1])) {
+                    if (spaceParts.length >= 4 && !isNaN(spaceParts[0]) && !isNaN(spaceParts[1])) {
                         number = spaceParts[1];
                         classGroup = `${spaceParts[2]}/${spaceParts[3].toUpperCase()}`;
                         name = spaceParts.slice(4).join(' ');
-                    } else if (spaceParts.length >= 3 && !isNaN(spaceParts[0])) {
+                    } else if (!isNaN(spaceParts[0])) {
                         number = spaceParts[0];
-                        classGroup = spaceParts[1];
-                        name = spaceParts.slice(2).join(' ');
+                        name = spaceParts.slice(1).join(' ');
                     } else {
                         name = trimmed;
                         number = Math.floor(100 + Math.random() * 900).toString();
@@ -447,7 +567,8 @@
                         isPresent: true,
                         homeworkDone: true,
                         score: 0,
-                        note: ''
+                        note: '',
+                        quranData: {}
                     });
                     addedCount++;
                 }
@@ -457,39 +578,28 @@
                 saveData();
                 closeModal('importModal');
                 document.getElementById('importTextarea').value = '';
-                alert(`${addedCount} öğrenci başarıyla eklendi!`);
+                alert(`${addedCount} öğrenci e-Okul listesinden başarıyla aktarıldı!`);
             } else {
-                alert('Geçerli bir öğrenci verisi okunamadı.');
+                alert('Geçerli bir e-Okul liste verisi okunamadı.');
             }
         }
 
-        // Örnek Görsel Listesini Doldurma
         function loadSampleData() {
-            const sample = `1\t10\t5\tc\tERTUĞRUL KADİR KIYAK
-2\t91\t5\tc\tMUSA EMİR KİRİŞ
-3\t92\t5\tc\tMEHMET EMİN YILDIZ
-4\t93\t5\tc\tMUHAMMET ÖZDEMİR
-5\t94\t5\tc\tİSMAİL DEMİR
-6\t95\t5\tc\tMUHAMMED ALİ DEMİR
-7\t96\t5\tc\tMUHAMMED SAİD TAT
-8\t97\t5\tc\tHASAN HÜSEYİN YILMAZ
-9\t98\t5\tc\tMUAZ AVAN
-10\t99\t5\tc\tARDA GÖLEÇ`;
-            document.getElementById('importTextarea').value = sample;
+            document.getElementById('importTextarea').value = `1\t10\t5\tc\tERTUĞRUL KADİR KIYAK\n2\t91\t5\tc\tMUSA EMİR KİRİŞ\n3\t92\t5\tc\tMEHMET EMİN YILDIZ`;
         }
 
-        // JSON Dışa Aktarma
         function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(students, null, 2));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+                students, subjects, classQuranConfigs
+            }, null, 2));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `sinif_takip_yedek_${new Date().toISOString().slice(0,10)}.json`);
+            downloadAnchor.setAttribute("download", `sinif_ezber_takip_${new Date().toISOString().slice(0,10)}.json`);
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             downloadAnchor.remove();
         }
 
-        // Modal Yönetimi
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
             document.getElementById(id).classList.add('flex');
