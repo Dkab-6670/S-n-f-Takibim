@@ -71,14 +71,14 @@
                         <label class="block text-xs text-slate-500 font-semibold mb-1">Tarih Seçimi</label>
                         <input type="date" id="selectedDate" onchange="renderTakipTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     </div>
-                    <!-- Sınıf Filtresi -->
+                    <!-- Eklenen Sınıf Filtresi -->
                     <div>
                         <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
-                        <select id="filterSinif" onchange="renderTakipTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <select id="filterSinif" onchange="onSinifFilterChange()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                             <option value="ALL">Tüm Sınıflar</option>
                         </select>
                     </div>
-                    <!-- Şube Filtresi -->
+                    <!-- Şube Filtresi (Sınıfa Bağlı Dinamik) -->
                     <div>
                         <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
                         <select id="filterSube" onchange="renderTakipTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
@@ -303,28 +303,55 @@
         // Dynamic Filter Options Generator
         function renderFilterOptions() {
             const sinifSelect = document.getElementById('filterSinif');
-            const subeSelect = document.getElementById('filterSube');
 
             const currentSelectedSinif = sinifSelect.value;
-            const currentSelectedSube = subeSelect.value;
 
-            // Benzersiz Sınıfları ve Şubeleri Topla
+            // Eklenmiş olan benzersiz sınıfları çek
             const siniflar = [...new Set(students.map(s => String(s.sinif).trim()))].filter(Boolean).sort();
-            const subeler = [...new Set(students.map(s => String(s.sube).trim().toLowerCase()))].filter(Boolean).sort();
 
-            // Sınıf Dropdown
+            // Sınıf Dropdown Doldur
             sinifSelect.innerHTML = '<option value="ALL">Tüm Sınıflar</option>';
             siniflar.forEach(s => {
                 sinifSelect.innerHTML += `<option value="${s}">${s}. Sınıf</option>`;
             });
-            if (siniflar.includes(currentSelectedSinif)) sinifSelect.value = currentSelectedSinif;
+            if (siniflar.includes(currentSelectedSinif)) {
+                sinifSelect.value = currentSelectedSinif;
+            } else {
+                sinifSelect.value = 'ALL';
+            }
 
-            // Şube Dropdown
+            renderSubeOptions();
+        }
+
+        function onSinifFilterChange() {
+            renderSubeOptions();
+            renderTakipTable();
+        }
+
+        function renderSubeOptions() {
+            const sinifSelect = document.getElementById('filterSinif');
+            const subeSelect = document.getElementById('filterSube');
+            const selectedSinif = sinifSelect.value;
+            const currentSelectedSube = subeSelect.value;
+
+            // Seçili sınıfa göre mevcut şubeleri dinamik filtrele (Örn: 7 seçiliyse 7/D, 7/E gelir; 8 seçildiyse 8/B gelir)
+            let filteredForSube = students;
+            if (selectedSinif !== 'ALL') {
+                filteredForSube = students.filter(s => String(s.sinif).trim() === selectedSinif);
+            }
+
+            const subeler = [...new Set(filteredForSube.map(s => String(s.sube).trim().toLowerCase()))].filter(Boolean).sort();
+
             subeSelect.innerHTML = '<option value="ALL">Tüm Şubeler</option>';
             subeler.forEach(s => {
                 subeSelect.innerHTML += `<option value="${s}">${s.toUpperCase()} Şubesi</option>`;
             });
-            if (subeler.includes(currentSelectedSube)) subeSelect.value = currentSelectedSube;
+
+            if (subeler.includes(currentSelectedSube)) {
+                subeSelect.value = currentSelectedSube;
+            } else {
+                subeSelect.value = 'ALL';
+            }
         }
 
         // TAB 1: Render Takip Table
@@ -335,7 +362,7 @@
             const tbody = document.getElementById('takipTableBody');
             tbody.innerHTML = '';
 
-            // Çift Filtreleme Mantığı (Hem Sınıf Hem Şube)
+            // Eklenen Sınıf ve Şube filtrelerini tam çakışmayla kontrol et
             const filteredStudents = students.filter(s => {
                 const matchesSinif = (sinifFilter === 'ALL' || String(s.sinif).trim() === sinifFilter);
                 const matchesSube = (subeFilter === 'ALL' || String(s.sube).trim().toLowerCase() === subeFilter);
