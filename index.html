@@ -1,421 +1,247 @@
 <!DOCTYPE html>
-<html lang="tr" class="h-full bg-slate-50">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sınıf İçi Öğrenci Takip Sistemi</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome Icon Set -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Özel Kaydırma Çubuğu */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-    </style>
 </head>
-<body class="h-full font-sans text-slate-800 antialiased flex flex-col min-h-screen">
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col font-sans">
 
-    <!-- Üst Başlık ve İşlem Barı -->
-    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-indigo-500/80 rounded-lg shadow-inner">
-                        <i class="fa-solid fa-graduation-cap text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-tight">Sınıf Öğrenci Takip Sistemi</h1>
-                        <p class="text-xs text-indigo-200">Derse katılım, ödev, devamsızlık ve toplu veri yönetimi</p>
-                    </div>
+    <!-- Üst Başlık & Kontrol Paneli -->
+    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-graduation-cap text-3xl text-indigo-200"></i>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">Sınıf Takip Sistemi</h1>
+                    <p class="text-xs text-indigo-200">Öğrenci Katılım, Ödev ve Yoklama Yönetimi</p>
                 </div>
             </div>
-            
-            <!-- Üst Butonlar -->
-            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-                <button onclick="openModal('bulkAddModal')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 shadow flex items-center gap-2">
-                    <i class="fa-solid fa-file-import"></i>
-                    Toplu Liste Ekle
+
+            <!-- Eylem Butonları -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="openModal('importModal')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-file-import"></i> Toplu Öğrenci Ekle
                 </button>
-                <button onclick="openModal('addStudentModal')" class="bg-indigo-500 hover:bg-indigo-400 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 shadow flex items-center gap-1.5">
-                    <i class="fa-solid fa-user-plus"></i>
-                    Tekli Ekle
+                <button onclick="exportData()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-file-export"></i> Verileri İndir (JSON)
                 </button>
-                <div class="relative group">
-                    <button class="bg-indigo-700 hover:bg-indigo-800 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-download"></i>
-                        <span>Dışa Aktar</span>
-                        <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                    </button>
-                    <!-- Dropdown Menu -->
-                    <div class="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-100 hidden group-hover:block z-50 text-slate-700">
-                        <a href="#" onclick="exportData('json')" class="block px-4 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-600"><i class="fa-solid fa-code mr-2"></i>JSON Yedeği İndir</a>
-                        <a href="#" onclick="exportData('csv')" class="block px-4 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-600"><i class="fa-solid fa-file-csv mr-2"></i>Excel / CSV İndir</a>
-                    </div>
-                </div>
-                <button onclick="loadDemoData()" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center gap-1" title="Örnek verileri yükle">
-                    <i class="fa-solid fa-database"></i>
-                    <span class="hidden sm:inline">Demo</span>
+                <button onclick="openModal('addSingleModal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-2 shadow">
+                    <i class="fa-solid fa-user-plus"></i> Tek Ekle
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
-        <!-- İstatistik Dashboard -->
-        <section class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
-            <!-- Toplam Öğrenci -->
-            <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-                <div class="p-3 bg-blue-100 text-blue-600 rounded-lg shrink-0">
-                    <i class="fa-solid fa-users text-lg sm:text-xl"></i>
-                </div>
+        <!-- İstatistikler -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+                <div class="p-3 bg-blue-100 text-blue-600 rounded-lg"><i class="fa-solid fa-users text-xl"></i></div>
                 <div>
-                    <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Mevcut</p>
-                    <h3 id="statTotalStudents" class="text-xl sm:text-2xl font-bold text-slate-800">0</h3>
+                    <div class="text-2xl font-bold" id="statTotal">0</div>
+                    <div class="text-xs text-slate-500 font-medium">Toplam Öğrenci</div>
                 </div>
             </div>
-
-            <!-- Dersttekiler -->
-            <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-                <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg shrink-0">
-                    <i class="fa-solid fa-user-check text-lg sm:text-xl"></i>
-                </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+                <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg"><i class="fa-solid fa-user-check text-xl"></i></div>
                 <div>
-                    <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Dersttekiler</p>
-                    <h3 id="statPresentCount" class="text-xl sm:text-2xl font-bold text-slate-800">0</h3>
+                    <div class="text-2xl font-bold text-emerald-600" id="statPresent">0</div>
+                    <div class="text-xs text-slate-500 font-medium">Derstekiler</div>
                 </div>
             </div>
-
-            <!-- Devamsız Sayısı -->
-            <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-                <div class="p-3 bg-rose-100 text-rose-600 rounded-lg shrink-0">
-                    <i class="fa-solid fa-user-xmark text-lg sm:text-xl"></i>
-                </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+                <div class="p-3 bg-rose-100 text-rose-600 rounded-lg"><i class="fa-solid fa-user-xmark text-xl"></i></div>
                 <div>
-                    <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Devamsız</p>
-                    <h3 id="statAbsentCount" class="text-xl sm:text-2xl font-bold text-slate-800">0</h3>
+                    <div class="text-2xl font-bold text-rose-600" id="statAbsent">0</div>
+                    <div class="text-xs text-slate-500 font-medium">Yoklar</div>
                 </div>
             </div>
-
-            <!-- Ort. Katılım Puanı -->
-            <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3">
-                <div class="p-3 bg-amber-100 text-amber-600 rounded-lg shrink-0">
-                    <i class="fa-solid fa-star text-lg sm:text-xl"></i>
-                </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+                <div class="p-3 bg-amber-100 text-amber-600 rounded-lg"><i class="fa-solid fa-book-open text-xl"></i></div>
                 <div>
-                    <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Ort. Puan</p>
-                    <h3 id="statAvgScore" class="text-xl sm:text-2xl font-bold text-slate-800">0</h3>
+                    <div class="text-2xl font-bold" id="statHwRate">%0</div>
+                    <div class="text-xs text-slate-500 font-medium">Ödev Tamamlama</div>
                 </div>
             </div>
-
-            <!-- Ödev Tamamlama Oranı -->
-            <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-3 col-span-2 md:col-span-1">
-                <div class="p-3 bg-purple-100 text-purple-600 rounded-lg shrink-0">
-                    <i class="fa-solid fa-book-bookmark text-lg sm:text-xl"></i>
-                </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3 col-span-2 sm:col-span-1">
+                <div class="p-3 bg-purple-100 text-purple-600 rounded-lg"><i class="fa-solid fa-star text-xl"></i></div>
                 <div>
-                    <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Ödev Oranı</p>
-                    <h3 id="statHomeworkRate" class="text-xl sm:text-2xl font-bold text-slate-800">%0</h3>
+                    <div class="text-2xl font-bold" id="statAvgScore">0</div>
+                    <div class="text-xs text-slate-500 font-medium">Ortalama Katılım</div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Sınıf Sekmeleri, Arama ve Filtreleme -->
-        <section class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
-            <!-- Sınıf Sekmeleri (Tabs) -->
-            <div id="classTabs" class="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
-                <button onclick="selectClassTab('ALL')" id="tab-ALL" class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap bg-indigo-600 text-white">
-                    Tüm Sınıflar
-                </button>
-                <!-- Sınıf butonları JS ile dinamik doldurulur -->
-            </div>
-
-            <!-- Arama ve Sıralama -->
-            <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
-                <div class="relative w-full md:w-80">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </div>
-                    <input type="text" id="searchInput" oninput="renderStudents()" placeholder="Ad, Soyad veya Okul No ile ara..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+        <!-- Filtreleme ve Arama Çubuğu -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <!-- Sınıf Seçimi -->
+                <div class="flex items-center gap-2">
+                    <label for="classFilter" class="text-sm font-medium text-slate-600 whitespace-nowrap">Sınıf:</label>
+                    <select id="classFilter" onchange="renderStudents()" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 p-2.5">
+                        <option value="ALL">Tüm Sınıflar</option>
+                    </select>
                 </div>
 
-                <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                    <div class="flex items-center gap-2">
-                        <label for="sortBy" class="text-xs font-semibold text-slate-500 whitespace-nowrap">Sırala:</label>
-                        <select id="sortBy" onchange="renderStudents()" class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="number">Okul No (Küçükten Büyüğe)</option>
-                            <option value="name">Ad Soyad (A-Z)</option>
-                            <option value="score">Katılım Puanı (Yüksek)</option>
-                        </select>
-                    </div>
-
-                    <button onclick="clearData()" class="text-xs text-rose-600 hover:text-rose-800 font-medium px-2 py-1.5 underline transition" title="Tüm sınıfları sıfırlar">
-                        Sıfırla
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Öğrenci Kart Listesi Grid -->
-        <section id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <!-- Kartlar JavaScript ile doldurulur -->
-        </section>
-
-        <!-- Boş Durum (Empty State) -->
-        <div id="emptyState" class="hidden text-center py-16 bg-white rounded-xl border border-dashed border-slate-300">
-            <i class="fa-regular fa-folder-open text-5xl text-slate-300 mb-3"></i>
-            <h3 class="text-lg font-semibold text-slate-700">Kayıtlı Öğrenci Bulunamadı</h3>
-            <p class="text-sm text-slate-500 max-w-sm mx-auto mt-1 mb-4">Sınıf listenizi toplu olarak yapıştırabilir veya tek tek öğrenci ekleyebilirsiniz.</p>
-            <div class="flex justify-center gap-3">
-                <button onclick="openModal('bulkAddModal')" class="bg-emerald-600 text-white text-xs px-4 py-2.5 rounded-lg font-semibold hover:bg-emerald-700 transition shadow">
-                    <i class="fa-solid fa-file-import mr-1.5"></i> Toplu Liste Yükle
+                <!-- Seçili Sınıfı Sil Butonu -->
+                <button id="deleteClassBtn" onclick="deleteCurrentClass()" class="hidden bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-sm font-medium px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> Sınıfı Sil
                 </button>
             </div>
+
+            <!-- Arama Kutusı -->
+            <div class="relative w-full md:w-72">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input type="text" id="searchInput" oninput="renderStudents()" placeholder="Öğrenci adı veya numara ara..." class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2.5">
+            </div>
+        </div>
+
+        <!-- Öğrenci Kartları Izgarası (Grid) -->
+        <div id="studentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <!-- Öğrenciler JS ile buraya yüklenecektir -->
+        </div>
+
+        <!-- Boş Durum (Öğrenci Yoksa) -->
+        <div id="emptyState" class="hidden text-center py-12 bg-white rounded-xl border border-dashed border-slate-300">
+            <i class="fa-solid fa-users-slash text-4xl text-slate-300 mb-3"></i>
+            <h3 class="text-lg font-medium text-slate-700">Öğrenci Bulunamadı</h3>
+            <p class="text-slate-500 text-sm mt-1">Lütfen yukarıdaki butonlardan sınıf listenizi yükleyin veya yeni öğrenci ekleyin.</p>
         </div>
     </main>
 
-    <!-- MODAL 1: Toplu Öğrenci Listesi Ekleme (Excel / CSV / Metin) -->
-    <div id="bulkAddModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all">
-            <div class="bg-emerald-600 px-6 py-4 text-white flex justify-between items-center">
-                <h3 class="font-bold text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-file-csv"></i> Toplu Öğrenci Listesi Ekle
-                </h3>
-                <button onclick="closeModal('bulkAddModal')" class="text-emerald-100 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            
-            <div class="p-6 space-y-4">
-                <!-- Şablon veya Hedef Sınıf Bilgisi -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Varsayılan Sınıf / Şube</label>
-                        <input type="text" id="bulkDefaultClass" placeholder="Örn: 10-A" value="10-A" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <span class="text-[10px] text-slate-400">Listedeki satırda sınıf yoksa bu sınıf atanır.</span>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Veya CSV / Excel Dosyası Yükle</label>
-                        <input type="file" id="csvFileInput" accept=".csv, .txt" onchange="handleFileUpload(event)" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
-                    </div>
-                </div>
+    <!-- Modal: Toplu Öğrenci Ekle (Excel / Format Uyumlu) -->
+    <div id="importModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl relative max-h-[90vh] flex flex-col">
+            <button onclick="closeModal('importModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 class="text-xl font-bold text-slate-800 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-file-csv text-indigo-600"></i> Excel / e-Okul Listesi Yapıştır
+            </h2>
+            <p class="text-xs text-slate-500 mb-4">
+                Excel veya e-Okul'dan kopyaladığınız sütunları doğrudan aşağıdaki kutuya yapıştırabilirsiniz. <br>
+                Sistem <b>S. | Okul No | Düzey | Şube | Adı Soyadı</b> formatını otomatik algılar.
+            </p>
 
-                <!-- Metin Alanı (Kopyala Yapıştır) -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">
-                        Öğrenci Listesini Yapıştırın
-                    </label>
-                    <textarea id="bulkTextInput" rows="8" placeholder="Format Seçenekleri:&#10;1) Ali Yılmaz, 101, 10-A&#10;2) Ayşe Demir, 102&#10;3) Ahmet Kaya (Her satıra bir ad soyad)" class="w-full border border-slate-300 rounded-lg p-3 text-sm font-mono focus:ring-2 focus:ring-emerald-500 outline-none leading-relaxed"></textarea>
-                </div>
+            <textarea id="importTextarea" rows="8" placeholder="Örnek Formatlar:&#10;1  10  5  c  ERTUĞRUL KADİR KIYAK&#10;2  91  5  c  MUSA EMİR KİRİŞ&#10;veya Tab ile ayrılmış Excel sütunları..." class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4 flex-grow resize-none"></textarea>
 
-                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-1">
-                    <p class="font-semibold text-slate-700"><i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i> Format Açıklaması:</p>
-                    <p>Her satıra bir öğrenci gelecek şekilde yapıştırabilirsiniz. Virgül (,) veya Tab (Excel'den yapıştırınca) ayrımını otomatik algılar.</p>
-                </div>
-
-                <div class="flex justify-between items-center pt-2">
-                    <button type="button" onclick="loadSampleBulkText()" class="text-xs text-indigo-600 hover:underline font-medium">
-                        Örnek Metin Doldur
-                    </button>
-                    <div class="flex gap-2">
-                        <button type="button" onclick="closeModal('bulkAddModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50">İptal</button>
-                        <button type="button" onclick="processBulkAdd()" class="px-5 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 shadow">Listeyi Aktar</button>
-                    </div>
+            <div class="flex items-center justify-between gap-3">
+                <button onclick="loadSampleData()" class="text-xs text-indigo-600 hover:underline font-medium">
+                    <i class="fa-solid fa-magic"></i> Örnek Liste Yükle (5/C)
+                </button>
+                <div class="flex gap-2">
+                    <button onclick="closeModal('importModal')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">İptal</button>
+                    <button onclick="processImportText()" class="px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium shadow">Listeyi Ekle</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 2: Tekli Öğrenci Ekleme -->
-    <div id="addStudentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div class="bg-indigo-600 px-6 py-4 text-white flex justify-between items-center">
-                <h3 class="font-bold text-lg"><i class="fa-solid fa-user-plus mr-2"></i>Yeni Öğrenci Ekle</h3>
-                <button onclick="closeModal('addStudentModal')" class="text-indigo-200 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <form id="addStudentForm" onsubmit="handleAddStudent(event)" class="p-6 space-y-4">
+    <!-- Modal: Tek Öğrenci Ekle -->
+    <div id="addSingleModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl relative">
+            <button onclick="closeModal('addSingleModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h2 class="text-lg font-bold text-slate-800 mb-4">Yeni Öğrenci Ekle</h2>
+            <form id="addStudentForm" onsubmit="handleAddSingleStudent(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ad Soyad *</label>
-                    <input type="text" id="inputName" required placeholder="Örn: Ahmet Yılmaz" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Adı Soyadı</label>
+                    <input type="text" id="addName" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm" placeholder="Ahmet Yılmaz">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Okul No *</label>
-                        <input type="number" id="inputNumber" required placeholder="Örn: 105" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Okul No</label>
+                        <input type="text" id="addNumber" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm" placeholder="105">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Sınıf/Şube *</label>
-                        <input type="text" id="inputClass" required placeholder="Örn: 10-A" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Sınıf / Şube</label>
+                        <input type="text" id="addClass" required class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm" placeholder="5/C">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Avatar / Cinsiyet</label>
-                    <select id="inputGender" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <option value="male">Erkek Öğrenci (Avatar)</option>
-                        <option value="female">Kız Öğrenci (Avatar)</option>
-                    </select>
-                </div>
-                <div class="pt-2 flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('addStudentModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50">İptal</button>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 shadow">Kaydet</button>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('addSingleModal')" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">İptal</button>
+                    <button type="submit" class="px-4 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium shadow">Kaydet</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL 3: Öğretmen Notu Düzenleme -->
-    <div id="noteModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div class="bg-slate-800 px-6 py-4 text-white flex justify-between items-center">
-                <h3 class="font-bold text-lg"><i class="fa-regular fa-note-sticky mr-2"></i>Öğretmen Notu</h3>
-                <button onclick="closeModal('noteModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="p-6 space-y-4">
-                <input type="hidden" id="currentNoteStudentId">
-                <p id="noteStudentName" class="font-semibold text-indigo-600 text-sm"></p>
-                <div>
-                    <textarea id="noteTextarea" rows="4" placeholder="Öğrenci hakkında özel gözlem ve geliştirme notlarınızı girin..." class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="closeModal('noteModal')" class="px-4 py-2 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-50">İptal</button>
-                    <button type="button" onclick="saveStudentNote()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold hover:bg-emerald-700 shadow">Notu Kaydet</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- JavaScript Mantığı -->
     <script>
-        // --- Uygulama Durumu (State) ---
+        // Uygulama Durumu (State)
         let students = [];
-        let activeClassTab = "ALL";
 
-        // Demo Örnek Veriler
-        const defaultStudents = [
-            { id: "1", name: "Ali Yılmaz", number: "101", className: "10-A", gender: "male", score: 15, homeworkDone: true, isPresent: true, note: "Matematik dersinde aktif." },
-            { id: "2", name: "Ayşe Demir", number: "102", className: "10-A", gender: "female", score: 22, homeworkDone: true, isPresent: true, note: "Sınıf temsilcisi." },
-            { id: "3", name: "Mehmet Kaya", number: "103", className: "10-B", gender: "male", score: 5, homeworkDone: false, isPresent: false, note: "Derse sık sık geç kalıyor." },
-            { id: "4", name: "Zeynep Çelik", number: "104", className: "10-B", gender: "female", score: 18, homeworkDone: true, isPresent: true, note: "Ödevlerini eksiksiz getiriyor." }
-        ];
-
-        // --- Başlatma ---
-        window.addEventListener('DOMContentLoaded', () => {
-            loadStudents();
-        });
-
-        function loadStudents() {
-            const stored = localStorage.getItem('app_students_v2');
-            if (stored) {
+        // Başlangıçta Saklanan Verileri Yükle
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('app_students_data');
+            if (savedData) {
                 try {
-                    students = JSON.parse(stored);
-                } catch(e) {
+                    students = JSON.parse(savedData);
+                } catch (e) {
                     students = [];
                 }
-            } else {
-                students = [...defaultStudents];
-                saveStudentsToStorage();
             }
-            renderTabs();
+            updateClassOptions();
+            renderStudents();
+        });
+
+        // Verileri Sakla (localStorage)
+        function saveData() {
+            localStorage.setItem('app_students_data', JSON.stringify(students));
+            updateClassOptions();
             renderStudents();
         }
 
-        function saveStudentsToStorage() {
-            localStorage.setItem('app_students_v2', JSON.stringify(students));
-        }
+        // Sınıf Filtresi Seçeneklerini Güncelle
+        function updateClassOptions() {
+            const select = document.getElementById('classFilter');
+            const currentValue = select.value;
+            const classes = [...new Set(students.map(s => s.classGroup))].sort();
 
-        function loadDemoData() {
-            students = [...defaultStudents];
-            saveStudentsToStorage();
-            activeClassTab = "ALL";
-            renderTabs();
-            renderStudents();
-        }
-
-        function clearData() {
-            if (confirm("Tüm öğrenci verileri ve sınıflar silinecektir. Emin misiniz?")) {
-                students = [];
-                saveStudentsToStorage();
-                activeClassTab = "ALL";
-                renderTabs();
-                renderStudents();
-            }
-        }
-
-        // --- Sınıf Sekmeleri (Tabs) Yönetimi ---
-        function renderTabs() {
-            const tabsContainer = document.getElementById('classTabs');
-            const classes = [...new Set(students.map(s => s.className))].sort();
-
-            // Sadece tab alanını temizleyip yeniden oluştur
-            tabsContainer.innerHTML = `
-                <button onclick="selectClassTab('ALL')" id="tab-ALL" class="tab-btn px-4 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
-                    activeClassTab === 'ALL' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }">
-                    Tüm Sınıflar (${students.length})
-                </button>
-            `;
-
+            select.innerHTML = '<option value="ALL">Tüm Sınıflar</option>';
             classes.forEach(cls => {
-                const count = students.filter(s => s.className === cls).length;
-                const btn = document.createElement('button');
-                btn.onclick = () => selectClassTab(cls);
-                btn.id = `tab-${cls}`;
-                btn.className = `tab-btn px-4 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
-                    activeClassTab === cls ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`;
-                btn.textContent = `${cls} (${count})`;
-                tabsContainer.appendChild(btn);
+                const opt = document.createElement('option');
+                opt.value = cls;
+                opt.textContent = cls + ' Sınıfı';
+                select.appendChild(opt);
             });
+
+            if (classes.includes(currentValue) || currentValue === 'ALL') {
+                select.value = currentValue;
+            } else {
+                select.value = 'ALL';
+            }
+
+            // Sınıfı Sil Butonu Görünürlüğü
+            const deleteBtn = document.getElementById('deleteClassBtn');
+            if (select.value !== 'ALL') {
+                deleteBtn.classList.remove('hidden');
+            } else {
+                deleteBtn.classList.add('hidden');
+            }
         }
 
-        function selectClassTab(className) {
-            activeClassTab = className;
-            renderTabs();
-            renderStudents();
-        }
-
-        // --- Liste ve Kart İşleme ---
+        // Öğrencileri Ekrana Bas ve İstatistikleri Hesapla
         function renderStudents() {
             const grid = document.getElementById('studentGrid');
             const emptyState = document.getElementById('emptyState');
-            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
-            const sortBy = document.getElementById('sortBy').value;
+            const classFilter = document.getElementById('classFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase().trim();
 
             // Filtreleme
-            let filtered = students.filter(s => {
-                const matchesSearch = s.name.toLowerCase().includes(searchVal) || s.number.toString().includes(searchVal);
-                const matchesTab = activeClassTab === "ALL" || s.className === activeClassTab;
-                return matchesSearch && matchesTab;
-            });
-
-            // Sıralama
-            filtered.sort((a, b) => {
-                if (sortBy === 'name') return a.name.localeCompare(b.name, 'tr');
-                if (sortBy === 'score') return b.score - a.score;
-                return parseInt(a.number || 0) - parseInt(b.number || 0);
+            const filtered = students.filter(s => {
+                const matchClass = (classFilter === 'ALL' || s.classGroup === classFilter);
+                const matchSearch = (s.name.toLowerCase().includes(searchInput) || String(s.number).includes(searchInput));
+                return matchClass && matchSearch;
             });
 
             grid.innerHTML = '';
@@ -429,206 +255,77 @@
                 });
             }
 
-            updateDashboardStats();
+            // İstatistik Güncelleme (Filtrelenmiş veya Tüm Veriye Göre)
+            const targetSet = classFilter === 'ALL' ? students : students.filter(s => s.classGroup === classFilter);
+            document.getElementById('statTotal').textContent = targetSet.length;
+            document.getElementById('statPresent').textContent = targetSet.filter(s => s.isPresent).length;
+            document.getElementById('statAbsent').textContent = targetSet.filter(s => !s.isPresent).length;
+            
+            const hwDone = targetSet.filter(s => s.homeworkDone).length;
+            const hwRate = targetSet.length > 0 ? Math.round((hwDone / targetSet.length) * 100) : 0;
+            document.getElementById('statHwRate').textContent = `%${hwRate}`;
+
+            const totalScore = targetSet.reduce((acc, s) => acc + (s.score || 0), 0);
+            const avgScore = targetSet.length > 0 ? (totalScore / targetSet.length).toFixed(1) : 0;
+            document.getElementById('statAvgScore').textContent = avgScore;
         }
 
+        // Tek Bir Öğrenci Kartı Oluşturma HTML
         function createStudentCard(student) {
             const card = document.createElement('div');
-            card.className = `bg-white rounded-xl border transition-all duration-200 shadow-sm hover:shadow-md flex flex-col justify-between overflow-hidden ${
-                student.isPresent ? 'border-slate-200' : 'border-rose-300 bg-rose-50/40'
-            }`;
-
-            const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(student.name)}&gender=${student.gender || 'male'}`;
+            card.className = `bg-white rounded-xl shadow-sm border transition-all duration-200 overflow-hidden flex flex-col justify-between ${student.isPresent ? 'border-slate-200 hover:shadow-md' : 'border-rose-300 bg-rose-50/40'}`;
 
             card.innerHTML = `
-                <div class="p-4 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <img src="${avatarUrl}" alt="${student.name}" class="w-11 h-11 rounded-full bg-slate-100 p-1 border border-slate-200 shrink-0">
-                            <div class="overflow-hidden">
-                                <h4 class="font-bold text-slate-800 text-sm truncate">${student.name}</h4>
-                                <div class="flex items-center gap-1.5 mt-0.5">
-                                    <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">No: ${student.number}</span>
-                                    <span class="text-[11px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-semibold">${student.className}</span>
-                                </div>
-                            </div>
+                <div class="p-4">
+                    <!-- Üst Bilgi Satırı -->
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <div>
+                            <span class="inline-block px-2 py-0.5 text-xs font-semibold bg-indigo-50 text-indigo-700 rounded-md mb-1">${student.classGroup}</span>
+                            <h3 class="font-bold text-slate-800 leading-snug">${student.name}</h3>
+                            <p class="text-xs text-slate-500">No: ${student.number}</p>
                         </div>
-                        <button onclick="deleteStudent('${student.id}')" class="text-slate-300 hover:text-rose-500 transition p-1" title="Sil">
+                        <button onclick="deleteStudent('${student.id}')" class="text-slate-300 hover:text-rose-600 transition p-1" title="Öğrenciyi Sil">
                             <i class="fa-solid fa-trash-can text-sm"></i>
                         </button>
                     </div>
 
-                    <hr class="border-slate-100">
-
-                    <!-- Katılım Puanı -->
-                    <div class="flex items-center justify-between bg-slate-50 p-2 rounded-lg">
-                        <span class="text-xs font-semibold text-slate-600">Katılım Puanı</span>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="changeScore('${student.id}', -1)" class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-200 active:scale-95 flex items-center justify-center font-bold text-base transition">
-                                -
-                            </button>
-                            <span class="w-7 text-center font-bold ${student.score < 0 ? 'text-rose-600' : 'text-emerald-600'} text-sm">
-                                ${student.score > 0 ? '+' + student.score : student.score}
-                            </span>
-                            <button onclick="changeScore('${student.id}', 1)" class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 active:scale-95 flex items-center justify-center font-bold text-base transition">
-                                +
-                            </button>
+                    <!-- Katılım Puanı & Butonları -->
+                    <div class="bg-slate-50 rounded-lg p-2.5 my-3 flex items-center justify-between border border-slate-100">
+                        <span class="text-xs font-medium text-slate-600">Katılım Puanı:</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="adjustScore('${student.id}', -1)" class="w-7 h-7 bg-white hover:bg-rose-100 text-rose-600 border border-slate-200 rounded-lg flex items-center justify-center font-bold shadow-sm transition">-</button>
+                            <span class="font-bold text-sm min-w-[20px] text-center ${student.score > 0 ? 'text-emerald-600' : student.score < 0 ? 'text-rose-600' : 'text-slate-700'}">${student.score || 0}</span>
+                            <button onclick="adjustScore('${student.id}', 1)" class="w-7 h-7 bg-white hover:bg-emerald-100 text-emerald-600 border border-slate-200 rounded-lg flex items-center justify-center font-bold shadow-sm transition">+</button>
                         </div>
                     </div>
 
-                    <!-- Ödev & Yoklama Toggles -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="toggleHomework('${student.id}')" class="p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
-                            student.homeworkDone ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                        }">
-                            <i class="fa-solid ${student.homeworkDone ? 'fa-check-circle' : 'fa-circle-xmark'}"></i>
-                            Ödev: ${student.homeworkDone ? 'Tamam' : 'Eksik'}
+                    <!-- Yoklama & Ödev Durum Düğmeleri -->
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <button onclick="toggleAttendance('${student.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${student.isPresent ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-rose-100 text-rose-700 border border-rose-200'}">
+                            <i class="fa-solid ${student.isPresent ? 'fa-user-check' : 'fa-user-xmark'}"></i>
+                            ${student.isPresent ? 'Derste' : 'Yok'}
                         </button>
-
-                        <button onclick="toggleAttendance('${student.id}')" class="p-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
-                            student.isPresent ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-rose-100 text-rose-800 border border-rose-300'
-                        }">
-                            <i class="fa-solid ${student.isPresent ? 'fa-user-check' : 'fa-user-slash'}"></i>
-                            ${student.isPresent ? 'Derste' : 'Yok/Gelmedi'}
+                        <button onclick="toggleHomework('${student.id}')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${student.homeworkDone ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">
+                            <i class="fa-solid ${student.homeworkDone ? 'fa-check' : 'fa-xmark'}"></i>
+                            Ödev: ${student.homeworkDone ? 'Tam' : 'Eksik'}
                         </button>
                     </div>
 
-                    <!-- Öğretmen Notu -->
-                    <div class="pt-0.5">
-                        <div onclick="openNoteModal('${student.id}')" class="cursor-pointer bg-amber-50/60 hover:bg-amber-100/60 border border-amber-200/60 p-2 rounded-lg text-xs text-slate-700 flex justify-between items-start gap-2 transition">
-                            <div class="flex-1 italic truncate">
-                                ${student.note ? `"${student.note}"` : '<span class="text-slate-400 not-italic">+ Özel not ekle...</span>'}
-                            </div>
-                            <i class="fa-solid fa-pen text-slate-400 text-[10px] mt-0.5"></i>
-                        </div>
+                    <!-- Öğretmen Not Alanı -->
+                    <div>
+                        <input type="text" value="${student.note || ''}" onchange="updateNote('${student.id}', this.value)" placeholder="Özel not ekle..." class="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:outline-none">
                     </div>
                 </div>
             `;
             return card;
         }
 
-        // --- Toplu Ekleme / Parsing Mantığı ---
-        function processBulkAdd() {
-            const rawText = document.getElementById('bulkTextInput').value;
-            const defaultClass = document.getElementById('bulkDefaultClass').value.trim().toUpperCase() || "10-A";
-
-            if (!rawText.trim()) {
-                alert("Lütfen kopyalanmış öğrenci listesini yapıştırın.");
-                return;
-            }
-
-            const lines = rawText.split('\n');
-            let addedCount = 0;
-
-            lines.forEach((line, index) => {
-                let trimmed = line.trim();
-                if (!trimmed) return;
-
-                // Ayırıcılar: Virgül veya Tab (Excel'den gelen yapıştırmalar)
-                let parts = trimmed.includes('\t') ? trimmed.split('\t') : trimmed.split(',');
-                parts = parts.map(p => p.trim());
-
-                let name = parts[0] || "";
-                let number = parts[1] || (100 + students.length + index + 1).toString();
-                let className = parts[2] || defaultClass;
-
-                if (name.length > 0) {
-                    students.push({
-                        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                        name: name,
-                        number: number,
-                        className: className.toUpperCase(),
-                        gender: index % 2 === 0 ? "male" : "female",
-                        score: 0,
-                        homeworkDone: true,
-                        isPresent: true,
-                        note: ""
-                    });
-                    addedCount++;
-                }
-            });
-
-            if (addedCount > 0) {
-                saveStudentsToStorage();
-                renderTabs();
-                renderStudents();
-                closeModal('bulkAddModal');
-                document.getElementById('bulkTextInput').value = '';
-                alert(`${addedCount} adet öğrenci başarıyla eklendi!`);
-            } else {
-                alert("Geçerli veri okunamadı.");
-            }
-        }
-
-        function loadSampleBulkText() {
-            document.getElementById('bulkTextInput').value = 
-`Ahmet Kara, 201, 10-A
-Fatma Yıldız, 202, 10-A
-Canan Öztürk, 203, 10-B
-Burak Yılmaz, 204, 10-B
-Emre Şahin, 205, 10-C`;
-        }
-
-        function handleFileUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                document.getElementById('bulkTextInput').value = evt.target.result;
-            };
-            reader.readAsText(file);
-        }
-
-        // --- Verileri Dışa Aktarma (Export) ---
-        function exportData(type) {
-            if (students.length === 0) {
-                alert("Dışa aktarılacak veri bulunmuyor.");
-                return;
-            }
-
-            if (type === 'json') {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(students, null, 2));
-                const downloadAnchor = document.createElement('a');
-                downloadAnchor.setAttribute("href", dataStr);
-                downloadAnchor.setAttribute("download", `ogrenci_takip_yedek_${new Date().toISOString().slice(0,10)}.json`);
-                document.body.appendChild(downloadAnchor);
-                downloadAnchor.click();
-                downloadAnchor.remove();
-            } else if (type === 'csv') {
-                let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // UTF-8 BOM ekleme (Türkçe karakter desteği)
-                csvContent += "Ad Soyad,Okul No,Sinif,Katilim Puani,Odev Durumu,Yoklama,Notlar\n";
-
-                students.forEach(s => {
-                    csvContent += `"${s.name}","${s.number}","${s.className}",${s.score},"${s.homeworkDone ? 'Tamam' : 'Eksik'}","${s.isPresent ? 'Derste' : 'Yok'}","${s.note || ''}"\n`;
-                });
-
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement('a');
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `ogrenci_listesi_${new Date().toISOString().slice(0,10)}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-            }
-        }
-
-        // --- Genel Buton & Modal Aksiyonları ---
-        function changeScore(id, delta) {
+        // Öğrenci İşlem Fonksiyonları
+        function adjustScore(id, delta) {
             const student = students.find(s => s.id === id);
             if (student) {
-                student.score += delta;
-                saveStudentsToStorage();
-                renderStudents();
-            }
-        }
-
-        function toggleHomework(id) {
-            const student = students.find(s => s.id === id);
-            if (student) {
-                student.homeworkDone = !student.homeworkDone;
-                saveStudentsToStorage();
-                renderStudents();
+                student.score = (student.score || 0) + delta;
+                saveData();
             }
         }
 
@@ -636,71 +333,163 @@ Emre Şahin, 205, 10-C`;
             const student = students.find(s => s.id === id);
             if (student) {
                 student.isPresent = !student.isPresent;
-                saveStudentsToStorage();
-                renderStudents();
+                saveData();
+            }
+        }
+
+        function toggleHomework(id) {
+            const student = students.find(s => s.id === id);
+            if (student) {
+                student.homeworkDone = !student.homeworkDone;
+                saveData();
+            }
+        }
+
+        function updateNote(id, note) {
+            const student = students.find(s => s.id === id);
+            if (student) {
+                student.note = note;
+                saveData();
             }
         }
 
         function deleteStudent(id) {
-            if (confirm("Bu öğrenciyi silmek istediğinize emin misiniz?")) {
+            if (confirm('Bu öğrenciyi silmek istediğinize emin misiniz?')) {
                 students = students.filter(s => s.id !== id);
-                saveStudentsToStorage();
-                renderTabs();
-                renderStudents();
+                saveData();
             }
         }
 
-        function handleAddStudent(e) {
+        // Seçili Sınıfı Silme İşlemi
+        function deleteCurrentClass() {
+            const currentClass = document.getElementById('classFilter').value;
+            if (currentClass === 'ALL') return;
+
+            if (confirm(`"${currentClass}" sınıfındaki TÜM öğrenciler silinecektir! Onaylıyor musunuz?`)) {
+                students = students.filter(s => s.classGroup !== currentClass);
+                document.getElementById('classFilter').value = 'ALL';
+                saveData();
+            }
+        }
+
+        // Tek Öğrenci Ekleme Formu
+        function handleAddSingleStudent(e) {
             e.preventDefault();
-            const name = document.getElementById('inputName').value.trim();
-            const number = document.getElementById('inputNumber').value.trim();
-            const className = document.getElementById('inputClass').value.trim().toUpperCase();
-            const gender = document.getElementById('inputGender').value;
+            const name = document.getElementById('addName').value.trim();
+            const number = document.getElementById('addNumber').value.trim();
+            const classGroup = document.getElementById('addClass').value.trim().toUpperCase();
 
-            if (!name || !number || !className) return;
+            if (name && number && classGroup) {
+                students.push({
+                    id: Date.now().toString(),
+                    name: name,
+                    number: number,
+                    classGroup: classGroup,
+                    isPresent: true,
+                    homeworkDone: true,
+                    score: 0,
+                    note: ''
+                });
+                saveData();
+                closeModal('addSingleModal');
+                document.getElementById('addStudentForm').reset();
+            }
+        }
 
-            students.push({
-                id: Date.now().toString(),
-                name,
-                number,
-                className,
-                gender,
-                score: 0,
-                homeworkDone: true,
-                isPresent: true,
-                note: ""
+        // Görseldeki Format (S., Okul No, Düzey, Şube, Adı Soyadı) ve Genel Format Ayrıştırıcı
+        function processImportText() {
+            const text = document.getElementById('importTextarea').value.trim();
+            if (!text) return;
+
+            const lines = text.split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+
+                // Tab, Virgül veya Birden fazla Boşluğa göre böl
+                const parts = trimmed.split(/[\t,;]+| {2,}/).map(p => p.trim()).filter(Boolean);
+
+                let number = '';
+                let classGroup = '5/C';
+                let name = '';
+
+                // Görseldeki Formata Uyum: [SıraNo, ÖğrenciNo, SınıfDüzeyi, Şube, AdSoyad] (Örn: 1  10  5  c  ERTUĞRUL KADİR KIYAK)
+                if (parts.length >= 5 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                    number = parts[1];
+                    classGroup = `${parts[2]}/${parts[3].toUpperCase()}`;
+                    name = parts.slice(4).join(' ');
+                } 
+                // Alternatif Parçalama (Tek Boşluklu Satırlar)
+                else {
+                    const spaceParts = trimmed.split(/\s+/);
+                    if (spaceParts.length >= 5 && !isNaN(spaceParts[0]) && !isNaN(spaceParts[1])) {
+                        number = spaceParts[1];
+                        classGroup = `${spaceParts[2]}/${spaceParts[3].toUpperCase()}`;
+                        name = spaceParts.slice(4).join(' ');
+                    } else if (spaceParts.length >= 3 && !isNaN(spaceParts[0])) {
+                        number = spaceParts[0];
+                        classGroup = spaceParts[1];
+                        name = spaceParts.slice(2).join(' ');
+                    } else {
+                        name = trimmed;
+                        number = Math.floor(100 + Math.random() * 900).toString();
+                    }
+                }
+
+                if (name) {
+                    students.push({
+                        id: Date.now().toString() + Math.random().toString().substr(2, 4),
+                        name: name,
+                        number: number,
+                        classGroup: classGroup,
+                        isPresent: true,
+                        homeworkDone: true,
+                        score: 0,
+                        note: ''
+                    });
+                    addedCount++;
+                }
             });
 
-            saveStudentsToStorage();
-            renderTabs();
-            renderStudents();
-            document.getElementById('addStudentForm').reset();
-            closeModal('addStudentModal');
-        }
-
-        function openNoteModal(id) {
-            const student = students.find(s => s.id === id);
-            if (!student) return;
-
-            document.getElementById('currentNoteStudentId').value = id;
-            document.getElementById('noteStudentName').textContent = `${student.name} (${student.number} - ${student.className})`;
-            document.getElementById('noteTextarea').value = student.note || "";
-            openModal('noteModal');
-        }
-
-        function saveStudentNote() {
-            const id = document.getElementById('currentNoteStudentId').value;
-            const note = document.getElementById('noteTextarea').value.trim();
-
-            const student = students.find(s => s.id === id);
-            if (student) {
-                student.note = note;
-                saveStudentsToStorage();
-                renderStudents();
+            if (addedCount > 0) {
+                saveData();
+                closeModal('importModal');
+                document.getElementById('importTextarea').value = '';
+                alert(`${addedCount} öğrenci başarıyla eklendi!`);
+            } else {
+                alert('Geçerli bir öğrenci verisi okunamadı.');
             }
-            closeModal('noteModal');
         }
 
+        // Örnek Görsel Listesini Doldurma
+        function loadSampleData() {
+            const sample = `1\t10\t5\tc\tERTUĞRUL KADİR KIYAK
+2\t91\t5\tc\tMUSA EMİR KİRİŞ
+3\t92\t5\tc\tMEHMET EMİN YILDIZ
+4\t93\t5\tc\tMUHAMMET ÖZDEMİR
+5\t94\t5\tc\tİSMAİL DEMİR
+6\t95\t5\tc\tMUHAMMED ALİ DEMİR
+7\t96\t5\tc\tMUHAMMED SAİD TAT
+8\t97\t5\tc\tHASAN HÜSEYİN YILMAZ
+9\t98\t5\tc\tMUAZ AVAN
+10\t99\t5\tc\tARDA GÖLEÇ`;
+            document.getElementById('importTextarea').value = sample;
+        }
+
+        // JSON Dışa Aktarma
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(students, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `sinif_takip_yedek_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Modal Yönetimi
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
             document.getElementById(id).classList.add('flex');
@@ -709,36 +498,6 @@ Emre Şahin, 205, 10-C`;
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
             document.getElementById(id).classList.remove('flex');
-        }
-
-        function updateDashboardStats() {
-            // Aktif sekmeye göre istatistik hesabı
-            const activeStudents = activeClassTab === "ALL" 
-                ? students 
-                : students.filter(s => s.className === activeClassTab);
-
-            const total = activeStudents.length;
-            document.getElementById('statTotalStudents').textContent = total;
-
-            if (total === 0) {
-                document.getElementById('statPresentCount').textContent = "0";
-                document.getElementById('statAbsentCount').textContent = "0";
-                document.getElementById('statAvgScore').textContent = "0";
-                document.getElementById('statHomeworkRate').textContent = "%0";
-                return;
-            }
-
-            const presentCount = activeStudents.filter(s => s.isPresent).length;
-            const absentCount = total - presentCount;
-            const totalScore = activeStudents.reduce((sum, s) => sum + s.score, 0);
-            const avgScore = (totalScore / total).toFixed(1);
-            const homeworkDoneCount = activeStudents.filter(s => s.homeworkDone).length;
-            const homeworkPercent = Math.round((homeworkDoneCount / total) * 100);
-
-            document.getElementById('statPresentCount').textContent = presentCount;
-            document.getElementById('statAbsentCount').textContent = absentCount;
-            document.getElementById('statAvgScore').textContent = avgScore > 0 ? `+${avgScore}` : avgScore;
-            document.getElementById('statHomeworkRate').textContent = `%${homeworkPercent}`;
         }
     </script>
 </body>
