@@ -26,271 +26,299 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
-    <!-- Header / Nav -->
-    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
-                <h1 class="font-bold text-lg md:text-xl">Sınıf Ders & Ezber Takip Sistemi</h1>
-            </div>
-            
-            <div class="flex items-center gap-3 bg-indigo-800 px-3 py-1.5 rounded-lg text-sm">
-                <div class="flex items-center gap-2">
-                    <span id="syncStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-                    <span id="syncStatusText" class="text-xs text-indigo-200">Çevrimdışı</span>
+    <!-- LOGIN OVERLAY / ŞİFRE GİRİŞ EKRANI -->
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-lock"></i>
                 </div>
-                <div class="h-4 w-px bg-indigo-600"></div>
-                <div class="flex items-center gap-1 font-mono font-bold text-yellow-300">
-                    <span>KOD:</span>
-                    <span id="roomCodeDisplay">-----</span>
-                </div>
-                <button onclick="copyRoomCode()" class="hover:text-yellow-300 transition" title="Kodu Kopyala"><i class="fa-regular fa-copy"></i></button>
-                <button onclick="changeRoomModal()" class="text-xs bg-indigo-600 hover:bg-indigo-500 px-2 py-1 rounded transition">Değiştir</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-6">
-
-        <!-- Navigation Tabs -->
-        <div class="flex border-b border-slate-300 bg-white rounded-t-xl px-4 pt-2 shadow-sm overflow-x-auto">
-            <button onclick="switchTab('ezberTakip')" id="tab-ezberTakip" class="px-5 py-3 tab-active flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-quran text-emerald-600"></i> 📖 Kur'an & Ezber Takibi
-            </button>
-            <button onclick="switchTab('dersTakip')" id="tab-dersTakip" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-book-open text-indigo-600"></i> 📚 Günlük Ders & Ödev Takibi
-            </button>
-            <button onclick="switchTab('ogrenciler')" id="tab-ogrenciler" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-users"></i> 👥 Öğrenci Yönetimi
-            </button>
-            <button onclick="switchTab('ayarlar')" id="tab-ayarlar" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-gear"></i> ⚙️ Ders & Ezber Tanımları
-            </button>
-        </div>
-
-        <!-- TAB 1: EZBER TAKİBİ -->
-        <div id="content-ezberTakip" class="bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
-            <div class="flex flex-wrap justify-between items-center gap-3 mb-4 bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900">
-                <div class="flex items-center gap-3 flex-wrap">
-                    <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> Tıklama Rehberi:</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span> 🔴 Başlamadı</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> 🟡 Verildi / Çalışıyor</span>
-                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> 🟢 Ezberlendi (Tamam)</span>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="transferUnfinishedEzbers()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm font-medium">
-                        <i class="fa-solid fa-arrow-right-arrow-left"></i> 1. Dönem Eksiklerini 2. Döneme Aktar
-                    </button>
-                    <button onclick="exportExcelEzber()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm font-medium">
-                        <i class="fa-solid fa-file-excel"></i> Rapor İndir
-                    </button>
-                </div>
+                <h2 class="text-xl font-bold text-slate-800">Sınıf Takip Sistemi</h2>
+                <p class="text-xs text-slate-500 mt-1">Eski verilerinize ulaşmak için Oda Kodu ve Şifrenizi girin.</p>
             </div>
 
-            <!-- Filtreler ve Sınıf Sil Butonu -->
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                <div class="flex flex-wrap items-center gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Dönem Seçimi</label>
-                        <select id="filterDonemEzber" onchange="renderEzberTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="1">1. Dönem</option>
-                            <option value="2">2. Dönem</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
-                        <select id="filterSinifEzber" onchange="onSinifEzberFilterChange()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="ALL">Tüm Sınıflar</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
-                        <select id="filterSubeEzber" onchange="renderEzberTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="ALL">Tüm Şubeler</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="deleteSinifContainerEzber" class="hidden">
-                    <button onclick="deleteSelectedSinif('Ezber')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 font-semibold transition shadow-sm">
-                        <i class="fa-solid fa-trash-can"></i> <span id="deleteSinifBtnTextEzber">Sınıfı Sil</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Ezber Tablosu -->
-            <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="bg-emerald-700 text-white border-b border-emerald-800">
-                            <th class="p-3 font-semibold w-12 text-center">S.No</th>
-                            <th class="p-3 font-semibold w-24">Sınıf/Şube</th>
-                            <th class="p-3 font-semibold w-48">Öğrenci Adı Soyadı</th>
-                            <th class="p-3 font-semibold text-center w-36">Öğrenci Durumu</th>
-                            <th class="p-3 font-semibold text-center">Ezber Sureleri (Tıklayarak Değiştirin)</th>
-                            <th class="p-3 font-semibold w-40">Son Kaldığı Ayet / Sayfa</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ezberTableBody" class="divide-y divide-slate-200"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TAB 2: DERS & ÖDEV TAKİBİ -->
-        <div id="content-dersTakip" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
-            <div class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <div class="flex flex-wrap items-center gap-3">
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Tarih</label>
-                        <input type="date" id="selectedDateDers" onchange="renderDersTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
-                        <select id="filterSinifDers" onchange="onSinifDersFilterChange()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="ALL">Tüm Sınıflar</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
-                        <select id="filterSubeDers" onchange="renderDersTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <option value="ALL">Tüm Şubeler</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex gap-2 items-center">
-                    <div id="deleteSinifContainerDers" class="hidden">
-                        <button onclick="deleteSelectedSinif('Ders')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 font-semibold transition shadow-sm">
-                            <i class="fa-solid fa-trash-can"></i> <span id="deleteSinifBtnTextDers">Sınıfı Sil</span>
-                        </button>
-                    </div>
-                    <button onclick="exportExcelDers()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-file-excel"></i> Excel İndir
-                    </button>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
-                            <th class="p-3 font-semibold w-12 text-center">S.No</th>
-                            <th class="p-3 font-semibold w-20">Sınıf/Şube</th>
-                            <th class="p-3 font-semibold w-44">Öğrenci Adı Soyadı</th>
-                            <th class="p-3 font-semibold text-center w-20">+/ - Puan</th>
-                            <th class="p-3 font-semibold text-center w-24">Devamsızlık</th>
-                            <th class="p-3 font-semibold text-center w-48">Ödev Adı ve Durumu</th>
-                            <th class="p-3 font-semibold text-center">Ders Puanları (1-5)</th>
-                            <th class="p-3 font-semibold w-36">Notlar</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dersTableBody" class="divide-y divide-slate-200"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- TAB 3: ÖĞRENCİ YÖNETİMİ -->
-        <div id="content-ogrenciler" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h3 class="font-bold text-slate-700 mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-file-import text-indigo-600"></i> Toplu Öğrenci Ekle
-                    </h3>
-                    <p class="text-xs text-slate-500 mb-3">Format: <code>S.No | Okul No | Sınıf | Şube | Ad Soyad</code></p>
-                    <textarea id="bulkStudentInput" rows="8" placeholder="1&#9;419&#9;7&#9;d&#9;ÖMER YILDIZ&#10;3&#9;501&#9;7&#9;d&#9;BURAK KORAŞ..." class="w-full border border-slate-300 rounded-lg p-2.5 text-xs font-mono focus:ring-2 focus:ring-indigo-500 outline-none mb-3"></textarea>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="processBulkStudents()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-2 rounded-lg transition shadow-sm">
-                            <i class="fa-solid fa-plus-circle"></i> Listeyi Sisteme Ekle
-                        </button>
-                        <button onclick="loadSampleGorselData()" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-2 rounded-lg transition font-medium">
-                            <i class="fa-solid fa-image"></i> Örnek Listeyi Yükle (7/D & 7/E)
-                        </button>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-slate-700">Kayıtlı Öğrenciler (<span id="studentCount">0</span>)</h3>
-                        <button onclick="clearAllStudents()" class="text-xs text-red-600 hover:text-red-800 font-semibold">Tüm Öğrencileri Sil</button>
-                    </div>
-                    <div class="overflow-x-auto max-h-[500px] border border-slate-200 rounded-lg">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-100 text-slate-700 sticky top-0">
-                                <tr>
-                                    <th class="p-2.5">S.No</th>
-                                    <th class="p-2.5">Okul No</th>
-                                    <th class="p-2.5">Sınıf/Şube</th>
-                                    <th class="p-2.5">Adı Soyadı</th>
-                                    <th class="p-2.5 text-center">İşlem</th>
-                                </tr>
-                            </thead>
-                            <tbody id="studentTableBody" class="divide-y divide-slate-200"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 4: DERS & EZBER TANIMLARI -->
-        <div id="content-ayarlar" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-quran text-emerald-600"></i> Ezber Konusu & Sınıf Atama
-                    </h3>
-                    <div class="flex flex-col gap-2 mb-4">
-                        <div class="flex gap-2">
-                            <select id="newEzberSinifSelect" class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
-                                <option value="ALL">Tüm Sınıflar</option>
-                            </select>
-                            <input type="text" id="newEzberInput" placeholder="Örn: Yasin Suresi, Amme Cüzü" class="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none">
-                        </div>
-                        <button onclick="addEzberItem()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm py-2 rounded-lg font-medium transition">
-                            <i class="fa-solid fa-plus"></i> Ezber Konusunu Sınıfa Ata
-                        </button>
-                    </div>
-                    <div id="ezberList" class="space-y-2 max-h-[350px] overflow-y-auto"></div>
-                </div>
-
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-book text-indigo-600"></i> Ders & Sınıf Atama
-                    </h3>
-                    <div class="flex flex-col gap-2 mb-4">
-                        <div class="flex gap-2">
-                            <select id="newLessonSinifSelect" class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
-                                <option value="ALL">Tüm Sınıflar</option>
-                            </select>
-                            <input type="text" id="newLessonInput" placeholder="Örn: Tecvid, Siyer, Matematik" class="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none">
-                        </div>
-                        <button onclick="addLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm py-2 rounded-lg font-medium transition">
-                            <i class="fa-solid fa-plus"></i> Dersi Sınıfa Ata
-                        </button>
-                    </div>
-                    <div id="lessonList" class="space-y-2 max-h-[350px] overflow-y-auto"></div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Modal: Sınıf / Oda Değiştirme -->
-    <div id="roomModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
-            <h2 class="text-xl font-bold text-slate-800 mb-2">Canlı Senkronizasyon Bağlantısı</h2>
-            <p class="text-xs text-slate-500 mb-6">Mevcut sınıf kodunuzu girerek daha önce kaydettiğiniz tüm öğrencilere ve ezberlere ulaşabilirsiniz.</p>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Mevcut Sınıf Kodu İle Bağlan</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="roomCodeInput" placeholder="Örn: SNF-123456" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 font-mono uppercase text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <button onclick="joinRoom()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition">Bağlan</button>
-                    </div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Sınıf / Oda Kodu</label>
+                    <input type="text" id="loginRoomCode" placeholder="Örn: SNF-123456" class="w-full border border-slate-300 rounded-lg px-3 py-2 font-mono uppercase text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
-                <button onclick="createNewRoom()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm py-2.5 rounded-lg border border-slate-300 transition">✨ Sıfır / Yeni Oda Oluştur</button>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Giriş Şifresi (PIN)</label>
+                    <input type="password" id="loginPassword" placeholder="Şifreniz" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div id="loginError" class="hidden text-xs text-red-600 font-semibold bg-red-50 p-2.5 rounded-lg border border-red-200 text-center">
+                    Giriş bilgileri hatalı veya eksik!
+                </div>
+
+                <button onclick="attemptLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-2.5 rounded-lg transition shadow-md">
+                    <i class="fa-solid fa-right-to-bracket mr-1"></i> Giriş Yap & Verileri Yükle
+                </button>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-3 text-xs text-slate-400">veya</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <button onclick="createNewRoomWithPass()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-medium text-xs py-2 rounded-lg border border-emerald-300 transition">
+                    ✨ Yeni Şifreli Oda Oluştur
+                </button>
             </div>
         </div>
+    </div>
+
+    <!-- MAIN APP CONTENT (Şifre Girilince Açılır) -->
+    <div id="appContainer" class="hidden">
+        <!-- Header / Nav -->
+        <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-graduation-cap text-2xl text-yellow-300"></i>
+                    <h1 class="font-bold text-lg md:text-xl">Sınıf Ders & Ezber Takip Sistemi</h1>
+                </div>
+                
+                <div class="flex items-center gap-3 bg-indigo-800 px-3 py-1.5 rounded-lg text-sm">
+                    <div class="flex items-center gap-2">
+                        <span id="syncStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                        <span id="syncStatusText" class="text-xs text-indigo-200">Çevrimdışı</span>
+                    </div>
+                    <div class="h-4 w-px bg-indigo-600"></div>
+                    <div class="flex items-center gap-1 font-mono font-bold text-yellow-300">
+                        <span>KOD:</span>
+                        <span id="roomCodeDisplay">-----</span>
+                    </div>
+                    <button onclick="copyRoomCode()" class="hover:text-yellow-300 transition" title="Kodu Kopyala"><i class="fa-regular fa-copy"></i></button>
+                    <button onclick="logout()" class="text-xs bg-red-600 hover:bg-red-500 px-2 py-1 rounded transition flex items-center gap-1"><i class="fa-solid fa-power-off"></i> Çıkış</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <main class="max-w-7xl mx-auto px-4 py-6">
+
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-300 bg-white rounded-t-xl px-4 pt-2 shadow-sm overflow-x-auto">
+                <button onclick="switchTab('ezberTakip')" id="tab-ezberTakip" class="px-5 py-3 tab-active flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-quran text-emerald-600"></i> 📖 Kur'an & Ezber Takibi
+                </button>
+                <button onclick="switchTab('dersTakip')" id="tab-dersTakip" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-book-open text-indigo-600"></i> 📚 Günlük Ders & Ödev Takibi
+                </button>
+                <button onclick="switchTab('ogrenciler')" id="tab-ogrenciler" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-users"></i> 👥 Öğrenci Yönetimi
+                </button>
+                <button onclick="switchTab('ayarlar')" id="tab-ayarlar" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-gear"></i> ⚙️ Ders & Ezber Tanımları
+                </button>
+            </div>
+
+            <!-- TAB 1: EZBER TAKİBİ -->
+            <div id="content-ezberTakip" class="bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
+                <div class="flex flex-wrap justify-between items-center gap-3 mb-4 bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-xs text-emerald-900">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> Tıklama Rehberi:</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span> 🔴 Başlamadı</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> 🟡 Verildi / Çalışıyor</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> 🟢 Ezberlendi (Tamam)</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="transferUnfinishedEzbers()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm font-medium">
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i> 1. Dönem Eksiklerini 2. Döneme Aktar
+                        </button>
+                        <button onclick="exportExcelEzber()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm font-medium">
+                            <i class="fa-solid fa-file-excel"></i> Rapor İndir
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtreler ve Sınıf Sil Butonu -->
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-500 font-semibold mb-1">Dönem Seçimi</label>
+                            <select id="filterDonemEzber" onchange="renderEzberTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="1">1. Dönem</option>
+                                <option value="2">2. Dönem</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
+                            <select id="filterSinifEzber" onchange="onSinifEzberFilterChange()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="ALL">Tüm Sınıflar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
+                            <select id="filterSubeEzber" onchange="renderEzberTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="ALL">Tüm Şubeler</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="deleteSinifContainerEzber" class="hidden">
+                        <button onclick="deleteSelectedSinif('Ezber')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 font-semibold transition shadow-sm">
+                            <i class="fa-solid fa-trash-can"></i> <span id="deleteSinifBtnTextEzber">Sınıfı Sil</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Ezber Tablosu -->
+                <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-emerald-700 text-white border-b border-emerald-800">
+                                <th class="p-3 font-semibold w-12 text-center">S.No</th>
+                                <th class="p-3 font-semibold w-24">Sınıf/Şube</th>
+                                <th class="p-3 font-semibold w-48">Öğrenci Adı Soyadı</th>
+                                <th class="p-3 font-semibold text-center w-36">Öğrenci Durumu</th>
+                                <th class="p-3 font-semibold text-center">Ezber Sureleri (Tıklayarak Değiştirin)</th>
+                                <th class="p-3 font-semibold w-40">Son Kaldığı Ayet / Sayfa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ezberTableBody" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: DERS & ÖDEV TAKİBİ -->
+            <div id="content-dersTakip" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-500 font-semibold mb-1">Tarih</label>
+                            <input type="date" id="selectedDateDers" onchange="renderDersTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 font-semibold mb-1">Sınıf</label>
+                            <select id="filterSinifDers" onchange="onSinifDersFilterChange()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="ALL">Tüm Sınıflar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 font-semibold mb-1">Şube</label>
+                            <select id="filterSubeDers" onchange="renderDersTable()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="ALL">Tüm Şubeler</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 items-center">
+                        <div id="deleteSinifContainerDers" class="hidden">
+                            <button onclick="deleteSelectedSinif('Ders')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 font-semibold transition shadow-sm">
+                                <i class="fa-solid fa-trash-can"></i> <span id="deleteSinifBtnTextDers">Sınıfı Sil</span>
+                            </button>
+                        </div>
+                        <button onclick="exportExcelDers()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm">
+                            <i class="fa-solid fa-file-excel"></i> Excel İndir
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                <th class="p-3 font-semibold w-12 text-center">S.No</th>
+                                <th class="p-3 font-semibold w-20">Sınıf/Şube</th>
+                                <th class="p-3 font-semibold w-44">Öğrenci Adı Soyadı</th>
+                                <th class="p-3 font-semibold text-center w-20">+/ - Puan</th>
+                                <th class="p-3 font-semibold text-center w-24">Devamsızlık</th>
+                                <th class="p-3 font-semibold text-center w-48">Ödev Adı ve Durumu</th>
+                                <th class="p-3 font-semibold text-center">Ders Puanları (1-5)</th>
+                                <th class="p-3 font-semibold w-36">Notlar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dersTableBody" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: ÖĞRENCİ YÖNETİMİ -->
+            <div id="content-ogrenciler" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-slate-700 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-file-import text-indigo-600"></i> Toplu Öğrenci Ekle
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">Format: <code>S.No | Okul No | Sınıf | Şube | Ad Soyad</code></p>
+                        <textarea id="bulkStudentInput" rows="8" placeholder="1&#9;419&#9;7&#9;d&#9;ÖMER YILDIZ&#10;3&#9;501&#9;7&#9;d&#9;BURAK KORAŞ..." class="w-full border border-slate-300 rounded-lg p-2.5 text-xs font-mono focus:ring-2 focus:ring-indigo-500 outline-none mb-3"></textarea>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="processBulkStudents()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-2 rounded-lg transition shadow-sm">
+                                <i class="fa-solid fa-plus-circle"></i> Listeyi Sisteme Ekle
+                            </button>
+                            <button onclick="loadSampleGorselData()" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs py-2 rounded-lg transition font-medium">
+                                <i class="fa-solid fa-image"></i> Örnek Listeyi Yükle (7/D & 7/E)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-bold text-slate-700">Kayıtlı Öğrenciler (<span id="studentCount">0</span>)</h3>
+                            <button onclick="clearAllStudents()" class="text-xs text-red-600 hover:text-red-800 font-semibold">Tüm Öğrencileri Sil</button>
+                        </div>
+                        <div class="overflow-x-auto max-h-[500px] border border-slate-200 rounded-lg">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-100 text-slate-700 sticky top-0">
+                                    <tr>
+                                        <th class="p-2.5">S.No</th>
+                                        <th class="p-2.5">Okul No</th>
+                                        <th class="p-2.5">Sınıf/Şube</th>
+                                        <th class="p-2.5">Adı Soyadı</th>
+                                        <th class="p-2.5 text-center">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: DERS & EZBER TANIMLARI -->
+            <div id="content-ayarlar" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-quran text-emerald-600"></i> Ezber Konusu & Sınıf Atama
+                        </h3>
+                        <div class="flex flex-col gap-2 mb-4">
+                            <div class="flex gap-2">
+                                <select id="newEzberSinifSelect" class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
+                                    <option value="ALL">Tüm Sınıflar</option>
+                                </select>
+                                <input type="text" id="newEzberInput" placeholder="Örn: Yasin Suresi, Amme Cüzü" class="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none">
+                            </div>
+                            <button onclick="addEzberItem()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm py-2 rounded-lg font-medium transition">
+                                <i class="fa-solid fa-plus"></i> Ezber Konusunu Sınıfa Ata
+                            </button>
+                        </div>
+                        <div id="ezberList" class="space-y-2 max-h-[350px] overflow-y-auto"></div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-book text-indigo-600"></i> Ders & Sınıf Atama
+                        </h3>
+                        <div class="flex flex-col gap-2 mb-4">
+                            <div class="flex gap-2">
+                                <select id="newLessonSinifSelect" class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
+                                    <option value="ALL">Tüm Sınıflar</option>
+                                </select>
+                                <input type="text" id="newLessonInput" placeholder="Örn: Tecvid, Siyer, Matematik" class="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none">
+                            </div>
+                            <button onclick="addLesson()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm py-2 rounded-lg font-medium transition">
+                                <i class="fa-solid fa-plus"></i> Dersi Sınıfa Ata
+                            </button>
+                        </div>
+                        <div id="lessonList" class="space-y-2 max-h-[350px] overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <!-- Application JavaScript Code -->
@@ -299,7 +327,9 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentRoom = localStorage.getItem('sync_room_code') || generateRoomCode();
+        let currentRoom = localStorage.getItem('auth_room_code') || '';
+        let currentPass = localStorage.getItem('auth_room_pass') || '';
+
         let students = [];
         let lessons = [{ name: "Tecvid Kuralları", sinif: "ALL" }, { name: "Siyer", sinif: "ALL" }];
         let ezberItems = [
@@ -315,23 +345,91 @@
 
         document.getElementById('selectedDateDers').value = new Date().toISOString().split('T')[0];
 
-        window.addEventListener('DOMContentLoaded', () => { initRoom(currentRoom); });
+        window.addEventListener('DOMContentLoaded', () => { 
+            if (currentRoom && currentPass) {
+                document.getElementById('loginRoomCode').value = currentRoom;
+                document.getElementById('loginPassword').value = currentPass;
+                attemptLogin();
+            }
+        });
 
         function generateRoomCode() { return 'SNF-' + Math.floor(100000 + Math.random() * 900000); }
 
-        function initRoom(code) {
-            currentRoom = code.toUpperCase();
-            localStorage.setItem('sync_room_code', currentRoom);
-            document.getElementById('roomCodeDisplay').innerText = currentRoom;
+        function attemptLogin() {
+            const roomCode = document.getElementById('loginRoomCode').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPassword').value.trim();
+            const errDiv = document.getElementById('loginError');
+
+            if (!roomCode || !pass) {
+                errDiv.innerText = "Lütfen Oda Kodu ve Şifrenizi tam girin.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+
+            db.ref('rooms/' + roomCode).once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Oda varsa Şifreyi Kontrol Et
+                    if (data.password && data.password !== pass) {
+                        errDiv.innerText = "Hatalı Şifre! Lütfen şifrenizi kontrol edin.";
+                        errDiv.classList.remove('hidden');
+                        return;
+                    }
+                }
+                
+                // Başarılı Giriş
+                errDiv.classList.add('hidden');
+                currentRoom = roomCode;
+                currentPass = pass;
+                localStorage.setItem('auth_room_code', currentRoom);
+                localStorage.setItem('auth_room_pass', currentPass);
+
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+
+                initRoomListener(currentRoom, pass);
+            });
+        }
+
+        function createNewRoomWithPass() {
+            const pass = prompt("Yeni oluşturacağınız oda için bir şifre (PIN) belirleyin:");
+            if (!pass || pass.trim() === '') return alert("Şifre boş bırakılamaz!");
+
+            const newCode = generateRoomCode();
+            currentRoom = newCode;
+            currentPass = pass.trim();
+
+            db.ref('rooms/' + newCode).set({
+                password: currentPass,
+                students: [],
+                lessons: lessons,
+                ezberItems: ezberItems,
+                dailyRecords: {},
+                ezberRecords: {},
+                studentProfiles: {},
+                lastUpdated: Date.now()
+            }).then(() => {
+                localStorage.setItem('auth_room_code', currentRoom);
+                localStorage.setItem('auth_room_pass', currentPass);
+                alert(`Yeni Odanız Oluşturuldu!\n\nOda Kodu: ${currentRoom}\nŞifre: ${currentPass}\n\nBaşka cihazlardan bu bilgilerle giriş yapabilirsiniz.`);
+                
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                initRoomListener(currentRoom, currentPass);
+            });
+        }
+
+        function initRoomListener(code, pass) {
+            document.getElementById('roomCodeDisplay').innerText = code;
 
             const dot = document.getElementById('syncStatusDot');
             const text = document.getElementById('syncStatusText');
             dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
             text.innerText = "Yükleniyor...";
 
-            if (activeRoomRef) activeRoomRef.off(); // Önceki dinleyiciyi kapat
+            if (activeRoomRef) activeRoomRef.off();
 
-            activeRoomRef = db.ref('rooms/' + currentRoom);
+            activeRoomRef = db.ref('rooms/' + code);
             activeRoomRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -341,22 +439,17 @@
                     dailyRecords = data.dailyRecords || {};
                     ezberRecords = data.ezberRecords || {};
                     studentProfiles = data.studentProfiles || {};
-                } else {
-                    // Oda veritabanında tamamen yeniyse varsayılanları kaydet
-                    saveDataToFirebase();
                 }
                 dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
                 text.innerText = "Canlı";
                 renderAll();
-            }, () => {
-                dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
-                text.innerText = "Hata / Çevrimdışı";
             });
         }
 
         function saveDataToFirebase() {
             if (!currentRoom) return;
-            db.ref('rooms/' + currentRoom).set({
+            db.ref('rooms/' + currentRoom).update({
+                password: currentPass,
                 students: students,
                 lessons: lessons,
                 ezberItems: ezberItems,
@@ -365,6 +458,14 @@
                 studentProfiles: studentProfiles,
                 lastUpdated: Date.now()
             });
+        }
+
+        function logout() {
+            if (confirm("Çıkış yapmak istediğinizden emin misiniz?")) {
+                localStorage.removeItem('auth_room_code');
+                localStorage.removeItem('auth_room_pass');
+                location.reload();
+            }
         }
 
         function switchTab(tabName) {
@@ -868,19 +969,6 @@
             if (confirm("Ders silinsin mi?")) { lessons.splice(idx, 1); saveDataToFirebase(); }
         }
 
-        // --- ODA & EXPORT ---
-        function changeRoomModal() { document.getElementById('roomModal').classList.remove('hidden'); }
-        function joinRoom() {
-            const code = document.getElementById('roomCodeInput').value.trim();
-            if (code) { 
-                document.getElementById('roomModal').classList.add('hidden'); 
-                initRoom(code); 
-            }
-        }
-        function createNewRoom() {
-            document.getElementById('roomModal').classList.add('hidden');
-            initRoom(generateRoomCode());
-        }
         function copyRoomCode() { navigator.clipboard.writeText(currentRoom); alert("Sınıf Kodu kopyalandı: " + currentRoom); }
 
         function exportExcelEzber() {
