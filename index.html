@@ -112,7 +112,6 @@
                     </div>
                 </div>
 
-                <!-- Seçilen Sınıfı Sil Butonu (Dinamik Gösterim) -->
                 <div id="deleteSinifContainerEzber" class="hidden">
                     <button onclick="deleteSelectedSinif('Ezber')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 font-semibold transition shadow-sm">
                         <i class="fa-solid fa-trash-can"></i> <span id="deleteSinifBtnTextEzber">Sınıfı Sil</span>
@@ -236,7 +235,6 @@
         <!-- TAB 4: DERS & EZBER TANIMLARI -->
         <div id="content-ayarlar" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Ezber Konuları & Sınıf Atama -->
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-quran text-emerald-600"></i> Ezber Konusu & Sınıf Atama
@@ -255,7 +253,6 @@
                     <div id="ezberList" class="space-y-2 max-h-[350px] overflow-y-auto"></div>
                 </div>
 
-                <!-- Okul Dersleri & Sınıf Atama -->
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-book text-indigo-600"></i> Ders & Sınıf Atama
@@ -282,16 +279,16 @@
     <div id="roomModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
             <h2 class="text-xl font-bold text-slate-800 mb-2">Canlı Senkronizasyon Bağlantısı</h2>
-            <p class="text-xs text-slate-500 mb-6">Aynı sınıf kodunu telefon ve bilgisayarınıza girerek verileri anlık olarak senkronize edebilirsiniz.</p>
+            <p class="text-xs text-slate-500 mb-6">Mevcut sınıf kodunuzu girerek daha önce kaydettiğiniz tüm öğrencilere ve ezberlere ulaşabilirsiniz.</p>
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Mevcut Sınıf Kodu İle Bağlan</label>
                     <div class="flex gap-2">
-                        <input type="text" id="roomCodeInput" placeholder="Örn: ABC12345" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 font-mono uppercase text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <input type="text" id="roomCodeInput" placeholder="Örn: SNF-123456" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 font-mono uppercase text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                         <button onclick="joinRoom()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition">Bağlan</button>
                     </div>
                 </div>
-                <button onclick="createNewRoom()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm py-2.5 rounded-lg border border-slate-300 transition">✨ Yeni Sınıf / Oda Oluştur</button>
+                <button onclick="createNewRoom()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm py-2.5 rounded-lg border border-slate-300 transition">✨ Sıfır / Yeni Oda Oluştur</button>
             </div>
         </div>
     </div>
@@ -313,7 +310,8 @@
         
         let dailyRecords = {}; 
         let ezberRecords = {}; 
-        let studentProfiles = {}; // Hafız, Abdest, Kur'an/Cüz Durumu ve Puanlar
+        let studentProfiles = {};
+        let activeRoomRef = null;
 
         document.getElementById('selectedDateDers').value = new Date().toISOString().split('T')[0];
 
@@ -329,9 +327,12 @@
             const dot = document.getElementById('syncStatusDot');
             const text = document.getElementById('syncStatusText');
             dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
-            text.innerText = "Bağlanıyor...";
+            text.innerText = "Yükleniyor...";
 
-            db.ref('rooms/' + currentRoom).on('value', (snapshot) => {
+            if (activeRoomRef) activeRoomRef.off(); // Önceki dinleyiciyi kapat
+
+            activeRoomRef = db.ref('rooms/' + currentRoom);
+            activeRoomRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
                     students = data.students || [];
@@ -341,6 +342,7 @@
                     ezberRecords = data.ezberRecords || {};
                     studentProfiles = data.studentProfiles || {};
                 } else {
+                    // Oda veritabanında tamamen yeniyse varsayılanları kaydet
                     saveDataToFirebase();
                 }
                 dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
@@ -353,6 +355,7 @@
         }
 
         function saveDataToFirebase() {
+            if (!currentRoom) return;
             db.ref('rooms/' + currentRoom).set({
                 students: students,
                 lessons: lessons,
@@ -434,7 +437,6 @@
             subeSelect.value = subeler.includes(currentSube) ? currentSube : 'ALL';
         }
 
-        // --- SINIF SİLME BUTONU KONTROLÜ ---
         function checkDeleteSinifButton(type) {
             const val = document.getElementById('filterSinif' + type).value;
             const container = document.getElementById('deleteSinifContainer' + type);
@@ -484,7 +486,6 @@
                 const stEzber = (ezberRecords[donem] && ezberRecords[donem][st.id]) ? ezberRecords[donem][st.id] : { status: {}, notes: '' };
                 const stProf = studentProfiles[st.id] || { abdest: false, hafiz: false, kuranDurum: 'kuran' };
 
-                // Öğrenci Rozetleri (Abdest, Hafız, Kur'an/Cüz)
                 const badgeAbdest = stProf.abdest 
                     ? `<button onclick="toggleStudentBadge('${st.id}', 'abdest')" class="badge-btn bg-blue-100 text-blue-800 border border-blue-300 text-[10px] px-2 py-0.5 rounded-md font-semibold">💧 Abdestli</button>`
                     : `<button onclick="toggleStudentBadge('${st.id}', 'abdest')" class="badge-btn bg-slate-100 text-slate-400 border border-slate-200 text-[10px] px-2 py-0.5 rounded-md">💧 Abdestsiz</button>`;
@@ -501,7 +502,6 @@
                     </select>
                 `;
 
-                // Sınıfa atanmış ezber konuları
                 const studentSinifStr = String(st.sinif).trim();
                 const availableEzbers = ezberItems.filter(e => e.sinif === 'ALL' || String(e.sinif).trim() === studentSinifStr);
 
@@ -588,11 +588,10 @@
             saveDataToFirebase();
         }
 
-        // 1. Dönem Tamamlanmayan Sureleri 2. Döneme Aktarma Mantığı
         function transferUnfinishedEzbers() {
-            if (!ezberRecords['1']) return alert("1. Döneme ait veri bulunamadı.");
+            if (!ezberRecords['1']) return alert("1. Döneme ait kayıtlı veri bulunamadı.");
 
-            if (confirm("1. Dönemde 'Başlamadı' veya 'Çalışıyor' durumunda olan tüm ezberler 2. Döneme aktarılacaktır. Onaylıyor musunuz?")) {
+            if (confirm("1. Dönemde tamamlanmayan (kırmızı veya sarı) ezberler 2. Dönem listesine aktarılacaktır. Onaylıyor musunuz?")) {
                 if (!ezberRecords['2']) ezberRecords['2'] = {};
 
                 Object.keys(ezberRecords['1']).forEach(stId => {
@@ -611,7 +610,7 @@
                 saveDataToFirebase();
                 document.getElementById('filterDonemEzber').value = '2';
                 renderEzberTable();
-                alert("1. Dönem eksik ezberleri başarıyla 2. Döneme aktarıldı!");
+                alert("1. Dönem eksik ezberleri 2. Döneme başarıyla aktarıldı!");
             }
         }
 
@@ -637,7 +636,6 @@
             filteredStudents.forEach((st, idx) => {
                 const stRecord = (dailyRecords[date] && dailyRecords[date][st.id]) ? dailyRecords[date][st.id] : { status: 'Var', notes: '', scores: {}, points: 0, homeworkName: '', homeworkDone: false };
 
-                // Sınıfa özel ders puanlama
                 const studentSinifStr = String(st.sinif).trim();
                 const availableLessons = lessons.filter(l => l.sinif === 'ALL' || String(l.sinif).trim() === studentSinifStr);
 
@@ -673,7 +671,6 @@
                     <td class="p-3 text-xs"><span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-semibold">${st.sinif}/${st.sube.toUpperCase()}</span></td>
                     <td class="p-3"><div class="font-semibold text-slate-800 text-sm">${st.name}</div><div class="text-[11px] text-slate-400 font-mono">No: ${st.no}</div></td>
                     
-                    <!-- + / - Puanlama Düğmesi -->
                     <td class="p-3 text-center">
                         <div class="flex items-center justify-center gap-1">
                             <button onclick="changePoint('${date}', '${st.id}', -1)" class="w-6 h-6 bg-red-100 hover:bg-red-200 text-red-700 rounded font-bold text-xs">-</button>
@@ -682,7 +679,6 @@
                         </div>
                     </td>
 
-                    <!-- Devamsızlık -->
                     <td class="p-3 text-center">
                         <select onchange="updateDersAttendance('${date}', '${st.id}', this.value)" class="text-xs font-semibold px-1.5 py-1 rounded border ${stRecord.status==='Yok'?'bg-red-100 text-red-700':'bg-emerald-50 text-emerald-700'}">
                             <option value="Var" ${stRecord.status==='Var'?'selected':''}>Var</option>
@@ -691,7 +687,6 @@
                         </select>
                     </td>
 
-                    <!-- Ödev Adı ve Yapıldı/Yapılmadı Düğmesi -->
                     <td class="p-3">
                         <div class="flex items-center gap-1.5">
                             <input type="text" value="${stRecord.homeworkName || ''}" placeholder="Ödev Adı..." onblur="updateHomeworkName('${date}', '${st.id}', this.value)" class="w-28 border border-slate-300 rounded px-1.5 py-1 text-xs outline-none">
@@ -877,13 +872,16 @@
         function changeRoomModal() { document.getElementById('roomModal').classList.remove('hidden'); }
         function joinRoom() {
             const code = document.getElementById('roomCodeInput').value.trim();
-            if (code) { document.getElementById('roomModal').classList.add('hidden'); initRoom(code); }
+            if (code) { 
+                document.getElementById('roomModal').classList.add('hidden'); 
+                initRoom(code); 
+            }
         }
         function createNewRoom() {
             document.getElementById('roomModal').classList.add('hidden');
             initRoom(generateRoomCode());
         }
-        function copyRoomCode() { navigator.clipboard.writeText(currentRoom); alert("Kopyalandı: " + currentRoom); }
+        function copyRoomCode() { navigator.clipboard.writeText(currentRoom); alert("Sınıf Kodu kopyalandı: " + currentRoom); }
 
         function exportExcelEzber() {
             const donem = document.getElementById('filterDonemEzber').value;
