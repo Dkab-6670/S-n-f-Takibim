@@ -96,7 +96,7 @@
                         <div class="text-xs text-purple-600 font-semibold uppercase">Kayıtlı Hafız Sayısı</div>
                         <div id="dashTotalHafiz" class="text-2xl font-bold text-purple-900 mt-1">0</div>
                     </div>
-                    <div class="w-10 h-10 bg-purple-200 text-purple-700 rounded-lg flex items-center justify-center text-xl"><i class="fa-solid fa-graduation-cap"></i></div>
+                    <div class="w-10 h-10 bg-purple-200 text-purple-700 rounded-lg flex items-center justify-center text-xl"><i class="fa-solid fa-crown"></i></div>
                 </div>
 
                 <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-center justify-between">
@@ -139,7 +139,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-purple-50/50 border border-purple-200 p-4 rounded-xl">
                     <h3 class="font-bold text-red-600 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-graduation-cap text-red-600"></i> Hafız Öğrenciler
+                        <i class="fa-solid fa-crown text-red-600"></i> Hafız Öğrenciler
                     </h3>
                     <div id="listHafizStudents" class="flex flex-wrap gap-2"></div>
                 </div>
@@ -813,8 +813,8 @@ cuzList.forEach(item => {
 
                 // Dönemlik Hafızlık
                 const badgeHafiz = donemObj.hafiz 
-                    ? `<button onclick="togglePeriodBadge('${st.id}', 'hafiz')" class="badge-btn bg-purple-100 text-purple-800 border border-purple-300 text-[10px] px-2 py-0.5 rounded-md font-bold">🎓 Hafız</button>`
-                    : `<button onclick="togglePeriodBadge('${st.id}', 'hafiz')" class="badge-btn bg-slate-100 text-slate-400 border border-slate-200 text-[10px] px-2 py-0.5 rounded-md">🎓 Hafız Değil</button>`;
+                    ? `<button onclick="togglePeriodBadge('${st.id}', 'hafiz')" class="badge-btn bg-purple-100 text-purple-800 border border-purple-300 text-[10px] px-2 py-0.5 rounded-md font-bold">👑 Hafız</button>`
+                    : `<button onclick="togglePeriodBadge('${st.id}', 'hafiz')" class="badge-btn bg-slate-100 text-slate-400 border border-slate-200 text-[10px] px-2 py-0.5 rounded-md">👑 Hafız Değil</button>`;
 
                 // Dönemlik Kur'an / Cüz
                 const kuranVal = donemObj.kuranDurum || 'kuran';
