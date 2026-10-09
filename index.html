@@ -413,11 +413,13 @@
         
         let activeRoomRef = null;
 
-        const todayStr = new Date().toISOString().split('T')[0];
+        const _d = new Date();
+const todayStr = new Date(_d - _d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
         document.getElementById('selectedDateDers').value = todayStr;
         document.getElementById('selectedDateEzber').value = todayStr;
 
         function escapeHtml(str) {
+            function jsArg(s) { return escapeHtml(JSON.stringify(String(s))); }
             if (str === null || str === undefined) return '';
             return String(str)
                 .replace(/&/g, "&amp;")
@@ -514,6 +516,11 @@
                     notes: ''
                 };
             }
+            const _r = st.periods[donem].days[date];
+if (!_r.ezberStatus) _r.ezberStatus = {};
+if (!_r.scores) _r.scores = {};
+if (_r.notes === undefined) _r.notes = '';
+if (_r.ezberNotes === undefined) _r.ezberNotes = '';
             return st.periods[donem].days[date];
         }
 
@@ -622,7 +629,7 @@
             kuranDiv.innerHTML = kuranList.length ? '' : '<span class="text-xs text-slate-400 italic">Öğrenci bulunamadı.</span>';
             kuranList.slice(0, 15).forEach(item => {
                 const badgeColor = item.status === 'cuz' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-blue-100 text-blue-800 border-blue-200';
-                const statusText = item.status === 'cuz' ? '📜 Cüzde' : '📖 Kur'anda';
+                const statusText = item.status === 'cuz' ? "📜 Cüzde" : "📖 Kur'anda";
                 kuranDiv.innerHTML += `
                     <span class="${badgeColor} text-xs px-2.5 py-1 rounded-lg font-medium border flex items-center gap-1">
                         ${escapeHtml(item.student.name)} <span class="text-[10px] opacity-75">(${statusText})</span>
@@ -817,7 +824,7 @@
                     }
 
                     return `
-                        <button onclick="toggleEzberState('${st.id}', '${escapeHtml(item)}')" class="ezber-btn ${btnClass} text-xs px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
+                        <button onclick="toggleEzberState('${st.id}', ${jsArg(item)})" class="ezber-btn ${btnClass} text-xs px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm">
                             ${iconHtml}
                             <span>${escapeHtml(item)}</span>
                         </button>
@@ -986,7 +993,7 @@
                     return `
                         <div class="inline-flex flex-col items-center p-1 bg-slate-50 border rounded">
                             <span class="text-[9px] text-slate-500 truncate max-w-[70px]" title="${escapeHtml(l)}">${escapeHtml(l)}</span>
-                            <select onchange="updateDersScore('${st.id}', '${escapeHtml(l)}', this.value)" class="text-xs font-bold border rounded px-1 py-0.5 bg-white">
+                            <select onchange="updateDersScore('${st.id}', ${jsArg(l)}, this.value)" class="text-xs font-bold border rounded px-1 py-0.5 bg-white">
                                 <option value="-" ${val==='-'?'selected':''}>-</option>
                                 <option value="5" ${val==='5'?'selected':''}>5</option>
                                 <option value="4" ${val==='4'?'selected':''}>4</option>
@@ -1180,7 +1187,7 @@
         }
 
         function loadSampleGorselData() {
-            const rawData = `1\t419\t7\td\tÖMER YILDIZ\n3\t501\t7\td\tBURAK KORAŞ\n4\t502\t7\td\tKAMİL EFE ALTUN\n5\t503\t7\td\tHÜSEYİN ENES DANIŞ\n6\t522\t7\td\tENSAR OĞUZYİĞİT\n7\t531\t7\td\tŞERAFETTİN İ theoretical\n8\t534\t7\td\tMUSTAFA SALİH ÇELİK\n9\t535\t7\td\tYAVUZ HAN DURMAZ\n10\t539\t7\td\tFAHRİ EREN ÖZARSLAN\n11\t551\t7\td\tABDULKADER YILDIZ\n12\t553\t7\td\tBEHLÜL MÜNİR ARSLAN\n13\t571\t7\td\tÖMER KOCA\n14\t572\t7\td\tÖMER FARUK KAYA\n15\t573\t7\td\tATAKAN AKDENİZ\n16\t851\t7\td\tEMİRHAN ONAL\n17\t852\t7\td\tHASAN GONCA\n18\t854\t7\td\tADİL BAKİ KAYNAR\n19\t859\t7\td\tEKREM YILMAZ\n1\t422\t7\td\tKADİRHAN ERYİĞİT\n2\t504\t7\te\tYILDIRAY DEMİR\n3\t554\t7\te\tBİLAL KIZILALAN\n4\t558\t7\te\tMERİÇ DURAK\n5\t559\t7\te\tÖMER DEMİRCİ\n6\t561\t7\te\tYUNUS EMRE TOKER\n7\t562\t7\te\tYUSUF CELALETTİN ÖZGENELLER\n8\t564\t7\te\tHUZEYFE ESEDULLAH SANCAKTAR\n9\t566\t7\te\tMUHAMMED SERDEN MUSTAFA SEVİMLİ\n10\t568\t7\te\tMAHMUT KARAKULAK\n11\t569\t7\te\tMUSTAFA EMİR ÜNÜVAR\n12\t570\t7\te\tMUSAB UMEYR BİLGİÇ\n13\t574\t7\te\tENES KAYRA CERAN\n14\t580\t7\te\tMUHAMMED ENES KARA\n15\t581\t7\te\tOSMAN SEFA KORKMAZ\n16\t850\t7\te\tMUSA ARSLAN\n17\t853\t7\te\tNAJMEDIN UZBAK\n18\t857\t7\te\tBÜLENT EMRE UYSAL\n19\t1200\t7\te\tMUHARREM ESMEN\n20\t1201\t7\te\tYUSUF MORCAN\n21\t1203\t7\te\tFATİH KABAK\n22\t1204\t7\te\tHAMZA AKKURT\n23\t1500\t7\te\tMUSTAFA KARA\n24\t1501\t7\te\tRAMAZAN TALHA TAŞER\n25\t1502\t7\te\tMEHMET EMİN TAŞER\n26\t1503\t7\te\tENSAR KARAGÖZ\n27\t2010\t7\te\tNUREDDIN AL AHMAD`;
+            const rawData = `1\t419\t7\td\tÖMER YILDIZ\n3\t501\t7\td\tBURAK KORAŞ\n4\t502\t7\td\tKAMİL EFE ALTUN\n5\t503\t7\td\tHÜSEYİN ENES DANIŞ\n6\t522\t7\td\tENSAR OĞUZYİĞİT\n7\t531\t7\td\tŞERAFETTİN İ\n8\t534\t7\td\tMUSTAFA SALİH ÇELİK\n9\t535\t7\td\tYAVUZ HAN DURMAZ\n10\t539\t7\td\tFAHRİ EREN ÖZARSLAN\n11\t551\t7\td\tABDULKADER YILDIZ\n12\t553\t7\td\tBEHLÜL MÜNİR ARSLAN\n13\t571\t7\td\tÖMER KOCA\n14\t572\t7\td\tÖMER FARUK KAYA\n15\t573\t7\td\tATAKAN AKDENİZ\n16\t851\t7\td\tEMİRHAN ONAL\n17\t852\t7\td\tHASAN GONCA\n18\t854\t7\td\tADİL BAKİ KAYNAR\n19\t859\t7\td\tEKREM YILMAZ\n1\t422\t7\td\tKADİRHAN ERYİĞİT\n2\t504\t7\te\tYILDIRAY DEMİR\n3\t554\t7\te\tBİLAL KIZILALAN\n4\t558\t7\te\tMERİÇ DURAK\n5\t559\t7\te\tÖMER DEMİRCİ\n6\t561\t7\te\tYUNUS EMRE TOKER\n7\t562\t7\te\tYUSUF CELALETTİN ÖZGENELLER\n8\t564\t7\te\tHUZEYFE ESEDULLAH SANCAKTAR\n9\t566\t7\te\tMUHAMMED SERDEN MUSTAFA SEVİMLİ\n10\t568\t7\te\tMAHMUT KARAKULAK\n11\t569\t7\te\tMUSTAFA EMİR ÜNÜVAR\n12\t570\t7\te\tMUSAB UMEYR BİLGİÇ\n13\t574\t7\te\tENES KAYRA CERAN\n14\t580\t7\te\tMUHAMMED ENES KARA\n15\t581\t7\te\tOSMAN SEFA KORKMAZ\n16\t850\t7\te\tMUSA ARSLAN\n17\t853\t7\te\tNAJMEDIN UZBAK\n18\t857\t7\te\tBÜLENT EMRE UYSAL\n19\t1200\t7\te\tMUHARREM ESMEN\n20\t1201\t7\te\tYUSUF MORCAN\n21\t1203\t7\te\tFATİH KABAK\n22\t1204\t7\te\tHAMZA AKKURT\n23\t1500\t7\te\tMUSTAFA KARA\n24\t1501\t7\te\tRAMAZAN TALHA TAŞER\n25\t1502\t7\te\tMEHMET EMİN TAŞER\n26\t1503\t7\te\tENSAR KARAGÖZ\n27\t2010\t7\te\tNUREDDIN AL AHMAD`;
             document.getElementById('bulkStudentInput').value = rawData;
             processBulkStudents();
         }
@@ -1254,7 +1261,7 @@
                 const rec = (st.periods && st.periods[donem] && st.periods[donem].days && st.periods[donem].days[dateVal]) || {};
                 const donemObj = (st.periods && st.periods[donem]) || {};
                 const ezbers = allNames.map(eName => (rec.ezberStatus && rec.ezberStatus[eName]) || 'Baslamadi').join(";");
-                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${rec.abdest?'Evet':'Hayir'};${donemObj.hafiz?'Evet':'Hayir'};${donemObj.kuranDurum||'kuran'};${ezbers};${rec.ezberNotes||''}\n`;
+                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${rec.abdest?'Evet':'Hayir'};${donemObj.hafiz?'Evet':'Hayir'};${donemObj.kuranDurum||'kuran'};${ezbers};${c(rec.ezberNotes)}\n`;
             });
             downloadCSV(csv, `Ezber_Takip_${donem}_Donem_${dateVal}.csv`);
         }
@@ -1268,18 +1275,23 @@
             students.forEach((st, idx) => {
                 const rec = (st.periods && st.periods[donem] && st.periods[donem].days && st.periods[donem].days[dateVal]) || {};
                 const scores = allLessonNames.map(lName => (rec.scores && rec.scores[lName]) || '-').join(";");
-                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${rec.points||0};${rec.status==='None'?'-':rec.status};${rec.homeworkName||''};${rec.homeworkDone?'Yapildi':'Yapilmadi'};${scores};${rec.notes||''}\n`;
+                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${rec.points||0};${rec.status==='None'?'-':rec.status};${c(rec.homeworkName)};${rec.homeworkDone?'Yapildi':'Yapilmadi'};${scores};${c(rec.notes)}\n`;
             });
             downloadCSV(csv, `Ders_Takip_${donem}_Donem_${dateVal}.csv`);
         }
 
         function downloadCSV(csvContent, fileName) {
-            const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csvContent));
-            link.setAttribute("download", fileName);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+    const text = csvContent.replace(/^data:text\/csv;charset=utf-8,/, '');
+    const blob = new Blob(['\ufeff' + text], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+}
+function c(v) { return '"' + String(v ?? '').replace(/"/g, '""') + '"'; }
         }
     </script>
 </body>
