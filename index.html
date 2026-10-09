@@ -344,7 +344,7 @@
                     </h3>
                     <div class="flex flex-col gap-2 mb-4">
                         <div class="flex gap-2">
-                            <select id="newEzberSinifSelect" class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
+                            <select id="newEzberSinifSelect" multiple class="..."> class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
                                 <option value="ALL">Tüm Sınıflar</option>
                             </select>
                             <input type="text" id="newEzberInput" placeholder="Örn: Yasin Suresi, Amme Cüzü" class="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none">
@@ -362,7 +362,7 @@
                     </h3>
                     <div class="flex flex-col gap-2 mb-4">
                         <div class="flex gap-2">
-                            <select id="newLessonSinifSelect" class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
+                            <select id="newLessonSinifSelect" multiple class="..."> class="border border-slate-300 rounded-lg px-2 py-1.5 text-xs outline-none bg-white font-semibold text-slate-700">
                                 <option value="ALL">Tüm Sınıflar</option>
                             </select>
                             <input type="text" id="newLessonInput" placeholder="Örn: Tecvid, Siyer, Matematik" class="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none">
@@ -1224,27 +1224,31 @@ cuzList.forEach(item => {
         }
 
         function addEzberItem() {
-            const name = document.getElementById('newEzberInput').value.trim();
-            const sinif = document.getElementById('newEzberSinifSelect').value;
-            if (name) {
-                ezberItems.push({ name, sinif });
-                saveDataToFirebase();
-                document.getElementById('newEzberInput').value = '';
-            }
-        }
+    const name = document.getElementById('newEzberInput').value.trim();
+    const sel = document.getElementById('newEzberSinifSelect');
+    let siniflar = Array.from(sel.selectedOptions).map(o => o.value);
+    if (!siniflar.length || siniflar.includes('ALL')) siniflar = ['ALL'];
+    if (name) {
+        siniflar.forEach(sinif => ezberItems.push({ name, sinif }));
+        saveDataToFirebase();
+        document.getElementById('newEzberInput').value = '';
+    }
+}
         function removeEzberItem(idx) {
             if (confirm("Ezber konusu silinsin mi?")) { ezberItems.splice(idx, 1); saveDataToFirebase(); }
         }
 
         function addLesson() {
-            const name = document.getElementById('newLessonInput').value.trim();
-            const sinif = document.getElementById('newLessonSinifSelect').value;
-            if (name) {
-                lessons.push({ name, sinif });
-                saveDataToFirebase();
-                document.getElementById('newLessonInput').value = '';
-            }
-        }
+    const name = document.getElementById('newLessonInput').value.trim();
+    const sel = document.getElementById('newLessonSinifSelect');
+    let siniflar = Array.from(sel.selectedOptions).map(o => o.value);
+    if (!siniflar.length || siniflar.includes('ALL')) siniflar = ['ALL'];
+    if (name) {
+        siniflar.forEach(sinif => lessons.push({ name, sinif }));
+        saveDataToFirebase();
+        document.getElementById('newLessonInput').value = '';
+    }
+}
         function removeLesson(idx) {
             if (confirm("Ders silinsin mi?")) { lessons.splice(idx, 1); saveDataToFirebase(); }
         }
