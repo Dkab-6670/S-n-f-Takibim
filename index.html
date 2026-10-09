@@ -284,6 +284,7 @@
                             <th class="p-3 font-semibold text-center w-20">+/ - Puan</th>
                             <th class="p-3 font-semibold text-center w-28">Devamsızlık</th>
                             <th class="p-3 font-semibold text-center w-48">Ödev Adı ve Durumu</th>
+                            <th class="p-3 font-semibold text-center w-48">Verilen Ödevler</th>
                             <th class="p-3 font-semibold text-center">Ders Puanları (1-5)</th>
                             <th class="p-3 font-semibold w-36">Günlük Notlar</th>
                         </tr>
@@ -337,6 +338,22 @@
 
         <!-- TAB 4: DERS & EZBER TANIMLARI -->
         <div id="content-ayarlar" class="hidden bg-white p-4 md:p-6 rounded-b-xl shadow-sm border border-slate-200">
+            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-6">
+    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-clipboard-list text-amber-600"></i> Ödev Atama
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-2 mb-3">
+        <select id="hwSinifSelect" onchange="renderHwSubeOptions()" class="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white outline-none"></select>
+        <select id="hwSubeSelect" class="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white outline-none"></select>
+        <input type="text" id="hwName" placeholder="Ödev adı" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm outline-none">
+        <div><label class="block text-[10px] text-slate-500 font-semibold">Başlangıç</label><input type="date" id="hwStart" class="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm outline-none"></div>
+        <div><label class="block text-[10px] text-slate-500 font-semibold">Bitiş</label><input type="date" id="hwEnd" class="w-full border border-slate-300 rounded-lg px-2 py-1 text-sm outline-none"></div>
+    </div>
+    <button onclick="addHomework()" class="bg-amber-600 hover:bg-amber-700 text-white text-sm px-4 py-2 rounded-lg font-medium">
+        <i class="fa-solid fa-plus"></i> Ödevi Ata
+    </button>
+    <div id="hwList" class="space-y-2 mt-4 max-h-[300px] overflow-y-auto"></div>
+</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
@@ -412,6 +429,7 @@
         ];
         
         let activeRoomRef = null;
+        let homeworks = [];
         const _d = new Date();
         const todayStr = new Date(_d - _d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
         document.getElementById('selectedDateDers').value = todayStr;
@@ -478,6 +496,7 @@
                 const data = snapshot.val();
                 if (data) {
                     students = data.students || [];
+                    homeworks = data.homeworks || [];
                     lessons = (data.lessons || []).map(l => typeof l === 'string' ? { name: l, sinif: 'ALL' } : l);
                     ezberItems = (data.ezberItems || []).map(e => typeof e === 'string' ? { name: e, sinif: 'ALL' } : e);
                 }
@@ -493,6 +512,7 @@
                 students: students,
                 lessons: lessons,
                 ezberItems: ezberItems,
+                homeworks: homeworks,
                 lastUpdated: Date.now()
             });
         }
@@ -977,7 +997,7 @@ cuzList.forEach(item => {
             });
 
             if (filteredStudents.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">Öğrenci bulunamadı.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400">Öğrenci bulunamadı.</td></tr>`;
                 return;
             }
 
@@ -1050,7 +1070,7 @@ cuzList.forEach(item => {
                             <button onclick="toggleHomeworkDone('${st.id}')" class="text-[10px] px-2 py-1 rounded font-semibold whitespace-nowrap ${hwBtnClass}">${hwBtnIcon}</button>
                         </div>
                     </td>
-
+                    <td class="p-3">${hwCellHtml(st, dateVal)}</td>
                     <td class="p-3"><div class="flex flex-wrap gap-1 items-center">${lessonsHtml}</div></td>
                     <td class="p-3"><input type="text" value="${escapeHtml(rec.notes || '')}" placeholder="Not..." onblur="updateDersNote('${st.id}', this.value)" class="w-full border rounded px-2 py-1 text-xs outline-none"></td>
                 `;
@@ -1194,6 +1214,7 @@ cuzList.forEach(item => {
 
         // --- TAB 4: TANIMLAR VE ATAMALAR ---
         function renderSettingsLists() {
+            renderHomeworkSettings();
             const ezberContainer = document.getElementById('ezberList');
             ezberContainer.innerHTML = '';
             ezberItems.forEach((e, idx) => {
@@ -1252,7 +1273,101 @@ cuzList.forEach(item => {
         function removeLesson(idx) {
             if (confirm("Ders silinsin mi?")) { lessons.splice(idx, 1); saveDataToFirebase(); }
         }
+function hwExportText(st, date) {
+    const status = st.hwStatus || {};
+    return homeworks.filter(h => hwApplies(h, st, date)).map(h => {
+        const v = status[h.id];
+        return h.name + ': ' + (v === 'Yapti' ? 'Yapti' : (v === 'Yapmadi' ? 'Yapmadi' : 'Secilmedi'));
+    }).join(' | ');
+}
+function hwApplies(h, st, date) {
+    return date >= h.start && date <= h.end &&
+        (h.sinif === 'ALL' || String(st.sinif).trim() === h.sinif) &&
+        (h.sube === 'ALL' || String(st.sube).trim().toLowerCase() === h.sube);
+}
 
+function hwCellHtml(st, date) {
+    const list = homeworks.filter(h => hwApplies(h, st, date));
+    if (!list.length) return '<span class="text-xs text-slate-300">-</span>';
+    const status = st.hwStatus || {};
+    return list.map(h => {
+        const v = status[h.id] || 'None';
+        const cls = v === 'Yapti' ? 'bg-emerald-100 text-emerald-800 font-bold' : (v === 'Yapmadi' ? 'bg-red-100 text-red-800 font-bold' : 'bg-white text-slate-500');
+        return `<div class="mb-1.5">
+            <div class="text-[11px] font-semibold text-slate-700 flex items-center gap-1">
+                <span class="bg-amber-100 text-amber-800 px-1.5 rounded text-[10px]">Verildi</span>${escapeHtml(h.name)}
+            </div>
+            <select onchange="setHwStatus('${st.id}', '${h.id}', this.value)" class="text-xs px-1.5 py-1 rounded border outline-none ${cls}">
+                <option value="None" ${v === 'None' ? 'selected' : ''}>- Durumu seçiniz -</option>
+                <option value="Yapti" ${v === 'Yapti' ? 'selected' : ''}>Yaptı</option>
+                <option value="Yapmadi" ${v === 'Yapmadi' ? 'selected' : ''}>Yapmadı</option>
+            </select>
+        </div>`;
+    }).join('');
+}
+
+function setHwStatus(stId, hwId, val) {
+    const st = students.find(s => s.id === stId);
+    if (!st) return;
+    if (!st.hwStatus) st.hwStatus = {};
+    if (val === 'None') delete st.hwStatus[hwId]; else st.hwStatus[hwId] = val;
+    saveDataToFirebase();
+}
+
+function addHomework() {
+    const name = document.getElementById('hwName').value.trim();
+    const sinif = document.getElementById('hwSinifSelect').value;
+    const sube = document.getElementById('hwSubeSelect').value;
+    const start = document.getElementById('hwStart').value;
+    const end = document.getElementById('hwEnd').value;
+    if (!name) return alert('Lütfen ödev adını yazın.');
+    if (!start || !end) return alert('Lütfen başlangıç ve bitiş tarihini seçin.');
+    if (end < start) return alert('Bitiş tarihi başlangıçtan önce olamaz.');
+    homeworks.push({ id: 'HW_' + Date.now(), name, sinif, sube, start, end });
+    document.getElementById('hwName').value = '';
+    saveDataToFirebase();
+}
+
+function removeHomework(id) {
+    if (confirm('Bu ödev silinsin mi?')) {
+        homeworks = homeworks.filter(h => h.id !== id);
+        saveDataToFirebase();
+    }
+}
+
+function renderHwSubeOptions() {
+    const sinifVal = document.getElementById('hwSinifSelect').value;
+    const sel = document.getElementById('hwSubeSelect');
+    const cur = sel.value;
+    const pool = sinifVal === 'ALL' ? students : students.filter(s => String(s.sinif).trim() === sinifVal);
+    const subeler = [...new Set(pool.map(s => String(s.sube).trim().toLowerCase()))].filter(Boolean).sort();
+    sel.innerHTML = '<option value="ALL">Tüm Şubeler</option>' + subeler.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s.toUpperCase())} Şubesi</option>`).join('');
+    sel.value = subeler.includes(cur) ? cur : 'ALL';
+}
+
+function renderHomeworkSettings() {
+    const siniflar = [...new Set(students.map(s => String(s.sinif).trim()))].filter(Boolean).sort();
+    const sinifSel = document.getElementById('hwSinifSelect');
+    const cur = sinifSel.value;
+    sinifSel.innerHTML = '<option value="ALL">Tüm Sınıflar</option>' + siniflar.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}. Sınıf</option>`).join('');
+    sinifSel.value = siniflar.includes(cur) ? cur : 'ALL';
+    renderHwSubeOptions();
+
+    const box = document.getElementById('hwList');
+    box.innerHTML = homeworks.length ? '' : '<div class="text-xs text-slate-400 italic">Henüz ödev atanmadı.</div>';
+    homeworks.forEach(h => {
+        const hedef = (h.sinif === 'ALL' ? 'Tüm Sınıflar' : h.sinif + '. Sınıf') + (h.sube !== 'ALL' ? ' / ' + h.sube.toUpperCase() : '');
+        box.innerHTML += `
+            <div class="flex justify-between items-center bg-white border p-2.5 rounded-lg text-sm">
+                <div>
+                    <span class="font-medium text-slate-800">${escapeHtml(h.name)}</span>
+                    <span class="ml-2 text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">${escapeHtml(hedef)}</span>
+                    <span class="ml-1 text-[10px] text-slate-500">${escapeHtml(h.start)} → ${escapeHtml(h.end)}</span>
+                </div>
+                <button onclick="removeHomework('${h.id}')" class="text-xs text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded">Sil</button>
+            </div>`;
+    });
+}
         function copyRoomCode() { navigator.clipboard.writeText(currentRoom); alert("Sınıf Kodu kopyalandı: " + currentRoom); }
 
         function exportExcelEzber() {
@@ -1274,12 +1389,12 @@ cuzList.forEach(item => {
             const dateVal = document.getElementById('selectedDateDers').value || todayStr;
             const donem = document.getElementById('filterDonemDers').value;
             const allLessonNames = lessons.map(l => l.name);
-            let csv = "data:text/csv;charset=utf-8,S.No;Okul No;Sinif;Sube;Adi Soyadi;Puan;Devamsizlik;Odev_Adi;Odev_Durum;" + allLessonNames.join(";") + ";Notlar\n";
+            let csv = "data:text/csv;charset=utf-8,S.No;Okul No;Sinif;Sube;Adi Soyadi;Puan;Devamsizlik;Odev_Adi;Odev_Durum;" + allLessonNames.join(";") + ";Verilen_Odevler;Notlar\n";
             
             students.forEach((st, idx) => {
                 const rec = (st.periods && st.periods[donem] && st.periods[donem].days && st.periods[donem].days[dateVal]) || {};
                 const scores = allLessonNames.map(lName => (rec.scores && rec.scores[lName]) || '-').join(";");
-                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${rec.points||0};${rec.status==='None'?'-':rec.status};${c(rec.homeworkName)};${rec.homeworkDone?'Yapildi':'Yapilmadi'};${scores};${c(rec.notes)}\n`;
+                csv += `${st.sno||idx+1};${st.no};${st.sinif};${st.sube};${st.name};${rec.points||0};${rec.status==='None'?'-':rec.status};${c(rec.homeworkName)};${rec.homeworkDone?'Yapildi':'Yapilmadi'};${scores};${c(hwExportText(st, dateVal))};${c(rec.notes)}\n`;
             });
             downloadCSV(csv, `Ders_Takip_${donem}_Donem_${dateVal}.csv`);
         }
