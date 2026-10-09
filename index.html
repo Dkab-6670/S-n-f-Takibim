@@ -146,7 +146,7 @@
 
                 <div class="bg-blue-50/50 border border-blue-200 p-4 rounded-xl">
                     <h3 class="font-bold text-blue-900 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-book-open text-blue-600"></i> Kur'an & Cüz Seviyesindeki Öğrenciler
+                        <i class="fa-solid fa-book-open text-blue-600"></i> Cüzde Olan Öğrenciler
                     </h3>
                     <div id="listKuranStudents" class="flex flex-wrap gap-2"></div>
                 </div>
@@ -625,8 +625,9 @@
 
             // Kur'an / Cüz Kartları
             const kuranDiv = document.getElementById('listKuranStudents');
-            kuranDiv.innerHTML = kuranList.length ? '' : '<span class="text-xs text-slate-400 italic">Öğrenci bulunamadı.</span>';
-            kuranList.slice(0, 15).forEach(item => {
+const cuzList = kuranList.filter(item => item.status === 'cuz');
+kuranDiv.innerHTML = cuzList.length ? '' : '<span class="text-xs text-slate-400 italic">Cüzde olan öğrenci bulunamadı.</span>';
+cuzList.forEach(item => {
                 const badgeColor = item.status === 'cuz' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-blue-100 text-blue-800 border-blue-200';
                 const statusText = item.status === 'cuz' ? "📜 Cüzde" : "📖 Kur'anda";
                 kuranDiv.innerHTML += `
