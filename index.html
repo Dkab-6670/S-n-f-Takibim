@@ -412,23 +412,12 @@
         ];
         
         let activeRoomRef = null;
-
         const _d = new Date();
-const todayStr = new Date(_d - _d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+        const todayStr = new Date(_d - _d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
         document.getElementById('selectedDateDers').value = todayStr;
         document.getElementById('selectedDateEzber').value = todayStr;
 
-           function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function jsArg(s) { return escapeHtml(JSON.stringify(String(s))); }
+        function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str)
                 .replace(/&/g, "&amp;")
@@ -438,6 +427,7 @@ function jsArg(s) { return escapeHtml(JSON.stringify(String(s))); }
                 .replace(/'/g, "&#039;");
         }
 
+        function jsArg(s) { return escapeHtml(JSON.stringify(String(s))); }
         window.addEventListener('DOMContentLoaded', () => { 
             if (currentRoom) {
                 initRoomListener(currentRoom);
