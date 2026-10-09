@@ -418,8 +418,11 @@ const todayStr = new Date(_d - _d.getTimezoneOffset() * 60000).toISOString().spl
         document.getElementById('selectedDateDers').value = todayStr;
         document.getElementById('selectedDateEzber').value = todayStr;
 
-        function escapeHtml(str) {
-            function jsArg(s) { return escapeHtml(JSON.stringify(String(s))); }
+           function escapeHtml(str) {
+       ...
+   }
+
+   function jsArg(s) { return escapeHtml(JSON.stringify(String(s))); }
             if (str === null || str === undefined) return '';
             return String(str)
                 .replace(/&/g, "&amp;")
