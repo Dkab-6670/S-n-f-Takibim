@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sınıf Takip Sistemi - Gelişmiş</title>
-    <!-- XLSX Kütüphanesi (Excel İçe/Dışa Aktarım İçin) -->
+    <title>Sınıf Takip Sistemi - Günlük & Dönemlik</title>
+    <!-- XLSX Kütüphanesi -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -187,7 +187,7 @@
             border: none;
             cursor: pointer;
             color: white;
-            min-width: 80px;
+            min-width: 85px;
             text-align: center;
         }
 
@@ -262,7 +262,7 @@
             <div class="value" id="statTotal">0</div>
         </div>
         <div class="stat-card" style="border-color: var(--success);">
-            <div class="title">Abdestli Öğrenci</div>
+            <div class="title">Bugün Abdestli</div>
             <div class="value" id="statAbdest">0</div>
         </div>
         <div class="stat-card" style="border-color: var(--info);">
@@ -270,7 +270,7 @@
             <div class="value" id="statHafiz">0</div>
         </div>
         <div class="stat-card" style="border-color: var(--warning);">
-            <div class="title">Derste Uuyanlar</div>
+            <div class="title">Bugün Derste Uuyanlar</div>
             <div class="value" id="statSleeping">0</div>
         </div>
     </div>
@@ -347,7 +347,7 @@
 <script>
     let students = JSON.parse(localStorage.getItem('studentsData')) || [];
 
-    // Bugünü Varsayılan Tarih Yap
+    // Bugünün Tarihini Varsayılan Ayarla
     document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -355,15 +355,73 @@
         renderStudents();
     });
 
+    // XSS ve HTML Tırnak Çakışma Engelleyici Kaçış Fonksiyonu
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     function saveData() {
         localStorage.setItem('studentsData', JSON.stringify(students));
         updateClassFilterOptions();
     }
 
+    // Nesne Yapısını Güncelleme / Doğrulama Fonksiyonu
+    function ensureStudentStructure(s) {
+        if (!s.periods) {
+            s.periods = { '1': { days: {} }, '2': { days: {} } };
+        }
+        if (!s.periods['1']) s.periods['1'] = { days: {} };
+        if (!s.periods['2']) s.periods['2'] = { days: {} };
+        if (!s.periods['1'].days) s.periods['1'].days = {};
+        if (!s.periods['2'].days) s.periods['2'].days = {};
+
+        // Eski versiyondan gelen (days altında olmayan) verileri koruma
+        ['1', '2'].forEach(p => {
+            if (s.periods[p].abdest !== undefined) {
+                const today = new Date().toISOString().split('T')[0];
+                if (!s.periods[p].days[today]) {
+                    s.periods[p].days[today] = {
+                        abdest: !!s.periods[p].abdest,
+                        homework: !!s.periods[p].homework,
+                        homeworkNote: s.periods[p].homeworkNote || '',
+                        isSleeping: !!s.periods[p].isSleeping,
+                        score: s.periods[p].score || 0
+                    };
+                }
+                delete s.periods[p].abdest;
+                delete s.periods[p].homework;
+                delete s.periods[p].homeworkNote;
+                delete s.periods[p].isSleeping;
+                delete s.periods[p].score;
+            }
+        });
+        return s;
+    }
+
+    function getDayData(s, period, date) {
+        ensureStudentStructure(s);
+        if (!s.periods[period].days[date]) {
+            s.periods[period].days[date] = {
+                abdest: false,
+                homework: false,
+                homeworkNote: '',
+                isSleeping: false,
+                score: 0
+            };
+        }
+        return s.periods[period].days[date];
+    }
+
     function updateClassFilterOptions() {
         const filterSelect = document.getElementById('filterClass');
         const currentValue = filterSelect.value;
-        const classes = [...new Set(students.map(s => s.className || 'Tanımsız'))].sort();
+        const classes = [...new Set(students.map(s => String(s.className || 'Tanımsız')))].sort();
         
         filterSelect.innerHTML = '<option value="ALL">Tüm Sınıflar</option>';
         classes.forEach(c => {
@@ -395,8 +453,8 @@
             level: level,
             isHafiz: isHafiz,
             periods: {
-                '1': { abdest: false, homework: false, homeworkNote: '', isSleeping: false, score: 0 },
-                '2': { abdest: false, homework: false, homeworkNote: '', isSleeping: false, score: 0 }
+                '1': { days: {} },
+                '2': { days: {} }
             }
         };
 
@@ -411,7 +469,8 @@
     function renderStudents() {
         const tbody = document.getElementById('studentTableBody');
         const period = document.getElementById('periodSelect').value;
-        const search = document.getElementById('searchInput').value.toLowerCase();
+        const date = document.getElementById('dateSelect').value || new Date().toISOString().split('T')[0];
+        const search = document.getElementById('searchInput').value.toLowerCase().trim();
         const classFilter = document.getElementById('filterClass').value;
 
         tbody.innerHTML = '';
@@ -422,8 +481,11 @@
         let countSleeping = 0;
 
         const filtered = students.filter(s => {
-            const matchesSearch = s.name.toLowerCase().includes(search) || s.no.includes(search);
-            const matchesClass = (classFilter === 'ALL') || (s.className === classFilter);
+            ensureStudentStructure(s);
+            const nameMatch = String(s.name || '').toLowerCase().includes(search);
+            const noMatch = String(s.no || '').toLowerCase().includes(search);
+            const matchesSearch = nameMatch || noMatch;
+            const matchesClass = (classFilter === 'ALL') || (String(s.className) === classFilter);
             return matchesSearch && matchesClass;
         });
 
@@ -433,30 +495,23 @@
         }
 
         filtered.forEach(s => {
-            if (!s.periods) {
-                s.periods = {
-                    '1': { abdest: false, homework: false, homeworkNote: '', isSleeping: false, score: 0 },
-                    '2': { abdest: false, homework: false, homeworkNote: '', isSleeping: false, score: 0 }
-                };
-            }
-
-            const pData = s.periods[period];
+            const dayData = getDayData(s, period, date);
 
             // İstatistik Güncelleme
             countTotal++;
-            if (pData.abdest) countAbdest++;
+            if (dayData.abdest) countAbdest++;
             if (s.isHafiz) countHafiz++;
-            if (pData.isSleeping) countSleeping++;
+            if (dayData.isSleeping) countSleeping++;
 
             const tr = document.createElement('tr');
-            if (pData.isSleeping) tr.classList.add('sleeping-row');
+            if (dayData.isSleeping) tr.classList.add('sleeping-row');
 
             tr.innerHTML = `
-                <td><strong>${s.className || '-'}</strong></td>
-                <td>${s.no || '-'}</td>
-                <td><strong>${s.name}</strong></td>
+                <td><strong>${escapeHtml(s.className || '-')}</strong></td>
+                <td>${escapeHtml(s.no || '-')}</td>
+                <td><strong>${escapeHtml(s.name)}</strong></td>
                 <td>
-                    <button class="status-badge bg-warn" onclick="toggleLevel(${s.id})">${s.level}</button>
+                    <button class="status-badge bg-warn" onclick="toggleLevel(${s.id})">${escapeHtml(s.level)}</button>
                 </td>
                 <td>
                     <button class="status-badge ${s.isHafiz ? 'bg-true' : 'bg-false'}" onclick="toggleHafiz(${s.id})">
@@ -464,30 +519,30 @@
                     </button>
                 </td>
                 <td>
-                    <button class="status-badge ${pData.abdest ? 'bg-true' : 'bg-false'}" onclick="toggleStatus(${s.id}, 'abdest')">
-                        ${pData.abdest ? '💧 Abdestli' : '❌ Abdestsiz'}
+                    <button class="status-badge ${dayData.abdest ? 'bg-true' : 'bg-false'}" onclick="toggleStatus(${s.id}, 'abdest')">
+                        ${dayData.abdest ? '💧 Abdestli' : '❌ Abdestsiz'}
                     </button>
                 </td>
                 <td>
-                    <button class="status-badge ${pData.homework ? 'bg-true' : 'bg-false'}" onclick="toggleStatus(${s.id}, 'homework')">
-                        ${pData.homework ? ' Yaptı' : '❌ Yapmadı'}
+                    <button class="status-badge ${dayData.homework ? 'bg-true' : 'bg-false'}" onclick="toggleStatus(${s.id}, 'homework')">
+                        ${dayData.homework ? ' Yaptı' : '❌ Yapmadı'}
                     </button>
                 </td>
                 <td>
-                    <input type="text" value="${pData.homeworkNote || ''}" 
+                    <input type="text" value="${escapeHtml(dayData.homeworkNote || '')}" 
                            placeholder="Not giriniz..."
                            style="width: 110px; padding: 4px; text-align: center;" 
                            onchange="updateNote(${s.id}, this.value)">
                 </td>
                 <td>
-                    <button class="status-badge ${pData.isSleeping ? 'bg-false' : 'bg-true'}" onclick="toggleStatus(${s.id}, 'isSleeping')">
-                        ${pData.isSleeping ? '😴 Uyuyor' : '👁️ Uyanık'}
+                    <button class="status-badge ${dayData.isSleeping ? 'bg-false' : 'bg-true'}" onclick="toggleStatus(${s.id}, 'isSleeping')">
+                        ${dayData.isSleeping ? '😴 Uyuyor' : '👁️ Uyanık'}
                     </button>
                 </td>
                 <td>
                     <div class="score-control">
                         <button class="btn-circle btn-circle-minus" onclick="changeScore(${s.id}, -1)">-</button>
-                        <span style="font-weight:bold; min-width:20px; text-align:center;">${pData.score || 0}</span>
+                        <span style="font-weight:bold; min-width:20px; text-align:center;">${dayData.score || 0}</span>
                         <button class="btn-circle btn-circle-plus" onclick="changeScore(${s.id}, 1)">+</button>
                     </div>
                 </td>
@@ -507,9 +562,11 @@
 
     function toggleStatus(id, field) {
         const period = document.getElementById('periodSelect').value;
+        const date = document.getElementById('dateSelect').value || new Date().toISOString().split('T')[0];
         const student = students.find(s => s.id === id);
         if (student) {
-            student.periods[period][field] = !student.periods[period][field];
+            const dayData = getDayData(student, period, date);
+            dayData[field] = !dayData[field];
             saveData();
             renderStudents();
         }
@@ -535,18 +592,22 @@
 
     function updateNote(id, val) {
         const period = document.getElementById('periodSelect').value;
+        const date = document.getElementById('dateSelect').value || new Date().toISOString().split('T')[0];
         const student = students.find(s => s.id === id);
         if (student) {
-            student.periods[period].homeworkNote = val;
+            const dayData = getDayData(student, period, date);
+            dayData.homeworkNote = val;
             saveData();
         }
     }
 
     function changeScore(id, delta) {
         const period = document.getElementById('periodSelect').value;
+        const date = document.getElementById('dateSelect').value || new Date().toISOString().split('T')[0];
         const student = students.find(s => s.id === id);
         if (student) {
-            student.periods[period].score = (student.periods[period].score || 0) + delta;
+            const dayData = getDayData(student, period, date);
+            dayData.score = (dayData.score || 0) + delta;
             saveData();
             renderStudents();
         }
@@ -571,85 +632,129 @@
             if (currentClass === 'ALL') {
                 students = [];
             } else {
-                students = students.filter(s => s.className !== currentClass);
+                students = students.filter(s => String(s.className) !== currentClass);
             }
             saveData();
             renderStudents();
         }
     }
 
+    // Düzeltilmiş Dönem Aktarma Mantığı
     function transferIncompleteTasks() {
         let count = 0;
-        students.forEach(s => {
-            const p1 = s.periods['1'];
-            const p2 = s.periods['2'];
+        const today = new Date().toISOString().split('T')[0];
 
-            if (!p1.homework || (p1.homeworkNote && p1.homeworkNote.trim() !== '')) {
-                const noteToTransfer = p1.homeworkNote || 'Eksik Ödev/Ezber';
-                p2.homeworkNote = `[1.Dönem: ${noteToTransfer}] ` + (p2.homeworkNote || '');
-                count++;
+        students.forEach(s => {
+            ensureStudentStructure(s);
+            const p1Days = s.periods['1'].days || {};
+            let hasIncomplete = false;
+            let notes = [];
+
+            // 1. Dönem günlerini tara
+            Object.keys(p1Days).forEach(dKey => {
+                const day = p1Days[dKey];
+                const noteText = String(day.homeworkNote || '').trim().toLowerCase();
+                const isExplicitlyIncomplete = noteText.includes('eksik') || noteText.includes('verilmedi') || noteText.includes('yapılmadı');
+                
+                if (!day.homework || isExplicitlyIncomplete) {
+                    hasIncomplete = true;
+                    if (day.homeworkNote && day.homeworkNote.trim() !== '') {
+                        notes.push(`${dKey}: ${day.homeworkNote.trim()}`);
+                    }
+                }
+            });
+
+            if (hasIncomplete) {
+                const targetDay = getDayData(s, '2', today);
+                const tag = `[1.Dönem Eksik]`;
+                
+                // Mükerrer eklemeyi önle
+                if (!String(targetDay.homeworkNote).includes(tag)) {
+                    const transferredNote = notes.length > 0 ? notes.join(' | ') : '1. Dönem Tamamlanmamış Ödev/Ezber';
+                    targetDay.homeworkNote = `${tag} ${transferredNote} ${targetDay.homeworkNote ? '- ' + targetDay.homeworkNote : ''}`;
+                    count++;
+                }
             }
         });
 
         saveData();
-        alert(`${count} öğrencinin 1. dönem eksiklikleri/notları 2. döneme aktarıldı.`);
+        alert(`${count} öğrencinin 1. dönem eksiklikleri 2. dönemin bugünkü tarihine (${today}) aktarıldı.`);
         document.getElementById('periodSelect').value = '2';
         renderStudents();
     }
 
-    // Excel / CSV Dışa Aktar
+    // Excel Dışa Aktar (Seçili Tarih Verisi)
     function exportToExcel() {
         const period = document.getElementById('periodSelect').value;
-        const exportData = students.map(s => ({
-            'Sınıf/Şube': s.className,
-            'No': s.no,
-            'Adı Soyadı': s.name,
-            'Seviye': s.level,
-            'Hafızlık': s.isHafiz ? 'Evet' : 'Hayır',
-            'Abdest': s.periods[period].abdest ? 'Abdestli' : 'Abdestsiz',
-            'Ödev': s.periods[period].homework ? 'Yaptı' : 'Yapmadı',
-            'Ödev/Ezber Notu': s.periods[period].homeworkNote || '',
-            'Derste Uyuma': s.periods[period].isSleeping ? 'Evet' : 'Hayır',
-            'Puan (+/-)': s.periods[period].score || 0
-        }));
+        const date = document.getElementById('dateSelect').value || new Date().toISOString().split('T')[0];
+
+        const exportData = students.map(s => {
+            ensureStudentStructure(s);
+            const dayData = getDayData(s, period, date);
+            return {
+                'Tarih': date,
+                'Dönem': period,
+                'Sınıf/Şube': s.className || '',
+                'No': s.no || '',
+                'Adı Soyadı': s.name || '',
+                'Seviye': s.level || '',
+                'Hafızlık': s.isHafiz ? 'Evet' : 'Hayır',
+                'Abdest': dayData.abdest ? 'Abdestli' : 'Abdestsiz',
+                'Ödev': dayData.homework ? 'Yaptı' : 'Yapmadı',
+                'Ödev/Ezber Notu': dayData.homeworkNote || '',
+                'Derste Uyuma': dayData.isSleeping ? 'Evet' : 'Hayır',
+                'Puan (+/-)': dayData.score || 0
+            };
+        });
 
         const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, `Dönem_${period}_Takip`);
-        XLSX.writeFile(wb, `Sinif_Takip_Donem_${period}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, `Tarih_${date}`);
+        XLSX.writeFile(wb, `Sinif_Takip_${date}.xlsx`);
     }
 
-    // Excel'den İçe Aktar
+    // Excel'den İçe Aktar (Güvenli)
     function importFromExcel(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onload = function(evt) {
-            const data = new Uint8Array(evt.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.SheetNames[0];
-            const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+            try {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.SheetNames[0];
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
 
-            rows.forEach(r => {
-                const newStudent = {
-                    id: Date.now() + Math.random(),
-                    className: r['Sınıf/Şube'] || r['Şube'] || '5-C',
-                    no: r['No'] || r['Öğrenci No'] || '-',
-                    name: r['Adı Soyadı'] || r['Öğrenci Adı Soyadı'] || 'İsimsiz',
-                    level: r['Seviye'] || 'Cüzde',
-                    isHafiz: r['Hafızlık'] === 'Evet',
-                    periods: {
-                        '1': { abdest: false, homework: false, homeworkNote: '', isSleeping: false, score: 0 },
-                        '2': { abdest: false, homework: false, homeworkNote: '', isSleeping: false, score: 0 }
-                    }
-                };
-                students.push(newStudent);
-            });
+                let importedCount = 0;
+                rows.forEach(r => {
+                    const name = String(r['Adı Soyadı'] || r['Öğrenci Adı Soyadı'] || r['Ad Soyad'] || '').trim();
+                    if (!name) return;
 
-            saveData();
-            renderStudents();
-            alert(`${rows.length} öğrenci başarıyla içe aktarıldı!`);
+                    const newStudent = {
+                        id: Date.now() + Math.random(),
+                        className: String(r['Sınıf/Şube'] || r['Sınıf'] || r['Şube'] || '5-C').trim(),
+                        no: String(r['No'] || r['Öğrenci No'] || '-').trim(),
+                        name: name,
+                        level: String(r['Seviye'] || 'Cüzde').trim(),
+                        isHafiz: String(r['Hafızlık'] || '').toLowerCase() === 'evet',
+                        periods: {
+                            '1': { days: {} },
+                            '2': { days: {} }
+                        }
+                    };
+                    ensureStudentStructure(newStudent);
+                    students.push(newStudent);
+                    importedCount++;
+                });
+
+                saveData();
+                renderStudents();
+                alert(`${importedCount} öğrenci başarıyla içe aktarıldı!`);
+            } catch (err) {
+                alert('Excel dosyası okunurken hata oluştu. Lütfen dosya formatını kontrol ediniz.');
+                console.error(err);
+            }
         };
         reader.readAsArrayBuffer(file);
     }
