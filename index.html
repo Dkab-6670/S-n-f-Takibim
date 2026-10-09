@@ -509,29 +509,29 @@ function jsArg(s) { return escapeHtml(JSON.stringify(String(s))); }
 
         // Genel Dönemlik ve Günlük Veri Yapısı
         function getDayRecord(st, donem, date) {
-            if (!st.periods) st.periods = {};
-            if (!st.periods[donem]) st.periods[donem] = { hafiz: false, kuranDurum: 'kuran', days: {} };
-            if (!st.periods[donem].days) st.periods[donem].days = {};
-            if (!st.periods[donem].days[date]) {
-                st.periods[donem].days[date] = {
-                    abdest: false,
-                    ezberStatus: {},
-                    ezberNotes: '',
-                    status: 'None', // Varsayılan Devamsızlık Seçilmedi
-                    points: 0,
-                    homeworkName: '',
-                    homeworkDone: false,
-                    scores: {},
-                    notes: ''
-                };
-            }
-            const _r = st.periods[donem].days[date];
-if (!_r.ezberStatus) _r.ezberStatus = {};
-if (!_r.scores) _r.scores = {};
-if (_r.notes === undefined) _r.notes = '';
-if (_r.ezberNotes === undefined) _r.ezberNotes = '';
-            return st.periods[donem].days[date];
-        }
+    if (!st.periods) st.periods = {};
+    if (!st.periods[donem]) st.periods[donem] = { hafiz: false, kuranDurum: 'kuran', days: {} };
+    if (!st.periods[donem].days) st.periods[donem].days = {};
+    if (!st.periods[donem].days[date]) {
+        st.periods[donem].days[date] = {
+            abdest: false,
+            ezberStatus: {},
+            ezberNotes: '',
+            status: 'None',
+            points: 0,
+            homeworkName: '',
+            homeworkDone: false,
+            scores: {},
+            notes: ''
+        };
+    }
+    const _r = st.periods[donem].days[date];
+    if (!_r.ezberStatus) _r.ezberStatus = {};
+    if (!_r.scores) _r.scores = {};
+    if (_r.notes === undefined) _r.notes = '';
+    if (_r.ezberNotes === undefined) _r.ezberNotes = '';
+    return _r;
+}
 
         function switchTab(tabName) {
             ['dashboard', 'ezberTakip', 'dersTakip', 'ogrenciler', 'ayarlar'].forEach(t => {
