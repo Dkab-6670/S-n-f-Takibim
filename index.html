@@ -52,29 +52,8 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 py-6">
 
-        <!-- Navigation Tabs -->
-        <div class="flex border-b border-slate-300 bg-white rounded-t-xl px-4 pt-2 shadow-sm overflow-x-auto">
-            <button onclick="switchTab('home')" id="tab-home" class="px-5 py-3 tab-active flex items-center gap-2 whitespace-nowrap">
-    <i class="fa-solid fa-house text-indigo-600"></i> 🏠 Ana Sayfa
-</button>
-<button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-    <i class="fa-solid fa-chart-line text-indigo-600"></i> 📊 İstatistikler
-</button>
-            <button onclick="switchTab('ezberTakip')" id="tab-ezberTakip" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-quran text-emerald-600"></i> 📖 Kur'an & Ezber Takibi
-            </button>
-            <button onclick="switchTab('dersTakip')" id="tab-dersTakip" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-book-open text-indigo-600"></i> 📚 Günlük Ders & Ödev Takibi
-            </button>
-            <button onclick="switchTab('ogrenciler')" id="tab-ogrenciler" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-users"></i> 👥 Öğrenci Yönetimi
-            </button>
-            <button onclick="switchTab('ayarlar')" id="tab-ayarlar" class="px-5 py-3 text-slate-600 hover:text-indigo-600 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-gear"></i> ⚙️ Ders & Ezber & Ödev Tanımları
-            </button>
-        </div>
 <!-- Ana Sayfaya Dön Çubuğu -->
-<div id="backHomeBar" class="hidden bg-white border-x border-slate-200 px-4 py-2">
+<div id="backHomeBar" class="hidden bg-white border border-b-0 border-slate-200 rounded-t-xl px-4 py-2">
     <button onclick="switchTab('home')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm font-medium">
         <i class="fa-solid fa-house"></i> Ana Sayfaya Dön
     </button>
@@ -590,11 +569,8 @@
         function switchTab(tabName) {
     ['home', 'dashboard', 'ezberTakip', 'dersTakip', 'ogrenciler', 'ayarlar'].forEach(t => {
         document.getElementById('content-' + t).classList.add('hidden');
-        document.getElementById('tab-' + t).classList.remove('tab-active');
-        document.getElementById('tab-' + t).classList.add('text-slate-600');
     });
     document.getElementById('content-' + tabName).classList.remove('hidden');
-    document.getElementById('tab-' + tabName).classList.add('tab-active');
     document.getElementById('backHomeBar').classList.toggle('hidden', tabName === 'home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (tabName === 'dashboard') renderDashboard();
