@@ -412,7 +412,11 @@
             </div>
         </div>
     </div>
-
+    
+<button id="scrollTopBtn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" title="Yukarı çık" class="hidden fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-indigo-700 hover:bg-indigo-600 text-white shadow-lg flex items-center justify-center text-lg">
+    <i class="fa-solid fa-arrow-up"></i>
+</button>
+    
     <!-- JavaScript Engine -->
     <script>
         const firebaseConfig = { databaseURL: "https://sinif-takibim-default-rtdb.firebaseio.com" };
@@ -1411,6 +1415,11 @@ function renderHomeworkSettings() {
             URL.revokeObjectURL(link.href);
         }
         function c(v) { return '"' + String(v ?? '').replace(/"/g, '""') + '"'; }
-    </script>
+    window.addEventListener('scroll', () => {
+    const btn = document.getElementById('scrollTopBtn');
+    if (window.scrollY > 300) btn.classList.remove('hidden');
+    else btn.classList.add('hidden');
+});
+</script>
 </body>
 </html>
