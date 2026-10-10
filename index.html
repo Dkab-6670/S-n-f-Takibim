@@ -1629,5 +1629,25 @@ html.dark #bottomNav button.on{color:#a5b4fc;background-color:#312e81}
  apply();
 })();
 </script>
+<style>
+@media(max-width:768px){
+ #ezberTableBody td:nth-child(3),#dersTableBody td:nth-child(3){position:sticky;top:var(--fbh,70px);z-index:30;background:#e0e7ff;border-bottom:1px solid #c7d2fe!important;border-radius:12px 12px 0 0;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,.08)}
+ #ezberTableBody td:nth-child(3)::before,#dersTableBody td:nth-child(3)::before{display:none!important}
+ html.dark #ezberTableBody td:nth-child(3),html.dark #dersTableBody td:nth-child(3){background:#312e81;border-bottom-color:#4338ca!important}
+}
+</style>
+<script>
+(function(){
+ ['#content-ezberTakip','#content-dersTakip'].forEach(function(s){
+  var c=document.querySelector(s);
+  var bar=c&&c.querySelector('.dr-sticky');
+  if(!bar)return;
+  function set(){c.style.setProperty('--fbh',bar.offsetHeight+'px');}
+  if(window.ResizeObserver)new ResizeObserver(set).observe(bar);
+  window.addEventListener('resize',set);
+  set();
+ });
+})();
+</script>
 </body>
 </html>
