@@ -1438,5 +1438,130 @@ function renderHomeworkSettings() {
     else btn.classList.add('hidden');
 });
 </script>
+    <style>
+#saveToast{position:fixed;right:16px;bottom:16px;z-index:70;background:#047857;color:#fff;font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.25);opacity:0;transition:opacity .25s;pointer-events:none}
+#saveToast.show{opacity:1}#saveToast.err{background:#b91c1c}
+.dr-sticky{position:sticky;top:var(--hh,0px);z-index:40;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+#deleteSinifContainerEzber,#deleteSinifContainerDers{display:none!important}
+#bottomNav{display:none}
+@media(min-width:769px){
+ #content-ezberTakip td:nth-child(3),#content-dersTakip td:nth-child(3),#content-ezberTakip th:nth-child(3),#content-dersTakip th:nth-child(3){position:sticky;left:0;z-index:2}
+ #content-ezberTakip td:nth-child(3),#content-dersTakip td:nth-child(3){background:#fff}
+ #content-ezberTakip th:nth-child(3),#content-dersTakip th:nth-child(3){background:inherit}
+}
+@media(max-width:768px){
+ header.sticky{position:static!important}
+ .dr-sticky{top:0}
+ .dr-sticky>div:first-child{flex-wrap:nowrap!important;overflow-x:auto;padding-bottom:4px}
+ .dr-sticky>div:first-child>div{flex:0 0 auto}
+ #content-ezberTakip table,#content-dersTakip table,#content-ezberTakip tbody,#content-dersTakip tbody{display:block;width:100%}
+ #content-ezberTakip thead,#content-dersTakip thead{display:none}
+ #ezberTableBody tr,#dersTableBody tr{display:block;margin:12px 0;border:1px solid #cbd5e1;border-radius:12px;background:#fff;padding:4px 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+ #ezberTableBody td,#dersTableBody td{display:flex!important;justify-content:space-between;align-items:center;gap:12px;padding:8px 14px!important;text-align:left!important;border:0!important}
+ #ezberTableBody td[data-l]::before,#dersTableBody td[data-l]::before{content:attr(data-l);flex:0 0 34%;font-size:12px;font-weight:700;color:#64748b}
+ #ezberTableBody td>*,#dersTableBody td>*{min-width:0}
+ #content-ezberTakip .overflow-x-auto,#content-dersTakip .overflow-x-auto{border:0;box-shadow:none;overflow:visible}
+ main button,main select,main input{min-height:42px;font-size:14px!important}
+ main [class*="text-[10px]"],main [class*="text-[9px]"],main [class*="text-[11px]"]{font-size:13px!important}
+ #bottomNav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;background:#fff;border-top:1px solid #cbd5e1;padding-bottom:env(safe-area-inset-bottom,0)}
+ #bottomNav button{flex:1;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;color:#64748b;background:none;border:0}
+ #bottomNav button span{font-size:20px}
+ #bottomNav button.on{color:#4338ca;font-weight:700;background:#eef2ff}
+ body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0))}
+ #scrollTopBtn{bottom:84px!important}
+ #saveToast{bottom:76px}
+}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+
+ /* 6. Kaydedildi göstergesi */
+ const toast=document.createElement('div');toast.id='saveToast';document.body.appendChild(toast);
+ let tt;
+ function showSave(m,err){toast.textContent=m;toast.className='show'+(err?' err':'');clearTimeout(tt);tt=setTimeout(()=>{toast.className=''},err?5000:1800);}
+ window.saveDataToFirebase=function(){
+  if(!currentRoom)return;
+  showSave('Kaydediliyor…');
+  db.ref('rooms/'+currentRoom).set({students,lessons,ezberItems,homeworks,lastUpdated:Date.now()})
+   .then(()=>showSave('Kaydedildi ✓')).catch(e=>showSave('Kaydedilemedi: '+e.message,true));
+ };
+
+ /* 1. Telefonda kart görünümü için etiketler */
+ function labels(tb,th){
+  const hs=[...document.querySelectorAll(th+' th')].map(x=>x.textContent.trim());
+  tb.querySelectorAll('tr').forEach(tr=>{const c=[...tr.children];if(c.length===hs.length)c.forEach((td,i)=>{td.dataset.l=hs[i]});});
+ }
+ [['ezberTableBody','#content-ezberTakip thead'],['dersTableBody','#content-dersTakip thead']].forEach(([id,th])=>{
+  const tb=$(id),f=()=>labels(tb,th);new MutationObserver(f).observe(tb,{childList:true});f();
+ });
+
+ /* 3. Yapışkan filtre çubuğu */
+ ['#content-ezberTakip','#content-dersTakip'].forEach(s=>{const el=document.querySelector(s+' .bg-slate-50');if(el)el.classList.add('dr-sticky');});
+ const hh=()=>{const h=document.querySelector('header');document.documentElement.style.setProperty('--hh',(h?h.offsetHeight:0)+'px');};
+ hh();addEventListener('resize',hh);
+
+ /* 10. Alt menü çubuğu */
+ const nav=document.createElement('nav');nav.id='bottomNav';
+ nav.innerHTML=[['home','🏠','Ana Sayfa'],['ezberTakip','📖','Ezber'],['dersTakip','📚','Ders'],['ogrenciler','👥','Öğrenci'],['ayarlar','⚙️','Tanımlar']]
+  .map(i=>`<button data-t="${i[0]}"><span>${i[1]}</span>${i[2]}</button>`).join('');
+ nav.onclick=e=>{const b=e.target.closest('button');if(b)switchTab(b.dataset.t);};
+ document.body.appendChild(nav);
+ function navOn(t){nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));}
+ const st0=window.switchTab;window.switchTab=function(t){st0(t);navOn(t);};navOn('home');
+
+ /* 7. Son seçimleri hatırlama */
+ const keys={Ezber:['filterDonemEzber','filterSinifEzber','filterSubeEzber'],Ders:['filterDonemDers','filterSinifDers','filterSubeDers']};
+ let sel={};try{sel=JSON.parse(localStorage.getItem('sel_v1')||'{}')}catch(e){}
+ Object.values(keys).forEach(list=>list.forEach(id=>$(id).addEventListener('change',()=>{
+  list.forEach(k=>{sel[k]=$(k).value});
+  try{localStorage.setItem('sel_v1',JSON.stringify(sel))}catch(e){}
+ })));
+ let done=false;
+ function restore(){
+  Object.entries(keys).forEach(([type,[d,s,b]])=>{
+   if(sel[d])$(d).value=sel[d];
+   if([...$(s).options].some(o=>o.value===sel[s])){$(s).value=sel[s];renderSubeOptionsGeneric(type);}
+   if([...$(b).options].some(o=>o.value===sel[b]))$(b).value=sel[b];
+  });
+  renderEzberTable();renderDersTable();
+ }
+
+ /* 8. Tehlikeli işlemleri Tanımlar sayfasına taşı */
+ const dzBox=document.createElement('div');
+ dzBox.className='mt-6 border border-red-300 bg-red-50 rounded-xl p-4';
+ dzBox.innerHTML=`<h3 class="font-bold text-red-700 mb-1">⚠️ Tehlikeli İşlemler</h3><p class="text-xs text-red-600 mb-3">Silinen öğrenciler geri getirilemez.</p><div class="flex flex-wrap gap-2 items-center"><select id="dzSinif" class="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white"></select><select id="dzSube" class="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white"></select><button id="dzDel" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg font-semibold">Seçili sınıf/şubeyi sil</button><button id="dzAll" class="bg-red-800 hover:bg-red-900 text-white text-sm px-4 py-2 rounded-lg font-semibold">Tüm öğrencileri sil</button></div>`;
+ $('content-ayarlar').appendChild(dzBox);
+ function dzSubeFill(){
+  const s=$('dzSinif').value,cur=$('dzSube').value;
+  const pool=s==='ALL'?students:students.filter(x=>String(x.sinif).trim()===s);
+  const sb=[...new Set(pool.map(x=>String(x.sube).trim().toLowerCase()))].filter(Boolean).sort();
+  $('dzSube').innerHTML='<option value="ALL">Tüm Şubeler</option>'+sb.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x.toUpperCase())} Şubesi</option>`).join('');
+  $('dzSube').value=sb.includes(cur)?cur:'ALL';
+ }
+ function dz(){
+  const cur=$('dzSinif').value;
+  const sn=[...new Set(students.map(x=>String(x.sinif).trim()))].filter(Boolean).sort();
+  $('dzSinif').innerHTML='<option value="ALL">Sınıf seçin</option>'+sn.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}. Sınıf</option>`).join('');
+  $('dzSinif').value=sn.includes(cur)?cur:'ALL';
+  dzSubeFill();
+ }
+ $('dzSinif').onchange=dzSubeFill;
+ $('dzDel').onclick=()=>{
+  const s=$('dzSinif').value,b=$('dzSube').value;
+  if(s==='ALL')return alert('Önce silinecek sınıfı seçin.');
+  const ad=b==='ALL'?s+'. sınıfın TÜM öğrencileri':s+'/'+b.toUpperCase()+' şubesinin öğrencileri';
+  if(!confirm(ad+' silinecek. Emin misiniz?'))return;
+  students=students.filter(x=>!(String(x.sinif).trim()===s&&(b==='ALL'||String(x.sube).trim().toLowerCase()===b)));
+  saveDataToFirebase();
+ };
+ $('dzAll').onclick=()=>clearAllStudents();
+ const oldBtn=document.querySelector('#content-ogrenciler button[onclick="clearAllStudents()"]');if(oldBtn)oldBtn.remove();
+
+ const ra=window.renderAll;
+ window.renderAll=function(){ra();dz();if(!done&&students.length){done=true;restore();}};
+ dz();
+})();
+</script>
 </body>
 </html>
