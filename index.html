@@ -11,6 +11,7 @@
     <!-- Firebase App & Database -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -438,7 +439,12 @@
     
     <!-- JavaScript Engine -->
     <script>
-        const firebaseConfig = { databaseURL: "https://sinif-takibim-default-rtdb.firebaseio.com" };
+        const firebaseConfig = {
+    apiKey: "BURAYA_APIKEY",
+    authDomain: "BURAYA_PROJE.firebaseapp.com",
+    databaseURL: "https://sinif-takibim-default-rtdb.firebaseio.com",
+    projectId: "BURAYA_PROJE"
+};
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -1647,6 +1653,97 @@ html.dark #bottomNav button.on{color:#a5b4fc;background-color:#312e81}
   window.addEventListener('resize',set);
   set();
  });
+})();
+</script>
+<script>
+(function(){
+ const isO=v=>v!==null&&typeof v==='object';
+ const toMap=l=>Object.fromEntries(l.map(x=>[x.id,x]));
+ function prepare(list,pre){
+  let max=list.reduce((m,x)=>Math.max(m,typeof x._o==='number'?x._o:-1),-1);
+  list.forEach(x=>{
+   if(!x.id)x.id=pre+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+   if(typeof x._o!=='number')x._o=++max;
+  });
+ }
+ function toList(v,pre){
+  let a;
+  if(Array.isArray(v))a=v.filter(x=>x!==null&&x!==undefined);
+  else if(isO(v))a=Object.entries(v).map(([k,x])=>{if(isO(x)&&!x.id)x.id=k;return x;});
+  else a=[];
+  a=a.map(x=>typeof x==='string'?{name:x,sinif:'ALL'}:x);
+  prepare(a,pre);
+  return a.sort((p,q)=>p._o-q._o);
+ }
+ const mapState=()=>JSON.parse(JSON.stringify({students:toMap(students),lessons:toMap(lessons),ezberItems:toMap(ezberItems),homeworks:toMap(homeworks)}));
+ function diffInto(u,p,o,n){
+  if(n===undefined||n===null){if(o!==undefined&&o!==null)u[p]=null;return;}
+  if(isO(n)&&isO(o)){new Set([...Object.keys(o),...Object.keys(n)]).forEach(k=>diffInto(u,p+'/'+k,o[k],n[k]));return;}
+  if(JSON.stringify(o)!==JSON.stringify(n))u[p]=n;
+ }
+ function toast(m,err){
+  const t=document.getElementById('saveToast');if(!t)return;
+  t.textContent=m;t.className='show'+(err?' err':'');
+  clearTimeout(toast.t);toast.t=setTimeout(()=>{t.className=''},err?5000:1800);
+ }
+
+ let _auth=null,lastSynced={},syncedRoom=null;
+ function ensureAuth(){
+  if(!_auth)_auth=new Promise((res,rej)=>{
+   const a=firebase.auth();
+   const un=a.onAuthStateChanged(u=>{
+    un();
+    if(u)res();
+    else a.signInAnonymously().then(()=>res(),e=>{_auth=null;alert('Giriş hatası: '+e.message+'\nFirebase > Authentication > Anonymous açık mı?');rej(e);});
+   });
+  });
+  return _auth;
+ }
+
+ window.generateRoomCode=function(){
+  const al='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s='SNF-';
+  crypto.getRandomValues(new Uint32Array(16)).forEach(n=>{s+=al[n%al.length]});
+  return s;
+ };
+
+ window.initRoomListener=function(code){
+  document.getElementById('roomCodeDisplay').innerText=code;
+  const dot=document.getElementById('syncStatusDot'),text=document.getElementById('syncStatusText');
+  dot.className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";text.innerText="Yükleniyor...";
+  if(activeRoomRef){activeRoomRef.off();activeRoomRef=null;}
+  ensureAuth().then(()=>{
+   activeRoomRef=db.ref('rooms/'+code);
+   activeRoomRef.on('value',snap=>{
+    const d=snap.val();
+    if(d){
+     const old=['students','lessons','ezberItems','homeworks'].some(k=>Array.isArray(d[k]));
+     students=toList(d.students,'ST_');lessons=toList(d.lessons,'L_');
+     ezberItems=toList(d.ezberItems,'E_');homeworks=toList(d.homeworks,'HW_');
+     lastSynced=mapState();syncedRoom=code;
+     if(old)snap.ref.update(lastSynced);
+    }
+    dot.className="w-2.5 h-2.5 rounded-full bg-emerald-500";text.innerText="Canlı";
+    renderAll();
+   },err=>{
+    dot.className="w-2.5 h-2.5 rounded-full bg-red-500";text.innerText="Bağlantı hatası";
+    alert("Firebase hatası: "+err.message);
+   });
+  }).catch(()=>{dot.className="w-2.5 h-2.5 rounded-full bg-red-500";text.innerText="Giriş hatası";});
+ };
+
+ window.saveDataToFirebase=function(){
+  if(!currentRoom)return;
+  prepare(students,'ST_');prepare(lessons,'L_');prepare(ezberItems,'E_');prepare(homeworks,'HW_');
+  const now=mapState(),upd={},root='rooms/'+currentRoom;
+  diffInto(upd,root,syncedRoom===currentRoom?lastSynced:{},now);
+  upd[root+'/lastUpdated']=firebase.database.ServerValue.TIMESTAMP;
+  lastSynced=now;syncedRoom=currentRoom;
+  toast('Kaydediliyor…');
+  ensureAuth().then(()=>db.ref().update(upd))
+   .then(()=>toast('Kaydedildi ✓'))
+   .catch(e=>toast('Kaydedilemedi: '+e.message,true));
+ };
 })();
 </script>
 </body>
