@@ -1746,5 +1746,73 @@ html.dark #bottomNav button.on{color:#a5b4fc;background-color:#312e81}
  };
 })();
 </script>
+<script>
+(function(){
+ const names={
+  home:['🏠','Ana Sayfa'],
+  dashboard:['📊','İstatistikler'],
+  ezberTakip:['📖',"Kur'an & Ezber Takibi"],
+  dersTakip:['📚','Günlük Ders & Ödev Takibi'],
+  ogrenciler:['👥','Öğrenci Yönetimi'],
+  ayarlar:['⚙️','Ders, Ezber & Ödev Tanımları']
+ };
+ const bar=document.createElement('div');
+ bar.id='pageTitleBar';
+ bar.className='bg-white border border-slate-200 rounded-xl px-4 py-3 mb-3 shadow-sm flex items-center gap-2 font-bold text-slate-800 text-lg';
+ const m=document.querySelector('main');
+ m.insertBefore(bar,m.firstChild);
+ function show(t){
+  const n=names[t]||names.home;
+  bar.innerHTML='<span class="text-2xl">'+n[0]+'</span><span>'+n[1]+'</span>';
+  document.title=n[1]+' | Sınıf Takip';
+ }
+ const sw=window.switchTab;
+ window.switchTab=function(t){sw(t);show(t);};
+ show('home');
+})();
+</script>
+<style>
+#studentFloat{display:none}
+@media(max-width:768px){
+ #ezberTableBody td:nth-child(3),#dersTableBody td:nth-child(3){position:static!important;top:auto!important;box-shadow:none!important}
+ #studentFloat{position:fixed;left:0;right:0;z-index:35;display:none;align-items:center;gap:8px;padding:8px 14px;background:#4338ca;color:#fff;font-size:14px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+ #studentFloat .cls{margin-left:auto;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:999px;font-size:12px;white-space:nowrap}
+ #studentFloat .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+</style>
+<script>
+(function(){
+ const fl=document.createElement('div');fl.id='studentFloat';document.body.appendChild(fl);
+ const tabs=[['content-ezberTakip','ezberTableBody'],['content-dersTakip','dersTableBody']];
+ let ticking=false,last='';
+ function update(){
+  ticking=false;
+  if(innerWidth>768){fl.style.display='none';return;}
+  let found=null,barBottom=0;
+  for(const [cid,bid] of tabs){
+   const c=document.getElementById(cid),tb=document.getElementById(bid);
+   if(!c||!tb||c.classList.contains('hidden'))continue;
+   const bar=c.querySelector('.dr-sticky');
+   barBottom=bar?bar.getBoundingClientRect().bottom:0;
+   const rows=tb.querySelectorAll('tr');
+   for(let i=0;i<rows.length;i++){
+    const r=rows[i].getBoundingClientRect();
+    if(r.top<=barBottom+1&&r.bottom>barBottom+1)found=rows[i];
+   }
+   break;
+  }
+  if(!found||found.children.length<3){fl.style.display='none';return;}
+  const nm=found.children[2].querySelector('.font-semibold'),cl=found.children[1];
+  const html='<span class="nm">👤 '+(nm?escapeHtml(nm.textContent.trim()):'')+'</span><span class="cls">'+escapeHtml(cl.textContent.trim())+'</span>';
+  if(html!==last){fl.innerHTML=html;last=html;}
+  fl.style.top=barBottom+'px';
+  fl.style.display='flex';
+ }
+ function req(){if(!ticking){ticking=true;requestAnimationFrame(update);}}
+ addEventListener('scroll',req,{passive:true});
+ addEventListener('resize',req);
+ new MutationObserver(req).observe(document.querySelector('main'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+})();
+</script>
 </body>
 </html>
