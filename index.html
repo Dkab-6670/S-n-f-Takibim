@@ -1814,5 +1814,13 @@ html.dark #bottomNav button.on{color:#a5b4fc;background-color:#312e81}
  new MutationObserver(req).observe(document.querySelector('main'),{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 })();
 </script>
+<style>
+html,body{max-width:100%;overflow-x:hidden}
+@media(max-width:768px){
+ header > div > div:last-child{flex-wrap:wrap;width:100%;justify-content:space-between;row-gap:6px}
+ header h1{font-size:1rem}
+ #themeBtn{margin-left:auto}
+}
+</style>
 </body>
 </html>
