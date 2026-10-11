@@ -1822,5 +1822,22 @@ html,body{max-width:100%;overflow-x:hidden}
  #themeBtn{margin-left:auto}
 }
 </style>
+<script>
+(function(){
+ const tb=document.getElementById('dersTableBody');
+ function fix(row){
+  const inp=row.querySelector('input[placeholder^="Ödev Adı"]');
+  const btn=row.querySelector('button[onclick^="toggleHomeworkDone"]');
+  if(!inp||!btn)return;
+  btn.style.display=inp.value.trim()?'':'none';
+ }
+ function all(){tb.querySelectorAll('tr').forEach(fix);}
+ new MutationObserver(all).observe(tb,{childList:true});
+ tb.addEventListener('input',e=>{
+  if(e.target.matches('input[placeholder^="Ödev Adı"]'))fix(e.target.closest('tr'));
+ });
+ all();
+})();
+</script>
 </body>
 </html>
