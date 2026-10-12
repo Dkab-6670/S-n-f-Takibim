@@ -1802,8 +1802,8 @@ html.dark #bottomNav button.on{color:#a5b4fc;background-color:#312e81}
    break;
   }
   if(!found||found.children.length<3){fl.style.display='none';return;}
-  const nm=found.children[2].querySelector('.font-semibold'),cl=found.children[1];
-  const html='<span class="nm">👤 '+(nm?escapeHtml(nm.textContent.trim()):'')+'</span><span class="cls">'+escapeHtml(cl.textContent.trim())+'</span>';
+    const nm=found.children[2].querySelector('.font-semibold'),no=found.children[2].querySelector('.font-mono'),cl=found.children[1];
+  const html='<span class="nm">👤 '+(nm?escapeHtml(nm.textContent.trim()):'')+'</span><span class="cls">'+(no?escapeHtml(no.textContent.trim())+' · ':'')+escapeHtml(cl.textContent.trim())+'</span>';
   if(html!==last){fl.innerHTML=html;last=html;}
   fl.style.top=Math.max(barBottom,0)+'px';
   fl.style.display='flex';
@@ -1855,6 +1855,53 @@ window.renderLeaderboard=function(elementId,sortedList,unit){
  }).join('');
 };
 if(typeof renderDashboard==='function')renderDashboard();
+</script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const defs=[['newEzberSinifSelect','Ezber konusunu tüm sınıflara ata'],['newLessonSinifSelect','Dersi tüm sınıflara ata']];
+ const chk={};
+ function clean(id){const o=$(id).querySelector('option[value="ALL"]');if(o)o.remove();}
+ defs.forEach(([id,label])=>{
+  const sel=$(id),row=sel.parentElement;
+  const l=document.createElement('label');
+  l.className='flex items-center gap-2 text-xs font-semibold text-slate-700';
+  l.innerHTML='<input type="checkbox" id="'+id+'All" class="w-4 h-4"> '+label;
+  row.parentElement.insertBefore(l,row);
+  chk[id]=$(id+'All');
+  chk[id].onchange=()=>{sel.disabled=chk[id].checked;sel.style.opacity=chk[id].checked?0.5:1;};
+  clean(id);
+ });
+ const orig=window.renderFilterOptions;
+ window.renderFilterOptions=function(){
+  const keep={};
+  defs.forEach(([id])=>{keep[id]=[...$(id).selectedOptions].map(o=>o.value);});
+  orig();
+  defs.forEach(([id])=>{
+   clean(id);
+   [...$(id).options].forEach(o=>{o.selected=keep[id].includes(o.value);});
+  });
+ };
+ function pick(id){
+  if(chk[id].checked)return ['ALL'];
+  return [...$(id).selectedOptions].map(o=>o.value).filter(v=>v!=='ALL');
+ }
+ window.addEzberItem=function(){
+  const name=$('newEzberInput').value.trim();if(!name)return;
+  const s=pick('newEzberSinifSelect');
+  if(!s.length)return alert('Sınıf seçin ya da "tüm sınıflara ata" kutusunu işaretleyin.');
+  s.forEach(x=>ezberItems.push({name,sinif:x}));
+  $('newEzberInput').value='';saveDataToFirebase();
+ };
+ window.addLesson=function(){
+  const name=$('newLessonInput').value.trim();if(!name)return;
+  const s=pick('newLessonSinifSelect');
+  if(!s.length)return alert('Sınıf seçin ya da "tüm sınıflara ata" kutusunu işaretleyin.');
+  s.forEach(x=>lessons.push({name,sinif:x}));
+  $('newLessonInput').value='';saveDataToFirebase();
+ };
+ renderFilterOptions();
+})();
 </script>
 </body>
 </html>
