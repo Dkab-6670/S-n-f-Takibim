@@ -1805,7 +1805,7 @@ html.dark #bottomNav button.on{color:#a5b4fc;background-color:#312e81}
   const nm=found.children[2].querySelector('.font-semibold'),cl=found.children[1];
   const html='<span class="nm">👤 '+(nm?escapeHtml(nm.textContent.trim()):'')+'</span><span class="cls">'+escapeHtml(cl.textContent.trim())+'</span>';
   if(html!==last){fl.innerHTML=html;last=html;}
-  fl.style.top=barBottom+'px';
+  fl.style.top=Math.max(barBottom,0)+'px';
   fl.style.display='flex';
  }
  function req(){if(!ticking){ticking=true;requestAnimationFrame(update);}}
@@ -1838,6 +1838,23 @@ html,body{max-width:100%;overflow-x:hidden}
  });
  all();
 })();
+</script>
+<style>
+html,body{overflow-x:visible!important;overflow-x:clip!important}
+#leaderboardEzber,#leaderboardAbdest,#leaderboardPoints,#listHafizStudents,#listKuranStudents{max-height:16rem;overflow-y:auto;padding-right:4px;-webkit-overflow-scrolling:touch}
+</style>
+<script>
+window.renderLeaderboard=function(elementId,sortedList,unit){
+ const c=document.getElementById(elementId);
+ const list=sortedList.filter(i=>i.count>0);
+ if(!list.length){c.innerHTML='<div class="text-xs text-slate-400 italic py-2">Henüz kayıt oluşmadı.</div>';return;}
+ const medals=['<i class="fa-solid fa-medal text-yellow-500 text-base"></i>','<i class="fa-solid fa-medal text-slate-400 text-base"></i>','<i class="fa-solid fa-medal text-amber-600 text-base"></i>'];
+ c.innerHTML=list.map((item,i)=>{
+  const medal=medals[i]||'<span class="w-5 h-5 bg-slate-200 text-slate-600 rounded-full text-[10px] font-bold flex items-center justify-center">'+(i+1)+'</span>';
+  return '<div class="flex items-center justify-between bg-white p-2 rounded-lg border text-xs"><div class="flex items-center gap-2">'+medal+'<span class="font-semibold text-slate-800">'+escapeHtml(item.student.name)+'</span><span class="text-[10px] text-slate-400">('+escapeHtml(item.student.sinif)+'/'+escapeHtml(item.student.sube).toUpperCase()+')</span></div><span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">'+item.count+' '+unit+'</span></div>';
+ }).join('');
+};
+if(typeof renderDashboard==='function')renderDashboard();
 </script>
 </body>
 </html>
