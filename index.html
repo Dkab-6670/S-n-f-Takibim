@@ -1856,51 +1856,51 @@ window.renderLeaderboard=function(elementId,sortedList,unit){
 };
 if(typeof renderDashboard==='function')renderDashboard();
 </script>
+<style>
+#content-dersTakip thead th:nth-child(6),#dersTableBody td:nth-child(6){display:none!important}
+</style>
 <script>
 (function(){
  const $=id=>document.getElementById(id);
  const defs=[['newEzberSinifSelect','Ezber konusunu tüm sınıflara ata'],['newLessonSinifSelect','Dersi tüm sınıflara ata']];
- const chk={};
- function clean(id){const o=$(id).querySelector('option[value="ALL"]');if(o)o.remove();}
- defs.forEach(([id,label])=>{
-  const sel=$(id),row=sel.parentElement;
-  const l=document.createElement('label');
-  l.className='flex items-center gap-2 text-xs font-semibold text-slate-700';
-  l.innerHTML='<input type="checkbox" id="'+id+'All" class="w-4 h-4"> '+label;
-  row.parentElement.insertBefore(l,row);
-  chk[id]=$(id+'All');
-  chk[id].onchange=()=>{sel.disabled=chk[id].checked;sel.style.opacity=chk[id].checked?0.5:1;};
-  clean(id);
- });
- const orig=window.renderFilterOptions;
- window.renderFilterOptions=function(){
-  const keep={};
-  defs.forEach(([id])=>{keep[id]=[...$(id).selectedOptions].map(o=>o.value);});
-  orig();
-  defs.forEach(([id])=>{
-   clean(id);
-   [...$(id).options].forEach(o=>{o.selected=keep[id].includes(o.value);});
-  });
- };
- function pick(id){
-  if(chk[id].checked)return ['ALL'];
-  return [...$(id).selectedOptions].map(o=>o.value).filter(v=>v!=='ALL');
+ const st={};
+
+ function draw(id){
+  const s=st[id];
+  const list=[...new Set(students.map(x=>String(x.sinif).trim()))].filter(Boolean).sort();
+  const chip='flex items-center gap-1.5 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 cursor-pointer';
+  s.box.innerHTML='<label class="'+chip+'"><input type="checkbox" data-all="1" class="w-4 h-4"'+(s.all?' checked':'')+'> '+s.label+'</label>'
+   +(list.length?list.map(c=>'<label class="'+chip+(s.all?' opacity-40':'')+'"><input type="checkbox" value="'+escapeHtml(c)+'" class="w-4 h-4"'+(s.set.has(c)?' checked':'')+(s.all?' disabled':'')+'> '+escapeHtml(c)+'. Sınıf</label>').join(''):'<span class="text-xs text-slate-400 italic">Öğrenci eklenince sınıflar burada çıkar.</span>');
  }
- window.addEzberItem=function(){
-  const name=$('newEzberInput').value.trim();if(!name)return;
-  const s=pick('newEzberSinifSelect');
-  if(!s.length)return alert('Sınıf seçin ya da "tüm sınıflara ata" kutusunu işaretleyin.');
-  s.forEach(x=>ezberItems.push({name,sinif:x}));
-  $('newEzberInput').value='';saveDataToFirebase();
- };
- window.addLesson=function(){
-  const name=$('newLessonInput').value.trim();if(!name)return;
-  const s=pick('newLessonSinifSelect');
-  if(!s.length)return alert('Sınıf seçin ya da "tüm sınıflara ata" kutusunu işaretleyin.');
-  s.forEach(x=>lessons.push({name,sinif:x}));
-  $('newLessonInput').value='';saveDataToFirebase();
- };
- renderFilterOptions();
+
+ defs.forEach(([id,label])=>{
+  const sel=$(id);sel.style.display='none';
+  const row=sel.parentElement,box=document.createElement('div');
+  box.id=id+'Box';box.className='flex flex-wrap gap-2';
+  row.parentElement.insertBefore(box,row);
+  st[id]={all:false,set:new Set(),label:label,box:box};
+  box.addEventListener('change',e=>{
+   const t=e.target,s=st[id];
+   if(t.dataset.all)s.all=t.checked;
+   else if(t.checked)s.set.add(t.value);else s.set.delete(t.value);
+   draw(id);
+  });
+  draw(id);
+ });
+
+ const orig=window.renderFilterOptions;
+ window.renderFilterOptions=function(){orig();defs.forEach(([id])=>draw(id));};
+
+ function add(id,inputId,arr){
+  const name=$(inputId).value.trim();if(!name)return;
+  const s=st[id],p=s.all?['ALL']:[...s.set];
+  if(!p.length)return alert('Önce en az bir sınıfı işaretleyin ya da "tüm sınıflara ata" kutusunu işaretleyin.');
+  p.forEach(x=>arr.push({name:name,sinif:x}));
+  $(inputId).value='';
+  saveDataToFirebase();
+ }
+ window.addEzberItem=function(){add('newEzberSinifSelect','newEzberInput',ezberItems);};
+ window.addLesson=function(){add('newLessonSinifSelect','newLessonInput',lessons);};
 })();
 </script>
 </body>
