@@ -1903,5 +1903,49 @@ if(typeof renderDashboard==='function')renderDashboard();
  window.addLesson=function(){add('newLessonSinifSelect','newLessonInput',lessons);};
 })();
 </script>
+<style>
+@media(max-width:768px){
+ html body input,html body select,html body textarea,
+ html body input[class],html body select[class],html body textarea[class]{font-size:16px!important}
+}
+#pmList{max-height:20rem;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ const anchor=$('leaderboardPoints').closest('.grid');
+ const card=document.createElement('div');
+ card.className='bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6';
+ card.innerHTML='<h3 class="font-bold text-slate-700 mb-1 flex items-center gap-2 border-b pb-2">➕➖ Artı / Eksi Puan Sıralaması</h3><p class="text-[11px] text-slate-400 mb-2">Günlük +/- puanların dönem toplamı. Yüksekten düşüğe sıralıdır.</p><div id="pmList" class="space-y-2"></div>';
+ anchor.insertAdjacentElement('afterend',card);
+
+ function data(){
+  return students.map(st=>{
+   let p=0,m=0;
+   Object.values(st.periods||{}).forEach(d=>Object.values(d.days||{}).forEach(day=>{
+    const v=day.points||0;
+    if(v>0)p+=v;else if(v<0)m+=v;
+   }));
+   return {st:st,p:p,m:m,net:p+m};
+  }).filter(x=>x.p||x.m).sort((a,b)=>b.net-a.net||b.p-a.p);
+ }
+ function render(){
+  const box=$('pmList'),list=data();
+  if(!list.length){box.innerHTML='<div class="text-xs text-slate-400 italic py-2">Henüz artı ya da eksi puan verilmedi.</div>';return;}
+  box.innerHTML=list.map((x,i)=>{
+   const col=x.net>0?'text-emerald-700 bg-emerald-100':(x.net<0?'text-red-700 bg-red-100':'text-slate-600 bg-slate-100');
+   return '<div class="flex items-center justify-between gap-2 bg-white p-2 rounded-lg border text-xs">'
+    +'<div class="flex items-center gap-2 min-w-0"><span class="w-5 h-5 bg-slate-200 text-slate-600 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0">'+(i+1)+'</span>'
+    +'<span class="font-semibold text-slate-800 truncate">'+escapeHtml(x.st.name)+'</span>'
+    +'<span class="text-[10px] text-slate-400 shrink-0">('+escapeHtml(x.st.sinif)+'/'+escapeHtml(x.st.sube).toUpperCase()+')</span></div>'
+    +'<div class="flex items-center gap-1.5 shrink-0"><span class="text-emerald-700 font-bold">+'+x.p+'</span><span class="text-red-600 font-bold">'+x.m+'</span>'
+    +'<span class="font-bold px-2 py-0.5 rounded '+col+'">'+(x.net>0?'+':'')+x.net+'</span></div></div>';
+  }).join('');
+ }
+ const rd=window.renderDashboard;
+ window.renderDashboard=function(){rd();render();};
+ render();
+})();
+</script>
 </body>
 </html>
