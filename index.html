@@ -2019,6 +2019,48 @@ if(typeof renderDashboard==='function')renderDashboard();
   if(!acts.length)return alert('Bu seçimde rehberlik çalışması yok.');
   let csv='data:text/csv;charset=utf-8,Okul No;Sinif;Sube;Adi Soyadi;'+acts.map(a=>c(a.name)).join(';')+';Yapilan;Yapilmayan;Secilmeyen\n';
   studs.forEach(s=>{let y=0,n=0,u=0;
-   const cells=acts.map(a=>{if(!ap(a,s))return '-';const v=stat(s,a);if(v==='Yapti'){y++;return 'Yapti';}if(v==='Yapmadi'){n++;return 'Yapmadi';}u++;return
+   const cells=acts.map(a=>{if(!ap(a,s))return '-';const v=stat(s,a);if(v==='Yapti'){y++;return 'Yapti';}if(v==='Yapmadi'){n++;return 'Yapmadi';}u++;return 'Secilmedi';});
+   csv+=[s.no,s.sinif,s.sube,c(s.name)].join(';')+';'+cells.join(';')+';'+y+';'+n+';'+u+'\n';});
+  downloadCSV(csv,'Rehberlik_Raporu_'+d+'_Donem.csv');
+ };
+
+ /* İstatistik: katılmayanlar kutusu */
+ const dc=document.createElement('div');dc.className='bg-red-50/50 border border-red-200 p-4 rounded-xl mt-6';
+ dc.innerHTML='<h3 class="font-bold text-red-700 mb-3">🧭 Rehberlik Çalışmasına Katılmayan Öğrenciler</h3><div id="rbMiss" class="space-y-3 overflow-y-auto" style="max-height:20rem"></div>';
+ $('content-dashboard').appendChild(dc);
+ function missCard(){
+  const out=[];
+  rb().forEach(a=>{
+   const l=students.filter(s=>ap(a,s)&&stat(s,a)==='Yapmadi');
+   if(l.length)out.push('<div><div class="text-xs font-bold text-slate-700 mb-1">'+E(a.name)+' <span class="font-normal text-slate-400">('+E(tgt(a))+', '+E(a.donem||'1')+'. dönem)</span></div><div class="flex flex-wrap gap-1.5">'
+    +l.map(s=>'<span class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-md border border-red-200">'+E(s.name)+' ('+E(s.sinif)+'/'+E(s.sube).toUpperCase()+' · '+E(s.no)+')</span>').join('')+'</div></div>');
+  });
+  $('rbMiss').innerHTML=out.length?out.join(''):'<span class="text-xs text-slate-400 italic">Katılmayan öğrenci yok ya da henüz "Yapmadı" işaretlenmedi.</span>';
+ }
+
+ /* İstatistikte sınıfın yanında okul numarası: çizim sırasında şubeye numara eklenir, sonra geri alınır */
+ const rd=window.renderDashboard;
+ window.renderDashboard=function(){
+  const bk=students.map(s=>s.sube);
+  students.forEach(s=>{if(s.no&&s.no!=='-')s.sube=s.sube+' · '+s.no;});
+  try{rd();}finally{students.forEach((s,i)=>{s.sube=bk[i];});}
+  missCard();
+ };
+ const ra=window.renderAll;window.renderAll=function(){ra();rbRender();};
+
+ /* Ana sayfa kartı, alt menü, geçiş */
+ const hg=document.querySelector('#content-home .grid');
+ if(hg){const b=document.createElement('button');b.setAttribute('onclick',"switchTab('rehberlik')");
+  b.className='text-left bg-purple-50 hover:bg-purple-100 border border-purple-200 p-5 rounded-xl transition';
+  b.innerHTML='<div class="text-3xl mb-2">🧭</div><div class="font-bold text-purple-900">Rehberlik Faaliyetleri</div><div class="text-xs text-purple-700 mt-1">Çalışma ata, çizelge, dönem raporu</div>';hg.appendChild(b);}
+ const nv=$('bottomNav');if(nv){const b=document.createElement('button');b.dataset.t='rehberlik';b.innerHTML='<span>🧭</span>Rehberlik';nv.appendChild(b);}
+ const sw=window.switchTab;
+ window.switchTab=function(t){
+  page.classList.add('hidden');sw(t);
+  if(t==='rehberlik'){page.classList.remove('hidden');const b=$('pageTitleBar');if(b)b.innerHTML='<span class="text-2xl">🧭</span><span>Rehberlik Faaliyetleri</span>';document.title='Rehberlik | Sınıf Takip';rbRender();}
+ };
+ rbRender();
+})();
+</script>
 </body>
 </html>
