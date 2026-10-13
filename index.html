@@ -1945,5 +1945,80 @@ if(typeof renderDashboard==='function')renderDashboard();
  render();
 })();
 </script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml;
+ const rb=()=>homeworks.filter(h=>h.rb);
+ const nm={sinif:s=>String(s.sinif).trim(),sube:s=>String(s.sube).trim().toLowerCase()};
+ const ap=(h,s)=>(h.sinif==='ALL'||nm.sinif(s)===h.sinif)&&(h.sube==='ALL'||nm.sube(s)===h.sube);
+ const stat=(s,h)=>(s.hwStatus||{})[h.id]||'None';
+ const tgt=h=>(h.sinif==='ALL'?'Tüm sınıflar':h.sinif+'. sınıf')+(h.sube!=='ALL'?' / '+h.sube.toUpperCase():'');
+ const subs=s=>[...new Set(students.filter(x=>s==='ALL'||nm.sinif(x)===s).map(nm.sube))].filter(Boolean).sort();
+ const classes=()=>[...new Set(students.map(nm.sinif))].filter(Boolean).sort();
+
+ /* Rehberlik çalışmaları ödev listelerinde görünmesin */
+ const oa=window.hwApplies;window.hwApplies=function(h,s,d){return h.rb?false:oa(h,s,d);};
+ const orh=window.renderHomeworkSettings;
+ window.renderHomeworkSettings=function(){const all=homeworks;homeworks=all.filter(h=>!h.rb);try{orh();}finally{homeworks=all;}};
+
+ /* Sayfa */
+ const page=document.createElement('div');page.id='content-rehberlik';
+ page.className='hidden bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200';
+ const sc='border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white outline-none';
+ page.innerHTML='<div class="bg-purple-50 border border-purple-200 rounded-xl p-4 mb-4"><h3 class="font-bold text-slate-700 mb-3">🧭 Rehberlik Çalışması Ata</h3>'
+  +'<div class="grid grid-cols-1 md:grid-cols-5 gap-2 mb-3"><input id="rbName" placeholder="Çalışma adı" class="'+sc+'"><select id="rbSinif" class="'+sc+'" onchange="rbRender()"></select><select id="rbSube" class="'+sc+'"></select>'
+  +'<select id="rbDonem" class="'+sc+'"><option value="1">1. Dönem</option><option value="2">2. Dönem</option></select>'
+  +'<button onclick="rbAdd()" class="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded-lg font-medium">Ata</button></div>'
+  +'<p class="text-xs text-slate-500">Atanınca aşağıdaki çizelgede o sınıfın öğrencileri için yeni bir sütun açılır, "Seçiniz" ile başlar.</p></div>'
+  +'<div class="flex flex-wrap items-center gap-2 mb-3"><select id="rfDonem" class="'+sc+'" onchange="rbRender()"><option value="1">1. Dönem</option><option value="2">2. Dönem</option></select>'
+  +'<select id="rfSinif" class="'+sc+'" onchange="rbRender()"></select><select id="rfSube" class="'+sc+'" onchange="rbRender()"></select>'
+  +'<button onclick="rbReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-4 py-2 rounded-lg font-medium">📊 Dönem Raporu (Excel)</button></div>'
+  +'<div id="rbSummary" class="flex flex-wrap gap-2 mb-3"></div><div id="rbTable" class="overflow-x-auto border border-slate-200 rounded-lg"></div>';
+ document.querySelector('main').appendChild(page);
+
+ function fill(id,items){const el=$(id),cur=el.value;el.innerHTML=items.map(i=>'<option value="'+E(i[0])+'">'+E(i[1])+'</option>').join('');el.value=items.some(i=>i[0]===cur)?cur:items[0][0];}
+ const curStuds=()=>{const s=$('rfSinif').value,b=$('rfSube').value;return students.filter(x=>(s==='ALL'||nm.sinif(x)===s)&&(b==='ALL'||nm.sube(x)===b));};
+ const curActs=()=>{const d=$('rfDonem').value,s=$('rfSinif').value,b=$('rfSube').value;return rb().filter(h=>(h.donem||'1')===d&&(s==='ALL'||h.sinif==='ALL'||h.sinif===s)&&(b==='ALL'||h.sube==='ALL'||h.sube===b));};
+
+ window.rbRender=function(){
+  const cl=classes().map(c=>[c,c+'. Sınıf']);
+  fill('rbSinif',[['ALL','Tüm Sınıflar']].concat(cl));
+  fill('rbSube',[['ALL','Tüm Şubeler']].concat(subs($('rbSinif').value).map(x=>[x,x.toUpperCase()+' Şubesi'])));
+  fill('rfSinif',[['ALL','Tüm Sınıflar']].concat(cl));
+  fill('rfSube',[['ALL','Tüm Şubeler']].concat(subs($('rfSinif').value).map(x=>[x,x.toUpperCase()+' Şubesi'])));
+  const studs=curStuds(),acts=curActs();
+  if(!acts.length){$('rbSummary').innerHTML='';$('rbTable').innerHTML='<div class="p-6 text-center text-sm text-slate-400">Bu dönem ve sınıf için atanmış rehberlik çalışması yok.</div>';return;}
+  $('rbSummary').innerHTML=acts.map(a=>{let y=0,n=0,u=0;studs.filter(s=>ap(a,s)).forEach(s=>{const v=stat(s,a);v==='Yapti'?y++:v==='Yapmadi'?n++:u++;});
+   return '<span class="text-xs bg-slate-100 px-2.5 py-1 rounded-lg"><b>'+E(a.name)+'</b> · ✅ '+y+' · ❌ '+n+' · ❔ '+u+'</span>';}).join('');
+  let h='<table class="w-full text-sm border-collapse"><thead><tr class="bg-slate-100"><th class="p-2 text-left sticky left-0 bg-slate-100 z-10 min-w-[150px]">Öğrenci</th>'
+   +acts.map(a=>'<th class="p-2 text-center min-w-[140px]"><div class="font-semibold">'+E(a.name)+'</div><div class="text-[10px] font-normal text-slate-500">'+E(tgt(a))+'</div><button onclick="rbDel(\''+a.id+'\')" class="text-[10px] text-red-600">Sil</button></th>').join('')+'</tr></thead><tbody>';
+  studs.forEach(s=>{
+   h+='<tr class="border-t border-slate-200"><td class="p-2 sticky left-0 bg-white z-10"><div class="font-semibold text-slate-800">'+E(s.name)+'</div><div class="text-[11px] text-slate-400">No: '+E(s.no)+' · '+E(s.sinif)+'/'+E(s.sube).toUpperCase()+'</div></td>';
+   acts.forEach(a=>{
+    if(!ap(a,s)){h+='<td class="p-2 text-center text-slate-300">—</td>';return;}
+    const v=stat(s,a),col=v==='Yapti'?'bg-emerald-100 text-emerald-800 font-bold':v==='Yapmadi'?'bg-red-100 text-red-800 font-bold':'bg-white text-slate-500';
+    h+='<td class="p-2 text-center"><select onchange="setHwStatus(\''+s.id+'\',\''+a.id+'\',this.value)" class="text-xs px-1.5 py-1 rounded border outline-none '+col+'"><option value="None"'+(v==='None'?' selected':'')+'>- Seçiniz -</option><option value="Yapti"'+(v==='Yapti'?' selected':'')+'>Yaptı</option><option value="Yapmadi"'+(v==='Yapmadi'?' selected':'')+'>Yapmadı</option></select></td>';
+   });
+   h+='</tr>';
+  });
+  $('rbTable').innerHTML=h+'</tbody></table>';
+ };
+ window.rbAdd=function(){
+  const name=$('rbName').value.trim();if(!name)return alert('Çalışma adını yazın.');
+  homeworks.push({id:'RB_'+Date.now().toString(36),name:name,sinif:$('rbSinif').value,sube:$('rbSube').value,donem:$('rbDonem').value,rb:true});
+  $('rbName').value='';saveDataToFirebase();
+ };
+ window.rbDel=function(id){
+  if(!confirm('Bu rehberlik çalışması ve işaretlemeleri silinsin mi?'))return;
+  homeworks=homeworks.filter(h=>h.id!==id);
+  students.forEach(s=>{if(s.hwStatus)delete s.hwStatus[id];});
+  saveDataToFirebase();
+ };
+ window.rbReport=function(){
+  const acts=curActs(),studs=curStuds(),d=$('rfDonem').value;
+  if(!acts.length)return alert('Bu seçimde rehberlik çalışması yok.');
+  let csv='data:text/csv;charset=utf-8,Okul No;Sinif;Sube;Adi Soyadi;'+acts.map(a=>c(a.name)).join(';')+';Yapilan;Yapilmayan;Secilmeyen\n';
+  studs.forEach(s=>{let y=0,n=0,u=0;
+   const cells=acts.map(a=>{if(!ap(a,s))return '-';const v=stat(s,a);if(v==='Yapti'){y++;return 'Yapti';}if(v==='Yapmadi'){n++;return 'Yapmadi';}u++;return
 </body>
 </html>
