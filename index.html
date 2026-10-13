@@ -2062,5 +2062,48 @@ if(typeof renderDashboard==='function')renderDashboard();
  rbRender();
 })();
 </script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml;
+ const chip=(s,cls)=>'<span class="'+cls+' text-xs px-2 py-0.5 rounded-md border">'+E(s.name)+' ('+E(s.sinif)+'/'+E(s.sube).toUpperCase()+' · '+E(s.no)+')</span>';
+
+ /* Tamamlanan ezberler kutusu */
+ const card=document.createElement('div');
+ card.className='bg-emerald-50/50 border border-emerald-200 p-4 rounded-xl mb-6';
+ card.innerHTML='<h3 class="font-bold text-emerald-800 mb-3">📖 Tamamlanan Ezberler (Kimler Tamamladı)</h3><div id="doneEzber" class="space-y-3 overflow-y-auto" style="max-height:20rem;-webkit-overflow-scrolling:touch"></div>';
+ $('leaderboardEzber').closest('.grid').insertAdjacentElement('afterend',card);
+
+ function build(){
+  const map={};
+  students.forEach(st=>Object.values(st.periods||{}).forEach(d=>Object.values(d.days||{}).forEach(day=>{
+   Object.entries(day.ezberStatus||{}).forEach(([name,v])=>{
+    if(v==='Tamamlandi'){(map[name]=map[name]||{})[st.id]=st;}
+   });
+  })));
+  const names=Object.keys(map).sort((a,b)=>a.localeCompare(b,'tr'));
+  $('doneEzber').innerHTML=names.length?names.map(n=>{
+   const l=Object.values(map[n]).sort((a,b)=>String(a.sinif).localeCompare(String(b.sinif),'tr',{numeric:true})||String(a.sube).localeCompare(String(b.sube))||a.name.localeCompare(b.name,'tr'));
+   return '<div><div class="text-xs font-bold text-slate-700 mb-1">'+E(n)+' <span class="font-normal text-slate-400">('+l.length+' öğrenci)</span></div><div class="flex flex-wrap gap-1.5">'+l.map(s=>chip(s,'bg-emerald-100 text-emerald-800 border-emerald-200')).join('')+'</div></div>';
+  }).join(''):'<span class="text-xs text-slate-400 italic">Henüz tamamlanan ezber yok.</span>';
+ }
+
+ /* Cüzde olan öğrenciler: sınıf ve numarayla */
+ function cuz(){
+  const box=$('listKuranStudents'),list=[];
+  students.forEach(st=>{
+   let k='kuran';
+   Object.keys(st.periods||{}).forEach(p=>{const o=st.periods[p];if(o&&o.kuranDurum)k=o.kuranDurum;});
+   if(k==='cuz')list.push(st);
+  });
+  list.sort((a,b)=>String(a.sinif).localeCompare(String(b.sinif),'tr',{numeric:true})||String(a.sube).localeCompare(String(b.sube))||a.name.localeCompare(b.name,'tr'));
+  box.innerHTML=list.length?list.map(s=>chip(s,'bg-amber-100 text-amber-800 border-amber-200')).join(''):'<span class="text-xs text-slate-400 italic">Cüzde olan öğrenci bulunamadı.</span>';
+  box.style.maxHeight='16rem';box.style.overflowY='auto';
+ }
+
+ const rd=window.renderDashboard;
+ window.renderDashboard=function(){rd();build();cuz();};
+ build();cuz();
+})();
+</script>
 </body>
 </html>
