@@ -2156,7 +2156,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
   dtb.querySelectorAll('select[onchange^="updateDersScore"]').forEach(sel=>{
    const id=(sel.getAttribute('onchange').match(/'([^']+)'/)||[])[1],st=students.find(x=>x.id===id),box=sel.parentElement,lab=box.querySelector('span');
    if(!st||!lab)return;
-   const cz=((st.periods||{})[dn]||{}).kuranDurum==='cuz',nm=lab.getAttribute('title')||lab.textContent,y=/yüzüne/i.test(nm),k=/kur/i.test(nm);
+   const cz=((st.periods||{})[dn]||{}).kuranDurum==='cuz',nm=lab.getAttribute('title')||lab.textContent,y=/kur|yüzüne/i.test(nm),k=/kur/i.test(nm);
    if(y)sel.style.display=cz?'none':'';
    if(cz&&(y||k)&&!box.querySelector('.cz')){const t=document.createElement('span');t.className='cz text-[10px] text-amber-700 font-bold';t.textContent=y?'📜 Cüzde · puan yok':'📜 Cüzde';box.insertBefore(t,sel);}
   });
@@ -2177,7 +2177,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
   });
   const ap=h=>(h.sinif==='ALL'||h.sinif===cl)&&(h.sube==='ALL'||h.sube===T(st.sube).toLowerCase());
   const ds=lessons.filter(l=>l.sinif==='ALL'||T(l.sinif)===cl).map(l=>{
-   if(cuz&&/yüzüne/i.test(l.name))return row(E(l.name),'Cüzde olduğu için puanlanmaz');
+   if(cuz&&/kur|yüzüne/i.test(l.name))return row(E(l.name),'Cüzde olduğu için puanlanmaz');
    const a=sc[l.name];return row(E(l.name)+(cuz&&/kur/i.test(l.name)?' <i>(Cüzde)</i>':''),a?(a.reduce((s,n)=>s+n,0)/a.length).toFixed(1)+' / 5':'-');
   }).join('');
   const es=ezberItems.filter(e=>e.sinif==='ALL'||T(e.sinif)===cl).map(e=>row(E(e.name),['Başlamadı','Çalışıyor','Ezberlendi ✓'][ez[e.name]||0])).join('');
@@ -2188,7 +2188,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
    +'<h3>Kur\'an Durumu</h3><table>'+row('Seviye',cuz?'Cüzde':'Kur\'an\'da')+row('Hafızlık',per.hafiz?'Hafız':'-')+'</table>'
    +(ds?'<h3>Ders Puanları (ortalama)</h3><table>'+ds+'</table>':'')+(es?'<h3>Ezberler</h3><table>'+es+'</table>':'')
    +(od.length?'<h3>Ödevler ('+od.length+' adet)</h3><table>'+cnt(od)+'</table>':'')+(rg.length?'<h3>Rehberlik Faaliyetleri ('+rg.length+' adet)</h3><table>'+cnt(rg)+'</table>':'')
-   +'<h3>Öğretmen Görüşü</h3><div class="line"></div><div class="sign">Sınıf Rehber Öğretmeni: ____________</div></div>';
+   +'<h3>Öğretmen Görüşü</h3><div class="line"></div><div class="sign">Ders Öğretmeni: ____________</div></div>';
  }
  const kp=document.createElement('div');kp.id='content-karne';kp.className='hidden bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200';
  const sc2='border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white';
@@ -2227,6 +2227,24 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.se
  let wl=null;
  async function lock(){try{if('wakeLock' in navigator&&document.visibilityState==='visible'&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null;});}}catch(e){}}
  lock();document.addEventListener('visibilitychange',lock);addEventListener('click',lock);
+})();
+</script>
+<style>
+html body main .bulkpm{min-height:30px!important;font-size:12px!important;padding:2px 10px!important;border-radius:8px}
+#dersTableBody button[onclick^="changePoint"]{width:40px!important;height:40px!important;font-size:22px!important;line-height:1;border-radius:10px!important}
+#dersTableBody .rounded-full.font-bold{font-size:16px!important;padding:4px 12px!important}
+</style>
+<script>
+(function(){
+ document.querySelectorAll('#content-dersTakip button').forEach(b=>{if(/Herkese/.test(b.textContent))b.classList.add('bulkpm');});
+ const n=v=>{const x=parseInt(String(v),10);return isNaN(x)?1e9:x;};
+ const key=s=>n(s.sno!==undefined&&s.sno!==''?s.sno:s.no);
+ function sortStudents(){
+  students.sort((a,b)=>n(a.sinif)-n(b.sinif)||String(a.sinif).localeCompare(String(b.sinif),'tr')||String(a.sube).localeCompare(String(b.sube),'tr')||key(a)-key(b)||n(a.no)-n(b.no)||String(a.name).localeCompare(String(b.name),'tr'));
+ }
+ const ra=window.renderAll;
+ window.renderAll=function(){sortStudents();ra();};
+ sortStudents();
 })();
 </script>
 </body>
