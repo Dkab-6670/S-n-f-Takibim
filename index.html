@@ -2367,48 +2367,76 @@ html body main .bulkpm{min-height:30px!important;font-size:12px!important;paddin
 })();
 </script>
 <script>
-(function(){
- const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim();
- const head=$('studentCount').closest('.flex');
- const cls='border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white outline-none';
- const bar=document.createElement('div');
- bar.className='flex flex-wrap gap-2 mb-3';
- bar.innerHTML='<select id="ofSinif" class="'+cls+'"></select><select id="ofSube" class="'+cls+'"></select><input id="ofAra" placeholder="Ad / No ara..." class="'+cls+' w-36"><button id="ofClr" class="text-xs text-slate-600 border border-slate-300 rounded-lg px-3 py-1.5 bg-white">Temizle</button>';
- head.insertAdjacentElement('afterend',bar);
+document.addEventListener('DOMContentLoaded', function() {
+    // escapeHtml tanımlı değilse basit bir güvenli fallback oluşturalım
+    const E = window.escapeHtml || function(str) {
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
+    };
 
- function opts(id,items){
-  const el=$(id),cur=el.value;
-  el.innerHTML=items.map(i=>'<option value="'+E(i[0])+'">'+E(i[1])+'</option>').join('');
-  el.value=items.some(i=>i[0]===cur)?cur:items[0][0];
- }
- function fill(){
-  const cl=[...new Set(students.map(s=>T(s.sinif)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true}));
-  opts('ofSinif',[['ALL','Tüm Sınıflar']].concat(cl.map(x=>[x,x+'. Sınıf'])));
-  const sv=$('ofSinif').value;
-  const sb=[...new Set(students.filter(s=>sv==='ALL'||T(s.sinif)===sv).map(s=>T(s.sube).toLowerCase()))].filter(Boolean).sort();
-  opts('ofSube',[['ALL','Tüm Şubeler']].concat(sb.map(x=>[x,x.toUpperCase()+' Şubesi'])));
- }
- function match(s){
-  const q=$('ofAra').value.trim().toLowerCase(),a=$('ofSinif').value,b=$('ofSube').value;
-  return (a==='ALL'||T(s.sinif)===a)&&(b==='ALL'||T(s.sube).toLowerCase()===b)
-   &&(!q||String(s.name||'').toLowerCase().includes(q)||String(s.no||'').toLowerCase().includes(q));
- }
+    const $ = id => document.getElementById(id), T = s => String(s).trim();
+    const studentCountEl = $('studentCount');
+    if (!studentCountEl) return; // Element yoksa çalışmayı durdur
 
- const orig=window.renderStudentTable;
- window.renderStudentTable=function(){
-  fill();
-  const all=students,l=all.filter(match);
-  students=l;
-  try{orig();}finally{students=all;}
-  if(!l.length&&all.length)$('studentTableBody').innerHTML='<tr><td colspan="5" class="p-4 text-center text-sm text-slate-400">Bu filtreye uyan öğrenci yok.</td></tr>';
-  $('studentCount').textContent=l.length===all.length?all.length:l.length+' / '+all.length;
- };
+    const head = studentCountEl.closest('.flex');
+    if (!head) return;
 
- ['ofSinif','ofSube'].forEach(id=>$(id).addEventListener('change',()=>renderStudentTable()));
- $('ofAra').addEventListener('input',()=>renderStudentTable());
- $('ofClr').onclick=()=>{$('ofSinif').value='ALL';$('ofSube').value='ALL';$('ofAra').value='';renderStudentTable();};
- renderStudentTable();
-})();
+    const cls = 'border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white outline-none';
+    const bar = document.createElement('div');
+    bar.className = 'flex flex-wrap gap-2 mb-3';
+    bar.innerHTML = '<select id="ofSinif" class="'+cls+'"></select><select id="ofSube" class="'+cls+'"></select><input id="ofAra" placeholder="Ad / No ara..." class="'+cls+' w-36"><button id="ofClr" class="text-xs text-slate-600 border border-slate-300 rounded-lg px-3 py-1.5 bg-white">Temizle</button>';
+    head.insertAdjacentElement('afterend', bar);
+
+    function opts(id, items) {
+        const el = $(id), cur = el.value;
+        if (!el) return;
+        el.innerHTML = items.map(i => '<option value="'+E(i[0])+'">'+E(i[1])+'</option>').join('');
+        el.value = items.some(i => i[0] === cur) ? cur : items[0][0];
+    }
+
+    function fill() {
+        if (typeof students === 'undefined') return;
+        const cl = [...new Set(students.map(s => T(s.sinif)))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'tr', { numeric: true }));
+        opts('ofSinif', [['ALL', 'Tüm Sınıflar']].concat(cl.map(x => [x, x + '. Sınıf'])));
+        const sv = $('ofSinif').value;
+        const sb = [...new Set(students.filter(s => sv === 'ALL' || T(s.sinif) === sv).map(s => T(s.sube).toLowerCase()))].filter(Boolean).sort();
+        opts('ofSube', [['ALL', 'Tüm Şubeler']].concat(sb.map(x => [x, x.toUpperCase() + ' Şubesi'])));
+    }
+
+    function match(s) {
+        const q = $('ofAra').value.trim().toLowerCase(), a = $('ofSinif').value, b = $('ofSube').value;
+        return (a === 'ALL' || T(s.sinif) === a) && (b === 'ALL' || T(s.sube).toLowerCase() === b)
+            && (!q || String(s.name || '').toLowerCase().includes(q) || String(s.no || '').toLowerCase().includes(q));
+    }
+
+    const orig = window.renderStudentTable;
+    window.renderStudentTable = function() {
+        fill();
+        if (typeof students === 'undefined') return;
+        const all = students, l = all.filter(match);
+        students = l;
+        try {
+            if (typeof orig === 'function') orig();
+        } finally {
+            students = all;
+        }
+        if (!l.length && all.length && $('studentTableBody')) {
+            $('studentTableBody').innerHTML = '<tr><td colspan="5" class="p-4 text-center text-sm text-slate-400">Bu filtreye uyan öğrenci yok.</td></tr>';
+        }
+        if ($('studentCount')) {
+            $('studentCount').textContent = l.length === all.length ? all.length : l.length + ' / ' + all.length;
+        }
+    };
+
+    ['ofSinif', 'ofSube'].forEach(id => {
+        if ($(id)) $(id).addEventListener('change', () => renderStudentTable());
+    });
+    if ($('ofAra')) $('ofAra').addEventListener('input', () => renderStudentTable());
+    if ($('ofClr')) $('ofClr').onclick = () => { $('ofSinif').value = 'ALL'; $('ofSube').value = 'ALL'; $('ofAra').value = ''; renderStudentTable(); };
+    
+    if (typeof renderStudentTable === 'function') renderStudentTable();
+});
 </script>
 </body>
 </html>
