@@ -2112,5 +2112,122 @@ if(typeof renderDashboard==='function')renderDashboard();
 <script>
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 </script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim();
+
+ /* 1. Öğrenci sınıf/şube/no/ad düzenleme */
+ window.editStudent=function(id){
+  const s=students.find(x=>x.id===id);if(!s)return;
+  const a=prompt('Sınıf (örn: 7):',s.sinif);if(a===null)return;
+  const b=prompt('Şube (örn: d):',s.sube);if(b===null)return;
+  const c=prompt('Okul numarası:',s.no);if(c===null)return;
+  const d=prompt('Adı soyadı:',s.name);if(d===null)return;
+  s.sinif=T(a)||s.sinif;s.sube=T(b).toLowerCase()||s.sube;s.no=T(c)||s.no;s.name=T(d)||s.name;
+  saveDataToFirebase();
+ };
+ const stb=$('studentTableBody');
+ function addEdit(){stb.querySelectorAll('tr').forEach(tr=>{
+  const d=tr.querySelector('button[onclick^="deleteStudent"]');if(!d||tr.querySelector('.ed'))return;
+  const m=d.getAttribute('onclick').match(/'([^']+)'/),b=document.createElement('button');
+  b.className='ed text-sm mr-3';b.textContent='✏️';b.title='Düzenle';b.onclick=()=>editStudent(m[1]);
+  d.parentElement.insertBefore(b,d);});}
+ new MutationObserver(addEdit).observe(stb,{childList:true});addEdit();
+
+ /* 2. Tüm sınıfa +1 / -1 */
+ function bulk(d){
+  const dn=$('filterDonemDers').value,dt=$('selectedDateDers').value||todayStr,sf=$('filterSinifDers').value,sb=$('filterSubeDers').value,q=$('searchDers').value.trim().toLowerCase();
+  const l=students.filter(s=>(sf==='ALL'||T(s.sinif)===sf)&&(sb==='ALL'||T(s.sube).toLowerCase()===sb)&&(!q||String(s.name||'').toLowerCase().includes(q)||String(s.no||'').toLowerCase().includes(q)));
+  if(!l.length)return alert('Öğrenci yok.');
+  if(!confirm('Ekrandaki '+l.length+' öğrenciye '+(d>0?'+':'')+d+' puan verilecek ('+dt+'). Onaylıyor musunuz?'))return;
+  l.forEach(s=>{const r=getDayRecord(s,dn,dt);r.points=(r.points||0)+d;});
+  saveDataToFirebase();
+ }
+ const ex=document.querySelector('#content-dersTakip button[onclick="exportExcelDers()"]'),w=document.createElement('div');
+ w.className='flex gap-1';
+ w.innerHTML='<button class="bg-emerald-600 text-white text-sm px-3 py-2 rounded-lg font-semibold">➕ Herkese +1</button><button class="bg-red-600 text-white text-sm px-3 py-2 rounded-lg font-semibold">➖ Herkese −1</button>';
+ w.children[0].onclick=()=>bulk(1);w.children[1].onclick=()=>bulk(-1);
+ ex.parentElement.insertBefore(w,ex);
+
+ /* 5. Cüzde olan öğrenci: Kur'an dersinde etiket, yüzüne okuma puanı kapalı */
+ const dtb=$('dersTableBody');
+ function cuzFix(){
+  const dn=$('filterDonemDers').value;
+  dtb.querySelectorAll('select[onchange^="updateDersScore"]').forEach(sel=>{
+   const id=(sel.getAttribute('onchange').match(/'([^']+)'/)||[])[1],st=students.find(x=>x.id===id),box=sel.parentElement,lab=box.querySelector('span');
+   if(!st||!lab)return;
+   const cz=((st.periods||{})[dn]||{}).kuranDurum==='cuz',nm=lab.getAttribute('title')||lab.textContent,y=/yüzüne/i.test(nm),k=/kur/i.test(nm);
+   if(y)sel.style.display=cz?'none':'';
+   if(cz&&(y||k)&&!box.querySelector('.cz')){const t=document.createElement('span');t.className='cz text-[10px] text-amber-700 font-bold';t.textContent=y?'📜 Cüzde · puan yok':'📜 Cüzde';box.insertBefore(t,sel);}
+  });
+ }
+ new MutationObserver(cuzFix).observe(dtb,{childList:true});cuzFix();
+
+ /* 3. Dönem karnesi */
+ const CSS='.k{font-family:Segoe UI,Arial,sans-serif;color:#111;background:#fff;max-width:720px;margin:0 auto 24px;padding:20px;border:1px solid #cbd5e1;border-radius:8px;page-break-after:always}.k h2{margin:0 0 6px;font-size:20px;color:#3730a3}.k h3{margin:14px 0 4px;font-size:14px;color:#3730a3;border-bottom:1px solid #c7d2fe}.k table{width:100%;border-collapse:collapse;font-size:13px}.k td{padding:4px 6px;border-bottom:1px solid #e2e8f0}.k td:last-child{text-align:right;font-weight:600}.k .line{height:56px;border:1px dashed #94a3b8;border-radius:6px}.k .sign{text-align:right;margin-top:18px;font-size:12px}@media print{.k{border:0}}';
+ const rank={Baslamadi:0,DevamEdiyor:1,Tamamlandi:2},row=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
+ function karne(st,dn){
+  const per=(st.periods||{})[dn]||{},cuz=per.kuranDurum==='cuz',sc={},ez={},cl=T(st.sinif);
+  let v=0,yk=0,iz=0,ab=0,p=0,m=0;
+  Object.values(per.days||{}).forEach(d=>{
+   if(d.status==='Var')v++;else if(d.status==='Yok')yk++;else if(d.status==='Izinli')iz++;
+   if(d.abdest)ab++;const x=d.points||0;if(x>0)p+=x;else m+=x;
+   Object.entries(d.scores||{}).forEach(([k,n])=>{if(+n)(sc[k]=sc[k]||[]).push(+n);});
+   Object.entries(d.ezberStatus||{}).forEach(([k,s])=>{if(rank[s]>(ez[k]===undefined?-1:ez[k]))ez[k]=rank[s];});
+  });
+  const ap=h=>(h.sinif==='ALL'||h.sinif===cl)&&(h.sube==='ALL'||h.sube===T(st.sube).toLowerCase());
+  const ds=lessons.filter(l=>l.sinif==='ALL'||T(l.sinif)===cl).map(l=>{
+   if(cuz&&/yüzüne/i.test(l.name))return row(E(l.name),'Cüzde olduğu için puanlanmaz');
+   const a=sc[l.name];return row(E(l.name)+(cuz&&/kur/i.test(l.name)?' <i>(Cüzde)</i>':''),a?(a.reduce((s,n)=>s+n,0)/a.length).toFixed(1)+' / 5':'-');
+  }).join('');
+  const es=ezberItems.filter(e=>e.sinif==='ALL'||T(e.sinif)===cl).map(e=>row(E(e.name),['Başlamadı','Çalışıyor','Ezberlendi ✓'][ez[e.name]||0])).join('');
+  const cnt=r=>{let a=0,b=0,c=0;r.forEach(h=>{const s=(st.hwStatus||{})[h.id];s==='Yapti'?a++:s==='Yapmadi'?b++:c++;});return row('Yaptı / yapmadı / işaretsiz',a+' / '+b+' / '+c);};
+  const od=homeworks.filter(h=>!h.rb&&ap(h)),rg=homeworks.filter(h=>h.rb&&(h.donem||'1')===dn&&ap(h));
+  return '<div class="k"><h2>Dönem Sonu Karnesi · '+dn+'. Dönem</h2><div><b>'+E(st.name)+'</b> · '+E(st.sinif)+'/'+E(st.sube).toUpperCase()+' · No: '+E(st.no)+'</div>'
+   +'<h3>Devam ve Davranış</h3><table>'+row('Devam (var / yok / izinli)',v+' / '+yk+' / '+iz)+row('Abdestli gün sayısı',ab)+row('Artı / eksi / net puan','+'+p+' / '+m+' / '+(p+m))+'</table>'
+   +'<h3>Kur\'an Durumu</h3><table>'+row('Seviye',cuz?'Cüzde':'Kur\'an\'da')+row('Hafızlık',per.hafiz?'Hafız':'-')+'</table>'
+   +(ds?'<h3>Ders Puanları (ortalama)</h3><table>'+ds+'</table>':'')+(es?'<h3>Ezberler</h3><table>'+es+'</table>':'')
+   +(od.length?'<h3>Ödevler ('+od.length+' adet)</h3><table>'+cnt(od)+'</table>':'')+(rg.length?'<h3>Rehberlik Faaliyetleri ('+rg.length+' adet)</h3><table>'+cnt(rg)+'</table>':'')
+   +'<h3>Öğretmen Görüşü</h3><div class="line"></div><div class="sign">Sınıf Rehber Öğretmeni: ____________</div></div>';
+ }
+ const kp=document.createElement('div');kp.id='content-karne';kp.className='hidden bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200';
+ const sc2='border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white';
+ kp.innerHTML='<style>'+CSS+'</style><div class="flex flex-wrap gap-2 mb-4"><select id="kDonem" class="'+sc2+'"><option value="1">1. Dönem</option><option value="2">2. Dönem</option></select><select id="kSinif" class="'+sc2+'"></select><select id="kSube" class="'+sc2+'"></select><select id="kOgr" class="'+sc2+'"></select><button id="kPrint" class="bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-medium">🖨️ Yazdır / PDF</button></div><div id="kOut"></div>';
+ document.querySelector('main').appendChild(kp);
+ const opts=(id,items)=>{const el=$(id),c=el.value;el.innerHTML=items.map(i=>'<option value="'+E(i[0])+'">'+E(i[1])+'</option>').join('');el.value=items.some(i=>i[0]===c)?c:items[0][0];};
+ const pool=()=>{const s=$('kSinif').value,b=$('kSube').value;return students.filter(x=>(s==='ALL'||T(x.sinif)===s)&&(b==='ALL'||T(x.sube).toLowerCase()===b));};
+ const chosen=()=>{const l=pool(),o=$('kOgr').value;return o==='ALL'?l:l.filter(x=>x.id===o);};
+ function kRender(){
+  opts('kSinif',[['ALL','Tüm Sınıflar']].concat([...new Set(students.map(x=>T(x.sinif)))].filter(Boolean).sort().map(c=>[c,c+'. Sınıf'])));
+  const sv=$('kSinif').value,sb=[...new Set(students.filter(x=>sv==='ALL'||T(x.sinif)===sv).map(x=>T(x.sube).toLowerCase()))].filter(Boolean).sort();
+  opts('kSube',[['ALL','Tüm Şubeler']].concat(sb.map(x=>[x,x.toUpperCase()+' Şubesi'])));
+  const l=pool();opts('kOgr',[['ALL','Tüm öğrenciler ('+l.length+')']].concat(l.map(x=>[x.id,x.name])));
+  const s=chosen();
+  $('kOut').innerHTML=s.length?s.slice(0,5).map(x=>karne(x,$('kDonem').value)).join('')+(s.length>5?'<p class="text-xs text-slate-500 text-center">İlk 5 karne gösterildi, Yazdır ile hepsi çıkar.</p>':''):'<p class="text-sm text-slate-400 text-center">Öğrenci yok.</p>';
+ }
+ ['kDonem','kSinif','kSube','kOgr'].forEach(i=>$(i).addEventListener('change',kRender));
+ $('kPrint').onclick=()=>{
+  const s=chosen();if(!s.length)return;
+  const w=open('','_blank');if(!w)return alert('Açılır pencere engellendi, izin verin.');
+  w.document.write('<!doctype html><meta charset="utf-8"><title>Karne</title><style>'+CSS+'</style>'+s.map(x=>karne(x,$('kDonem').value)).join(''));
+  w.document.close();setTimeout(()=>w.print(),400);
+ };
+ const hg=document.querySelector('#content-home .grid');
+ if(hg){const b=document.createElement('button');b.setAttribute('onclick',"switchTab('karne')");
+  b.className='text-left bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 p-5 rounded-xl transition';
+  b.innerHTML='<div class="text-3xl mb-2">📝</div><div class="font-bold text-indigo-900">Dönem Karnesi</div><div class="text-xs text-indigo-700 mt-1">Öğrenci karnesi, yazdır / PDF</div>';hg.appendChild(b);}
+ const sw=window.switchTab;
+ window.switchTab=function(t){
+  kp.classList.add('hidden');sw(t);
+  if(t==='karne'){kp.classList.remove('hidden');const b=$('pageTitleBar');if(b)b.innerHTML='<span class="text-2xl">📝</span><span>Dönem Karnesi</span>';document.title='Karne | Sınıf Takip';kRender();}
+ };
+ const ra=window.renderAll;window.renderAll=function(){ra();if(!kp.classList.contains('hidden'))kRender();};
+
+ /* 4. Ekran kapanmasın */
+ let wl=null;
+ async function lock(){try{if('wakeLock' in navigator&&document.visibilityState==='visible'&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null;});}}catch(e){}}
+ lock();document.addEventListener('visibilitychange',lock);addEventListener('click',lock);
+})();
+</script>
 </body>
 </html>
