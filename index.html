@@ -2247,5 +2247,124 @@ html body main .bulkpm{min-height:30px!important;font-size:12px!important;paddin
  sortStudents();
 })();
 </script>
+<style>
+.pasif td{opacity:.45;background:#f1f5f9}
+.pasif button,.pasif select,.pasif input{pointer-events:none}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim();
+ const bad=/[.#$\/\[\]]/,nS=v=>{v=T(v);return v===''||v.toUpperCase()==='ALL'?'ALL':v;},nB=v=>{v=T(v);return v===''||v.toUpperCase()==='ALL'?'ALL':v.toLowerCase();};
+ const idOf=el=>{const m=(el.getAttribute('onclick')||el.getAttribute('onchange')||el.getAttribute('onblur')||'').match(/\(\s*'([^']+)'/);return m&&m[1];};
+
+ /* 1. Sürekli devamsız: Öğrenci Yönetimi'nde işaretleme düğmesi */
+ const stb=$('studentTableBody');
+ function absBtn(){stb.querySelectorAll('tr').forEach(tr=>{
+  const d=tr.querySelector('button[onclick^="deleteStudent"]');if(!d||tr.querySelector('.ab'))return;
+  const s=students.find(x=>x.id===idOf(d));if(!s)return;
+  const b=document.createElement('button');b.className='ab text-xs px-2 py-1 rounded border mr-2 '+(s.absent?'bg-red-100 text-red-700 border-red-300 font-bold':'bg-white text-slate-500 border-slate-300');
+  b.textContent=s.absent?'🚫 Devamsız':'Devamsız yap';b.title='Sürekli devamsız olarak işaretle / kaldır';
+  b.onclick=()=>{s.absent=!s.absent;saveDataToFirebase();};d.parentElement.insertBefore(b,d);});}
+ new MutationObserver(absBtn).observe(stb,{childList:true});absBtn();
+
+ /* Ezber ve Ders tablolarında pasif görünüm */
+ function pasif(tb){tb.querySelectorAll('tr').forEach(tr=>{
+  const c=tr.querySelector('[onclick],[onchange],[onblur]');const s=c&&students.find(x=>x.id===idOf(c));
+  tr.classList.toggle('pasif',!!(s&&s.absent));
+  const nm=tr.children[2];if(s&&s.absent&&nm&&!nm.querySelector('.pb')){const p=document.createElement('div');p.className='pb text-[11px] font-bold text-red-600';p.textContent='🚫 Sürekli devamsız (pasif)';nm.appendChild(p);}});}
+ ['ezberTableBody','dersTableBody'].forEach(id=>{const tb=$(id);new MutationObserver(()=>pasif(tb)).observe(tb,{childList:true});pasif(tb);});
+
+ /* Herkese +1/-1 pasif öğrencileri atlasın */
+ function bulk(d){
+  const dn=$('filterDonemDers').value,dt=$('selectedDateDers').value||todayStr,sf=$('filterSinifDers').value,sb=$('filterSubeDers').value,q=$('searchDers').value.trim().toLowerCase();
+  const l=students.filter(s=>!s.absent&&(sf==='ALL'||T(s.sinif)===sf)&&(sb==='ALL'||T(s.sube).toLowerCase()===sb)&&(!q||String(s.name||'').toLowerCase().includes(q)||String(s.no||'').toLowerCase().includes(q)));
+  if(!l.length)return alert('Öğrenci yok.');
+  if(!confirm('Ekrandaki '+l.length+' öğrenciye '+(d>0?'+':'')+d+' puan verilecek ('+dt+'). Devamsız öğrenciler hariç. Onaylıyor musunuz?'))return;
+  l.forEach(s=>{const r=getDayRecord(s,dn,dt);r.points=(r.points||0)+d;});saveDataToFirebase();
+ }
+ [...document.querySelectorAll('#content-dersTakip button')].filter(b=>/Herkese/.test(b.textContent)).forEach(b=>{const c=b.cloneNode(true);b.replaceWith(c);c.onclick=()=>bulk(/\+1/.test(c.textContent)?1:-1);});
+
+ /* 2. İstatistik: sürekli devamsız öğrenciler */
+ const box=document.createElement('div');box.className='bg-slate-100 border border-slate-300 p-4 rounded-xl mt-6';
+ box.innerHTML='<h3 class="font-bold text-slate-700 mb-3">🚫 Sürekli Devamsız Öğrenciler</h3><div id="absList" class="flex flex-wrap gap-2 overflow-y-auto" style="max-height:16rem"></div>';
+ $('content-dashboard').appendChild(box);
+ function absList(){
+  const l=students.filter(s=>s.absent).sort((a,b)=>parseInt(a.sinif)-parseInt(b.sinif)||String(a.sube).localeCompare(String(b.sube))||(parseInt(a.no)||0)-(parseInt(b.no)||0));
+  $('absList').innerHTML=l.length?l.map(s=>'<span class="bg-red-100 text-red-800 text-xs px-2.5 py-1 rounded-lg border border-red-200">'+E(s.name)+' ('+E(s.sinif)+'/'+E(s.sube).toUpperCase()+' · '+E(s.no)+')</span>').join(''):'<span class="text-xs text-slate-400 italic">Sürekli devamsız işaretli öğrenci yok.</span>';
+ }
+ const rd=window.renderDashboard;window.renderDashboard=function(){rd();absList();};absList();
+
+ /* 3. Atamaları sonradan düzenleme */
+ function migrate(kind,it,n){
+  students.filter(st=>it.sinif==='ALL'||T(st.sinif)===it.sinif).forEach(st=>Object.values(st.periods||{}).forEach(p=>Object.values(p.days||{}).forEach(d=>{
+   const o=kind==='e'?d.ezberStatus:d.scores;if(o&&o[it.name]!==undefined){o[n]=o[it.name];delete o[it.name];}})));
+ }
+ function editNamed(arr,i,kind){
+  const it=arr[i];if(!it)return;
+  let n=prompt('Ad:',it.name);if(n===null)return;n=T(n);
+  if(!n||bad.test(n))return alert('Ad boş olamaz ve . # $ / [ ] karakterlerini içeremez.');
+  let s=prompt('Sınıf (tüm sınıflar için ALL yazın):',it.sinif);if(s===null)return;
+  if(n!==it.name)migrate(kind,it,n);it.name=n;it.sinif=nS(s);saveDataToFirebase();
+ }
+ const okD=v=>/^\d{4}-\d{2}-\d{2}$/.test(v);
+ function editHw(id){
+  const h=homeworks.find(x=>x.id===id);if(!h)return;
+  let n=prompt('Ödev adı:',h.name);if(n===null)return;
+  let s=prompt('Sınıf (ALL = tüm sınıflar):',h.sinif);if(s===null)return;
+  let b=prompt('Şube (ALL = tüm şubeler):',h.sube);if(b===null)return;
+  let st=prompt('Başlangıç (YYYY-AA-GG):',h.start);if(st===null)return;
+  let en=prompt('Bitiş (YYYY-AA-GG):',h.end);if(en===null)return;
+  st=T(st);en=T(en);if(!T(n)||!okD(st)||!okD(en)||en<st)return alert('Ad ya da tarih hatalı.');
+  h.name=T(n);h.sinif=nS(s);h.sube=nB(b);h.start=st;h.end=en;saveDataToFirebase();
+ }
+ function editRb(id){
+  const h=homeworks.find(x=>x.id===id);if(!h)return;
+  let n=prompt('Çalışma adı:',h.name);if(n===null)return;
+  let s=prompt('Sınıf (ALL = tüm sınıflar):',h.sinif);if(s===null)return;
+  let b=prompt('Şube (ALL = tüm şubeler):',h.sube);if(b===null)return;
+  let d=prompt('Dönem (1 ya da 2):',h.donem||'1');if(d===null)return;
+  if(!T(n)||!/^[12]$/.test(T(d)))return alert('Ad boş olamaz, dönem 1 ya da 2 olmalı.');
+  h.name=T(n);h.sinif=nS(s);h.sube=nB(b);h.donem=T(d);saveDataToFirebase();
+ }
+ function inject(cont,sel,fn){cont.querySelectorAll(sel).forEach(del=>{
+  if(del.parentElement.classList.contains('edw'))return;
+  const m=del.getAttribute('onclick').match(/\(\s*'?([^')]+)'?\s*\)/),b=document.createElement('button');
+  b.className='text-xs text-indigo-700 bg-indigo-50 px-2 py-1 rounded';b.textContent='✏️ Düzenle';b.onclick=()=>fn(m[1]);
+  const w=document.createElement('span');w.className='edw flex gap-1 justify-center';del.parentElement.insertBefore(w,del);w.append(b,del);});}
+ [['ezberList','button[onclick^="removeEzberItem"]',i=>editNamed(ezberItems,+i,'e')],
+  ['lessonList','button[onclick^="removeLesson"]',i=>editNamed(lessons,+i,'l')],
+  ['hwList','button[onclick^="removeHomework"]',editHw],
+  ['rbTable','button[onclick^="rbDel"]',editRb]].forEach(([id,sel,fn])=>{
+  const c=$(id);if(!c)return;new MutationObserver(()=>inject(c,sel,fn)).observe(c,{childList:true});inject(c,sel,fn);});
+})();
+</script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);
+ function active(fn){const all=students;students=all.filter(s=>!s.absent);try{return fn();}finally{students=all;}}
+
+ /* Rehberlik: çizelge, özet ve Excel raporu */
+ const rr=window.rbRender;window.rbRender=function(){active(rr);};
+ const rp=window.rbReport;window.rbReport=function(){active(rp);};
+
+ /* İstatistik: "Rehberlik çalışmasına katılmayanlar" kutusu */
+ const rd=window.renderDashboard;
+ window.renderDashboard=function(){
+  const ab=students.filter(s=>s.absent),bk=ab.map(s=>s.hwStatus);
+  ab.forEach(s=>{s.hwStatus={};});
+  try{rd();}finally{ab.forEach((s,i)=>{if(bk[i]===undefined)delete s.hwStatus;else s.hwStatus=bk[i];});}
+ };
+
+ /* Karne: seçim listesi, ekrandaki karneler ve yazdırma */
+ const kp=$('content-karne');let hold=null;
+ const on=()=>{if(!hold){hold=students;students=hold.filter(s=>!s.absent);}};
+ const off=()=>{if(hold){students=hold;hold=null;}};
+ ['change','click'].forEach(t=>{kp.addEventListener(t,on,true);kp.addEventListener(t,off,false);});
+ const sw=window.switchTab;
+ window.switchTab=function(t){if(t==='karne')active(()=>sw(t));else sw(t);};
+ const ra=window.renderAll;
+ window.renderAll=function(){ra();if(!kp.classList.contains('hidden'))$('kDonem').dispatchEvent(new Event('change',{bubbles:true}));};
+})();
+</script>
 </body>
 </html>
