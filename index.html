@@ -2593,5 +2593,23 @@ document.addEventListener('DOMContentLoaded', function() {
  stats();
 })();
 </script>
+<style>
+@media(max-width:768px){
+ html body main .bulkpm,
+ html body main button[onclick^="exportExcel"]{
+  height:auto!important;
+  min-height:30px!important;
+  white-space:nowrap!important;
+  line-height:1.1!important;
+  font-size:10.5px!important;
+  padding:4px 7px!important;
+  gap:3px!important;
+  flex:0 0 auto!important;
+  overflow:hidden;
+ }
+ html body main button[onclick^="exportExcel"] i{display:none!important}
+ #content-dersTakip .flex.gap-2.items-center{flex-wrap:wrap;gap:6px!important}
+}
+</style>
 </body>
 </html>
