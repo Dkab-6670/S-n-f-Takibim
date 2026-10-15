@@ -2611,5 +2611,27 @@ document.addEventListener('DOMContentLoaded', function() {
  #content-dersTakip .flex.gap-2.items-center{flex-wrap:wrap;gap:6px!important}
 }
 </style>
+<style>
+.cntBadge{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;vertical-align:middle}
+</style>
+<script>
+(function(){
+ const items=[['listHafizStudents','#7c3aed'],['listKuranStudents','#d97706'],['absList','#dc2626']];
+ function count(){
+  items.forEach(([id,color])=>{
+   const list=document.getElementById(id);if(!list)return;
+   const h=list.previousElementSibling;if(!h)return;
+   let b=h.querySelector('.cntBadge');
+   if(!b){b=document.createElement('span');b.className='cntBadge';h.appendChild(b);}
+   const n=[...list.children].filter(c=>!c.classList.contains('italic')).length;
+   b.style.background=color;
+   b.textContent=n+' kişi';
+  });
+ }
+ const rd=window.renderDashboard;
+ window.renderDashboard=function(){rd();count();};
+ count();
+})();
+</script>
 </body>
 </html>
