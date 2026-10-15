@@ -2438,5 +2438,160 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof renderStudentTable === 'function') renderStudentTable();
 });
 </script>
+<style>
+@media(max-width:768px){
+ html body main button[onclick^="exportExcel"],html body main .bulkpm{min-height:28px!important;height:30px;font-size:11px!important;padding:2px 9px!important;border-radius:8px!important;gap:4px!important}
+}
+.cm{display:inline-block;background:rgba(127,127,127,.18);border-radius:999px;padding:1px 8px;font-size:11px!important;font-weight:700;margin-left:6px;white-space:nowrap}
+#leaderboardEzber{--lc:#10b981}#leaderboardAbdest{--lc:#3b82f6}#leaderboardPoints{--lc:#6366f1}#leaderboardMinus{--lc:#ef4444}
+#leaderboardEzber>div,#leaderboardAbdest>div,#leaderboardPoints>div,#leaderboardMinus>div{border:0!important;border-left:4px solid var(--lc)!important;border-radius:12px!important;padding:8px 12px!important;box-shadow:0 1px 3px rgba(0,0,0,.1);transition:transform .15s,box-shadow .15s}
+#leaderboardEzber>div:hover,#leaderboardAbdest>div:hover,#leaderboardPoints>div:hover,#leaderboardMinus>div:hover{transform:translateX(3px);box-shadow:0 3px 8px rgba(0,0,0,.18)}
+#leaderboardEzber>div:first-child,#leaderboardAbdest>div:first-child,#leaderboardPoints>div:first-child{background-image:linear-gradient(90deg,rgba(250,204,21,.25),transparent 70%)!important}
+#leaderboardMinus>div:first-child{background-image:linear-gradient(90deg,rgba(239,68,68,.2),transparent 70%)!important}
+#leaderboardEzber .font-semibold,#leaderboardAbdest .font-semibold,#leaderboardPoints .font-semibold,#leaderboardMinus .font-semibold{font-size:13px}
+#listHafizStudents>span,#listKuranStudents>span,#doneEzber .flex-wrap>span,#rbMiss .flex-wrap>span,#absList>span{display:inline-flex!important;align-items:center;border-radius:999px!important;padding:5px 12px!important;font-size:12.5px!important;font-weight:600!important;box-shadow:0 1px 2px rgba(0,0,0,.1);transition:transform .15s}
+#listHafizStudents>span:hover,#listKuranStudents>span:hover,#doneEzber .flex-wrap>span:hover,#rbMiss .flex-wrap>span:hover,#absList>span:hover{transform:translateY(-1px)}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml;
+ const idOf=el=>{const m=(el.getAttribute('onclick')||el.getAttribute('onchange')||el.getAttribute('onblur')||'').match(/\(\s*'([^']+)'/);return m&&m[1];};
+
+ /* 1. Kitap var/yok ve derste uyudu */
+ const dt=$('dersTableBody');
+ if(!$('thKU')){const th=document.createElement('th');th.id='thKU';th.className='p-3 font-semibold text-center w-40';th.textContent='Kitap / Uyku';document.querySelector('#content-dersTakip thead tr').appendChild(th);}
+ function cells(){
+  const dn=$('filterDonemDers').value,dd=$('selectedDateDers').value||todayStr;
+  const hs=[...document.querySelectorAll('#content-dersTakip thead th')].map(x=>x.textContent.trim());
+  dt.querySelectorAll('tr').forEach(tr=>{
+   if(tr.querySelector('.kbs'))return;
+   const c=tr.querySelector('[onclick],[onchange],[onblur]'),id=c&&idOf(c),s=id&&students.find(x=>x.id===id);
+   if(!s)return;
+   const r=getDayRecord(s,dn,dd),bk=r.book||'None',sl=!!r.slept;
+   const bc=bk==='Var'?'bg-emerald-100 text-emerald-800 font-bold':bk==='Yok'?'bg-red-100 text-red-800 font-bold':'bg-white text-slate-500';
+   const sc=sl?'bg-amber-200 text-amber-900 font-bold border-amber-400':'bg-white text-slate-500 border-slate-300';
+   const td=document.createElement('td');td.className='p-3 kbs';
+   td.innerHTML='<div class="flex flex-wrap gap-1 items-center justify-center"><select class="kt text-xs px-1.5 py-1 rounded border outline-none '+bc+'"><option value="None"'+(bk==='None'?' selected':'')+'>- Kitap -</option><option value="Var"'+(bk==='Var'?' selected':'')+'>📕 Kitabı var</option><option value="Yok"'+(bk==='Yok'?' selected':'')+'>🚫 Kitabı yok</option></select><button class="sl text-xs px-2 py-1 rounded border '+sc+'">😴 Uyudu'+(sl?' ✓':'')+'</button></div>';
+   tr.appendChild(td);
+   [...tr.children].forEach((x,i)=>{x.dataset.l=hs[i]||'';});
+  });
+ }
+ function upd(el,field,val){
+  const c=el.closest('tr').querySelector('button[onclick^="changePoint"]'),s=c&&students.find(x=>x.id===idOf(c));if(!s)return;
+  const r=getDayRecord(s,$('filterDonemDers').value,$('selectedDateDers').value||todayStr);
+  if(field==='slept')r.slept=!r.slept;else r[field]=val;
+  saveDataToFirebase();
+ }
+ dt.addEventListener('change',e=>{if(e.target.classList.contains('kt'))upd(e.target,'book',e.target.value);});
+ dt.addEventListener('click',e=>{const b=e.target.closest('.sl');if(b)upd(b,'slept');});
+ new MutationObserver(cells).observe(dt,{childList:true});cells();
+
+ /* 2. Telefonda küçük butonlar */
+ document.querySelectorAll('#content-dersTakip button').forEach(b=>{if(/Herkese/.test(b.textContent))b.classList.add('bulkpm');});
+
+ /* 3. Ezber ve Ders filtre sırası: Sınıf, Şube, Tarih, Dönem, Arama */
+ ['Ezber','Ders'].forEach(t=>{
+  const bar=$('filterSinif'+t).parentElement.parentElement;
+  ['filterSinif'+t,'filterSube'+t,'selectedDate'+t,'filterDonem'+t,'search'+t].forEach(id=>bar.appendChild($(id).parentElement));
+ });
+
+ /* 4. İstatistik öğrenci stili */
+ function beautify(){
+  document.querySelectorAll('#listHafizStudents>span,#listKuranStudents>span,#doneEzber .flex-wrap>span,#rbMiss .flex-wrap>span,#absList>span').forEach(sp=>{
+   if(sp.dataset.b)return;sp.dataset.b='1';
+   const m=sp.textContent.trim().match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+   if(m)sp.innerHTML='<span>'+E(m[1])+'</span><span class="cm">'+E(m[2])+'</span>';
+  });
+  document.querySelectorAll('#leaderboardEzber>div,#leaderboardAbdest>div,#leaderboardPoints>div,#leaderboardMinus>div').forEach(r=>{
+   r.querySelectorAll('span').forEach(s=>{if(/^\(.+\)$/.test(s.textContent.trim()))s.classList.add('cm');});
+  });
+ }
+ const rd=window.renderDashboard;
+ window.renderDashboard=function(){rd();beautify();};
+ beautify();
+})();
+</script>
+<style>
+.cmx{display:inline-block;background:rgba(127,127,127,.2);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:6px;white-space:nowrap}
+.kuChip{display:inline-flex;align-items:center;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+#noBookList,#sleepList{max-height:16rem;overflow-y:auto;-webkit-overflow-scrolling:touch}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml;
+ const days=(s,dn)=>Object.entries(((s.periods||{})[dn]||{}).days||{});
+ const norm=t=>String(t).replace(/&#039;/g,"'").replace(/&quot;/g,'"');
+
+ /* 1. Excel (Ders raporu): Kitap ve Derste_Uyudu sütunları */
+ const od=window.downloadCSV;
+ window.downloadCSV=function(csv,name){
+  if(/^Ders_Takip_/.test(name)){
+   const head='data:text/csv;charset=utf-8,',body=csv.startsWith(head)?csv.slice(head.length):csv;
+   const L=body.replace(/\n$/,'').split('\n');
+   if(L.length===students.length+1){
+    const dn=$('filterDonemDers').value,dd=$('selectedDateDers').value||todayStr;
+    L[0]+=';Kitap;Derste_Uyudu';
+    students.forEach((s,i)=>{
+     const r=((((s.periods||{})[dn]||{}).days||{})[dd])||{};
+     L[i+1]+=';'+(r.book==='Var'?'Var':r.book==='Yok'?'Yok':'-')+';'+(r.slept?'Evet':'Hayir');
+    });
+    csv=head+L.join('\n')+'\n';
+   }
+  }
+  return od(csv,name);
+ };
+
+ /* 2. Karne: Kitap ve uyku bölümü */
+ const kBlock=(s,dn)=>{
+  let v=0,y=0,u=0;
+  days(s,dn).forEach(([d,r])=>{if(r.book==='Var')v++;else if(r.book==='Yok')y++;if(r.slept)u++;});
+  return '<h3 class="kb">Kitap ve Derste Uyku</h3><table><tr><td>Kitabı var / yok (gün)</td><td>'+v+' / '+y+'</td></tr><tr><td>Derste uyuduğu gün sayısı</td><td>'+u+'</td></tr></table>';
+ };
+ function enhance(html,dn){
+  return html.split('<div class="k">').map((part,i)=>{
+   if(i===0||part.indexOf('class="kb"')>-1)return part;
+   const m=part.match(/<b>(.*?)<\/b>[^<]*No: ([^<]*)</);
+   const s=m&&students.find(x=>norm(E(x.name))===norm(m[1])&&norm(E(x.no))===norm(m[2]));
+   return s?part.replace('<h3>Öğretmen Görüşü</h3>',kBlock(s,dn)+'<h3>Öğretmen Görüşü</h3>'):part;
+  }).join('<div class="k">');
+ }
+ const ko=$('kOut');let busy=false;
+ new MutationObserver(()=>{
+  if(busy)return;busy=true;
+  const h=ko.innerHTML,n=enhance(h,$('kDonem').value);
+  if(n!==h)ko.innerHTML=n;
+  busy=false;
+ }).observe(ko,{childList:true});
+ const wo=window.open;
+ window.open=function(){
+  const w=wo.apply(window,arguments);
+  if(w&&arguments[0]===''&&arguments[1]==='_blank'){
+   try{const dw=w.document.write.bind(w.document);w.document.write=h=>dw(enhance(h,$('kDonem').value));}catch(e){}
+  }
+  return w;
+ };
+
+ /* 3. İstatistikler: Kitabı olmayanlar ve derste uyuyanlar */
+ const box=document.createElement('div');
+ box.className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-6';
+ box.innerHTML='<div class="bg-red-50/50 border border-red-200 p-4 rounded-xl"><h3 class="font-bold text-red-700 mb-3">📕 Kitabı Olmayan Öğrenciler</h3><div id="noBookList" class="flex flex-wrap gap-2"></div></div>'
+  +'<div class="bg-amber-50/50 border border-amber-200 p-4 rounded-xl"><h3 class="font-bold text-amber-700 mb-3">😴 Derste Uyuyan Öğrenciler</h3><div id="sleepList" class="flex flex-wrap gap-2"></div></div>';
+ $('content-dashboard').appendChild(box);
+ function cnt(s,f){let n=0;['1','2'].forEach(p=>days(s,p).forEach(([d,r])=>{if(f(r))n++;}));return n;}
+ function fill(id,f,cls,empty){
+  const l=students.map(s=>({s:s,n:cnt(s,f)})).filter(x=>x.n>0)
+   .sort((a,b)=>b.n-a.n||parseInt(a.s.sinif)-parseInt(b.s.sinif)||(parseInt(a.s.no)||0)-(parseInt(b.s.no)||0));
+  $(id).innerHTML=l.length?l.map(x=>'<span class="kuChip '+cls+'"><span>'+E(x.s.name)+'</span><span class="cmx">'+E(x.s.sinif)+'/'+E(x.s.sube).toUpperCase()+' · '+E(x.s.no)+'</span><span class="cmx">'+x.n+' gün</span></span>').join('')
+   :'<span class="text-xs text-slate-400 italic">'+empty+'</span>';
+ }
+ function stats(){
+  fill('noBookList',r=>r.book==='Yok','bg-red-100 text-red-800','Kitabı yok olarak işaretlenen öğrenci yok.');
+  fill('sleepList',r=>r.slept,'bg-amber-100 text-amber-800','Derste uyudu olarak işaretlenen öğrenci yok.');
+ }
+ const rd=window.renderDashboard;
+ window.renderDashboard=function(){rd();stats();};
+ stats();
+})();
+</script>
 </body>
 </html>
