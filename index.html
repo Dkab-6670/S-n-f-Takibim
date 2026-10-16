@@ -2851,5 +2851,91 @@ html.dark .atChip{background:rgba(16,185,129,.25);color:#6ee7b7}
  if(d&&d.parentElement)d.parentElement.style.display='none';
 })();
 </script>
+<style>
+#undoBar{position:fixed;left:16px;bottom:16px;z-index:80;display:none;align-items:center;gap:10px;background:#1e293b;color:#fff;font-size:13px;padding:10px 14px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+#undoBar button{background:#fbbf24;color:#1e293b;font-weight:700;border:0;border-radius:8px;padding:4px 12px;cursor:pointer}
+@media(max-width:768px){#undoBar{bottom:76px;left:12px;right:12px}}
+#roomCodeDisplay{cursor:pointer}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml;
+ const dump=()=>JSON.stringify({students,lessons,ezberItems,homeworks});
+ const counts=()=>[students.length,lessons.length,ezberItems.length,homeworks.length];
+ const applyData=o=>{students=o.students||[];lessons=o.lessons||[];ezberItems=o.ezberItems||[];homeworks=o.homeworks||[];};
+
+ /* 1) Silmede Geri Al */
+ const bar=document.createElement('div');bar.id='undoBar';
+ bar.innerHTML='<span id="undoMsg"></span><button id="undoBtn">Geri Al</button>';document.body.appendChild(bar);
+ let prev=dump(),pc=counts(),undoSnap=null,tm;
+ $('undoBtn').onclick=()=>{if(!undoSnap)return;applyData(JSON.parse(undoSnap));undoSnap=null;bar.style.display='none';saveDataToFirebase();renderAll();};
+ const sv=window.saveDataToFirebase;
+ window.saveDataToFirebase=function(){
+  const c=counts(),removed=pc.reduce((s,n,i)=>s+Math.max(0,n-c[i]),0);
+  if(removed>0){undoSnap=prev;$('undoMsg').textContent=removed+' kayıt silindi';bar.style.display='flex';clearTimeout(tm);tm=setTimeout(()=>{bar.style.display='none';undoSnap=null;},10000);}
+  const r=sv.apply(this,arguments);prev=dump();pc=c;return r;
+ };
+
+ /* 2) Yedek al / yükle + günlük otomatik yedek */
+ const card=document.createElement('div');
+ card.className='mt-6 border border-indigo-200 bg-indigo-50 rounded-xl p-4';
+ card.innerHTML='<h3 class="font-bold text-indigo-800 mb-1">💾 Yedekleme</h3><p class="text-xs text-slate-600 mb-3" id="bkInfo"></p>'
+  +'<div class="flex flex-wrap gap-2 mb-3"><button id="bkDl" class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg font-semibold">Yedek al (JSON)</button><button id="bkUp" class="bg-slate-600 text-white text-sm px-4 py-2 rounded-lg font-semibold">Yedekten yükle</button><input type="file" id="bkFile" accept=".json" hidden></div>'
+  +'<div class="text-xs font-bold text-slate-700 mb-1">Otomatik günlük yedekler (sadece bu cihazda, son 7 gün)</div><div id="bkSnaps" class="space-y-1"></div>';
+ const dz=[...$('content-ayarlar').children].find(x=>/Tehlikeli/.test(x.textContent));
+ $('content-ayarlar').insertBefore(card,dz||null);
+ const bn=document.createElement('div');
+ bn.className='bg-amber-100 border border-amber-300 text-amber-900 rounded-xl px-4 py-2 mb-3 text-sm items-center justify-between gap-2';bn.style.display='none';
+ bn.innerHTML='<span id="bkTxt"></span><button id="bkNow" class="bg-amber-500 text-white font-semibold px-3 py-1 rounded-lg whitespace-nowrap">Yedek al</button>';
+ const mn=document.querySelector('main');mn.insertBefore(bn,mn.firstChild);
+
+ function dl(){
+  const o={app:'sinif-takip',date:new Date().toISOString(),students,lessons,ezberItems,homeworks};
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));
+  a.download='sinif-takip-yedek-'+todayStr+'.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);
+  try{localStorage.setItem('bk_last',String(Date.now()));}catch(e){}info();
+ }
+ function restore(o){
+  if(!o||!Array.isArray(o.students))return alert('Geçersiz yedek dosyası.');
+  if(!confirm('Mevcut tüm veriler değiştirilip yedekteki '+o.students.length+' öğrenci yüklenecek. Emin misiniz?'))return;
+  applyData(o);saveDataToFirebase();renderAll();
+ }
+ const snaps=()=>{try{return JSON.parse(localStorage.getItem('snap_v1')||'[]');}catch(e){return [];}};
+ function autoSnap(){
+  if(!students.length)return;const l=snaps();if(l.some(x=>x.d===todayStr))return;
+  l.unshift({d:todayStr,n:students.length,data:dump()});
+  try{localStorage.setItem('snap_v1',JSON.stringify(l.slice(0,7)));}catch(e){}
+ }
+ function list(){
+  $('bkSnaps').innerHTML=snaps().map((x,i)=>'<div class="flex items-center justify-between bg-white border rounded-lg px-3 py-1.5 text-xs"><span>'+E(x.d)+' · '+x.n+' öğrenci</span><button data-i="'+i+'" class="snR text-indigo-700 font-semibold">Geri yükle</button></div>').join('')||'<span class="text-xs text-slate-400 italic">Henüz otomatik yedek yok.</span>';
+ }
+ function info(){
+  const last=+localStorage.getItem('bk_last')||0,d=last?Math.floor((Date.now()-last)/864e5):null;
+  $('bkInfo').textContent=last?'Son yedek: '+(d===0?'bugün':d+' gün önce')+'.':'Henüz yedek almadınız.';
+  $('bkTxt').textContent='💾 '+(last?'Son yedeğinizin üzerinden '+d+' gün geçti.':'Henüz yedek almadınız.')+' Verileri korumak için yedek alın.';
+  bn.style.display=students.length>0&&(!last||d>=7)?'flex':'none';
+ }
+ $('bkDl').onclick=dl;$('bkNow').onclick=dl;
+ $('bkUp').onclick=()=>$('bkFile').click();
+ $('bkFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{restore(JSON.parse(r.result));}catch(x){alert('Dosya okunamadı.');}e.target.value='';};r.readAsText(f);};
+ $('bkSnaps').addEventListener('click',e=>{const b=e.target.closest('.snR');if(b)restore(JSON.parse(snaps()[b.dataset.i].data));});
+ const ra=window.renderAll;
+ window.renderAll=function(){ra();prev=dump();pc=counts();autoSnap();list();info();};
+ list();info();
+
+ /* 3) Oda kodunu gizle (dokununca 5 sn görünür) */
+ const rc=$('roomCodeDisplay');let real='',show=false;
+ const mask=c=>c.length>6?c.slice(0,4)+'•'.repeat(c.length-4):c;
+ new MutationObserver(()=>{
+  if(show)return;const t=rc.textContent;
+  if(!t||t==='-----'||t.indexOf('•')>-1)return;
+  real=t;rc.textContent=mask(real);
+ }).observe(rc,{childList:true,characterData:true,subtree:true});
+ rc.title='Kodu görmek için dokunun';
+ rc.onclick=()=>{if(!real)return;show=true;rc.textContent=real;setTimeout(()=>{show=false;rc.textContent=mask(real);},5000);};
+ if(rc.textContent&&rc.textContent!=='-----'){real=rc.textContent;rc.textContent=mask(real);}
+})();
+</script>
 </body>
 </html>
