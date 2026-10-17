@@ -2937,5 +2937,156 @@ html.dark .atChip{background:rgba(16,185,129,.25);color:#6ee7b7}
  if(rc.textContent&&rc.textContent!=='-----'){real=rc.textContent;rc.textContent=mask(real);}
 })();
 </script>
+<style>
+#offBar{position:fixed;top:env(safe-area-inset-top,0);left:50%;transform:translateX(-50%);z-index:90;display:none;padding:6px 14px;border-radius:0 0 12px 12px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3);max-width:96vw;text-align:center}
+.yb{flex:1;min-height:46px;border-radius:10px;font-weight:700;border:1px solid #cbd5e1;background:#fff;color:#475569;font-size:14px;padding:0 6px}
+.yb.on-Var,.yb.on-Yapti{background:#059669;color:#fff;border-color:#059669}
+.yb.on-Yok,.yb.on-Yapmadi{background:#dc2626;color:#fff;border-color:#dc2626}
+.yb.on-Izinli{background:#d97706;color:#fff;border-color:#d97706}
+html.dark .yb{background:#1e293b;color:#cbd5e1;border-color:#334155}
+.ykr.no{background:#fee2e2;border-color:#fca5a5}
+html.dark .ykr.no{background:#4c1d1d;border-color:#7f1d1d}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim();
+ const sc='border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white outline-none';
+ const mn=document.querySelector('main');
+
+ /* 1. Kitabı yok: seçim yerine düğme */
+ const dt=$('dersTableBody');
+ function kb(){dt.querySelectorAll('select.kt').forEach(sel=>{
+  const on=sel.value==='Yok',b=document.createElement('button');
+  b.className='kb text-xs px-2 py-1 rounded border '+(on?'bg-red-200 text-red-900 font-bold border-red-400':'bg-white text-slate-500 border-slate-300');
+  b.textContent='📕 Kitabı yok'+(on?' ✓':'');sel.replaceWith(b);});}
+ new MutationObserver(kb).observe(dt,{childList:true});kb();
+ dt.addEventListener('click',e=>{
+  const b=e.target.closest('.kb');if(!b)return;
+  const c=b.closest('tr').querySelector('button[onclick^="changePoint"]'),m=c&&c.getAttribute('onclick').match(/\(\s*'([^']+)'/),s=m&&students.find(x=>x.id===m[1]);if(!s)return;
+  const r=getDayRecord(s,$('filterDonemDers').value,$('selectedDateDers').value||todayStr);
+  r.book=r.book==='Yok'?'None':'Yok';saveDataToFirebase();
+ });
+
+ /* 2. Çevrimdışı göstergesi */
+ const ob=document.createElement('div');ob.id='offBar';document.body.appendChild(ob);
+ let online=true,queued=0,t2;
+ function setOnline(v){
+  const was=online;online=v;clearTimeout(t2);
+  if(!v){t2=setTimeout(()=>{if(!online){ob.style.background='#dc2626';ob.textContent='📴 Çevrimdışı'+(queued?' · '+queued+' değişiklik bekliyor':'')+' · bağlantı gelince gönderilir';ob.style.display='block';}},3000);return;}
+  if(!was&&queued){ob.style.background='#059669';ob.textContent='✅ Bağlantı geldi, '+queued+' değişiklik gönderildi';ob.style.display='block';queued=0;setTimeout(()=>{if(online)ob.style.display='none';},2500);}
+  else ob.style.display='none';
+ }
+ try{db.ref('.info/connected').on('value',s=>setOnline(!!s.val()));}catch(e){}
+ const sv=window.saveDataToFirebase;
+ window.saveDataToFirebase=function(){if(!online){queued++;ob.style.background='#dc2626';ob.textContent='📴 Çevrimdışı · '+queued+' değişiklik bekliyor';ob.style.display='block';}return sv.apply(this,arguments);};
+ addEventListener('beforeunload',e=>{if(!online&&queued){e.preventDefault();e.returnValue='';}});
+
+ /* 3. Çalışma sınıfı ve tarih çubuğu */
+ let G={sinif:'ALL',sube:'ALL',donem:'1',date:todayStr};
+ try{const o=JSON.parse(localStorage.getItem('gs_v1')||'{}');if(o.sinif)G.sinif=o.sinif;if(o.sube)G.sube=o.sube;if(o.donem)G.donem=o.donem;}catch(e){}
+ const gb=document.createElement('div');gb.id='gBar';gb.style.display='none';
+ gb.className='bg-white border border-slate-200 rounded-xl p-3 mb-3 shadow-sm flex flex-wrap items-center gap-2';
+ gb.innerHTML='<b class="text-sm text-slate-600">📌 Çalışılan sınıf</b><select id="gSinif" class="'+sc+'"></select><select id="gSube" class="'+sc+'"></select><button id="gPrev" class="'+sc+' font-bold">◀</button><input type="date" id="gDate" class="'+sc+'"><button id="gNext" class="'+sc+' font-bold">▶</button><button id="gToday" class="bg-indigo-600 text-white text-sm px-3 py-1.5 rounded-lg font-semibold">Bugün</button><select id="gDonem" class="'+sc+'"><option value="1">1. Dönem</option><option value="2">2. Dönem</option></select>';
+ mn.insertBefore(gb,$('pageTitleBar')?$('pageTitleBar').nextSibling:mn.firstChild);
+ $('gDate').value=G.date;$('gDonem').value=G.donem;
+ function opts(id,items,v){const el=$(id);el.innerHTML=items.map(i=>'<option value="'+E(i[0])+'">'+E(i[1])+'</option>').join('');el.value=items.some(i=>i[0]===v)?v:items[0][0];return el.value;}
+ function fillG(){
+  G.sinif=opts('gSinif',[['ALL','Tüm Sınıflar']].concat([...new Set(students.map(s=>T(s.sinif)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true})).map(c=>[c,c+'. Sınıf'])),G.sinif);
+  G.sube=opts('gSube',[['ALL','Tüm Şubeler']].concat([...new Set(students.filter(s=>G.sinif==='ALL'||T(s.sinif)===G.sinif).map(s=>T(s.sube).toLowerCase()))].filter(Boolean).sort().map(x=>[x,x.toUpperCase()+' Şubesi'])),G.sube);
+ }
+ function put(ids,v){ids.forEach(id=>{const el=$(id);if(!el||el.value===v)return;if(el.tagName==='SELECT'&&![...el.options].some(o=>o.value===v))return;el.value=v;el.dispatchEvent(new Event('change',{bubbles:true}));});}
+ function push(){
+  put(['filterSinifEzber','filterSinifDers','bfSinif','rfSinif'],G.sinif);
+  put(['filterSubeEzber','filterSubeDers','bfSube','rfSube'],G.sube);
+  put(['selectedDateEzber','selectedDateDers','bfTarih'],G.date);
+  put(['filterDonemEzber','filterDonemDers','bfDonem','rfDonem'],G.donem);
+  try{localStorage.setItem('gs_v1',JSON.stringify({sinif:G.sinif,sube:G.sube,donem:G.donem}));}catch(e){}
+  yk();
+ }
+ $('gSinif').onchange=()=>{G.sinif=$('gSinif').value;G.sube='ALL';fillG();push();};
+ $('gSube').onchange=()=>{G.sube=$('gSube').value;push();};
+ $('gDonem').onchange=()=>{G.donem=$('gDonem').value;push();};
+ $('gDate').onchange=()=>{G.date=$('gDate').value||todayStr;push();};
+ const shift=n=>{const d=new Date(G.date+'T12:00:00');d.setDate(d.getDate()+n);G.date=d.toISOString().slice(0,10);$('gDate').value=G.date;push();};
+ $('gPrev').onclick=()=>shift(-1);$('gNext').onclick=()=>shift(1);
+ $('gToday').onclick=()=>{G.date=todayStr;$('gDate').value=G.date;push();};
+
+ /* 4. Hızlı yoklama */
+ const pg=document.createElement('div');pg.id='content-yoklama';
+ pg.className='hidden bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200';
+ pg.innerHTML='<div id="ykSum" class="flex flex-wrap gap-2 mb-3"></div><button id="ykAll" class="bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-semibold mb-3">✅ İşaretsizleri "Var" yap</button><div id="ykList" class="space-y-2"></div>';
+ mn.appendChild(pg);
+ const stOf=s=>((((s.periods||{})[G.donem]||{}).days||{})[G.date]||{}).status||'None';
+ const group=()=>students.filter(s=>!s.absent&&(G.sinif==='ALL'||T(s.sinif)===G.sinif)&&(G.sube==='ALL'||T(s.sube).toLowerCase()===G.sube));
+ function yk(){
+  if(pg.classList.contains('hidden'))return;
+  const l=group(),c={Var:0,Yok:0,Izinli:0,None:0};
+  $('ykList').innerHTML=l.length?l.map(s=>{
+   const v=stOf(s);c[v]=(c[v]||0)+1;
+   const b=(k,t)=>'<button class="yb'+(v===k?' on-'+k:'')+'" data-id="'+E(s.id)+'" data-v="'+k+'">'+t+'</button>';
+   return '<div class="ykr flex flex-wrap items-center gap-2 border border-slate-200 rounded-xl p-2'+(v==='Yok'?' no':'')+'"><div class="flex-1 min-w-[140px]"><div class="font-semibold text-slate-800">'+E(s.name)+'</div><div class="text-[11px] text-slate-400">No: '+E(s.no)+' · '+E(s.sinif)+'/'+E(s.sube).toUpperCase()+'</div></div><div class="flex gap-1.5 w-full md:w-auto">'+b('Var','Var')+b('Yok','Yok')+b('Izinli','İzinli')+'</div></div>';
+  }).join(''):'<p class="text-sm text-slate-400 text-center py-4">Bu sınıfta öğrenci yok.</p>';
+  $('ykSum').innerHTML='<span class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">Var '+c.Var+'</span><span class="text-xs bg-red-100 text-red-800 px-3 py-1 rounded-full font-bold">Yok '+c.Yok+'</span><span class="text-xs bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold">İzinli '+c.Izinli+'</span><span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-bold">İşaretsiz '+c.None+'</span>';
+ }
+ $('ykList').addEventListener('click',e=>{
+  const b=e.target.closest('.yb');if(!b)return;const s=students.find(x=>x.id===b.dataset.id);if(!s)return;
+  const r=getDayRecord(s,G.donem,G.date);r.status=r.status===b.dataset.v?'None':b.dataset.v;saveDataToFirebase();yk();
+ });
+ $('ykAll').onclick=()=>{let n=0;group().forEach(s=>{if(stOf(s)==='None'){getDayRecord(s,G.donem,G.date).status='Var';n++;}});if(n)saveDataToFirebase();yk();if(window.__toast)__toast(n+' öğrenci "Var" yapıldı');};
+
+ /* 5. Rehberlik: tek çalışma görünümü */
+ const rp=$('content-rehberlik'),assign=rp.firstElementChild;
+ const tools=document.createElement('div');tools.className='flex flex-wrap gap-2 mb-3';
+ tools.innerHTML='<button id="rvAs" class="bg-purple-600 text-white text-sm px-4 py-2 rounded-lg font-semibold">➕ Yeni çalışma ata</button><button id="rvGrid" class="bg-slate-600 text-white text-sm px-4 py-2 rounded-lg font-semibold">📊 Tüm çizelgeyi göster</button>';
+ rp.insertBefore(tools,assign);
+ const view=document.createElement('div');view.id='rvView';
+ view.innerHTML='<div class="flex flex-wrap items-center gap-2 mb-2"><select id="rvAct" class="'+sc+' flex-1 min-w-[180px]"></select><button id="rvAll" class="bg-emerald-600 text-white text-sm px-3 py-2 rounded-lg font-semibold">✅ İşaretsizleri "Yaptı" yap</button></div><div id="rvSum" class="flex flex-wrap gap-2 mb-3"></div><div id="rvList" class="space-y-2"></div>';
+ const rbS=$('rbSummary');rp.insertBefore(view,rbS);
+ assign.style.display='none';rbS.style.display='none';$('rbTable').style.display='none';
+ $('rvAs').onclick=()=>{assign.style.display=assign.style.display==='none'?'':'none';};
+ $('rvGrid').onclick=()=>{const h=$('rbTable').style.display==='none';$('rbTable').style.display=h?'':'none';rbS.style.display=h?'flex':'none';$('rvGrid').textContent=h?'📊 Çizelgeyi gizle':'📊 Tüm çizelgeyi göster';};
+ const tg=a=>(a.sinif==='ALL'?'Tüm sınıflar':a.sinif+'. sınıf')+(a.sube!=='ALL'?' / '+a.sube.toUpperCase():'');
+ const ap=(a,s)=>(a.sinif==='ALL'||T(s.sinif)===a.sinif)&&(a.sube==='ALL'||T(s.sube).toLowerCase()===a.sube);
+ function rvList(){
+  const d=$('rfDonem').value,sf=$('rfSinif').value,sb=$('rfSube').value,sel=$('rvAct'),cur=sel.value;
+  const acts=homeworks.filter(h=>h.rb&&(h.donem||'1')===d&&(sf==='ALL'||h.sinif==='ALL'||h.sinif===sf)&&(sb==='ALL'||h.sube==='ALL'||h.sube===sb));
+  sel.innerHTML=acts.length?acts.map(a=>'<option value="'+E(a.id)+'">'+E(a.name)+' ('+E(tg(a))+')</option>').join(''):'<option value="">Çalışma yok</option>';
+  sel.value=acts.some(a=>a.id===cur)?cur:(acts[0]?acts[0].id:'');
+  const a=acts.find(x=>x.id===sel.value);
+  if(!a){$('rvList').innerHTML='<p class="text-sm text-slate-400 text-center py-4">Bu dönem ve sınıf için çalışma yok. "Yeni çalışma ata" ile ekleyin.</p>';$('rvSum').innerHTML='';return;}
+  const l=students.filter(s=>!s.absent&&ap(a,s)&&(sf==='ALL'||T(s.sinif)===sf)&&(sb==='ALL'||T(s.sube).toLowerCase()===sb)),c={Yapti:0,Yapmadi:0,None:0};
+  $('rvList').innerHTML=l.map(s=>{const v=(s.hwStatus||{})[a.id]||'None';c[v]++;
+   const b=(k,t)=>'<button class="yb'+(v===k?' on-'+k:'')+'" data-id="'+E(s.id)+'" data-v="'+k+'">'+t+'</button>';
+   return '<div class="ykr flex flex-wrap items-center gap-2 border border-slate-200 rounded-xl p-2'+(v==='Yapmadi'?' no':'')+'"><div class="flex-1 min-w-[140px]"><div class="font-semibold text-slate-800">'+E(s.name)+'</div><div class="text-[11px] text-slate-400">No: '+E(s.no)+' · '+E(s.sinif)+'/'+E(s.sube).toUpperCase()+'</div></div><div class="flex gap-1.5 w-full md:w-auto">'+b('Yapti','Yaptı')+b('Yapmadi','Yapmadı')+'</div></div>';}).join('');
+  $('rvSum').innerHTML='<span class="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">Yaptı '+c.Yapti+'</span><span class="text-xs bg-red-100 text-red-800 px-3 py-1 rounded-full font-bold">Yapmadı '+c.Yapmadi+'</span><span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-bold">İşaretsiz '+c.None+'</span>';
+ }
+ $('rvAct').onchange=rvList;
+ $('rvList').addEventListener('click',e=>{
+  const b=e.target.closest('.yb');if(!b)return;const s=students.find(x=>x.id===b.dataset.id),id=$('rvAct').value;if(!s||!id)return;
+  if(!s.hwStatus)s.hwStatus={};const cur=s.hwStatus[id];
+  if(cur===b.dataset.v)delete s.hwStatus[id];else s.hwStatus[id]=b.dataset.v;saveDataToFirebase();rvList();
+ });
+ $('rvAll').onclick=()=>{const id=$('rvAct').value;if(!id)return;let n=0;
+  const a=homeworks.find(x=>x.id===id);students.forEach(s=>{if(!s.absent&&a&&ap(a,s)&&!(s.hwStatus||{})[id]&&(()=>{const sf=$('rfSinif').value,sb=$('rfSube').value;return (sf==='ALL'||T(s.sinif)===sf)&&(sb==='ALL'||T(s.sube).toLowerCase()===sb);})()){(s.hwStatus=s.hwStatus||{})[id]='Yapti';n++;}});
+  if(n)saveDataToFirebase();rvList();
+ };
+ const rr=window.rbRender;window.rbRender=function(){rr();rvList();};
+
+ /* Ana sayfa kartı ve gezinme */
+ const hg=document.querySelector('#content-home .grid');
+ if(hg){const b=document.createElement('button');b.setAttribute('onclick',"switchTab('yoklama')");
+  b.className='text-left bg-teal-50 hover:bg-teal-100 border border-teal-200 p-5 rounded-xl transition';
+  b.innerHTML='<div class="text-3xl mb-2">✅</div><div class="font-bold text-teal-900">Hızlı Yoklama</div><div class="text-xs text-teal-700 mt-1">Var / Yok / İzinli, tek dokunuşla hepsi var</div>';hg.insertBefore(b,hg.children[1]||null);}
+ const sw=window.switchTab;
+ window.switchTab=function(t){
+  pg.classList.add('hidden');sw(t);
+  gb.style.display=['ezberTakip','dersTakip','davranis','yoklama'].includes(t)?'flex':'none';
+  if(t==='yoklama'){pg.classList.remove('hidden');const b=$('pageTitleBar');if(b)b.innerHTML='<span class="text-2xl">✅</span><span>Hızlı Yoklama</span>';document.title='Yoklama | Sınıf Takip';yk();}
+ };
+ const ra=window.renderAll;let first=true;
+ window.renderAll=function(){ra();fillG();if(first&&students.length){first=false;push();}yk();};
+ fillG();
+})();
+</script>
 </body>
 </html>
