@@ -3088,5 +3088,97 @@ html.dark .ykr.no{background:#4c1d1d;border-color:#7f1d1d}
  fillG();
 })();
 </script>
+<style>
+#shMod{position:fixed;inset:0;z-index:120;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;padding:16px}
+#shMod>div{background:#fff;color:#0f172a;border-radius:16px;max-width:440px;width:100%;padding:18px}
+html.dark #shMod>div{background:#1e293b;color:#e2e8f0}
+#parentView{position:fixed;inset:0;z-index:300;background:#e2e8f0;display:flex;flex-direction:column}
+#parentView iframe{flex:1;border:0;width:100%;background:#fff}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim();
+ const auth=()=>new Promise((ok,no)=>{const a=firebase.auth();if(a.currentUser)return ok();const u=a.onAuthStateChanged(x=>{u();x?ok():a.signInAnonymously().then(ok,no);});});
+
+ /* 1. Veli görünümü: ?k=KOD ile açılırsa sadece karne gösterilir */
+ const q=new URLSearchParams(location.search).get('k');
+ if(q){
+  const pv=document.createElement('div');pv.id='parentView';
+  pv.innerHTML='<div style="background:#4338ca;color:#fff;padding:10px 14px;font-weight:700">👳 Öğrenci Dönem Karnesi</div><div id="pvBody" style="padding:20px;text-align:center;color:#475569">Yükleniyor…</div>';
+  document.body.appendChild(pv);
+  auth().then(()=>db.ref('share/'+q).once('value')).then(s=>{
+   const v=s.val(),b=$('pvBody');
+   if(!v||!v.html||v.exp<Date.now()){b.textContent='Bu bağlantı geçersiz ya da süresi dolmuş. Lütfen öğretmeninizden yenisini isteyin.';return;}
+   const f=document.createElement('iframe');f.setAttribute('sandbox','');f.srcdoc=v.html;
+   b.replaceWith(f);
+  }).catch(()=>{$('pvBody').textContent='Karne açılamadı. İnternet bağlantınızı kontrol edin.';});
+ }
+
+ /* 2. Karne: PDF paylaş ve veli bağlantısı */
+ const kp=$('content-karne'),bar=$('kPrint').parentElement;
+ const mk=(t,c)=>{const b=document.createElement('button');b.className=c;b.textContent=t;bar.appendChild(b);return b;};
+ const one=()=>{if($('kOgr').value==='ALL'){alert('Önce "Öğrenci" menüsünden tek bir öğrenci seçin.');return null;}const el=$('kOut').querySelector('.k');return el?{el:el,s:students.find(x=>x.id===$('kOgr').value)}:null;};
+ const lib=()=>window.html2pdf?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';s.onload=ok;s.onerror=no;document.head.appendChild(s);});
+ mk('📤 PDF paylaş','bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg font-medium').onclick=async()=>{
+  const o=one();if(!o)return;
+  try{
+   __toast('PDF hazırlanıyor…');await lib();
+   const fn='Karne_'+o.s.name.replace(/[^\wığüşöçİĞÜŞÖÇ]+/g,'_')+'.pdf';
+   const blob=await html2pdf().set({margin:8,image:{type:'jpeg',quality:.95},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4'}}).from(o.el).outputPdf('blob');
+   const f=new File([blob],fn,{type:'application/pdf'});
+   if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'Karne'});
+   else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();__toast('PDF indirildi, WhatsApp ya da e-postaya ekleyin');}
+  }catch(e){if(e&&e.name!=='AbortError')alert('PDF oluşturulamadı: '+(e.message||e));}
+ };
+ const md=document.createElement('div');md.id='shMod';
+ md.innerHTML='<div><h3 class="font-bold mb-1">🔗 Veli bağlantısı</h3><p class="text-xs text-slate-500 mb-2">Bağlantıyı bilen herkes bu karneyi 30 gün boyunca görebilir. Karne, oluşturduğunuz andaki halidir.</p><input id="shUrl" readonly class="w-full border border-slate-300 rounded-lg px-2 py-2 text-xs mb-3 bg-transparent"><div class="flex flex-wrap gap-2"><button id="shWa" class="bg-emerald-600 text-white text-sm px-3 py-2 rounded-lg font-semibold">WhatsApp</button><button id="shMail" class="bg-indigo-600 text-white text-sm px-3 py-2 rounded-lg font-semibold">E-posta</button><button id="shCp" class="bg-slate-600 text-white text-sm px-3 py-2 rounded-lg font-semibold">Kopyala</button><button id="shRv" class="bg-red-600 text-white text-sm px-3 py-2 rounded-lg font-semibold">Bağlantıyı iptal et</button><button id="shX" class="border border-slate-300 text-sm px-3 py-2 rounded-lg">Kapat</button></div></div>';
+ document.body.appendChild(md);let tok='',nm='';
+ const msg=()=>nm+' için dönem karnesi: '+$('shUrl').value;
+ $('shX').onclick=()=>{md.style.display='none';};
+ $('shWa').onclick=()=>open('https://wa.me/?text='+encodeURIComponent(msg()),'_blank');
+ $('shMail').onclick=()=>{location.href='mailto:?subject='+encodeURIComponent('Dönem karnesi')+'&body='+encodeURIComponent(msg());};
+ $('shCp').onclick=()=>{navigator.clipboard.writeText($('shUrl').value).then(()=>__toast('Bağlantı kopyalandı'));};
+ $('shRv').onclick=()=>{if(!tok||!confirm('Bağlantı iptal edilsin mi?'))return;db.ref('share/'+tok).remove().then(()=>{__toast('Bağlantı iptal edildi');md.style.display='none';});};
+ mk('🔗 Veli bağlantısı','bg-teal-600 text-white text-sm px-4 py-2 rounded-lg font-medium').onclick=async()=>{
+  const o=one();if(!o)return;
+  const al='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';tok='';
+  crypto.getRandomValues(new Uint32Array(24)).forEach(n=>{tok+=al[n%al.length];});
+  try{
+   await auth();
+   await db.ref('share/'+tok).set({html:'<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+kp.querySelector('style').textContent+'</style>'+o.el.outerHTML,exp:Date.now()+30*864e5});
+   nm=o.s.name;$('shUrl').value=location.origin+location.pathname+'?k='+tok;md.style.display='flex';
+  }catch(e){alert('Bağlantı oluşturulamadı: '+e.message+'\nFirebase kurallarına "share" bölümünü eklediniz mi?');}
+ };
+
+ /* 3. Öğretmenler ve son işlemler */
+ const NM={home:'Ana Sayfa',dashboard:'İstatistikler',ezberTakip:'Ezber',dersTakip:'Ders',ogrenciler:'Öğrenci Yönetimi',ayarlar:'Tanımlar',rehberlik:'Rehberlik',davranis:'Davranış',yoklama:'Yoklama',karne:'Karne'};
+ let who=localStorage.getItem('teacher_v1')||'',cnt=0,pn='';
+ const card=document.createElement('div');
+ card.className='mt-6 border border-slate-300 bg-slate-50 rounded-xl p-4';
+ card.innerHTML='<h3 class="font-bold text-slate-700 mb-1">👥 Öğretmenler ve Son İşlemler</h3><p class="text-xs text-slate-500 mb-2">Her öğretmen kendi adını yazsın. Kim, ne zaman, hangi sayfada kaç değişiklik yaptı burada görünür.</p><div class="flex gap-2 mb-3"><input id="thName" class="border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white" placeholder="Adınız" value="'+E(who)+'"><button id="thSave" class="bg-indigo-600 text-white text-sm px-3 py-1.5 rounded-lg font-semibold">Kaydet</button></div><div id="thLog" class="space-y-1 overflow-y-auto" style="max-height:16rem"></div>';
+ const dz=[...$('content-ayarlar').children].find(x=>/Tehlikeli/.test(x.textContent));
+ $('content-ayarlar').insertBefore(card,dz||null);
+ $('thSave').onclick=()=>{who=T($('thName').value).slice(0,30);try{localStorage.setItem('teacher_v1',who);}catch(e){}__toast('Adınız kaydedildi');};
+ const sv=window.saveDataToFirebase;
+ window.saveDataToFirebase=function(){
+  if(!who){who=(T(prompt('Adınız (değişiklik kaydı için):')||'')||'Öğretmen').slice(0,30);try{localStorage.setItem('teacher_v1',who);}catch(e){}$('thName').value=who;}
+  cnt++;return sv.apply(this,arguments);
+ };
+ function flush(){if(!cnt||!currentRoom)return;const n=cnt;cnt=0;try{db.ref('rooms/'+currentRoom+'/log').push({by:who,at:firebase.database.ServerValue.TIMESTAMP,n:n,page:pn});}catch(e){}}
+ setInterval(flush,60000);
+ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flush();});
+ const sw=window.switchTab;window.switchTab=function(t){pn=NM[t]||t;sw(t);};
+ let watching='',ref=null;
+ function watch(){
+  if(!currentRoom||watching===currentRoom)return;
+  if(ref)ref.off();watching=currentRoom;ref=db.ref('rooms/'+currentRoom+'/log').limitToLast(30);
+  ref.on('value',s=>{const a=[];s.forEach(c=>{a.push(c.val());});a.reverse();
+   $('thLog').innerHTML=a.length?a.map(x=>'<div class="flex justify-between gap-2 text-xs bg-white border rounded-lg px-3 py-1.5"><span><b>'+E(x.by)+'</b> · '+E(x.page||'')+' · '+x.n+' değişiklik</span><span class="text-slate-400 whitespace-nowrap">'+new Date(x.at).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+'</span></div>').join(''):'<span class="text-xs text-slate-400 italic">Henüz kayıt yok.</span>';
+  },()=>{});
+ }
+ const ra=window.renderAll;window.renderAll=function(){ra();watch();};
+ watch();
+})();
+</script>
 </body>
 </html>
