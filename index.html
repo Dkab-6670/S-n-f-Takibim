@@ -3625,7 +3625,7 @@ html.dark .spc{background:#1e293b;color:#e2e8f0;border-color:#475569}
 html.dark .spc.s-Var{background:#064e3b}html.dark .spc.s-Yok{background:#7f1d1d}html.dark .spc.s-Izinli{background:#78350f}
 </style>
 <script>
-(function(){
+window.addEventListener('load',function(){
  const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim(),ls=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
  const kk=s=>T(s.sinif)+'|'+T(s.sube).toLowerCase();
 
@@ -3725,8 +3725,8 @@ html.dark .spc.s-Var{background:#064e3b}html.dark .spc.s-Yok{background:#7f1d1d}
   if(t==='oturma'){pg.classList.remove('hidden');$('gBar').style.display='flex';const b=$('pageTitleBar');if(b)b.innerHTML='<span class="text-2xl">🪑</span><span>Oturma Planı</span>';document.title='Oturma Planı | Sınıf Takip';sp();}
  };
  const ra1=window.renderAll;window.renderAll=function(){ra1();tcr();sp();};
- full=students;cur=students;tcr();
-})();
+ full=students;cur=students;tcr();renderAll();
+});
 </script>
 </body>
 </html>
