@@ -3180,5 +3180,139 @@ html.dark #shMod>div{background:#1e293b;color:#e2e8f0}
  watch();
 })();
 </script>
+<style>
+#stMod{position:fixed;inset:0;z-index:130;background:rgba(15,23,42,.6);display:none;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto}
+#stMod>div{background:#fff;color:#0f172a;border-radius:16px;max-width:560px;width:100%;padding:14px}
+html.dark #stMod>div{background:#1e293b;color:#e2e8f0}
+#ezberTableBody td:nth-child(3),#dersTableBody td:nth-child(3),.ykr>div:first-child,#behBody td:first-child{cursor:pointer}
+#ezberTableBody td:nth-child(3):hover .font-semibold,#dersTableBody td:nth-child(3):hover .font-semibold,.ykr>div:first-child:hover .font-semibold{text-decoration:underline}
+.stRow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:8px}
+.stRow>b{flex:0 0 100%;font-size:12px;color:#64748b}
+.stRow .yb{min-height:40px;flex:1 1 28%;font-size:13px}
+.chT{font-size:13px;font-weight:700;margin:14px 0 4px}
+.sq{width:14px;height:14px;border-radius:3px;display:inline-block;margin:1px}
+.trk{height:10px;border-radius:999px;background:rgba(127,127,127,.25)}.trk>div{height:10px;border-radius:999px}
+</style>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim();
+ const DN=()=>($('gDonem')||{}).value||'1',DD=()=>($('gDate')||{}).value||todayStr;
+ const dayOf=(s,p,d)=>((((s.periods||{})[p]||{}).days||{})[d])||{};
+ const daysOf=(s,p)=>Object.entries(((s.periods||{})[p]||{}).days||{}).sort((a,b)=>a[0]<b[0]?-1:1);
+ const ap=(h,s)=>(h.sinif==='ALL'||T(s.sinif)===h.sinif)&&(h.sube==='ALL'||T(s.sube).toLowerCase()===h.sube);
+ const ezList=s=>[...new Set(ezberItems.filter(e=>e.sinif==='ALL'||T(e.sinif)===T(s.sinif)).map(e=>e.name))];
+ const RK={Baslamadi:0,DevamEdiyor:1,Tamamlandi:2};
+ const best=(s,n)=>{let m=0;Object.values(s.periods||{}).forEach(p=>Object.values(p.days||{}).forEach(d=>{const v=RK[(d.ezberStatus||{})[n]];if(v>m)m=v;}));return m;};
+ const fd=d=>d.slice(8)+'.'+d.slice(5,7);
+ const bar=(l,p,c,t)=>'<div style="margin-bottom:7px"><div class="flex justify-between text-xs"><span>'+l+'</span><b>'+t+'</b></div><div class="trk"><div style="width:'+Math.max(0,Math.min(100,p))+'%;background:'+c+'"></div></div></div>';
+ function lines(series,W,H){
+  const all=series.flatMap(x=>x.v);if(all.length<2)return '<p class="text-xs text-slate-400 italic">Yeterli veri yok.</p>';
+  const mn=Math.min(0,...all),mx=Math.max(0,...all),rg=(mx-mn)||1,n=Math.max(...series.map(x=>x.v.length));
+  const X=i=>n<2?0:i*(W-8)/(n-1)+4,Y=v=>H-6-(v-mn)*(H-12)/rg;
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:'+H+'px"><line x1="0" x2="'+W+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="rgba(127,127,127,.5)" stroke-dasharray="3"/>'+series.map(x=>'<polyline fill="none" stroke="'+x.c+'" stroke-width="2.5" points="'+x.v.map((v,i)=>X(i)+','+Y(v)).join(' ')+'"/>').join('')+'</svg>';
+ }
+
+ /* Öğrenci kartı ve profili */
+ const md=document.createElement('div');md.id='stMod';
+ md.innerHTML='<div><div class="flex justify-between items-start gap-2 mb-2"><div><div id="stName" class="font-bold text-lg"></div><div id="stSub" class="text-xs text-slate-500"></div></div><button id="stX" class="text-xl px-2">✕</button></div><div class="flex gap-2 mb-3"><button id="stT1" class="yb">📝 Bugün</button><button id="stT2" class="yb">📈 Profil</button></div><div id="stBody"></div></div>';
+ document.body.appendChild(md);
+ let cur={id:'',tab:'t'};const S=()=>students.find(x=>x.id===cur.id);
+ const btn=(a,on,t,c)=>'<button class="yb'+(on?' on-'+c:'')+'" data-a="'+a+'">'+t+'</button>';
+ function today(s){
+  const dn=DN(),dd=DD(),r=dayOf(s,dn,dd),st=r.status||'None';
+  const hws=homeworks.filter(h=>(h.rb?(h.donem||'1')===dn&&ap(h,s):hwApplies(h,s,dd)));
+  return '<div class="text-xs text-slate-500 mb-2">'+E(dd.slice(8)+'.'+dd.slice(5,7)+'.'+dd.slice(0,4))+' · '+dn+'. Dönem (tarihi üstteki çalışma çubuğundan değiştirebilirsiniz)</div>'
+   +'<div class="stRow"><b>Devamsızlık</b>'+btn('st:Var',st==='Var','Var','Var')+btn('st:Yok',st==='Yok','Yok','Yok')+btn('st:Izinli',st==='Izinli','İzinli','Izinli')+'</div>'
+   +'<div class="stRow"><b>Bugün</b>'+btn('ab',r.abdest,'💧 Abdestli','Var')+btn('bk',r.book==='Yok','📕 Kitabı yok','Yok')+btn('sl',r.slept,'😴 Uyudu','Yok')+'</div>'
+   +'<div class="stRow"><b>Ders puanı</b>'+btn('pt:-1',0,'−','Var')+'<span class="font-bold text-lg" style="min-width:44px;text-align:center">'+((r.points||0)>0?'+':'')+(r.points||0)+'</span>'+btn('pt:1',0,'+','Var')+'</div>'
+   +'<div class="stRow"><b>Davranış puanı</b>'+btn('bp:-1',0,'−','Var')+'<span class="font-bold text-lg" style="min-width:44px;text-align:center">'+((r.bp||0)>0?'+':'')+(r.bp||0)+'</span>'+btn('bp:1',0,'+','Var')+'</div>'
+   +(hws.length?'<div class="stRow"><b>Ödev ve rehberlik</b></div>'+hws.map(h=>{const v=(s.hwStatus||{})[h.id];return '<div class="stRow"><span class="text-xs" style="flex:1 1 100%">'+(h.rb?'🧭 ':'📚 ')+E(h.name)+'</span>'+btn('hw:'+h.id+':Yapti',v==='Yapti','Yaptı','Yapti')+btn('hw:'+h.id+':Yapmadi',v==='Yapmadi','Yapmadı','Yapmadi')+'</div>';}).join(''):'')
+   +(ezList(s).length?'<div class="stRow"><b>Ezber (dokunarak değiştirin)</b></div><div class="stRow">'+ezList(s).map((n,i)=>{const v=(r.ezberStatus||{})[n]||'Baslamadi';return '<button class="yb'+(v==='Tamamlandi'?' on-Var':v==='DevamEdiyor'?' on-Izinli':'')+'" data-a="ez:'+i+'">'+(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+E(n)+'</button>';}).join('')+'</div>':'')
+   +'<div class="stRow"><b>Günlük not</b><input id="stNote" class="border border-slate-300 rounded-lg px-2 py-2 text-sm w-full bg-transparent" value="'+E(r.notes||'')+'"></div>';
+ }
+ function prof(s){
+  const dn=DN(),days=daysOf(s,dn);let v=0,y=0,iz=0,ab=0,pp=0,bb=0;
+  days.forEach(([d,r])=>{if(r.status==='Var')v++;else if(r.status==='Yok')y++;else if(r.status==='Izinli')iz++;if(r.abdest)ab++;pp+=r.points||0;bb+=r.bp||0;});
+  const strip=days.filter(([d,r])=>r.status&&r.status!=='None').slice(-45).map(([d,r])=>'<span class="sq" title="'+fd(d)+'" style="background:'+(r.status==='Var'?'#10b981':r.status==='Yok'?'#ef4444':'#f59e0b')+'"></span>').join('')||'<span class="text-xs text-slate-400 italic">Devam kaydı yok.</span>';
+  const pd=days.filter(([d,r])=>r.points||r.bp);let a=0,b=0;
+  const sa=pd.map(([d,r])=>(a+=r.points||0)),sb=pd.map(([d,r])=>(b+=r.bp||0));
+  const ez=ezList(s),done=ez.filter(n=>best(s,n)===2).length;
+  const notes=days.filter(([d,r])=>r.bn&&T(r.bn)).slice(-8).reverse().map(([d,r])=>'<div class="text-xs flex justify-between gap-2 border-b py-1"><span>'+fd(d)+' · '+E(r.bn)+'</span><b>'+((r.bp||0)>0?'+':'')+(r.bp||0)+'</b></div>').join('')||'<span class="text-xs text-slate-400 italic">Davranış notu yok.</span>';
+  const rb=homeworks.filter(h=>h.rb&&(h.donem||'1')===dn&&ap(h,s)).map(h=>{const x=(s.hwStatus||{})[h.id];return '<div class="text-xs flex justify-between border-b py-1"><span>'+E(h.name)+'</span><b>'+(x==='Yapti'?'✅ Yaptı':x==='Yapmadi'?'❌ Yapmadı':'❔')+'</b></div>';}).join('')||'<span class="text-xs text-slate-400 italic">Rehberlik çalışması yok.</span>';
+  return '<div class="flex flex-wrap gap-2 text-xs mb-1"><span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full font-bold">Var '+v+'</span><span class="bg-red-100 text-red-800 px-2 py-1 rounded-full font-bold">Yok '+y+'</span><span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full font-bold">İzinli '+iz+'</span><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-bold">Abdestli '+ab+' gün</span><span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full font-bold">Ders '+(pp>0?'+':'')+pp+'</span><span class="bg-rose-100 text-rose-800 px-2 py-1 rounded-full font-bold">Davranış '+(bb>0?'+':'')+bb+'</span></div>'
+   +'<div class="chT">Devam ('+dn+'. dönem, son 45 kayıt)</div><div>'+strip+'</div><div class="text-[11px] text-slate-400">🟩 var · 🟥 yok · 🟧 izinli</div>'
+   +'<div class="chT">Puan eğilimi (birikimli)</div>'+lines([{v:sa,c:'#6366f1'},{v:sb,c:'#f43f5e'}],320,90)+'<div class="text-[11px] text-slate-400"><span style="color:#6366f1">━</span> ders · <span style="color:#f43f5e">━</span> davranış</div>'
+   +'<div class="chT">Ezber ilerlemesi ('+done+'/'+ez.length+')</div>'+(ez.length?ez.map(n=>{const k=best(s,n);return bar(E(n),k*50,k===2?'#10b981':k===1?'#f59e0b':'#94a3b8',['Başlamadı','Çalışıyor','Tamam ✓'][k]);}).join(''):'<span class="text-xs text-slate-400 italic">Ezber atanmamış.</span>')
+   +'<div class="chT">Davranış notları</div>'+notes+'<div class="chT">Rehberlik durumu</div>'+rb;
+ }
+ function show(){
+  const s=S();if(!s)return;
+  $('stName').textContent=s.name;$('stSub').textContent='No: '+s.no+' · '+s.sinif+'/'+String(s.sube).toUpperCase()+(s.absent?' · 🚫 sürekli devamsız':'');
+  $('stT1').className='yb'+(cur.tab==='t'?' on-Var':'');$('stT2').className='yb'+(cur.tab==='p'?' on-Var':'');
+  $('stBody').innerHTML=cur.tab==='t'?today(s):prof(s);
+ }
+ const open_=(id,tab)=>{cur={id:id,tab:tab||'t'};md.style.display='flex';show();};
+ $('stX').onclick=()=>{md.style.display='none';};
+ md.addEventListener('click',e=>{if(e.target===md)md.style.display='none';});
+ $('stT1').onclick=()=>{cur.tab='t';show();};$('stT2').onclick=()=>{cur.tab='p';show();};
+ $('stBody').addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]'),s=S();if(!b||!s)return;
+  const p=b.dataset.a.split(':'),k=p[0],r=getDayRecord(s,DN(),DD());
+  if(k==='st')r.status=r.status===p[1]?'None':p[1];
+  else if(k==='ab')r.abdest=!r.abdest;
+  else if(k==='bk')r.book=r.book==='Yok'?'None':'Yok';
+  else if(k==='sl')r.slept=!r.slept;
+  else if(k==='pt')r.points=(r.points||0)+(+p[1]);
+  else if(k==='bp')r.bp=(r.bp||0)+(+p[1]);
+  else if(k==='hw'){s.hwStatus=s.hwStatus||{};if(s.hwStatus[p[1]]===p[2])delete s.hwStatus[p[1]];else s.hwStatus[p[1]]=p[2];}
+  else if(k==='ez'){const n=ezList(s)[+p[1]];if(!n)return;r.ezberStatus=r.ezberStatus||{};const c=r.ezberStatus[n]||'Baslamadi';r.ezberStatus[n]=c==='Baslamadi'?'DevamEdiyor':c==='DevamEdiyor'?'Tamamlandi':'Baslamadi';}
+  saveDataToFirebase();show();
+ });
+ $('stBody').addEventListener('change',e=>{if(e.target.id!=='stNote')return;const s=S();if(!s)return;getDayRecord(s,DN(),DD()).notes=e.target.value.trim();saveDataToFirebase();});
+ const sidOf=el=>{
+  const row=el.closest('tr,.ykr');if(!row)return null;
+  const d=row.querySelector('[data-id]');if(d&&students.some(x=>x.id===d.dataset.id))return d.dataset.id;
+  for(const n of row.querySelectorAll('[onclick],[onchange],[onblur]')){
+   const m=(n.getAttribute('onclick')||n.getAttribute('onchange')||n.getAttribute('onblur')||'').match(/\(\s*'([^']+)'/);
+   if(m&&students.some(x=>x.id===m[1]))return m[1];
+  }return null;
+ };
+ document.addEventListener('click',e=>{
+  if(e.target.closest('button,select,input,textarea,a'))return;
+  const h=e.target.closest('#ezberTableBody td:nth-child(3),#dersTableBody td:nth-child(3),#ykList .ykr>div:first-child,#rvList .ykr>div:first-child,#behBody td:first-child');
+  if(!h)return;const id=sidOf(h);if(id)open_(id,'t');
+ });
+
+ /* Sınıf grafikleri */
+ const box=document.createElement('div');box.className='bg-white border border-slate-200 rounded-xl p-4 mt-6';
+ const sc='border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white';
+ box.innerHTML='<h3 class="font-bold text-slate-700 mb-2">📊 Sınıf Grafikleri</h3><div class="flex flex-wrap gap-2 mb-2"><select id="csS" class="'+sc+'"></select><select id="csB" class="'+sc+'"></select><select id="csD" class="'+sc+'"><option value="1">1. Dönem</option><option value="2">2. Dönem</option></select></div><div id="csOut"></div>';
+ $('content-dashboard').appendChild(box);
+ const op=(id,items)=>{const el=$(id),c=el.value;el.innerHTML=items.map(i=>'<option value="'+E(i[0])+'">'+E(i[1])+'</option>').join('');el.value=items.some(i=>i[0]===c)?c:items[0][0];};
+ function cs(){
+  op('csS',[['ALL','Tüm Sınıflar']].concat([...new Set(students.map(s=>T(s.sinif)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true})).map(c=>[c,c+'. Sınıf'])));
+  const sv=$('csS').value;
+  op('csB',[['ALL','Tüm Şubeler']].concat([...new Set(students.filter(s=>sv==='ALL'||T(s.sinif)===sv).map(s=>T(s.sube).toLowerCase()))].filter(Boolean).sort().map(x=>[x,x.toUpperCase()+' Şubesi'])));
+  const bv=$('csB').value,dn=$('csD').value;
+  const g=students.filter(s=>!s.absent&&(sv==='ALL'||T(s.sinif)===sv)&&(bv==='ALL'||T(s.sube).toLowerCase()===bv));
+  if(!g.length){$('csOut').innerHTML='<p class="text-xs text-slate-400 italic">Öğrenci yok.</p>';return;}
+  const dates=[...new Set(g.flatMap(s=>daysOf(s,dn).filter(([d,r])=>(r.status&&r.status!=='None')||r.abdest).map(x=>x[0])))].sort().slice(-14);
+  const pc=dates.map(d=>{let v=0,t=0,a=0;g.forEach(s=>{const r=dayOf(s,dn,d);if(r.status==='Var'){v++;t++;}else if(r.status==='Yok'||r.status==='Izinli')t++;if(r.abdest)a++;});return {d:d,dev:t?Math.round(v*100/t):null,ab:Math.round(a*100/g.length)};});
+  const col=(arr,k,c)=>arr.length?'<div style="display:flex;align-items:flex-end;gap:3px;height:96px">'+arr.map(x=>'<div style="flex:1;text-align:center"><div style="font-size:9px">'+(x[k]===null?'-':x[k])+'</div><div style="height:'+(x[k]||0)*0.7+'px;background:'+c+';border-radius:3px 3px 0 0;min-height:2px"></div><div style="font-size:9px;color:#94a3b8">'+fd(x.d)+'</div></div>').join('')+'</div>':'<span class="text-xs text-slate-400 italic">Kayıt yok.</span>';
+  const abAvg=pc.length?Math.round(pc.reduce((s,x)=>s+x.ab,0)/pc.length):0;
+  const net=g.map(s=>daysOf(s,dn).reduce((t,[d,r])=>t+(r.points||0)+(r.bp||0),0));
+  const bk=[['Eksi (<0)',x=>x<0,'#ef4444'],['Sıfır',x=>x===0,'#94a3b8'],['1-5',x=>x>=1&&x<=5,'#60a5fa'],['6-10',x=>x>=6&&x<=10,'#6366f1'],['11-20',x=>x>=11&&x<=20,'#10b981'],['21+',x=>x>20,'#059669']];
+  const names=[...new Set(g.flatMap(ezList))];
+  $('csOut').innerHTML='<div class="chT">Günlük devam yüzdesi (son '+pc.length+' kayıtlı gün)</div>'+col(pc,'dev','#10b981')
+   +'<div class="chT">Abdestli oranı (ortalama %'+abAvg+')</div>'+col(pc,'ab','#3b82f6')
+   +'<div class="chT">Puan dağılımı (ders + davranış, öğrenci sayısı)</div>'+bk.map(b=>{const n=net.filter(b[1]).length;return bar(b[0],n*100/g.length,b[2],n);}).join('')
+   +'<div class="chT">Ezber ilerlemesi (tamamlayan %)</div>'+(names.length?names.map(n=>{const a=g.filter(s=>ezList(s).includes(n)),k=a.filter(s=>best(s,n)===2).length,p=a.length?Math.round(k*100/a.length):0;return bar(E(n),p,'#10b981','%'+p+' ('+k+'/'+a.length+')');}).join(''):'<span class="text-xs text-slate-400 italic">Ezber atanmamış.</span>');
+ }
+ ['csS','csB','csD'].forEach(i=>$(i).addEventListener('change',cs));
+ const rd=window.renderDashboard;window.renderDashboard=function(){rd();cs();};
+ const ra=window.renderAll;window.renderAll=function(){ra();if(md.style.display==='flex')show();};
+ cs();
+})();
+</script>
 </body>
 </html>
