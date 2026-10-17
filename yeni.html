@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sınıf Takip</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4338ca">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script>tailwind={config:{darkMode:'class'}}</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<style type="text/tailwindcss">
+ .card{@apply bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-3}
+ .inp{@apply border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-base bg-white dark:bg-slate-900 outline-none}
+ .btn{@apply text-white text-sm font-semibold px-4 py-2 rounded-lg}
+ [data-nav]{@apply flex-1 flex flex-col items-center justify-center text-[11px] text-slate-500 min-h-[56px] border-0 bg-transparent}
+ [data-nav].on{@apply text-indigo-700 font-bold bg-indigo-50 dark:bg-slate-700 dark:text-indigo-300}
+</style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
+<header class="bg-indigo-700 text-white shadow">
+ <div class="max-w-6xl mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2" style="padding-top:max(.5rem,env(safe-area-inset-top))">
+  <b>🕌 Sınıf Takip</b>
+  <div class="flex items-center gap-2 text-xs bg-indigo-800 rounded-lg px-2 py-1">
+   <span id="dot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span id="stx">Çevrimdışı</span>
+   <button id="rc" class="font-mono font-bold text-yellow-300" title="Dokunun: 5 sn göster">-----</button>
+   <button id="rcB" title="Oda kodunu değiştir">🔑</button><button id="th">🌙</button>
+  </div>
+ </div>
+</header>
+<nav id="tn" class="hidden md:flex max-w-6xl mx-auto mt-2 px-3 gap-2"></nav>
+<main class="max-w-6xl mx-auto px-3 py-3">
+ <div id="ptitle" class="card font-bold text-lg"></div>
+ <div id="view"></div>
+</main>
+<nav id="bn" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-800 border-t border-slate-300 dark:border-slate-700 flex" style="padding-bottom:env(safe-area-inset-bottom)"></nav>
+<div id="toast" class="fixed right-3 bottom-24 md:bottom-4 z-50 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
+<div id="undo" class="fixed left-3 bottom-24 md:bottom-4 z-50 hidden items-center gap-3 bg-slate-800 text-white text-sm px-4 py-2 rounded-xl shadow-lg"><span id="undoMsg"></span><button id="undoBtn" class="bg-amber-400 text-slate-900 font-bold rounded-lg px-3 py-1">Geri Al</button></div>
+<div id="off" class="fixed top-0 left-1/2 -translate-x-1/2 z-50 hidden text-white text-sm font-bold px-4 py-1 rounded-b-xl shadow-lg"></div>
+
+<script>
+/* ========== 1. AYARLAR ve YARDIMCILAR ========== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBCYKK_JSTrLzLI2MfeZV3-p0OpgPpgN6I",
+  authDomain: "sinif-takibim.firebaseapp.com",
+  databaseURL: "https://sinif-takibim-default-rtdb.firebaseio.com",
+  projectId: "sinif-takibim"
+};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const T=s=>String(s??'').trim(), num=v=>parseInt(v)||0;
+const lsg=k=>{try{return localStorage.getItem(k)}catch(e){return null}}, lss=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const _d=new Date(), today=new Date(_d-_d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const isO=v=>v!==null&&typeof v==='object';
+
+/* ========== 2. DURUM ve VERİ BİÇİMİ ========== */
+const KEYS=['students','lessons','ezberItems','homeworks'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_'};
+const S={students:[],lessons:[],ezberItems:[],homeworks:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function prepare(l,p){let m=l.reduce((a,x)=>Math.max(a,typeof x._o==='number'?x._o:-1),-1);l.forEach(x=>{if(!x.id)x.id=uid(p);if(typeof x._o!=='number')x._o=++m;});}
+function toList(v,p){
+  let a=Array.isArray(v)?v.filter(x=>x!=null):isO(v)?Object.entries(v).map(([k,x])=>{if(isO(x)&&!x.id)x.id=k;return x;}):[];
+  a=a.map(x=>typeof x==='string'?{name:x,sinif:'ALL'}:x);prepare(a,p);return a.sort((x,y)=>x._o-y._o);
+}
+const toMap=l=>Object.fromEntries(l.map(x=>[x.id,x]));
+const snap=()=>JSON.parse(JSON.stringify(Object.fromEntries(KEYS.map(k=>[k,toMap(S[k])]))));
+const dump=()=>JSON.stringify(Object.fromEntries(KEYS.map(k=>[k,S[k]])));
+const apply=o=>KEYS.forEach(k=>{S[k]=Array.isArray(o[k])?o[k]:[];});
+function diff(u,p,o,n){
+  if(n==null){if(o!=null)u[p]=null;return;}
+  if(isO(n)&&isO(o)){new Set([...Object.keys(o),...Object.keys(n)]).forEach(k=>diff(u,p+'/'+k,o[k],n[k]));return;}
+  if(JSON.stringify(o)!==JSON.stringify(n))u[p]=n;
+}
+const dayRec=(s,p,d)=>{s.periods=s.periods||{};const x=s.periods[p]=s.periods[p]||{hafiz:false,kuranDurum:'kuran',days:{}};x.days=x.days||{};
+  const r=x.days[d]=x.days[d]||{};return r;};
+const classes=()=>[...new Set(S.students.map(s=>T(s.sinif)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true}));
+const subes=c=>[...new Set(S.students.filter(s=>c==='ALL'||T(s.sinif)===c).map(s=>T(s.sube).toLowerCase()))].filter(Boolean).sort();
+const sorted=l=>l.slice().sort((a,b)=>num(a.sinif)-num(b.sinif)||String(a.sube).localeCompare(String(b.sube))||num(a.no)-num(b.no)||String(a.name).localeCompare(String(b.name),'tr'));
+
+/* ========== 3. FIREBASE: giriş, dinleme, kayıt ========== */
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+let _auth=null,ref=null,last={},lastRoom='',online=true,queued=0,t2;
+const auth=()=>_auth||(_auth=new Promise((ok,no)=>{const a=firebase.auth(),u=a.onAuthStateChanged(x=>{u();x?ok():a.signInAnonymously().then(ok,e=>{_auth=null;alert('Giriş hatası: '+e.message+'\nFirebase > Authentication > Anonymous açık mı?');no(e);});});}));
+const genCode=()=>{const al='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='SNF-';crypto.getRandomValues(new Uint32Array(16)).forEach(n=>{s+=al[n%al.length]});return s;};
+const mask=c=>c.length>6?c.slice(0,4)+'•'.repeat(c.length-4):c;
+function status(c,t){$('dot').className='w-2.5 h-2.5 rounded-full bg-'+c+'-500';$('stx').textContent=t;}
+let tt;function toast(m,err){const t=$('toast');t.textContent=m;t.className=t.className.replace(/ bg-\S+/g,'')+(err?' bg-red-600':' bg-emerald-600')+' opacity-100';clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('opacity-100'),err?5000:1800);}
+function listen(code){
+  S.room=code;lss('sync_room_code',code);$('rc').textContent=mask(code);status('amber','Yükleniyor...');
+  if(ref){ref.off();ref=null;}
+  auth().then(()=>{
+    ref=db.ref('rooms/'+code);
+    ref.on('value',sn=>{
+      const d=sn.val();
+      if(d){KEYS.forEach(k=>{S[k]=toList(d[k],PRE[k]);});last=snap();lastRoom=code;if(KEYS.some(k=>Array.isArray(d[k])))sn.ref.update(last);}
+      status('emerald','Canlı');render();
+    },err=>{status('red','Bağlantı hatası');alert('Firebase hatası: '+err.message);});
+  }).catch(()=>status('red','Giriş hatası'));
+}
+function save(){
+  if(!S.room)return;
+  KEYS.forEach(k=>prepare(S[k],PRE[k]));
+  const now=snap(),u={},root='rooms/'+S.room;
+  diff(u,root,lastRoom===S.room?last:{},now);u[root+'/lastUpdated']=firebase.database.ServerValue.TIMESTAMP;
+  last=now;lastRoom=S.room;
+  if(!online){queued++;offBar();}
+  toast('Kaydediliyor…');
+  auth().then(()=>db.ref().update(u)).then(()=>toast('Kaydedildi ✓')).catch(e=>toast('Kaydedilemedi: '+e.message,true));
+}
+function offBar(){const b=$('off');b.className=b.className.replace(/ bg-\S+/g,'')+' bg-red-600 block';b.classList.remove('hidden');b.textContent='📴 Çevrimdışı'+(queued?' · '+queued+' değişiklik bekliyor':'');}
+firebase.database().ref('.info/connected').on('value',s=>{
+  const was=online;online=!!s.val();clearTimeout(t2);
+  if(!online){t2=setTimeout(()=>{if(!online)offBar();},3000);return;}
+  const b=$('off');
+  if(!was&&queued){b.className=b.className.replace(/ bg-\S+/g,'')+' bg-emerald-600 block';b.textContent='✅ '+queued+' değişiklik gönderildi';queued=0;setTimeout(()=>{if(online)b.classList.add('hidden');},2500);}
+  else b.classList.add('hidden');
+});
+addEventListener('beforeunload',e=>{if(!online&&queued){e.preventDefault();e.returnValue='';}});
+
+/* Geri al */
+let U=null,ut;
+function del(fn,msg){U=dump();fn();save();$('undoMsg').textContent=msg;$('undo').classList.remove('hidden');$('undo').classList.add('flex');clearTimeout(ut);ut=setTimeout(()=>{$('undo').classList.add('hidden');U=null;},10000);render(true);}
+$('undoBtn').onclick=()=>{if(!U)return;apply(JSON.parse(U));U=null;$('undo').classList.add('hidden');save();render(true);};
+
+/* ========== 4. SAYFA KAYIT SİSTEMİ (sıra önemli değil) ========== */
+const P={},NAV=[];
+function reg(id,icon,title,html,after,nav){P[id]={icon,title,html,after};if(nav)NAV.push([id,icon,nav]);drawNav();}
+function drawNav(){
+  const b=NAV.map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'"><span class="text-xl">'+n[1]+'</span>'+esc(n[2])+'</button>').join('');
+  $('bn').innerHTML=b;
+  $('tn').innerHTML=NAV.map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border text-sm">'+n[1]+' '+esc(n[2])+'</button>').join('');
+}
+let pending=false;
+const typing=()=>{const a=document.activeElement;return a&&$('view').contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);};
+function render(force){
+  if(!force&&typing()){pending=true;return;}
+  const p=P[S.page]||P.home;
+  $('ptitle').textContent=p.icon+' '+p.title;document.title=p.title+' | Sınıf Takip';
+  $('view').innerHTML=p.html();if(p.after)p.after();
+  document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===S.page));
+}
+function go(id){S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
+$('view').addEventListener('focusout',()=>{if(pending){pending=false;setTimeout(render,0);}});
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return;}
+  const a=e.target.closest('[data-act]');if(a&&ACT[a.dataset.act])ACT[a.dataset.act](a);
+});
+const ACT={};
+
+/* ========== 5. SAYFA: ANA SAYFA ========== */
+reg('home','🏠','Ana Sayfa',()=>{
+  const cl=classes();
+  return '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'
+   +[['Öğrenci',S.students.filter(s=>!s.absent).length],['Sınıf',cl.length],['Ders',S.lessons.length],['Ezber konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
+   +'<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">'
+   +'<button data-go="ogr" class="card mb-0 text-left"><div class="text-3xl">👥</div><b>Öğrenciler</b><div class="text-xs text-slate-500">Ekle, düzenle, sürekli devamsız işaretle</div></button>'
+   +'<button data-go="yedek" class="card mb-0 text-left"><div class="text-3xl">💾</div><b>Yedekleme</b><div class="text-xs text-slate-500">Yedek al, yedekten yükle</div></button></div>'
+   +'<p class="text-xs text-slate-500 mt-4">Bu temiz sürümün çekirdeği. Ezber, ders, yoklama, rehberlik ve diğer sayfalar sıradaki aşamalarda eklenecek.</p>';
+},null,'Ana Sayfa');
+
+/* ========== 6. SAYFA: ÖĞRENCİLER ========== */
+const okSube=v=>T(v).toLowerCase()||'a';
+const filt=()=>sorted(S.students.filter(s=>{const f=S.F,q=f.q.toLowerCase();
+  return (f.sinif==='ALL'||T(s.sinif)===f.sinif)&&(f.sube==='ALL'||T(s.sube).toLowerCase()===f.sube)&&(!q||String(s.name).toLowerCase().includes(q)||String(s.no).toLowerCase().includes(q));}));
+function drawList(){
+  const l=filt();$('ogrCnt').textContent=l.length+' / '+S.students.length;
+  $('ogrList').innerHTML=l.length?l.map(s=>'<div class="card mb-2 flex flex-wrap items-center justify-between gap-2'+(s.absent?' opacity-60':'')+'"><div><b>'+esc(s.name)+'</b><div class="text-xs text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+(s.absent?' · 🚫 sürekli devamsız':'')+'</div></div><div class="flex gap-2"><button data-act="edit" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border">✏️</button><button data-act="abs" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-xs">'+(s.absent?'Aktif yap':'Devamsız yap')+'</button><button data-act="del" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-red-600">🗑️</button></div></div>').join(''):'<div class="card text-center text-sm text-slate-400">Öğrenci yok.</div>';
+}
+reg('ogr','👥','Öğrenciler',()=>{
+  const F=S.F,opt=(a,v)=>a.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===v?' selected':'')+'>'+esc(x[1])+'</option>').join('');
+  return '<div class="card"><b class="text-sm">Öğrenci ekle</b><div class="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2"><input id="ns" class="inp" placeholder="Sınıf (7)"><input id="nb" class="inp" placeholder="Şube (d)"><input id="nn" class="inp" placeholder="Okul no"><input id="na" class="inp col-span-2" placeholder="Adı soyadı"></div><button data-act="add" class="btn bg-indigo-600 mt-2">➕ Ekle</button>'
+   +'<details class="mt-3"><summary class="text-xs cursor-pointer text-slate-500">Toplu ekle (S.No ⇥ Okul No ⇥ Sınıf ⇥ Şube ⇥ Ad Soyad)</summary><textarea id="nbulk" rows="5" class="inp w-full mt-2 text-xs font-mono"></textarea><button data-act="bulk" class="btn bg-slate-600 mt-2">Listeyi ekle</button></details></div>'
+   +'<div class="card flex flex-wrap items-center gap-2"><select id="fs" class="inp">'+opt([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),F.sinif)+'</select><select id="fb" class="inp">'+opt([['ALL','Tüm Şubeler']].concat(subes(F.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),F.sube)+'</select><input id="fq" class="inp" placeholder="Ad / No ara" value="'+esc(F.q)+'"><b id="ogrCnt" class="text-sm"></b></div><div id="ogrList"></div>';
+},drawList,'Öğrenci');
+$('view').addEventListener('change',e=>{
+  if(e.target.id==='fs'){S.F.sinif=e.target.value;S.F.sube='ALL';render(true);}
+  if(e.target.id==='fb'){S.F.sube=e.target.value;render(true);}
+});
+$('view').addEventListener('input',e=>{if(e.target.id==='fq'){S.F.q=e.target.value;drawList();}});
+const find=a=>S.students.find(x=>x.id===a.dataset.id);
+Object.assign(ACT,{
+  add(){
+    const n=T($('na').value),s=T($('ns').value);
+    if(!n||!s)return alert('Sınıf ve ad soyad gerekli.');
+    S.students.push({id:uid('ST_'),sno:'',no:T($('nn').value)||'-',sinif:s,sube:okSube($('nb').value),name:n,periods:{}});
+    save();render(true);
+  },
+  bulk(){
+    let c=0,d=0;
+    $('nbulk').value.split('\n').forEach(line=>{
+      const p=line.split('\t').map(T);if(p.length<5||!p[4])return;
+      const x={id:uid('ST_'),sno:p[0],no:p[1]||'-',sinif:p[2],sube:okSube(p[3]),name:p[4],periods:{}};
+      if(S.students.some(y=>T(y.sinif)===x.sinif&&T(y.sube).toLowerCase()===x.sube&&String(y.no)===x.no&&x.no!=='-')){d++;return;}
+      S.students.push(x);c++;
+    });
+    if(c)save();alert(c+' öğrenci eklendi'+(d?', '+d+' tekrar atlandı':'')+'.');render(true);
+  },
+  edit(a){
+    const s=find(a);if(!s)return;
+    const x=prompt('Sınıf:',s.sinif);if(x===null)return;const y=prompt('Şube:',s.sube);if(y===null)return;
+    const z=prompt('Okul numarası:',s.no);if(z===null)return;const w=prompt('Adı soyadı:',s.name);if(w===null)return;
+    s.sinif=T(x)||s.sinif;s.sube=okSube(y)||s.sube;s.no=T(z)||s.no;s.name=T(w)||s.name;save();render(true);
+  },
+  abs(a){const s=find(a);if(s){s.absent=!s.absent;save();render(true);}},
+  del(a){const s=find(a);if(!s||!confirm(s.name+' silinsin mi?'))return;del(()=>{S.students=S.students.filter(x=>x!==s);},'1 öğrenci silindi');}
+});
+
+/* ========== 7. SAYFA: YEDEKLEME ========== */
+reg('yedek','💾','Yedekleme',()=>{
+  const l=lsg('bk_last')?Math.floor((Date.now()-(+lsg('bk_last')))/864e5):null;
+  return '<div class="card"><p class="text-sm mb-3">'+(l===null?'Henüz yedek almadınız.':'Son yedek: '+(l===0?'bugün':l+' gün önce')+'.')+'</p><div class="flex flex-wrap gap-2"><button data-act="bkdl" class="btn bg-indigo-600">Yedek al (JSON)</button><button data-act="bkup" class="btn bg-slate-600">Yedekten yükle</button><input type="file" id="bkf" accept=".json" hidden></div><p class="text-xs text-slate-500 mt-3">Yedek dosyasını Drive ya da e-postanıza koyun. Sadece öğrenci, ders, ezber ve ödev tanımlarını içerir.</p></div>';
+},null,'Yedek');
+Object.assign(ACT,{
+  bkdl(){const o={app:'sinif-takip',date:new Date().toISOString()};KEYS.forEach(k=>o[k]=S[k]);
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:'application/json'}));a.download='sinif-takip-yedek-'+today+'.json';document.body.appendChild(a);a.click();a.remove();lss('bk_last',String(Date.now()));render(true);},
+  bkup(){$('bkf').click();}
+});
+$('view').addEventListener('change',e=>{
+  if(e.target.id!=='bkf'||!e.target.files[0])return;
+  const r=new FileReader();
+  r.onload=()=>{try{const o=JSON.parse(r.result);if(!Array.isArray(o.students))throw 0;
+    if(!confirm('Mevcut veriler değiştirilip yedekteki '+o.students.length+' öğrenci yüklenecek. Emin misiniz?'))return;
+    U=dump();apply(o);save();render(true);toast('Yedek yüklendi');}catch(x){alert('Geçersiz yedek dosyası.');}};
+  r.readAsText(e.target.files[0]);
+});
+
+/* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
+const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
+function theme(){const d=tema?tema==='dark':mq.matches;document.documentElement.classList.toggle('dark',d);$('th').textContent=d?'☀️':'🌙';}
+$('th').onclick=()=>{tema=document.documentElement.classList.contains('dark')?'light':'dark';lss('tema_v1',tema);theme();};theme();
+$('rc').onclick=()=>{if(!S.room)return;$('rc').textContent=S.room;setTimeout(()=>{$('rc').textContent=mask(S.room);},5000);};
+function room(){
+  const c=prompt('Oda kodunu girin.\nYeni oda oluşturmak için boş bırakıp Tamam deyin (mevcut veriler yeni odaya kopyalanır):');
+  if(c===null)return;
+  const code=T(c).toUpperCase();
+  if(code){lastRoom='';listen(code);}
+  else{const n=genCode();lastRoom='';S.room=n;listen(n);save();alert('Yeni oda kodunuz:\n'+n+'\n\nBir yere yazın. Diğer cihazlarda "🔑" ile bu kodu girin.');}
+}
+$('rcB').onclick=room;
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+go('home');
+if(S.room)listen(S.room);else room();
+</script>
+</body>
+</html>
