@@ -3314,5 +3314,153 @@ html.dark #stMod>div{background:#1e293b;color:#e2e8f0}
  cs();
 })();
 </script>
+<script>
+(function(){
+ const $=id=>document.getElementById(id),E=escapeHtml,T=s=>String(s).trim();
+ const D=n=>{const d=new Date(todayStr+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+ const fd=d=>d.slice(8)+'.'+d.slice(5,7);
+ const ap=(h,s)=>(h.sinif==='ALL'||T(s.sinif)===h.sinif)&&(h.sube==='ALL'||T(s.sube).toLowerCase()===h.sube);
+ const ezList=s=>[...new Set(ezberItems.filter(e=>e.sinif==='ALL'||T(e.sinif)===T(s.sinif)).map(e=>e.name))];
+ const recs=s=>['1','2'].flatMap(p=>Object.entries(((s.periods||{})[p]||{}).days||{})).sort((a,b)=>a[0]<b[0]?1:-1);
+ const act=()=>students.filter(s=>!s.absent);
+ const lbl=s=>E(s.name)+' <span style="opacity:.7">('+E(s.sinif)+'/'+E(String(s.sube).toUpperCase())+' · '+E(s.no)+')</span>';
+ const num=v=>parseInt(v)||0;
+ const sortS=l=>l.slice().sort((a,b)=>num(a.sinif)-num(b.sinif)||String(a.sube).localeCompare(String(b.sube))||num(a.no)-num(b.no));
+
+ /* 1. Uyarılar */
+ const TH=3;
+ function alerts(){
+  const A={hw:[],ez:[],ab:[],due:[]},wk=D(-6),gr={};
+  act().forEach(s=>{
+   const k=T(s.sinif)+'|'+T(s.sube).toLowerCase();
+   if(recs(s).some(([d,r])=>d>=wk&&Object.values(r.ezberStatus||{}).some(v=>v!=='Baslamadi')))gr[k]=1;
+  });
+  act().forEach(s=>{
+   const hs=homeworks.filter(h=>!h.rb&&h.start<=todayStr&&ap(h,s)).sort((a,b)=>a.end<b.end?1:-1);
+   let n=0;for(const h of hs){if((s.hwStatus||{})[h.id]==='Yapmadi')n++;else break;}
+   if(n>=TH)A.hw.push({s:s,m:'son '+n+' ödevi yapmadı'});
+   const rr=recs(s).filter(([d,r])=>r.status&&r.status!=='None');let a=0;
+   for(const [d,r] of rr){if(r.status==='Yok')a++;else break;}
+   if(a>=TH)A.ab.push({s:s,m:a+' gündür devamsız'});
+   if(ezList(s).length&&gr[T(s.sinif)+'|'+T(s.sube).toLowerCase()]&&!recs(s).some(([d,r])=>d>=wk&&Object.values(r.ezberStatus||{}).includes('Tamamlandi')))A.ez.push({s:s,m:'bu hafta ezber vermedi'});
+  });
+  homeworks.filter(h=>!h.rb).forEach(h=>{
+   if(h.end<D(-7)||h.end>D(2))return;
+   const n=act().filter(s=>ap(h,s)&&!(s.hwStatus||{})[h.id]).length;if(!n)return;
+   const g=h.end<todayStr?'süresi geçti':h.end===todayStr?'bugün bitiyor':h.end===D(1)?'yarın bitiyor':'2 gün sonra bitiyor';
+   A.due.push({h:h,n:n,m:g});
+  });
+  return A;
+ }
+ const box=document.createElement('div');box.className='bg-amber-50 border border-amber-300 rounded-xl p-4 mb-6';
+ box.innerHTML='<div class="flex flex-wrap items-center justify-between gap-2 mb-2"><h3 class="font-bold text-amber-800">🔔 Uyarılar <span id="alCnt" style="background:#d97706;color:#fff;border-radius:999px;padding:1px 10px;font-size:12px;margin-left:6px"></span></h3><button id="alNt" class="text-xs bg-amber-600 text-white px-3 py-1.5 rounded-lg font-semibold">🔔 Bildirimleri aç</button></div><div id="alBody" class="space-y-3 overflow-y-auto" style="max-height:22rem"></div>';
+ $('content-dashboard').insertBefore(box,$('content-dashboard').firstChild);
+ const ban=document.createElement('button');ban.id='alBan';ban.className='w-full text-left bg-amber-100 border border-amber-300 text-amber-900 rounded-xl px-4 py-3 mb-4 font-semibold';ban.style.display='none';
+ ban.onclick=()=>switchTab('dashboard');$('content-home').insertBefore(ban,$('content-home').firstChild);
+ let summary='';
+ function draw(){
+  const A=alerts(),n=A.hw.length+A.ez.length+A.ab.length+A.due.length;
+  const sec=(t,l,f)=>l.length?'<div><div class="text-xs font-bold text-slate-700 mb-1">'+t+' ('+l.length+')</div><div class="flex flex-wrap gap-1.5">'+l.map(f).join('')+'</div></div>':'';
+  const chip=c=>x=>'<span class="'+c+' text-xs px-2.5 py-1 rounded-full border">'+lbl(x.s)+' · <b>'+x.m+'</b></span>';
+  $('alBody').innerHTML=n?sec('⏰ Ödev bitiş tarihi',A.due,x=>'<span class="bg-amber-100 text-amber-900 border-amber-300 text-xs px-2.5 py-1 rounded-full border"><b>'+E(x.h.name)+'</b> · '+fd(x.h.end)+' · '+x.m+' · '+x.n+' öğrenci işaretsiz</span>')
+   +sec('📕 Ödev yapmıyor',A.hw,chip('bg-red-100 text-red-800 border-red-200'))+sec('📖 Ezber vermedi',A.ez,chip('bg-orange-100 text-orange-800 border-orange-200'))+sec('🚫 Devamsızlık',A.ab,chip('bg-rose-100 text-rose-800 border-rose-200'))
+   :'<span class="text-xs text-slate-500 italic">Şu an uyarı yok. 👍</span>';
+  $('alCnt').textContent=n;
+  summary=A.due.length+' ödev tarihi yaklaşan/geçen, '+(A.hw.length+A.ez.length+A.ab.length)+' öğrenci uyarısı';
+  ban.style.display=n?'block':'none';ban.textContent='🔔 '+n+' uyarı var: '+summary+' (dokunup görün)';
+  $('alNt').style.display='Notification' in window&&Notification.permission!=='granted'?'':'none';
+  return n;
+ }
+ function notify(t,b){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const f=()=>{try{new Notification(t,{body:b});}catch(e){}};
+  if(navigator.serviceWorker)navigator.serviceWorker.getRegistration().then(r=>r?r.showNotification(t,{body:b,icon:'icon-192.png'}):f()).catch(f);else f();
+ }
+ $('alNt').onclick=()=>Notification.requestPermission().then(()=>draw());
+ let sent=false;
+ function check(){
+  const n=draw();
+  if(!sent&&students.length){sent=true;let d='';try{d=localStorage.getItem('ntf_day')||'';}catch(e){}
+   if(n&&d!==todayStr){notify('Sınıf Takip: '+n+' uyarı',summary);try{localStorage.setItem('ntf_day',todayStr);}catch(e){}}}
+ }
+ const rd=window.renderDashboard;window.renderDashboard=function(){rd();draw();};
+ const ra=window.renderAll;window.renderAll=function(){ra();check();};
+ check();
+
+ /* 2 ve 3: Excel kütüphanesi */
+ const lib=()=>window.XLSX?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=ok;s.onerror=()=>no(new Error('Excel kütüphanesi yüklenemedi (internet?)'));document.head.appendChild(s);});
+ const sc='border border-slate-300 rounded-lg px-2 py-1.5 text-sm bg-white';
+
+ /* 2. .xlsx raporu */
+ const rc=document.createElement('div');rc.className='bg-white border border-slate-200 rounded-xl p-4 mt-6';
+ rc.innerHTML='<h3 class="font-bold text-slate-700 mb-1">📗 Excel Raporu (.xlsx)</h3><p class="text-xs text-slate-500 mb-2">Özet, Günlük, Ezber ve Ödev-Rehberlik sayfaları, filtreli ve sütun genişlikleri ayarlı. Sürekli devamsız öğrenciler dahil edilmez.</p><div class="flex flex-wrap gap-2"><select id="xS" class="'+sc+'"></select><select id="xB" class="'+sc+'"></select><select id="xD" class="'+sc+'"><option value="1">1. Dönem</option><option value="2">2. Dönem</option></select><button id="xGo" class="bg-emerald-600 text-white text-sm px-4 py-2 rounded-lg font-semibold">📥 Raporu indir</button></div>';
+ $('content-dashboard').appendChild(rc);
+ const op=(id,items)=>{const el=$(id),c=el.value;el.innerHTML=items.map(i=>'<option value="'+E(i[0])+'">'+E(i[1])+'</option>').join('');el.value=items.some(i=>i[0]===c)?c:items[0][0];};
+ function xf(){
+  op('xS',[['ALL','Tüm Sınıflar']].concat([...new Set(students.map(s=>T(s.sinif)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true})).map(c=>[c,c+'. Sınıf'])));
+  const sv=$('xS').value;
+  op('xB',[['ALL','Tüm Şubeler']].concat([...new Set(students.filter(s=>sv==='ALL'||T(s.sinif)===sv).map(s=>T(s.sube).toLowerCase()))].filter(Boolean).sort().map(x=>[x,x.toUpperCase()+' Şubesi'])));
+ }
+ $('xS').addEventListener('change',xf);xf();
+ const ra2=window.renderAll;window.renderAll=function(){ra2();xf();};
+ const sheet=aoa=>{const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=aoa[0].map((_,i)=>({wch:Math.min(40,Math.max(8,...aoa.map(r=>String(r[i]??'').length))+2)}));ws['!autofilter']={ref:ws['!ref']};return ws;};
+ $('xGo').onclick=async()=>{
+  const sv=$('xS').value,bv=$('xB').value,dn=$('xD').value;
+  const g=sortS(act().filter(s=>(sv==='ALL'||T(s.sinif)===sv)&&(bv==='ALL'||T(s.sube).toLowerCase()===bv)));
+  if(!g.length)return alert('Bu seçimde öğrenci yok.');
+  try{await lib();}catch(e){return alert(e.message);}
+  const day=s=>Object.entries(((s.periods||{})[dn]||{}).days||{}).sort((a,b)=>a[0]<b[0]?-1:1);
+  const ez=[...new Set(g.flatMap(ezList))],rbs=homeworks.filter(h=>h.rb&&(h.donem||'1')===dn&&g.some(s=>ap(h,s))),od=homeworks.filter(h=>!h.rb&&g.some(s=>ap(h,s)));
+  const best=(s,n)=>{let m=0;const R={Baslamadi:0,DevamEdiyor:1,Tamamlandi:2};day(s).forEach(([d,r])=>{const v=R[(r.ezberStatus||{})[n]];if(v>m)m=v;});return m;};
+  const stx=v=>v==='Yapti'?'Yaptı':v==='Yapmadi'?'Yapmadı':'';
+  const O=[['Sınıf','Şube','No','Ad Soyad','Var','Yok','İzinli','Devam %','Abdestli gün','Ders puanı','Davranış puanı','Net puan','Kitabı yok (gün)','Uyudu (gün)','Ezber tamam','Ezber atanan','Ödev yaptı','Ödev yapmadı','Ödev işaretsiz','Rehberlik yaptı','Rehberlik yapmadı','Rehberlik işaretsiz']];
+  const G=[['Tarih','Sınıf','Şube','No','Ad Soyad','Devam','Abdest','Kitap','Uyudu','Ders puanı','Davranış puanı','Davranış notu','Not']];
+  g.forEach(s=>{
+   let v=0,y=0,iz=0,ab=0,p=0,bp=0,kb=0,sl=0;
+   day(s).forEach(([d,r])=>{if(r.status==='Var')v++;else if(r.status==='Yok')y++;else if(r.status==='Izinli')iz++;if(r.abdest)ab++;p+=r.points||0;bp+=r.bp||0;if(r.book==='Yok')kb++;if(r.slept)sl++;
+    if(r.status&&r.status!=='None'||r.abdest||r.points||r.bp||r.book==='Yok'||r.slept||r.notes||r.bn)G.push([d,s.sinif,String(s.sube).toUpperCase(),s.no,s.name,r.status==='Var'?'Var':r.status==='Yok'?'Yok':r.status==='Izinli'?'İzinli':'',r.abdest?'Evet':'',r.book==='Yok'?'Yok':'',r.slept?'Evet':'',r.points||0,r.bp||0,r.bn||'',r.notes||'']);});
+   const el=ezList(s),a=od.filter(h=>ap(h,s)),b=rbs.filter(h=>ap(h,s)),c=(l,k)=>l.filter(h=>(s.hwStatus||{})[h.id]===k).length;
+   O.push([s.sinif,String(s.sube).toUpperCase(),s.no,s.name,v,y,iz,(v+y+iz)?Math.round(v*100/(v+y+iz)):'',ab,p,bp,p+bp,kb,sl,el.filter(n=>best(s,n)===2).length,el.length,c(a,'Yapti'),c(a,'Yapmadi'),a.length-c(a,'Yapti')-c(a,'Yapmadi'),c(b,'Yapti'),c(b,'Yapmadi'),b.length-c(b,'Yapti')-c(b,'Yapmadi')]);
+  });
+  const Z=[['Sınıf','Şube','No','Ad Soyad'].concat(ez)];
+  g.forEach(s=>Z.push([s.sinif,String(s.sube).toUpperCase(),s.no,s.name].concat(ez.map(n=>ezList(s).includes(n)?['Başlamadı','Çalışıyor','Tamam'][best(s,n)]:'-'))));
+  const cols=od.map(h=>['Ödev: '+h.name,h]).concat(rbs.map(h=>['Rehberlik: '+h.name,h]));
+  const H=[['Sınıf','Şube','No','Ad Soyad'].concat(cols.map(c=>c[0]))];
+  g.forEach(s=>H.push([s.sinif,String(s.sube).toUpperCase(),s.no,s.name].concat(cols.map(c=>ap(c[1],s)?stx((s.hwStatus||{})[c[1].id]):'-'))));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,sheet(O),'Özet');XLSX.utils.book_append_sheet(wb,sheet(G),'Günlük');
+  XLSX.utils.book_append_sheet(wb,sheet(Z),'Ezber');XLSX.utils.book_append_sheet(wb,sheet(H),'Ödev-Rehberlik');
+  XLSX.writeFile(wb,'Sinif_Takip_Rapor_'+dn+'_Donem_'+todayStr+'.xlsx');
+ };
+
+ /* 3. Excel'den toplu öğrenci yükleme */
+ const ic=document.createElement('div');ic.className='mt-3 pt-3 border-t border-slate-200';
+ ic.innerHTML='<div class="text-xs font-bold text-slate-700 mb-1">📥 Excel\'den toplu yükle</div><p class="text-[11px] text-slate-500 mb-2">Sütunlar: S.No, Okul No, Sınıf, Şube, Ad Soyad (ya da tek sütunda "7/D"). Aynı sınıf, şube ve numaralı öğrenci tekrar eklenmez.</p><div class="flex flex-wrap gap-2"><button id="imTpl" class="text-xs bg-slate-600 text-white px-3 py-2 rounded-lg font-semibold">Şablonu indir</button><button id="imGo" class="text-xs bg-indigo-600 text-white px-3 py-2 rounded-lg font-semibold">Excel dosyası seç</button><input type="file" id="imFile" accept=".xlsx,.xls,.csv" hidden></div>';
+ $('bulkStudentInput').parentElement.appendChild(ic);
+ $('imTpl').onclick=async()=>{try{await lib();}catch(e){return alert(e.message);}
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,sheet([['S.No','Okul No','Sınıf','Şube','Ad Soyad'],[1,101,'7','D','ÖRNEK ÖĞRENCİ'],[2,102,'7','D','ÖRNEK ÖĞRENCİ 2']]),'Öğrenciler');XLSX.writeFile(wb,'ogrenci_sablonu.xlsx');};
+ $('imGo').onclick=()=>$('imFile').click();
+ const nk=k=>String(k).toLocaleLowerCase('tr').replace(/[\s._\-\/]/g,'');
+ const pick=(r,re)=>{const k=Object.keys(r).find(x=>re.test(nk(x)));return k===undefined?'':r[k];};
+ $('imFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{await lib();const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+   let add=[],dup=0,bad=0;
+   const has=x=>students.some(s=>T(s.sinif)===x.sinif&&T(s.sube).toLowerCase()===x.sube&&String(s.no)===x.no)||add.some(s=>s.sinif===x.sinif&&s.sube===x.sube&&s.no===x.no);
+   rows.forEach(r=>{
+    const name=T(pick(r,/adsoyad|isim|öğrenciad|^ad$/)),comb=String(pick(r,/sınıfşube|sinifsube/));
+    let sinif=T(pick(r,/^sınıf$|^sinif$/)),sube=T(pick(r,/^şube$|^sube$/)),no=T(pick(r,/okulno|öğrencino|^no$|numara/)),sno=T(pick(r,/^sno$|^sıra/));
+    if((!sinif||!sube)&&comb){const m=comb.match(/^\s*(\d+)\s*[-\/\s]?\s*([A-Za-zÇĞİÖŞÜçğıöşü])\s*$/);if(m){sinif=sinif||m[1];sube=sube||m[2];}}
+    if(!name||!sinif){bad++;return;}
+    const x={id:'ST_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),sno:sno,no:no||'-',sinif:sinif,sube:(sube||'a').toLowerCase(),name:name,periods:{}};
+    if(has(x)){dup++;return;}add.push(x);
+   });
+   if(!add.length){alert('Yeni öğrenci bulunamadı. Tekrar eden: '+dup+', eksik satır: '+bad+'.');}
+   else if(confirm(add.length+' yeni öğrenci eklenecek (tekrar eden '+dup+', atlanan eksik satır '+bad+'). Onaylıyor musunuz?')){students.push(...add);saveDataToFirebase();alert(add.length+' öğrenci eklendi.');}
+  }catch(err){alert('Dosya okunamadı: '+(err.message||err));}
+  e.target.value='';
+ };
+})();
+</script>
 </body>
 </html>
