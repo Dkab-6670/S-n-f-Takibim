@@ -34,7 +34,7 @@
 </header>
 <nav id="tn" class="hidden md:flex max-w-6xl mx-auto mt-2 px-3 gap-2"></nav>
 <main class="max-w-6xl mx-auto px-3 py-3">
- <div id="ptitle" class="sticky z-30 card font-bold text-lg flex items-center gap-3" style="top:env(safe-area-inset-top,0px)"></div>
+ <div id="ptitle" class="sticky z-30 card font-bold text-lg flex flex-wrap items-center gap-x-3 gap-y-1" style="top:env(safe-area-inset-top,0px)"></div>
  <div id="view"></div>
 </main>
 <nav id="bn" class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-800 border-t border-slate-300 dark:border-slate-700 flex" style="padding-bottom:env(safe-area-inset-bottom)"></nav>
@@ -141,7 +141,7 @@ const typing=()=>{const a=document.activeElement;return a&&$('view').contains(a)
 function render(force){
   if(!force&&typing()){pending=true;return;}
   const p=P[S.page]||P.home;
-  $('ptitle').innerHTML=(S.page!=='home'?'<button data-go="home" class="btn bg-indigo-600 !px-3 !py-1 whitespace-nowrap">🏠 Ana Sayfa</button>':'')+'<span>'+p.icon+' '+esc(p.title)+'</span>';document.title=p.title+' | Sınıf Takip';
+  $('ptitle').innerHTML=(S.page!=='home'?'<button data-go="home" class="btn bg-indigo-600 !px-3 !py-1 whitespace-nowrap">🏠 Ana Sayfa</button>':'')+'<span>'+p.icon+' '+esc(p.title)+'</span>'+(S.page!=='home'?'<span class="ml-auto text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full px-3 py-1 whitespace-nowrap">📌 '+(S.G.sinif==='ALL'?'Tüm sınıflar':esc(S.G.sinif)+(S.G.sube==='ALL'?'. sınıf':'/'+esc(S.G.sube.toUpperCase())))+'</span>':'');document.title=p.title+' | Sınıf Takip';
   $('view').innerHTML=p.html();if(p.after)p.after();
   document.documentElement.style.setProperty('--th',($('ptitle').offsetHeight+8)+'px');
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===S.page));
@@ -177,8 +177,8 @@ reg('ogr','👥','Öğrenciler',()=>{
    +'<div class="card flex flex-wrap items-center gap-2"><select id="fs" class="inp">'+opt([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),F.sinif)+'</select><select id="fb" class="inp">'+opt([['ALL','Tüm Şubeler']].concat(subes(F.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),F.sube)+'</select><input id="fq" class="inp" placeholder="Ad / No ara" value="'+esc(F.q)+'"><b id="ogrCnt" class="text-sm"></b></div><div id="ogrList"></div>';
 },drawList,'Öğrenci');
 $('view').addEventListener('change',e=>{
-  if(e.target.id==='fs'){S.F.sinif=e.target.value;S.F.sube='ALL';render(true);}
-  if(e.target.id==='fb'){S.F.sube=e.target.value;render(true);}
+  if(e.target.id==='fs'){S.F.sinif=e.target.value;S.F.sube='ALL';gsave();render(true);}
+  if(e.target.id==='fb'){S.F.sube=e.target.value;gsave();render(true);}
 });
 $('view').addEventListener('input',e=>{if(e.target.id==='fq'){S.F.q=e.target.value;drawList();}});
 const find=a=>S.students.find(x=>x.id===a.dataset.id);
@@ -232,6 +232,7 @@ $('view').addEventListener('change',e=>{
 const G=S.G;
 try{Object.assign(G,JSON.parse(lsg('gs_v1')||'{}'));}catch(e){}
 G.date=today;G.q='';
+['sinif','sube'].forEach(k=>Object.defineProperty(S.F,k,{get:()=>G[k],set:v=>{G[k]=v;},configurable:true,enumerable:true}));
 const gsave=()=>lss('gs_v1',JSON.stringify({sinif:G.sinif,sube:G.sube,donem:G.donem}));
 const rd=s=>((((s.periods||{})[G.donem]||{}).days||{})[G.date])||{};
 const per=s=>(s.periods||{})[G.donem]||{};
