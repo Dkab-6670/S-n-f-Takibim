@@ -157,7 +157,7 @@ const ACT={};
 /* ========== 5. SAYFA: ANA SAYFA ========== */
 reg('home','🏠','Ana Sayfa',()=>{
   const cl=classes();
-  return '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'
+  return bdayBar()+'<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'
    +[['Öğrenci',S.students.filter(s=>!s.absent).length],['Sınıf',cl.length],['Ders',S.lessons.length],['Ezber konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
    +'<div class="grid grid-cols-2 md:grid-cols-3 gap-3">'+Object.keys(P).filter(k=>k!=='home').map(k=>'<button data-go="'+k+'" class="card mb-0 text-left"><div class="text-3xl">'+P[k].icon+'</div><b>'+esc(P[k].title)+'</b></button>').join('')+'</div>';
 },null,'Ana Sayfa');
@@ -258,7 +258,7 @@ function gpage(id,icon,title,nav,top,list){
   P[id].list=list;
 }
 const B=(s,f,v,txt,on,c)=>'<button data-act="m" data-f="'+f+'" data-v="'+esc(v)+'" data-id="'+esc(s.id)+'" class="flex-1 min-h-[44px] rounded-lg border font-semibold text-sm '+(on?c:'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+txt+'</button>';
-const hd=s=>'<div class="font-semibold">'+esc(s.name)+'</div><div class="text-[11px] text-slate-500 mb-2">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div>';
+const hd=s=>'<div class="font-semibold underline decoration-dotted cursor-pointer" data-act="card" data-id="'+esc(s.id)+'">'+esc(s.name)+'</div><div class="text-[11px] text-slate-500 mb-2">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div>';
 const stBtns=s=>{const v=rd(s).status||'None';return '<div class="flex gap-1.5">'+B(s,'status','Var','Var',v==='Var',GR)+B(s,'status','Yok','Yok',v==='Yok',RD)+B(s,'status','Izinli','İzinli',v==='Izinli',AM)+'</div>';};
 
 /* işaretleme (tek yer) */
@@ -373,33 +373,43 @@ gpage('dav','🌟','Davranış Takibi',null,()=>'<datalist id="bhN">'+['Arkadaş
   return '<div class="card mb-0">'+hd(s)+'<div class="flex items-center justify-center gap-3"><button data-act="bp" data-id="'+id+'" data-v="-1" class="w-14 h-14 rounded-xl bg-red-100 text-red-700 text-3xl font-bold">−</button><b class="text-2xl w-14 text-center">'+(v>0?'+':'')+v+'</b><button data-act="bp" data-id="'+id+'" data-v="1" class="w-14 h-14 rounded-xl bg-emerald-100 text-emerald-700 text-3xl font-bold">+</button></div><div class="text-center text-xs mt-1">Dönem: <b class="text-emerald-700">+'+a+'</b> <b class="text-red-600">'+m+'</b> · net <b>'+(a+m)+'</b></div><input data-chg="bn" data-id="'+id+'" list="bhN" class="inp w-full mt-2 text-sm" placeholder="Not (isteğe bağlı)" value="'+esc(r.bn||'')+'"></div>';
 }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>');
 
-/* Rehberlik */
-TS.reh={all:false,set:{},name:''};S.rv='';
+/* Rehberlik (telefon için: çalışma bazlı ve öğrenci bazlı görünüm) */
+TS.reh={all:false,set:{},name:''};S.rv='';S.rview='act';S.rf='all';
 const rbActs=()=>S.homeworks.filter(h=>h.rb&&(h.donem||'1')===G.donem&&(G.sinif==='ALL'||h.sinif==='ALL'||h.sinif===G.sinif));
-gpage('reh','🧭','Rehberlik Faaliyetleri',null,()=>{
-  const acts=rbActs(),cur=acts.find(x=>x.id===S.rv)||acts[0],id=cur?esc(cur.id):'';
-  return '<div class="card"><div class="flex flex-wrap gap-2"><select data-rv class="inp flex-1 min-w-[180px]">'+(acts.map(a=>'<option value="'+esc(a.id)+'"'+(cur&&a.id===cur.id?' selected':'')+'>'+esc(a.name)+' ('+esc(tgt(a))+')</option>').join('')||'<option>Çalışma yok</option>')+'</select>'
-   +(cur?'<button data-act="rall" class="btn bg-emerald-600">✅ İşaretsizleri Yaptı yap</button><button data-act="tedit" data-k="reh" data-id="'+id+'" class="px-3 border rounded-lg">✏️</button><button data-act="tdel" data-k="reh" data-id="'+id+'" class="px-3 border rounded-lg text-red-600">🗑️</button>':'')+'</div></div>'
-   +'<details class="card" data-keep="kOpen"'+(S.kOpen?' open':'')+'><summary class="cursor-pointer font-semibold">➕ Yeni rehberlik çalışması ata ('+G.donem+'. dönem)</summary><div class="flex flex-wrap gap-2 my-2">'+chips('reh')+'</div><div class="flex gap-2"><input data-tn="reh" class="inp flex-1" placeholder="Çalışma adı" value="'+esc(TS.reh.name)+'"><button data-act="radd" class="btn bg-purple-600">Ata</button></div></details>';
-},()=>{
-  const a=rbActs().find(x=>x.id===S.rv)||rbActs()[0];
-  if(!a)return '<div class="card col-span-full text-center text-sm text-slate-400">Bu dönem ve sınıf için rehberlik çalışması yok. Yukarıdan atayın.</div>';
-  S.rv=a.id;const c={Yapti:0,Yapmadi:0,None:0};
-  const rows=grp().filter(s=>ap(a,s)).map(s=>{const v=(s.hwStatus||{})[a.id]||'None';c[v]++;
-    return '<div class="card mb-0'+(v==='Yapmadi'?' !bg-red-50 dark:!bg-red-950 !border-red-300':'')+'">'+hd(s)+'<div class="flex gap-1.5">'+B(s,'hw',a.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',a.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div></div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
-  return '<div class="col-span-full text-sm font-bold">Yaptı '+c.Yapti+' · Yapmadı '+c.Yapmadi+' · İşaretsiz '+c.None+'</div>'+rows;
+const rbSt=(a,l)=>{const c={Yapti:0,Yapmadi:0,None:0};l.forEach(s=>{c[(s.hwStatus||{})[a.id]||'None']++;});return c;};
+const tgb=(k,t,v,on)=>'<button data-act="'+k+'" data-v="'+v+'" class="flex-1 min-h-[44px] rounded-lg border font-semibold text-sm '+(on?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+t+'</button>';
+const EMPTY='<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
+gpage('reh','🧭','Rehberlik Faaliyetleri',null,()=>'<details class="card" data-keep="kOpen"'+(S.kOpen?' open':'')+'><summary class="cursor-pointer font-semibold">➕ Yeni rehberlik çalışması ata ('+G.donem+'. dönem)</summary><div class="flex flex-wrap gap-2 my-2">'+chips('reh')+'</div><div class="flex gap-2"><input data-tn="reh" class="inp flex-1" placeholder="Çalışma adı" value="'+esc(TS.reh.name)+'"><button data-act="radd" class="btn bg-purple-600">Ata</button></div></details>',()=>{
+  const acts=rbActs(),g=grp(),sw='<div class="col-span-full flex gap-2">'+tgb('rv','📋 Çalışma bazlı','act',S.rview==='act')+tgb('rv','👤 Öğrenci bazlı','stu',S.rview==='stu')+'</div>';
+  if(!acts.length)return sw+'<div class="card col-span-full text-center text-sm text-slate-400">Bu dönem ve sınıf için rehberlik çalışması yok. Yukarıdan atayın.</div>';
+  if(S.rview==='stu')return sw+(g.map(s=>{let y=0,n=0;
+    const ch=acts.filter(a=>ap(a,s)).map(a=>{const v=(s.hwStatus||{})[a.id]||'None';if(v==='Yapti')y++;if(v==='Yapmadi')n++;
+      return '<button data-act="rcy" data-id="'+esc(s.id)+'" data-h="'+esc(a.id)+'" class="rounded-lg border px-2.5 min-h-[40px] text-xs font-semibold '+(v==='Yapti'?GR:v==='Yapmadi'?RD:'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+(v==='Yapti'?'✓ ':v==='Yapmadi'?'✗ ':'')+esc(a.name)+'</button>';}).join('');
+    return '<div class="card mb-0'+(n?' !bg-red-50 dark:!bg-red-950 !border-red-300':'')+'">'+hd(s)+'<div class="flex flex-wrap gap-1.5">'+ch+'</div><div class="text-[11px] mt-1 text-slate-500">✅ '+y+' · ❌ '+n+' · dokundukça: işaretsiz → yaptı → yapmadı</div></div>';}).join('')||EMPTY);
+  const a=acts.find(x=>x.id===S.rv)||acts[0];S.rv=a.id;
+  const row1='<div class="col-span-full flex gap-2 overflow-x-auto pb-1">'+acts.map(x=>{const c=rbSt(x,g.filter(s=>ap(x,s))),t=c.Yapti+c.Yapmadi+c.None;
+    return '<button data-act="rsel" data-id="'+esc(x.id)+'" class="shrink-0 rounded-xl border px-3 py-2 text-left text-xs '+(x.id===a.id?'bg-purple-600 text-white border-purple-600':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600')+'"><b>'+esc(x.name)+'</b><br>'+c.Yapti+'/'+t+' yaptı'+(c.Yapmadi?' · '+c.Yapmadi+' ✗':'')+'</button>';}).join('')+'</div>';
+  const l=g.filter(s=>ap(a,s)),c=rbSt(a,l),t=l.length||1,pc=n=>Math.round(n*100/t);
+  const head='<div class="card col-span-full mb-0"><div class="font-bold">'+esc(a.name)+' <span class="text-xs font-normal text-slate-500">'+esc(tgt(a))+'</span></div><div class="flex h-3 rounded-full overflow-hidden my-2 bg-slate-200 dark:bg-slate-700"><div style="width:'+pc(c.Yapti)+'%" class="bg-emerald-500"></div><div style="width:'+pc(c.Yapmadi)+'%" class="bg-red-500"></div></div><div class="text-sm mb-2">✅ '+c.Yapti+' · ❌ '+c.Yapmadi+' · ❔ '+c.None+'</div><div class="flex flex-wrap gap-2 mb-2">'
+   +[['all','Hepsi'],['no','❌ Yapmayanlar'],['none','❔ İşaretsizler']].map(f=>'<button data-act="rfl" data-v="'+f[0]+'" class="px-3 py-1.5 rounded-full border text-xs font-semibold '+(S.rf===f[0]?'bg-slate-700 text-white border-slate-700':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+f[1]+'</button>').join('')
+   +'</div><div class="flex gap-2"><button data-act="rall" class="btn bg-emerald-600">✅ İşaretsizleri Yaptı yap</button><button data-act="tedit" data-k="reh" data-id="'+esc(a.id)+'" class="px-3 border rounded-lg">✏️</button><button data-act="tdel" data-k="reh" data-id="'+esc(a.id)+'" class="px-3 border rounded-lg text-red-600">🗑️</button></div></div>';
+  const rows=l.filter(s=>{const v=(s.hwStatus||{})[a.id]||'None';return S.rf==='all'||(S.rf==='no'&&v==='Yapmadi')||(S.rf==='none'&&v==='None');}).map(s=>{const v=(s.hwStatus||{})[a.id]||'None';
+    return '<div class="card mb-0 !py-2 flex items-center gap-2'+(v==='Yapmadi'?' !bg-red-50 dark:!bg-red-950 !border-red-300':'')+'"><div class="flex-1 min-w-0"><div class="font-semibold truncate">'+esc(s.name)+'</div><div class="text-[11px] text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div></div><div class="flex gap-1.5 w-44 shrink-0">'+B(s,'hw',a.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',a.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div></div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu filtrede öğrenci yok.</div>';
+  return sw+row1+head+rows;
 });
-$('view').addEventListener('change',e=>{if('rv' in e.target.dataset){S.rv=e.target.value;render(true);}});
-ACT.radd=()=>{
-  const t=TS.reh,name=T(t.name);
-  if(!name)return alert('Çalışma adını yazın.');
-  const tg=t.all?['ALL']:Object.keys(t.set).filter(x=>t.set[x]);
-  if(!tg.length)return alert('Sınıf işaretleyin ya da "Tüm sınıflar"ı seçin.');
-  tg.forEach(x=>S.homeworks.push({name,sinif:x,sube:'ALL',donem:G.donem,rb:true}));
-  t.name='';save();render(true);
-};
-ACT.rall=()=>{const a=rbActs().find(x=>x.id===S.rv);if(!a)return;let n=0;grp().filter(s=>ap(a,s)).forEach(s=>{s.hwStatus=s.hwStatus||{};if(!s.hwStatus[a.id]){s.hwStatus[a.id]='Yapti';n++;}});if(n)save();relist();toast(n+' öğrenci "Yaptı" yapıldı');};
-
+Object.assign(ACT,{
+  rv(a){S.rview=a.dataset.v;relist();},rsel(a){S.rv=a.dataset.id;relist();},rfl(a){S.rf=a.dataset.v;relist();},
+  rcy(a){const s=find(a),h=a.dataset.h;if(!s)return;s.hwStatus=s.hwStatus||{};const c=s.hwStatus[h];if(!c)s.hwStatus[h]='Yapti';else if(c==='Yapti')s.hwStatus[h]='Yapmadi';else delete s.hwStatus[h];save();relist();},
+  radd(){
+    const t=TS.reh,name=T(t.name);
+    if(!name)return alert('Çalışma adını yazın.');
+    const tg=t.all?['ALL']:Object.keys(t.set).filter(x=>t.set[x]);
+    if(!tg.length)return alert('Sınıf işaretleyin ya da "Tüm sınıflar"ı seçin.');
+    tg.forEach(x=>S.homeworks.push({name,sinif:x,sube:'ALL',donem:G.donem,rb:true}));
+    t.name='';save();render(true);
+  },
+  rall(){const a=rbActs().find(x=>x.id===S.rv);if(!a)return;let n=0;grp().filter(s=>ap(a,s)).forEach(s=>{s.hwStatus=s.hwStatus||{};if(!s.hwStatus[a.id]){s.hwStatus[a.id]='Yapti';n++;}});if(n)save();relist();toast(n+' öğrenci "Yaptı" yapıldı');}
+});
 /* İstatistikler */
 const sbox=(t,n,body,c)=>'<div class="card mb-0"><div class="font-bold mb-2">'+t+' <span class="text-xs text-white rounded-full px-2 py-0.5 '+c+'">'+n+'</span></div><div class="flex flex-wrap gap-1.5 overflow-y-auto" style="max-height:15rem">'+(body||'<span class="text-xs text-slate-400 italic">Kayıt yok.</span>')+'</div></div>';
 reg('stat','📊','İstatistikler',()=>{
@@ -429,6 +439,227 @@ reg('stat','📊','İstatistikler',()=>{
    +sbox('🔔 Son 3 ödevi yapmayanlar',hwy.length,hwy.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''),'bg-red-600')
    +sbox('🧭 Rehberlik çalışmasına katılmayanlar',S.homeworks.filter(h=>h.rb).length,rbm,'bg-slate-600')+'</div>';
 },null,null);
+/* ========== AŞAMA C2: KARNE, OTURMA PLANI, HAFIZLIK ========== */
+const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'-';
+const KCSS='.k{font-family:Segoe UI,Arial,sans-serif;color:#111;background:#fff;max-width:720px;margin:0 auto;padding:18px;border:1px solid #cbd5e1;border-radius:10px;page-break-after:always}.k h2{margin:0 0 4px;font-size:19px;color:#3730a3}.k h3{margin:12px 0 3px;font-size:13px;color:#3730a3;border-bottom:1px solid #c7d2fe}.k table{width:100%;border-collapse:collapse;font-size:12.5px}.k td{padding:3px 5px;border-bottom:1px solid #e2e8f0}.k td:last-child{text-align:right;font-weight:600}.k .l{height:50px;border:1px dashed #94a3b8;border-radius:6px}.k .g{text-align:right;margin-top:14px;font-size:12px}@media print{.k{border:0;border-radius:0}}';
+function karne(s){
+  const dn=G.donem,pr=(s.periods||{})[dn]||{},days=Object.entries(pr.days||{}).sort((a,b)=>a[0]<b[0]?-1:1);
+  let v=0,y=0,iz=0,ab=0,p=0,m=0,bp=0,bm=0,bk=0,sl=0;const sc={},ez={},RK={Baslamadi:0,DevamEdiyor:1,Tamamlandi:2},nt=[];
+  days.forEach(([d,r])=>{
+    if(r.status==='Var')v++;else if(r.status==='Yok')y++;else if(r.status==='Izinli')iz++;
+    if(r.abdest)ab++;const a=r.points||0;if(a>0)p+=a;else m+=a;const b=r.bp||0;if(b>0)bp+=b;else bm+=b;
+    if(r.book==='Yok')bk++;if(r.slept)sl++;
+    Object.entries(r.scores||{}).forEach(([k,x])=>{if(+x)(sc[k]=sc[k]||[]).push(+x);});
+    Object.entries(r.ezberStatus||{}).forEach(([k,x])=>{if(RK[x]>(ez[k]===undefined?-1:ez[k]))ez[k]=RK[x];});
+    if(r.bn)nt.push([d,r.bn,b]);
+  });
+  const cz=pr.kuranDurum==='cuz',row=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
+  const ds=lsOf(s).map(l=>cz&&KUR.test(l.name)?row(esc(l.name),'Cüzde, puanlanmaz'):row(esc(l.name),sc[l.name]?avg(sc[l.name])+' / 5':'-')).join('');
+  const es=ezOf(s).map(n=>row(esc(n),['Başlamadı','Çalışıyor','Tamam ✓'][ez[n]||0])).join('');
+  const cnt=l=>{let a=0,b=0;l.forEach(h=>{const x=(s.hwStatus||{})[h.id];if(x==='Yapti')a++;else if(x==='Yapmadi')b++;});return row('Yaptı / yapmadı / işaretsiz',a+' / '+b+' / '+(l.length-a-b));};
+  const od=S.homeworks.filter(h=>!h.rb&&ap(h,s)),rg=S.homeworks.filter(h=>h.rb&&(h.donem||'1')===dn&&ap(h,s));
+  const hf=Object.values(s.cuz||{}).filter(x=>x===2).length;
+  return '<div class="k"><h2>Dönem Karnesi · '+dn+'. Dönem</h2><div><b>'+esc(s.name)+'</b> · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · No: '+esc(s.no)+'</div>'
+   +bdgHtml(s)+'<h3>Devam</h3><table>'+row('Var / yok / izinli (gün)',v+' / '+y+' / '+iz)+row('Abdestli gün',ab)+'</table>'
+   +'<h3>Puanlar ve Davranış</h3><table>'+row('Ders puanı (artı / eksi / net)','+'+p+' / '+m+' / '+(p+m))+row('Davranış puanı (artı / eksi / net)','+'+bp+' / '+bm+' / '+(bp+bm))+row('Kitabı yok / derste uyudu (gün)',bk+' / '+sl)+nt.slice(-4).map(n=>row(esc(n[0].slice(8)+'.'+n[0].slice(5,7)+' · '+n[1]),(n[2]>0?'+':'')+n[2])).join('')+'</table>'
+   +'<h3>Kur\'an</h3><table>'+row('Seviye',cz?'Cüzde':'Kur\'an\'da')+row('Hafızlık',pr.hafiz?'Hafız · '+hf+'/30 cüz':'-')+'</table>'
+   +(ds?'<h3>Ders Puanları (ortalama)</h3><table>'+ds+'</table>':'')+(es?'<h3>Ezberler</h3><table>'+es+'</table>':'')
+   +(od.length?'<h3>Ödevler ('+od.length+')</h3><table>'+cnt(od)+'</table>':'')+(rg.length?'<h3>Rehberlik Faaliyetleri ('+rg.length+')</h3><table>'+cnt(rg)+'</table>':'')
+   +'<h3>Öğretmen Görüşü</h3><div class="l"></div><div class="g">Ders Öğretmeni: ____________</div></div>';
+}
+S.kst='ALL';
+const kList=()=>S.kst==='ALL'?grp():grp().filter(s=>s.id===S.kst);
+gpage('karne','📝','Dönem Karnesi',null,()=>'<style>'+KCSS+'</style><div class="card flex flex-wrap items-center gap-2"><select data-kst class="inp flex-1 min-w-[180px]"><option value="ALL">Tüm öğrenciler ('+grp().length+')</option>'+grp().map(s=>'<option value="'+esc(s.id)+'"'+(S.kst===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select><button data-act="kp" class="btn bg-emerald-600">🖨️ Yazdır / PDF</button></div>',()=>{
+  const l=kList();
+  return l.slice(0,5).map(s=>'<div class="col-span-full">'+karne(s)+'</div>').join('')+(l.length>5?'<div class="col-span-full text-xs text-center text-slate-500">İlk 5 karne gösterildi, Yazdır ile hepsi çıkar.</div>':'')||EMPTY;
+});
+$('view').addEventListener('change',e=>{if('kst' in e.target.dataset){S.kst=e.target.value;relist();}});
+ACT.kp=()=>{
+  const l=kList();if(!l.length)return alert('Öğrenci yok.');
+  const h='<!doctype html><meta charset="utf-8"><title>Karne</title><style>'+KCSS+'</style>'+l.map(karne).join('')+'<script>onload=function(){setTimeout(print,300)}<\/script>';
+  open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');
+};
+
+/* Oturma planı */
+S.om='move';let spick=null,sdr=null;
+const scol=v=>v==='Var'?'bg-emerald-100 border-emerald-500 text-slate-900':v==='Yok'?'bg-red-100 border-red-500 text-slate-900':v==='Izinli'?'bg-amber-100 border-amber-500 text-slate-900':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600';
+const scard=s=>{const r=rd(s),v=r.status&&r.status!=='None'?r.status:'',p=r.points||0;
+  return '<div class="spc relative border-2 rounded-lg p-1 text-center text-[11px] leading-tight font-semibold cursor-pointer select-none '+scol(v)+(spick===s.id?' ring-4 ring-indigo-500':'')+'" style="touch-action:'+(S.om==='move'?'none':'auto')+'" data-id="'+esc(s.id)+'">'+(p?'<span class="absolute top-0 right-1 text-[10px] font-bold text-indigo-700">'+(p>0?'+':'')+p+'</span>':'')+esc(s.name.split(' ').slice(0,2).join(' '))+'<div class="font-normal opacity-70 text-[9px]">'+esc(s.no)+'</div></div>';};
+gpage('oturma','🪑','Oturma Planı',null,null,()=>{
+  if(G.sinif==='ALL'||G.sube==='ALL')return '<div class="card col-span-full text-sm text-center">Üstteki çubuktan bir sınıf ve şube seçin (örn. 7 / D).</div>';
+  const g=grp(),at={};g.forEach(s=>{if(s.seat)at[s.seat]=s;});
+  const rows=Math.max(5,Math.ceil(g.length/6)+1,...g.map(s=>s.seat?+s.seat.split(',')[0]+2:0));
+  let cells='';for(let r=0;r<rows;r++)for(let c=0;c<6;c++){const s=at[r+','+c];cells+='<div class="sc min-h-[62px] border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg flex items-center justify-center" data-r="'+r+'" data-c="'+c+'">'+(s?scard(s):'')+'</div>';}
+  const md=[['move','✏️ Yerleştir'],['att','✅ Yoklama'],['pp','➕ Puan'],['pm','➖ Puan']].map(m=>tgb('om',m[1],m[0],S.om===m[0])).join('');
+  const msg={move:'Kartı sürükleyip sıraya bırakın ya da dokunup boş sıraya dokunun. Dolu sıraya bırakırsanız yer değiştirirler.',att:'Dokundukça: Var → Yok → İzinli → boş.',pp:'Dokununca ders puanı +1.',pm:'Dokununca ders puanı −1.'}[S.om];
+  return '<div class="col-span-full"><div class="flex gap-2 mb-2">'+md+'</div><p class="text-xs text-slate-500 mb-2">'+msg+' ('+G.date.slice(8)+'.'+G.date.slice(5,7)+')</p><div class="grid grid-cols-6 gap-1.5">'+cells+'</div><div class="text-xs font-bold mt-3 mb-1">Sırası olmayanlar</div><div class="tray grid grid-cols-4 sm:grid-cols-6 gap-1.5 min-h-[50px] border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-1.5">'+(g.filter(s=>!s.seat).map(scard).join('')||'<span class="text-xs text-slate-400 italic">Herkes yerleşti.</span>')+'</div></div>';
+});
+ACT.om=a=>{S.om=a.dataset.v;spick=null;relist();};
+const place=(s,k)=>{const o=grp().find(x=>x!==s&&x.seat===k);if(o)o.seat=s.seat||'';s.seat=k;save();relist();};
+const stap=s=>{
+  if(S.om==='move'){spick=spick===s.id?null:s.id;relist();return;}
+  const r=dayRec(s,G.donem,G.date);
+  if(S.om==='att'){const o=['None','Var','Yok','Izinli'];r.status=o[(o.indexOf(r.status||'None')+1)%4];}
+  else r.points=(r.points||0)+(S.om==='pp'?1:-1);
+  save();relist();
+};
+$('view').addEventListener('pointerdown',e=>{const c=e.target.closest('.spc');if(c&&S.page==='oturma'&&e.button<=0)sdr={id:c.dataset.id,x:e.clientX,y:e.clientY,on:false,g:null};});
+addEventListener('pointermove',e=>{
+  if(!sdr||S.om!=='move')return;
+  if(!sdr.on&&Math.hypot(e.clientX-sdr.x,e.clientY-sdr.y)>8){sdr.on=true;const s=S.students.find(x=>x.id===sdr.id);sdr.g=document.createElement('div');sdr.g.style.cssText='position:fixed;z-index:400;pointer-events:none;opacity:.85;width:72px';sdr.g.innerHTML=s?scard(s):'';document.body.appendChild(sdr.g);}
+  if(sdr.on){sdr.g.style.left=(e.clientX-36)+'px';sdr.g.style.top=(e.clientY-30)+'px';e.preventDefault();}
+},{passive:false});
+addEventListener('pointerup',e=>{
+  if(!sdr)return;const d=sdr;sdr=null;if(d.g)d.g.remove();
+  const s=S.students.find(x=>x.id===d.id);if(!s)return;
+  const t=document.elementFromPoint(e.clientX,e.clientY);
+  if(d.on){const c=t&&t.closest('.sc');if(c)place(s,c.dataset.r+','+c.dataset.c);else if(t&&t.closest('.tray')){s.seat='';save();relist();}return;}
+  const c=t&&t.closest('.spc');if(c&&c.dataset.id===s.id)stap(s);
+});
+$('view').addEventListener('click',e=>{
+  if(S.page!=='oturma'||S.om!=='move'||!spick)return;
+  const c=e.target.closest('.sc');if(!c||c.querySelector('.spc'))return;
+  const s=S.students.find(x=>x.id===spick);spick=null;if(s)place(s,c.dataset.r+','+c.dataset.c);
+});
+
+/* Hafızlık çizelgesi */
+S.hall=false;
+gpage('haf','📜','Hafızlık Çizelgesi',null,null,()=>{
+  const l=grp().filter(s=>S.hall||Object.values(s.periods||{}).some(p=>p.hafiz));
+  const top='<div class="col-span-full flex flex-wrap items-center gap-2"><button data-act="hmode" class="btn bg-slate-600">'+(S.hall?'👳 Sadece hafızlık yapanlar':'👥 Tüm öğrenciler')+'</button><span class="text-xs text-slate-500">Cüze dokunun: boş → 🟨 çalışıyor → 🟩 tamam</span></div>';
+  return top+(l.map(s=>{let d=0,w=0,h='';
+    for(let n=1;n<=30;n++){const v=(s.cuz||{})['c'+n]||0;if(v===2)d++;else if(v===1)w++;
+      h+='<button data-act="cz" data-id="'+esc(s.id)+'" data-n="'+n+'" class="min-h-[34px] rounded-md border text-[11px] font-bold '+(v===2?'bg-emerald-500 text-white border-emerald-600':v===1?'bg-amber-300 text-amber-900 border-amber-500':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-500')+'">'+n+'</button>';}
+    return '<div class="card mb-0 md:col-span-2 xl:col-span-3"><div class="flex justify-between gap-2"><div><b>'+esc(s.name)+'</b> <span class="text-[11px] text-slate-500">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · '+esc(s.no)+'</span></div><b class="text-emerald-600">'+d+'/30</b></div><div class="h-2 rounded-full bg-slate-200 dark:bg-slate-700 my-2 overflow-hidden"><div class="h-2 bg-emerald-500" style="width:'+Math.round(d*100/30)+'%"></div></div><div class="grid grid-cols-10 gap-1">'+h+'</div><div class="text-[11px] text-slate-500 mt-1">🟩 '+d+' tamam · 🟨 '+w+' çalışıyor</div></div>';
+  }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok. Hafızlık yapanları Ezber sayfasında 👳 ile işaretleyin ya da "Tüm öğrenciler"i seçin.</div>');
+});
+Object.assign(ACT,{
+  hmode(){S.hall=!S.hall;relist();},
+  cz(a){const s=find(a);if(!s)return;const k='c'+a.dataset.n,nx=((s.cuz||{})[k]||0)+1;s.cuz=s.cuz||{};if(nx>2)delete s.cuz[k];else s.cuz[k]=nx;save();relist();}
+});
+
+/* ========== AŞAMA C3: ÖĞRENCİ KARTI, PROFİL, ROZET, VELİ, PIN, NELER YENİ ========== */
+const fdt=d=>d.slice(8)+'.'+d.slice(5,7)+'.'+d.slice(0,4);
+const allD=s=>Object.entries(s.periods||{}).flatMap(([p,x])=>Object.entries(x.days||{})).sort((a,b)=>a[0]<b[0]?-1:1);
+const dmin=n=>{const d=new Date(today+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
+const netR=(s,a,b)=>allD(s).reduce((t,[d,r])=>d>=a&&d<=b?t+(r.points||0)+(r.bp||0):t,0);
+const bestE=(s,n)=>{let m=0;const R={Baslamadi:0,DevamEdiyor:1,Tamamlandi:2};allD(s).forEach(([d,r])=>{const v=R[(r.ezberStatus||{})[n]];if(v>m)m=v;});return m;};
+function badges(s){
+  const o=[];let c=0,b=0;allD(s).forEach(([d,r])=>{c=r.abdest?c+1:0;if(c>b)b=c;});
+  if(b>=10)o.push('🔥 '+b+' gün üst üste abdestli');
+  const ez=ezOf(s);if(ez.length&&ez.every(n=>bestE(s,n)===2))o.push('🏆 Tüm ezberleri tamamladı');
+  let top=null,td=2;
+  S.students.filter(x=>!x.absent&&T(x.sinif)===T(s.sinif)&&T(x.sube).toLowerCase()===T(s.sube).toLowerCase()).forEach(x=>{const df=netR(x,dmin(-13),today)-netR(x,dmin(-27),dmin(-14));if(df>td){td=df;top=x;}});
+  if(top&&top.id===s.id)o.push('📈 En çok gelişen (+'+td+')');
+  return o;
+}
+function bdgHtml(s){const b=badges(s);return b.length?'<div style="margin:6px 0">'+b.map(x=>'<span style="display:inline-block;background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;padding:1px 8px;font-size:12px;margin:2px 4px 2px 0">'+esc(x)+'</span>').join('')+'</div>':'';}
+function bdayBar(){
+  const md=today.slice(5),l=S.students.filter(s=>s.dob&&s.dob.slice(5)===md);
+  return l.length?'<div class="card !bg-pink-100 !border-pink-300 text-pink-900 font-semibold">🎂 Bugün doğum günü: '+l.map(s=>esc(s.name)+' ('+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+')').join(', ')+' 🎉</div>':'';
+}
+
+/* Öğrenci kartı (modal): Bugün, Profil, Veli */
+const cm=document.createElement('div');cm.className='fixed inset-0 z-[130] hidden bg-black/60 overflow-y-auto p-3';
+cm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-xl mx-auto p-4"><div class="flex justify-between items-start gap-2"><div><div id="cmN" class="font-bold text-lg"></div><div id="cmS" class="text-xs text-slate-500"></div></div><button id="cmX" class="text-xl px-2">✕</button></div><div id="cmB" class="mt-1"></div><div class="flex gap-2 my-3" id="cmT"></div><div id="cmC"></div></div>';
+document.body.appendChild(cm);
+let cur=null,ctab='t';
+const cS=()=>S.students.find(x=>x.id===cur);
+const cOpen=()=>!cm.classList.contains('hidden');
+const pm=(t,f,v,s)=>{const id=esc(s.id),a=f==='bp'?'bp':'m';
+  return '<div class="flex items-center justify-between my-1"><span class="text-sm">'+t+'</span><span class="flex items-center gap-2"><button data-act="'+a+'" data-f="'+f+'" data-v="-1" data-id="'+id+'" class="w-11 h-11 rounded-xl bg-red-100 text-red-700 text-2xl font-bold">−</button><b class="w-10 text-center">'+(v>0?'+':'')+v+'</b><button data-act="'+a+'" data-f="'+f+'" data-v="1" data-id="'+id+'" class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 text-2xl font-bold">+</button></span></div>';};
+function cToday(s){
+  const r=rd(s),hws=hwOf(s).concat(S.homeworks.filter(h=>h.rb&&(h.donem||'1')===G.donem&&ap(h,s)));
+  return '<div class="text-xs text-slate-500 mb-2">'+fdt(G.date)+' · '+G.donem+'. Dönem (tarihi üstteki çubuktan değiştirin)</div><div class="text-xs font-bold mb-1">Devamsızlık</div>'+stBtns(s)
+   +'<div class="flex gap-1.5 my-2">'+B(s,'abdest','1','💧 Abdestli',r.abdest,'bg-blue-600 text-white border-blue-600')+B(s,'book','Yok','📕 Kitabı yok',r.book==='Yok',RD)+B(s,'slept','1','😴 Uyudu',r.slept,AM)+'</div>'
+   +pm('Ders puanı','points',r.points||0,s)+pm('Davranış puanı','bp',r.bp||0,s)
+   +(hws.length?'<div class="text-xs font-bold mt-3 mb-1">Ödev ve rehberlik</div>'+hws.map(h=>{const v=(s.hwStatus||{})[h.id];return '<div class="text-xs mt-1">'+(h.rb?'🧭 ':'📚 ')+esc(h.name)+'</div><div class="flex gap-1.5">'+B(s,'hw',h.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',h.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div>';}).join(''):'')
+   +(ezOf(s).length?'<div class="text-xs font-bold mt-3 mb-1">Ezber (dokundukça değişir)</div><div class="flex flex-wrap gap-1.5">'+ezOf(s).map((n,i)=>{const v=(r.ezberStatus||{})[n]||'Baslamadi';return B(s,'ez',i,(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+esc(n),v!=='Baslamadi',v==='Tamamlandi'?GR:AM);}).join('')+'</div>':'');
+}
+function lines(ser,W,H){
+  const all=ser.flatMap(x=>x.v);if(all.length<2)return '<p class="text-xs text-slate-400 italic">Yeterli veri yok.</p>';
+  const mn=Math.min(0,...all),mx=Math.max(0,...all),rg=(mx-mn)||1,n=Math.max(...ser.map(x=>x.v.length));
+  const X=i=>n<2?0:i*(W-8)/(n-1)+4,Y=v=>H-6-(v-mn)*(H-12)/rg;
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:'+H+'px"><line x1="0" x2="'+W+'" y1="'+Y(0)+'" y2="'+Y(0)+'" stroke="rgba(127,127,127,.5)" stroke-dasharray="3"/>'+ser.map(x=>'<polyline fill="none" stroke="'+x.c+'" stroke-width="2.5" points="'+x.v.map((v,i)=>X(i)+','+Y(v)).join(' ')+'"/>').join('')+'</svg>';
+}
+const bar=(l,p,c,t)=>'<div class="mb-2"><div class="flex justify-between text-xs"><span>'+l+'</span><b>'+t+'</b></div><div class="h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><div class="h-2.5" style="width:'+p+'%;background:'+c+'"></div></div></div>';
+function cProf(s){
+  const days=Object.entries(per(s).days||{}).sort((a,b)=>a[0]<b[0]?-1:1);let v=0,y=0,iz=0,ab=0;
+  days.forEach(([d,r])=>{if(r.status==='Var')v++;else if(r.status==='Yok')y++;else if(r.status==='Izinli')iz++;if(r.abdest)ab++;});
+  const strip=days.filter(([d,r])=>r.status&&r.status!=='None').slice(-45).map(([d,r])=>'<span title="'+d+'" style="display:inline-block;width:14px;height:14px;border-radius:3px;margin:1px;background:'+(r.status==='Var'?'#10b981':r.status==='Yok'?'#ef4444':'#f59e0b')+'"></span>').join('')||'<span class="text-xs text-slate-400 italic">Devam kaydı yok.</span>';
+  let a=0,b=0;const pd=days.filter(([d,r])=>r.points||r.bp),sa=pd.map(([d,r])=>(a+=r.points||0)),sb=pd.map(([d,r])=>(b+=r.bp||0));
+  const ez=ezOf(s),done=ez.filter(n=>bestE(s,n)===2).length,hf=Object.values(s.cuz||{}).filter(x=>x===2).length;
+  const rb=S.homeworks.filter(h=>h.rb&&(h.donem||'1')===G.donem&&ap(h,s)).map(h=>{const x=(s.hwStatus||{})[h.id];return '<div class="flex justify-between text-xs border-b py-1"><span>'+esc(h.name)+'</span><b>'+(x==='Yapti'?'✅ Yaptı':x==='Yapmadi'?'❌ Yapmadı':'❔')+'</b></div>';}).join('')||'<span class="text-xs text-slate-400 italic">Çalışma yok.</span>';
+  const nt=days.filter(([d,r])=>r.bn).slice(-6).reverse().map(([d,r])=>'<div class="flex justify-between text-xs border-b py-1"><span>'+d.slice(8)+'.'+d.slice(5,7)+' · '+esc(r.bn)+'</span><b>'+((r.bp||0)>0?'+':'')+(r.bp||0)+'</b></div>').join('')||'<span class="text-xs text-slate-400 italic">Not yok.</span>';
+  return '<div class="flex flex-wrap gap-1.5 text-xs font-bold mb-1"><span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full">Var '+v+'</span><span class="bg-red-100 text-red-800 px-2 py-1 rounded-full">Yok '+y+'</span><span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full">İzinli '+iz+'</span><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Abdestli '+ab+' gün</span></div>'
+   +'<div class="font-bold text-sm mt-3">Devam ('+G.donem+'. dönem, son 45 kayıt)</div><div>'+strip+'</div>'
+   +'<div class="font-bold text-sm mt-3">Puan eğilimi (birikimli)</div>'+lines([{v:sa,c:'#6366f1'},{v:sb,c:'#f43f5e'}],320,90)+'<div class="text-[11px] text-slate-500"><span style="color:#6366f1">━</span> ders · <span style="color:#f43f5e">━</span> davranış</div>'
+   +'<div class="font-bold text-sm mt-3">Ezber ('+done+'/'+ez.length+')'+(hf?' · Hafızlık '+hf+'/30 cüz':'')+'</div>'+(ez.map(n=>{const k=bestE(s,n);return bar(esc(n),k*50,k===2?'#10b981':k===1?'#f59e0b':'#94a3b8',['Başlamadı','Çalışıyor','Tamam ✓'][k]);}).join('')||'<span class="text-xs text-slate-400 italic">Ezber atanmamış.</span>')
+   +'<div class="font-bold text-sm mt-3">Davranış notları</div>'+nt+'<div class="font-bold text-sm mt-3">Rehberlik</div>'+rb;
+}
+const TPL=[['Bugün derse gelmedi','Sayın veli, {ad} bugün derse gelmedi. Bilginize sunarım.'],['Ödevini yapmadı','Sayın veli, {ad} bugün ödevini yapmadı. Bilginize sunarım.'],['Kitabını getirmedi','Sayın veli, {ad} bugün kitabını getirmedi. Bilginize sunarım.'],['Derste uyudu','Sayın veli, {ad} bugün derste uyudu. Bilginize sunarım.'],['Ezberini tamamladı (tebrik)','Sayın veli, {ad} ezberini başarıyla tamamladı. Tebrik ederiz.'],['Bugün çok başarılıydı','Sayın veli, {ad} bugün derste çok başarılıydı. Tebrik ederiz.']];
+const cParent=s=>'<label class="text-xs">Veli telefonu</label><input id="cmTel" type="tel" class="inp w-full mb-2" placeholder="05xx xxx xx xx" value="'+esc(s.tel||'')+'"><label class="text-xs">Doğum tarihi</label><input id="cmDob" type="date" class="inp w-full mb-2" value="'+esc(s.dob||'')+'"><div class="flex gap-2 mb-3"><button data-act="call" class="flex-1 min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">📞 Ara</button><button data-act="wa" class="flex-1 min-h-[44px] rounded-lg bg-green-600 text-white font-semibold">💬 WhatsApp</button></div><select id="cmTpl" class="inp w-full mb-2">'+TPL.map((t,i)=>'<option value="'+i+'">'+esc(t[0])+'</option>').join('')+'</select><textarea id="cmMsg" rows="3" class="inp w-full">'+esc(TPL[0][1].replace('{ad}',s.name))+'</textarea>';
+function cardShow(){
+  const s=cS();if(!s)return;
+  $('cmN').textContent=s.name;$('cmS').textContent='No: '+s.no+' · '+s.sinif+'/'+String(s.sube).toUpperCase()+(s.absent?' · 🚫 sürekli devamsız':'');
+  $('cmB').innerHTML=badges(s).map(x=>'<span class="inline-block bg-amber-100 text-amber-900 border border-amber-300 rounded-full px-2.5 py-0.5 text-xs font-bold mr-1 mb-1">'+esc(x)+'</span>').join('');
+  $('cmT').innerHTML=[['t','📝 Bugün'],['p','📈 Profil'],['v','📞 Veli']].map(x=>tgb('ctab',x[1],x[0],ctab===x[0])).join('');
+  $('cmC').innerHTML=ctab==='t'?cToday(s):ctab==='p'?cProf(s):cParent(s);
+}
+const tel=()=>{let d=($('cmTel').value||'').replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);else if(d.startsWith('0'))d='90'+d.slice(1);else if(d.length===10)d='90'+d;return d;};
+Object.assign(ACT,{
+  card(a){cur=a.dataset.id;ctab='t';cm.classList.remove('hidden');cardShow();},
+  ctab(a){ctab=a.dataset.v;cardShow();},
+  call(){const p=tel();if(!p)return alert('Telefon numarası girin.');location.href='tel:+'+p;},
+  wa(){const p=tel();if(!p)return alert('Telefon numarası girin.');open('https://wa.me/'+p+'?text='+encodeURIComponent($('cmMsg').value),'_blank');}
+});
+$('cmX').onclick=()=>cm.classList.add('hidden');
+cm.addEventListener('click',e=>{if(e.target===cm)cm.classList.add('hidden');});
+cm.addEventListener('change',e=>{
+  const s=cS(),i=e.target.id;if(!s)return;
+  if(i==='cmTel'){s.tel=T(e.target.value);save();}
+  else if(i==='cmDob'){s.dob=e.target.value;save();}
+  else if(i==='cmTpl')$('cmMsg').value=TPL[+e.target.value][1].replace('{ad}',s.name);
+});
+const _save=save;save=function(){_save();if(cur&&cOpen())cardShow();};
+
+/* PIN kilidi */
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode('sinif|'+t)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+const pl=document.createElement('div');pl.className='fixed inset-0 z-[500] flex-col items-center justify-center gap-3 bg-indigo-900 text-white p-6 text-center';pl.style.display='none';
+pl.innerHTML='<div class="text-5xl">🔒</div><b class="text-lg">Sınıf Takip kilitli</b><input id="pinIn" type="password" inputmode="numeric" maxlength="6" class="text-3xl text-center w-64 max-w-full rounded-xl p-2 text-slate-900"><div id="pinMsg" class="min-h-[20px] text-red-300 text-sm"></div><button id="pinOk" class="bg-amber-400 text-slate-900 font-bold rounded-xl px-8 py-2">Aç</button>';
+document.body.appendChild(pl);
+let lastAct=Date.now(),fails=0,until=0;
+const lock=()=>{if(!lsg('pin_v1')||pl.style.display==='flex')return;pl.style.display='flex';$('pinIn').value='';setTimeout(()=>$('pinIn').focus(),50);};
+async function unlock(){
+  if(Date.now()<until){$('pinMsg').textContent='Çok fazla deneme, biraz bekleyin.';return;}
+  if(await sha($('pinIn').value)===lsg('pin_v1')){pl.style.display='none';fails=0;lastAct=Date.now();$('pinMsg').textContent='';}
+  else{fails++;$('pinIn').value='';$('pinMsg').textContent='Yanlış PIN';if(fails>=5){until=Date.now()+30000;fails=0;}}
+}
+$('pinOk').onclick=unlock;$('pinIn').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
+['pointerdown','keydown','scroll'].forEach(ev=>addEventListener(ev,()=>{lastAct=Date.now();},{passive:true,capture:true}));
+const pto=()=>(+lsg('pin_to')||5)*60000;
+setInterval(()=>{if(Date.now()-lastAct>pto())lock();},10000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastAct>pto())lock();});
+lock();
+const pinCard=()=>'<div class="card"><b>🔒 PIN kilidi (bu cihaz için)</b><p class="text-xs text-slate-500 my-1">'+(lsg('pin_v1')?'Kilit açık. Uygulama açılırken ve belirli süre kullanılmayınca PIN ister.':'Kilit kapalı.')+'</p><div class="flex flex-wrap gap-2 my-2"><input id="pn1" type="password" inputmode="numeric" maxlength="6" class="inp" placeholder="Yeni PIN (4-6 hane)"><input id="pn2" type="password" inputmode="numeric" maxlength="6" class="inp" placeholder="Tekrar"><button data-act="pinsave" class="btn bg-indigo-600">Kaydet</button><button data-act="pinrm" class="btn bg-red-600">Kilidi kaldır</button></div><label class="text-xs">Kilitlenme süresi: <select id="pto" class="inp"><option value="1">1 dk</option><option value="5">5 dk</option><option value="10">10 dk</option><option value="30">30 dk</option></select></label><div class="mt-3"><button data-act="news" class="text-xs underline text-indigo-600">🆕 Neler yeni</button></div></div>';
+const th0=P.tan.html;P.tan.html=()=>th0()+pinCard();
+const pinOk=async()=>!lsg('pin_v1')||(await sha(prompt('Mevcut PIN:')||''))===lsg('pin_v1')||(alert('Mevcut PIN yanlış'),false);
+Object.assign(ACT,{
+  async pinsave(){const a=$('pn1').value;if(!/^\d{4,6}$/.test(a))return alert('PIN 4-6 rakam olmalı.');if(a!==$('pn2').value)return alert('PIN\'ler aynı değil.');if(!await pinOk())return;lss('pin_v1',await sha(a));render(true);toast('PIN kaydedildi');},
+  async pinrm(){if(!lsg('pin_v1')||!await pinOk())return;try{localStorage.removeItem('pin_v1');}catch(e){}render(true);}
+});
+$('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
+
+/* Neler yeni */
+const VER='2026-10-c3',NEWS=[['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
+nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
+document.body.appendChild(nm);
+const nOpen=()=>{nm.classList.remove('hidden');nm.classList.add('flex');};
+$('nmOk').onclick=()=>{lss('news_seen',VER);nm.classList.add('hidden');nm.classList.remove('flex');};
+ACT.news=nOpen;
+if(lsg('news_seen')!==VER)setTimeout(nOpen,800);
+
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
 function theme(){const d=tema?tema==='dark':mq.matches;document.documentElement.classList.toggle('dark',d);$('th').textContent=d?'☀️':'🌙';}
