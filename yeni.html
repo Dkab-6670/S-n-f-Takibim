@@ -469,7 +469,7 @@ function karne(s){
 }
 S.kst='ALL';
 const kList=()=>S.kst==='ALL'?grp():grp().filter(s=>s.id===S.kst);
-gpage('karne','📝','Dönem Karnesi',null,()=>'<style>'+KCSS+'</style><div class="card flex flex-wrap items-center gap-2"><select data-kst class="inp flex-1 min-w-[180px]"><option value="ALL">Tüm öğrenciler ('+grp().length+')</option>'+grp().map(s=>'<option value="'+esc(s.id)+'"'+(S.kst===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select><button data-act="kp" class="btn bg-emerald-600">🖨️ Yazdır / PDF</button></div>',()=>{
+gpage('karne','📝','Dönem Karnesi',null,()=>'<style>'+KCSS+'</style><div class="card flex flex-wrap items-center gap-2"><select data-kst class="inp flex-1 min-w-[180px]"><option value="ALL">Tüm öğrenciler ('+grp().length+')</option>'+grp().map(s=>'<option value="'+esc(s.id)+'"'+(S.kst===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select><button data-act="kp" class="btn bg-emerald-600">🖨️ Yazdır / PDF</button><button data-act="kpdf" class="btn bg-indigo-600">📤 PDF paylaş</button><button data-act="klink" class="btn bg-teal-600">🔗 Veli bağlantısı</button></div>',()=>{
   const l=kList();
   return l.slice(0,5).map(s=>'<div class="col-span-full">'+karne(s)+'</div>').join('')+(l.length>5?'<div class="col-span-full text-xs text-center text-slate-500">İlk 5 karne gösterildi, Yazdır ile hepsi çıkar.</div>':'')||EMPTY;
 });
@@ -658,7 +658,7 @@ document.body.appendChild(nm);
 const nOpen=()=>{nm.classList.remove('hidden');nm.classList.add('flex');};
 $('nmOk').onclick=()=>{lss('news_seen',VER);nm.classList.add('hidden');nm.classList.remove('flex');};
 ACT.news=nOpen;
-if(lsg('news_seen')!==VER)setTimeout(nOpen,800);
+if(lsg('news_seen')!==VER&&!new URLSearchParams(location.search).get('k'))setTimeout(nOpen,800);
 
 /* ========== AŞAMA C4: SÖZ HAKKI, KAĞIT ÇİZELGE, UYARILAR, EXCEL, SINIF GRAFİKLERİ ========== */
 const kk2=s=>T(s.sinif)+'|'+T(s.sube).toLowerCase();
@@ -789,6 +789,72 @@ function chartCard(){
 }
 const st0=P.stat.html;P.stat.html=()=>st0()+chartCard();
 
+/* ========== AŞAMA C5: KARNE PDF PAYLAŞIM ve VELİ BAĞLANTISI ========== */
+const h2p=()=>window.html2pdf?Promise.resolve():new Promise((ok,no)=>{const e=document.createElement('script');e.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';e.onload=ok;e.onerror=()=>no(new Error('PDF kütüphanesi yüklenemedi (internet?)'));document.head.appendChild(e);});
+const one=()=>{const s=S.students.find(x=>x.id===S.kst);if(!s)alert('Önce "Öğrenci" menüsünden tek bir öğrenci seçin.');return s;};
+const shr=()=>{try{return JSON.parse(lsg('shares_v1')||'[]');}catch(e){return [];}};
+
+/* PDF paylaş */
+ACT.kpdf=async()=>{
+  const s=one();if(!s)return;
+  try{
+    toast('PDF hazırlanıyor…');await h2p();
+    const box=document.createElement('div');box.style.cssText='position:fixed;left:0;top:0;z-index:-1;pointer-events:none;width:720px;background:#fff';
+    box.innerHTML='<style>'+KCSS+'</style>'+karne(s);document.body.appendChild(box);
+    const blob=await html2pdf().set({margin:8,image:{type:'jpeg',quality:.95},html2canvas:{scale:2},jsPDF:{unit:'mm',format:'a4'}}).from(box.querySelector('.k')).outputPdf('blob');
+    box.remove();
+    const fn='Karne_'+s.name.replace(/[^\wığüşöçİĞÜŞÖÇ]+/g,'_')+'.pdf',f=new File([blob],fn,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:'Karne'});
+    else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();toast('PDF indirildi, WhatsApp ya da e-postaya ekleyin');}
+  }catch(e){if(!e||e.name!=='AbortError')alert('PDF oluşturulamadı: '+(e.message||e));}
+};
+
+/* Veli bağlantısı oluştur */
+const sm=document.createElement('div');sm.className='fixed inset-0 z-[140] hidden items-center justify-center bg-black/60 p-4';
+sm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full p-4"><b>🔗 Veli bağlantısı</b><p class="text-xs text-slate-500 my-2">Bağlantıyı bilen herkes bu karneyi 30 gün boyunca görebilir. Karne, oluşturduğunuz andaki halidir. Sadece ilgili velinin telefonuna gönderin.</p><input id="shUrl" readonly class="inp w-full text-xs mb-3"><div class="flex flex-wrap gap-2"><button data-act="shwa" class="btn bg-emerald-600">WhatsApp</button><button data-act="shml" class="btn bg-indigo-600">E-posta</button><button data-act="shcp" class="btn bg-slate-600">Kopyala</button><button data-act="shx" class="px-4 py-2 rounded-lg border">Kapat</button></div></div>';
+document.body.appendChild(sm);
+let shName='';
+const shMsg=()=>shName+' için dönem karnesi: '+$('shUrl').value;
+Object.assign(ACT,{
+  async klink(){
+    const s=one();if(!s)return;
+    const al='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';let t='';crypto.getRandomValues(new Uint32Array(24)).forEach(n=>{t+=al[n%al.length];});
+    const exp=Date.now()+30*864e5;
+    try{
+      await auth();
+      await db.ref('share/'+t).set({html:'<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+KCSS+'</style>'+karne(s),exp:exp});
+      const l=shr();l.unshift({t:t,n:s.name,exp:exp});lss('shares_v1',JSON.stringify(l.slice(0,50)));
+      shName=s.name;$('shUrl').value=location.origin+location.pathname+'?k='+t;sm.classList.remove('hidden');sm.classList.add('flex');render(true);
+    }catch(e){alert('Bağlantı oluşturulamadı: '+e.message+'\nFirebase kurallarına "share" bölümünü eklediniz mi?');}
+  },
+  shwa(){open('https://wa.me/?text='+encodeURIComponent(shMsg()),'_blank');},
+  shml(){location.href='mailto:?subject='+encodeURIComponent('Dönem karnesi')+'&body='+encodeURIComponent(shMsg());},
+  shcp(){navigator.clipboard.writeText($('shUrl').value).then(()=>toast('Bağlantı kopyalandı'));},
+  shx(){sm.classList.add('hidden');sm.classList.remove('flex');},
+  async shdel(a){
+    const t=a.dataset.t;if(!confirm('Bu veli bağlantısı iptal edilsin mi? Veli artık göremez.'))return;
+    try{await auth();await db.ref('share/'+t).remove();lss('shares_v1',JSON.stringify(shr().filter(x=>x.t!==t)));toast('Bağlantı iptal edildi');render(true);}
+    catch(e){alert('İptal edilemedi: '+e.message);}
+  }
+});
+const shareList=()=>{
+  const l=shr().filter(x=>x.exp>Date.now());
+  return '<div class="card"><b class="text-sm">🔗 Verdiğim veli bağlantıları (bu cihaz)</b>'+(l.length?l.map(x=>'<div class="flex items-center justify-between gap-2 text-sm border-b border-slate-200 dark:border-slate-700 py-1"><span>'+esc(x.n)+' <span class="text-xs text-slate-500">· '+new Date(x.exp).toLocaleDateString('tr-TR')+' tarihine kadar</span></span><button data-act="shdel" data-t="'+esc(x.t)+'" class="text-red-600 text-xs font-semibold">❌ İptal et</button></div>').join(''):'<div class="text-xs text-slate-400 italic mt-1">Aktif bağlantı yok.</div>')+'</div>';
+};
+const k5=P.karne.html;P.karne.html=()=>k5()+shareList();
+
+/* Veli görünümü: adres ?k=KOD ile açılırsa sadece karne gösterilir */
+function parentView(k){
+  const pv=document.createElement('div');pv.className='fixed inset-0 z-[600] bg-slate-200 flex flex-col';
+  pv.innerHTML='<div class="bg-indigo-700 text-white font-bold px-4 py-3">🕌 Öğrenci Dönem Karnesi</div><div id="pvb" class="p-6 text-center text-slate-600">Yükleniyor…</div>';
+  document.body.appendChild(pv);
+  auth().then(()=>db.ref('share/'+k).once('value')).then(sn=>{
+    const v=sn.val(),b=$('pvb');
+    if(!v||!v.html||v.exp<Date.now()){b.textContent='Bu bağlantı geçersiz ya da süresi dolmuş. Lütfen öğretmeninizden yenisini isteyin.';return;}
+    const f=document.createElement('iframe');f.setAttribute('sandbox','');f.srcdoc=v.html;f.className='flex-1 w-full bg-white border-0';b.replaceWith(f);
+  }).catch(()=>{$('pvb').textContent='Bu bağlantı geçersiz, süresi dolmuş ya da internet bağlantınız yok.';});
+}
+
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
 function theme(){const d=tema?tema==='dark':mq.matches;document.documentElement.classList.toggle('dark',d);$('th').textContent=d?'☀️':'🌙';}
@@ -806,8 +872,8 @@ $('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
 addEventListener('scroll',()=>$('up').classList.toggle('hidden',scrollY<300),{passive:true});
 $('view').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.keep;if(k)S[k]=e.target.open;},true);
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
-go('home');
-if(S.room)listen(S.room);else room();
+const PK=new URLSearchParams(location.search).get('k');
+if(PK)parentView(PK);else{go('home');if(S.room)listen(S.room);else room();}
 </script>
 </body>
 </html>
