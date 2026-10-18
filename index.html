@@ -31,7 +31,7 @@
   <div class="flex items-center gap-2 text-xs bg-indigo-800 rounded-lg px-2 py-1">
    <span id="dot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span id="stx">Çevrimdışı</span>
    <button id="rc" class="font-mono font-bold text-yellow-300" title="Dokunun: 5 sn göster">-----</button>
-   <button id="rcB" title="Oda kodunu değiştir">🔑</button><button id="th">🌙</button>
+   <button id="rcB" title="Oda Kodunu Değiştir">🔑</button><button id="th">🌙</button>
   </div>
  </div>
 </header>
@@ -161,7 +161,7 @@ const ACT={};
 reg('home','🏠','Ana Sayfa',()=>{
   const cl=classes();
   return bdayBar()+'<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'
-   +[['Öğrenci',S.students.filter(s=>!s.absent).length],['Sınıf',cl.length],['Ders',S.lessons.length],['Ezber konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
+   +[['Öğrenci',S.students.filter(s=>!s.absent).length],['Sınıf',cl.length],['Ders',S.lessons.length],['Ezber Konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
    +'<div class="grid grid-cols-2 md:grid-cols-3 gap-3">'+Object.keys(P).filter(k=>k!=='home').map(k=>'<button data-go="'+k+'" class="card mb-0 text-left"><div class="text-3xl">'+P[k].icon+'</div><b>'+esc(P[k].title)+'</b></button>').join('')+'</div>';
 },null,'Ana Sayfa');
 
@@ -429,8 +429,8 @@ reg('stat','📊','İstatistikler',()=>{
   const tot=k=>m.reduce((t,x)=>t+x[k],0);
   return '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'+[['Öğrenci',A.length],['Tamamlanan ezber',tot('ez')],['Hafız',hz.length],['Toplam artı puan',tot('p')]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
    +'<div class="grid grid-cols-1 md:grid-cols-2 gap-3">'
-   +lb('🏆 En çok ezber tamamlayan','ez','bg-emerald-100 text-emerald-800 border-emerald-200',' ezber',false,'bg-emerald-600')
-   +lb('💧 En çok abdestli gün','ab','bg-blue-100 text-blue-800 border-blue-200',' gün',false,'bg-blue-600')
+   +lb('🏆 En Çok Ezber Tamamlayan','ez','bg-emerald-100 text-emerald-800 border-emerald-200',' ezber',false,'bg-emerald-600')
+   +lb('💧 En Çok Abdestli Gün','ab','bg-blue-100 text-blue-800 border-blue-200',' gün',false,'bg-blue-600')
    +lb('➕ En yüksek artı puan','p','bg-indigo-100 text-indigo-800 border-indigo-200','',false,'bg-indigo-600')
    +lb('➖ En fazla eksi puan','pm','bg-red-100 text-red-800 border-red-200','',true,'bg-red-600')
    +lb('🌟 Davranış puanı (en yüksek)','bp','bg-teal-100 text-teal-800 border-teal-200','',false,'bg-teal-600')
@@ -553,7 +553,7 @@ function badges(s){
   const ez=ezOf(s);if(ez.length&&ez.every(n=>bestE(s,n)===2))o.push('🏆 Tüm ezberleri tamamladı');
   let top=null,td=2;
   S.students.filter(x=>!x.absent&&T(x.sinif)===T(s.sinif)&&T(x.sube).toLowerCase()===T(s.sube).toLowerCase()).forEach(x=>{const df=netR(x,dmin(-13),today)-netR(x,dmin(-27),dmin(-14));if(df>td){td=df;top=x;}});
-  if(top&&top.id===s.id)o.push('📈 En çok gelişen (+'+td+')');
+  if(top&&top.id===s.id)o.push('📈 En çok Gelişen (+'+td+')');
   return o;
 }
 function bdgHtml(s){const b=badges(s);return b.length?'<div style="margin:6px 0">'+b.map(x=>'<span style="display:inline-block;background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;padding:1px 8px;font-size:12px;margin:2px 4px 2px 0">'+esc(x)+'</span>').join('')+'</div>':'';}
