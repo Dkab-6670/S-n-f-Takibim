@@ -31,7 +31,7 @@
   <div class="flex items-center gap-2 text-xs bg-indigo-800 rounded-lg px-2 py-1">
    <span id="dot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span id="stx">Çevrimdışı</span>
    <button id="rc" class="font-mono font-bold text-yellow-300" title="Dokunun: 5 sn göster">-----</button>
-   <button id="rcB" title="Oda Kodunu Değiştir">🔑</button><button id="th">🌙</button>
+   <button id="rcB" title="Oda kodunu değiştir">🔑</button><button id="th">🌙</button>
   </div>
  </div>
 </header>
@@ -161,7 +161,7 @@ const ACT={};
 reg('home','🏠','Ana Sayfa',()=>{
   const cl=classes();
   return bdayBar()+'<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'
-   +[['Öğrenci',S.students.filter(s=>!s.absent).length],['Sınıf',cl.length],['Ders',S.lessons.length],['Ezber Konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
+   +[['Öğrenci',S.students.filter(s=>!s.absent).length],['Sınıf',cl.length],['Ders',S.lessons.length],['Ezber konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
    +'<div class="grid grid-cols-2 md:grid-cols-3 gap-3">'+Object.keys(P).filter(k=>k!=='home').map(k=>'<button data-go="'+k+'" class="card mb-0 text-left"><div class="text-3xl">'+P[k].icon+'</div><b>'+esc(P[k].title)+'</b></button>').join('')+'</div>';
 },null,'Ana Sayfa');
 
@@ -291,35 +291,12 @@ $('view').addEventListener('change',e=>{
 });
 
 /* Hızlı Yoklama */
-gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wrap gap-2"><button data-act="allvar" class="btn bg-emerald-600">✅ İşaretsizleri "Var" Yap</button><button data-act="clearattendance" class="btn bg-amber-600">🧹 İşaretleri Kaldır</button></div>',()=> {
+gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wrap gap-2"><button data-act="allvar" class="btn bg-emerald-600">✅ İşaretsizleri "Var" Yap</button><button data-act="clearattendance" class="btn bg-amber-600">🧹 İşaretleri Kaldır</button></div>',()=>{
   const c={Var:0,Yok:0,Izinli:0,None:0};
-  const cards=grp().map(s=>{
-    const v=rd(s).status||'None';
-    c[v]=(c[v]||0)+1;
-    return '<div class="card mb-0'+(v==='Yok'?' !bg-red-50 dark:!bg-red-950':'')+'">'+hd(s)+stBtns(s)+'</div>';
-  }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
+  const cards=grp().map(s=>{const v=rd(s).status||'None';c[v]=(c[v]||0)+1;return '<div class="card mb-0'+(v==='Yok'?' !bg-red-50 dark:!bg-red-950':'')+'">'+hd(s)+stBtns(s)+'</div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
   return '<div class="col-span-full text-sm font-bold">Var '+c.Var+' · Yok '+c.Yok+' · İzinli '+c.Izinli+' · İşaretsiz '+c.None+'</div>'+cards;
 });
-
-ACT.allvar = () => {
-  const l = grp().filter(s => (rd(s).status || 'None') === 'None');
-  if (!l.length) return toast('İşaretsiz öğrenci yok');
-  del(() => {
-    l.forEach(s => {
-      dayRec(s, G.donem, G.date).status = 'Var';
-    });
-  }, l.length + ' öğrenci "Var" yapıldı');
-};
-
-ACT.clearattendance = () => {
-  const l = grp();
-  if (!l.length) return toast('Öğrenci listesi boş.');
-  del(() => {
-    l.forEach(s => {
-      dayRec(s, G.donem, G.date).status = 'None';
-    });
-  }, l.length + ' öğrenci işaretleri kaldırıldı');
-};
+ACT.allvar=()=>{const l=grp().filter(s=>(rd(s).status||'None')==='None');if(!l.length)return toast('İşaretsiz öğrenci yok');del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='Var';});},l.length+' öğrenci "Var" yapıldı');};
 
 /* Günlük Ders & Ödev */
 gpage('ders','📚','Günlük Ders & Ödev','Ders',()=>'<div class="mb-3 flex gap-2"><button data-act="bulk1" data-v="1" class="btn bg-emerald-600">➕ Herkese +1</button><button data-act="bulk1" data-v="-1" class="btn bg-red-600">➖ Herkese −1</button></div>',()=>grp().map(s=>{
@@ -452,18 +429,18 @@ reg('stat','📊','İstatistikler',()=>{
   const tot=k=>m.reduce((t,x)=>t+x[k],0);
   return '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'+[['Öğrenci',A.length],['Tamamlanan ezber',tot('ez')],['Hafız',hz.length],['Toplam artı puan',tot('p')]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
    +'<div class="grid grid-cols-1 md:grid-cols-2 gap-3">'
-   +lb('🏆 En Çok Ezber Tamamlayan','ez','bg-emerald-100 text-emerald-800 border-emerald-200',' ezber',false,'bg-emerald-600')
-   +lb('💧 En Çok Abdestli Gün','ab','bg-blue-100 text-blue-800 border-blue-200',' gün',false,'bg-blue-600')
-   +lb('➕ En Yüksek Artı Puan','p','bg-indigo-100 text-indigo-800 border-indigo-200','',false,'bg-indigo-600')
-   +lb('➖ En Fazla Eksi Puan','pm','bg-red-100 text-red-800 border-red-200','',true,'bg-red-600')
-   +lb('🌟 Davranış Puanı (En Yüksek)','bp','bg-teal-100 text-teal-800 border-teal-200','',false,'bg-teal-600')
-   +lb('📕 Kitabı Olmayanlar','bk','bg-orange-100 text-orange-800 border-orange-200',' gün',false,'bg-orange-600')
-   +lb('😴 Derste Uyuyanlar','sl','bg-amber-100 text-amber-800 border-amber-200',' gün',false,'bg-amber-600')
-   +sbox('👳 Hafız Öğrenciler',hz.length,hz.map(s=>chip(s,'bg-purple-100 text-purple-800 border-purple-200')).join(''),'bg-purple-600')
-   +sbox('📜 Cüzde Olan Öğrenciler',cz.length,cz.map(s=>chip(s,'bg-amber-100 text-amber-800 border-amber-200')).join(''),'bg-amber-600')
-   +sbox('🚫 Sürekli Devamsız Öğrenciler',ab.length,ab.map(s=>chip(s,'bg-rose-100 text-rose-800 border-rose-200')).join(''),'bg-rose-600')
-   +sbox('🔔 Son 3 Ödevi Yapmayanlar',hwy.length,hwy.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''),'bg-red-600')
-   +sbox('🧭 Rehberlik Çalışmasına Katılmayanlar',S.homeworks.filter(h=>h.rb).length,rbm,'bg-slate-600')+'</div>';
+   +lb('🏆 En çok ezber tamamlayan','ez','bg-emerald-100 text-emerald-800 border-emerald-200',' ezber',false,'bg-emerald-600')
+   +lb('💧 En çok abdestli gün','ab','bg-blue-100 text-blue-800 border-blue-200',' gün',false,'bg-blue-600')
+   +lb('➕ En yüksek artı puan','p','bg-indigo-100 text-indigo-800 border-indigo-200','',false,'bg-indigo-600')
+   +lb('➖ En fazla eksi puan','pm','bg-red-100 text-red-800 border-red-200','',true,'bg-red-600')
+   +lb('🌟 Davranış puanı (en yüksek)','bp','bg-teal-100 text-teal-800 border-teal-200','',false,'bg-teal-600')
+   +lb('📕 Kitabı olmayanlar','bk','bg-orange-100 text-orange-800 border-orange-200',' gün',false,'bg-orange-600')
+   +lb('😴 Derste uyuyanlar','sl','bg-amber-100 text-amber-800 border-amber-200',' gün',false,'bg-amber-600')
+   +sbox('👳 Hafız öğrenciler',hz.length,hz.map(s=>chip(s,'bg-purple-100 text-purple-800 border-purple-200')).join(''),'bg-purple-600')
+   +sbox('📜 Cüzde olan öğrenciler',cz.length,cz.map(s=>chip(s,'bg-amber-100 text-amber-800 border-amber-200')).join(''),'bg-amber-600')
+   +sbox('🚫 Sürekli devamsız öğrenciler',ab.length,ab.map(s=>chip(s,'bg-rose-100 text-rose-800 border-rose-200')).join(''),'bg-rose-600')
+   +sbox('🔔 Son 3 ödevi yapmayanlar',hwy.length,hwy.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''),'bg-red-600')
+   +sbox('🧭 Rehberlik çalışmasına katılmayanlar',S.homeworks.filter(h=>h.rb).length,rbm,'bg-slate-600')+'</div>';
 },null,null);
 /* ========== AŞAMA C2: KARNE, OTURMA PLANI, HAFIZLIK ========== */
 const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'-';
@@ -491,7 +468,7 @@ function karne(s){
    +'<h3>Kur\'an</h3><table>'+row('Seviye',cz?'Cüzde':'Kur\'an\'da')+row('Hafızlık',pr.hafiz?'Hafız · '+hf+'/30 cüz':'-')+'</table>'
    +(ds?'<h3>Ders Puanları (ortalama)</h3><table>'+ds+'</table>':'')+(es?'<h3>Ezberler</h3><table>'+es+'</table>':'')
    +(od.length?'<h3>Ödevler ('+od.length+')</h3><table>'+cnt(od)+'</table>':'')+(rg.length?'<h3>Rehberlik Faaliyetleri ('+rg.length+')</h3><table>'+cnt(rg)+'</table>':'')
-   +'<h3>Öğretmen Görüşü</h3><div class="l"></div><div class="g">Ders Öğretmeni: ____________</div></div>';
+   +'<h3>Öğretmen Görüşü</h3><div class="l"></div><div class="g">Ders Öğretmeni: '+(tname()?'<b>'+esc(tname())+'</b>':'____________')+'</div></div>';
 }
 S.kst='ALL';
 const kList=()=>S.kst==='ALL'?grp():grp().filter(s=>s.id===S.kst);
@@ -576,7 +553,7 @@ function badges(s){
   const ez=ezOf(s);if(ez.length&&ez.every(n=>bestE(s,n)===2))o.push('🏆 Tüm ezberleri tamamladı');
   let top=null,td=2;
   S.students.filter(x=>!x.absent&&T(x.sinif)===T(s.sinif)&&T(x.sube).toLowerCase()===T(s.sube).toLowerCase()).forEach(x=>{const df=netR(x,dmin(-13),today)-netR(x,dmin(-27),dmin(-14));if(df>td){td=df;top=x;}});
-  if(top&&top.id===s.id)o.push('📈 En çok Gelişen (+'+td+')');
+  if(top&&top.id===s.id)o.push('📈 En çok gelişen (+'+td+')');
   return o;
 }
 function bdgHtml(s){const b=badges(s);return b.length?'<div style="margin:6px 0">'+b.map(x=>'<span style="display:inline-block;background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;padding:1px 8px;font-size:12px;margin:2px 4px 2px 0">'+esc(x)+'</span>').join('')+'</div>':'';}
@@ -918,6 +895,17 @@ const bkBar=()=>{
   return (t&&d<7)?'':'<button data-go="yedek" class="card w-full text-left !bg-yellow-100 !border-yellow-300 text-yellow-900 font-semibold">💾 '+(t?'Son yedeğinizin üzerinden '+d+' gün geçti.':'Henüz yedek almadınız.')+' Dokunup yedek alın.</button>';
 };
 const h7=P.home.html;P.home.html=()=>bkBar()+h7();
+
+/* ========== AŞAMA C8: ÖĞRETMEN ADI (KARNE), YOKLAMA İŞARETLERİNİ KALDIR ========== */
+const tname=()=>T(lsg('teacher_name')||'');
+ACT.clearattendance=()=>{
+  const l=grp().filter(s=>(rd(s).status||'None')!=='None');
+  if(!l.length)return toast('İşaretli öğrenci yok');
+  del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='None';});},l.length+' öğrenci işaretleri kaldırıldı');
+};
+const k8=P.karne.html;
+P.karne.html=()=>'<div class="card flex flex-wrap items-center gap-2"><label class="text-sm font-semibold">👤 Ders öğretmeni (karnede görünür):</label><input id="tnm" class="inp flex-1 min-w-[180px]" placeholder="Adınızı soyadınızı yazın" value="'+esc(tname())+'"></div>'+k8();
+$('view').addEventListener('change',e=>{if(e.target.id==='tnm'){lss('teacher_name',T(e.target.value));relist();toast('Adınız kaydedildi');}});
 
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
