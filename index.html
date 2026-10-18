@@ -291,7 +291,7 @@ $('view').addEventListener('change',e=>{
 });
 
 /* Hızlı Yoklama */
-gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3"><button data-act="allvar" class="btn bg-emerald-600">✅ İşaretsizleri "Var" Yap</button></div>',()=>{
+gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wrap gap-2"><button data-act="allvar" class="btn bg-emerald-600">✅ İşaretsizleri "Var" Yap</button><button data-act="clearattendance" class="btn bg-amber-600">🧹 İşaretleri Kaldır</button></div>',()=>{
   const c={Var:0,Yok:0,Izinli:0,None:0};
   const cards=grp().map(s=>{const v=rd(s).status||'None';c[v]=(c[v]||0)+1;return '<div class="card mb-0'+(v==='Yok'?' !bg-red-50 dark:!bg-red-950':'')+'">'+hd(s)+stBtns(s)+'</div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
   return '<div class="col-span-full text-sm font-bold">Var '+c.Var+' · Yok '+c.Yok+' · İzinli '+c.Izinli+' · İşaretsiz '+c.None+'</div>'+cards;
