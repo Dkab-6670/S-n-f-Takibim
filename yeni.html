@@ -276,7 +276,7 @@ ACT.m=a=>{
     else if(f==='book')r.book=r.book==='Yok'?'None':'Yok';
     else if(f==='slept')r.slept=!r.slept;
     else if(f==='points')r.points=(r.points||0)+(+v);
-    else if(f==='ez'){const n=ezOf(s)[+v];if(!n)return;r.ezberStatus=r.ezberStatus||{};const c=r.ezberStatus[n]||'Baslamadi';r.ezberStatus[n]=c==='Baslamadi'?'DevamEdiyor':c==='DevamEdiyor'?'Tamamlandi':'Baslamadi';}
+    else if(f==='ez'){const n=ezOf(s)[+v];if(!n)return;r.ezberStatus=r.ezberStatus||{};const c=lastEz(s,n);r.ezberStatus[n]=c==='Baslamadi'?'DevamEdiyor':c==='DevamEdiyor'?'Tamamlandi':'Baslamadi';}
   }
   save();relist();
 };
@@ -317,7 +317,7 @@ ACT.bulk1=a=>{const d=+a.dataset.v,l=grp();if(!l.length||!confirm('Ekrandaki '+l
 /* Kur'an & Ezber Takibi */
 gpage('ezber','📖',"Kur'an & Ezber Takibi",'Ezber',null,()=>grp().map(s=>{
   const r=rd(s),pr=per(s),kd=pr.kuranDurum||'kuran',id=esc(s.id);
-  const eb=ezOf(s).map((n,i)=>{const v=(r.ezberStatus||{})[n]||'Baslamadi';return B(s,'ez',i,(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+esc(n),v!=='Baslamadi',v==='Tamamlandi'?GR:AM);}).join('')||'<span class="text-xs text-slate-400 italic">Ezber konusu atanmadı (Tanımlar).</span>';
+  const eb=ezOf(s).map((n,i)=>{const v=lastEz(s,n);return B(s,'ez',i,(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+esc(n),v!=='Baslamadi',v==='Tamamlandi'?GR:AM);}).join('')||'<span class="text-xs text-slate-400 italic">Ezber konusu atanmadı (Tanımlar).</span>';
   return '<div class="card mb-0">'+hd(s)+'<div class="flex gap-1.5 mb-2">'+B(s,'abdest','1','💧 Abdestli',r.abdest,'bg-blue-600 text-white border-blue-600')+B(s,'hafiz','1','👳 Hafız',pr.hafiz,'bg-purple-600 text-white border-purple-600')
    +'<select data-chg="kd" data-id="'+id+'" class="inp text-sm flex-1"><option value="kuran"'+(kd==='kuran'?' selected':'')+'>📖 Kur\'an\'da</option><option value="cuz"'+(kd==='cuz'?' selected':'')+'>📜 Cüzde</option></select></div>'
    +'<div class="flex flex-wrap gap-1.5">'+eb+'</div><input data-chg="enote" data-id="'+id+'" class="inp w-full mt-2 text-sm" placeholder="Kaldığı ayet / not" value="'+esc(r.ezberNotes||'')+'"></div>';
@@ -577,7 +577,7 @@ function cToday(s){
    +'<div class="flex gap-1.5 my-2">'+B(s,'abdest','1','💧 Abdestli',r.abdest,'bg-blue-600 text-white border-blue-600')+B(s,'book','Yok','📕 Kitabı yok',r.book==='Yok',RD)+B(s,'slept','1','😴 Uyudu',r.slept,AM)+'</div>'
    +pm('Ders puanı','points',r.points||0,s)+pm('Davranış puanı','bp',r.bp||0,s)
    +(hws.length?'<div class="text-xs font-bold mt-3 mb-1">Ödev ve rehberlik</div>'+hws.map(h=>{const v=(s.hwStatus||{})[h.id];return '<div class="text-xs mt-1">'+(h.rb?'🧭 ':'📚 ')+esc(h.name)+'</div><div class="flex gap-1.5">'+B(s,'hw',h.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',h.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div>';}).join(''):'')
-   +(ezOf(s).length?'<div class="text-xs font-bold mt-3 mb-1">Ezber (dokundukça değişir)</div><div class="flex flex-wrap gap-1.5">'+ezOf(s).map((n,i)=>{const v=(r.ezberStatus||{})[n]||'Baslamadi';return B(s,'ez',i,(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+esc(n),v!=='Baslamadi',v==='Tamamlandi'?GR:AM);}).join('')+'</div>':'');
+   +(ezOf(s).length?'<div class="text-xs font-bold mt-3 mb-1">Ezber (dokundukça değişir)</div><div class="flex flex-wrap gap-1.5">'+ezOf(s).map((n,i)=>{const v=lastEz(s,n);return B(s,'ez',i,(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+esc(n),v!=='Baslamadi',v==='Tamamlandi'?GR:AM);}).join('')+'</div>':'');
 }
 function lines(ser,W,H){
   const all=ser.flatMap(x=>x.v);if(all.length<2)return '<p class="text-xs text-slate-400 italic">Yeterli veri yok.</p>';
@@ -880,6 +880,21 @@ document.addEventListener('keydown',e=>{
 let tx=0,ty=0;
 cm.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
 cm.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(Math.abs(dx)>90&&Math.abs(dy)<50&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))cmove(dx<0?1:-1);},{passive:true});
+
+/* ========== AŞAMA C7: EZBER DURUMU TAŞINIR, YEDEK HATIRLATMASI ========== */
+function lastEz(s,n,date){
+  date=date||G.date;let best=null,bd='';
+  Object.values(s.periods||{}).forEach(p=>Object.entries(p.days||{}).forEach(([d,r])=>{
+    if(d<=date&&d>=bd&&r.ezberStatus&&r.ezberStatus[n]!==undefined){bd=d;best=r.ezberStatus[n];}
+  }));
+  return best||'Baslamadi';
+}
+const bkBar=()=>{
+  if(!S.students.length)return '';
+  const t=+lsg('bk_last')||0,d=t?Math.floor((Date.now()-t)/864e5):null;
+  return (t&&d<7)?'':'<button data-go="yedek" class="card w-full text-left !bg-yellow-100 !border-yellow-300 text-yellow-900 font-semibold">💾 '+(t?'Son yedeğinizin üzerinden '+d+' gün geçti.':'Henüz yedek almadınız.')+' Dokunup yedek alın.</button>';
+};
+const h7=P.home.html;P.home.html=()=>bkBar()+h7();
 
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
