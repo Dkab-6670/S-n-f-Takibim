@@ -291,13 +291,27 @@ $('view').addEventListener('change',e=>{
 });
 
 /* Hızlı Yoklama */
-gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wrap gap-2"><button data-act="allvar" class="btn bg-emerald-600">✅ İşaretsizleri "Var" Yap</button><button data-act="clearattendance" class="btn bg-amber-600">🧹 İşaretleri Kaldır</button></div>',()=>{
+gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wrap gap-2"><button data-act="allvar" class="btn bg-emerald-600">✅ İşaretsizleri "Var" Yap</button><button data-act="clearattendance" class="btn bg-amber-600">🧹 İşaretleri Kaldır</button></div>',()=> {
   const c={Var:0,Yok:0,Izinli:0,None:0};
-  const cards=grp().map(s=>{const v=rd(s).status||'None';c[v]=(c[v]||0)+1;return '<div class="card mb-0'+(v==='Yok'?' !bg-red-50 dark:!bg-red-950':'')+'">'+hd(s)+stBtns(s)+'</div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
+  const cards=grp().map(s=>{
+    const v=rd(s).status||'None';
+    c[v]=(c[v]||0)+1;
+    return '<div class="card mb-0'+(v==='Yok'?' !bg-red-50 dark:!bg-red-950':'')+'">'+hd(s)+stBtns(s)+'</div>';
+  }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
   return '<div class="col-span-full text-sm font-bold">Var '+c.Var+' · Yok '+c.Yok+' · İzinli '+c.Izinli+' · İşaretsiz '+c.None+'</div>'+cards;
 });
-ACT.allvar=()=>{const l=grp().filter(s=>(rd(s).status||'None')==='None');if(!l.length)return toast('İşaretsiz öğrenci yok');del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='Var';});},l.length+' öğrenci "Var" yapıldı');};
-clearattendance: () => {
+
+ACT.allvar = () => {
+  const l = grp().filter(s => (rd(s).status || 'None') === 'None');
+  if (!l.length) return toast('İşaretsiz öğrenci yok');
+  del(() => {
+    l.forEach(s => {
+      dayRec(s, G.donem, G.date).status = 'Var';
+    });
+  }, l.length + ' öğrenci "Var" yapıldı');
+};
+
+ACT.clearattendance = () => {
   const l = grp();
   if (!l.length) return toast('Öğrenci listesi boş.');
   del(() => {
@@ -305,7 +319,8 @@ clearattendance: () => {
       dayRec(s, G.donem, G.date).status = 'None';
     });
   }, l.length + ' öğrenci işaretleri kaldırıldı');
-}
+};
+
 /* Günlük Ders & Ödev */
 gpage('ders','📚','Günlük Ders & Ödev','Ders',()=>'<div class="mb-3 flex gap-2"><button data-act="bulk1" data-v="1" class="btn bg-emerald-600">➕ Herkese +1</button><button data-act="bulk1" data-v="-1" class="btn bg-red-600">➖ Herkese −1</button></div>',()=>grp().map(s=>{
   const r=rd(s),cz=per(s).kuranDurum==='cuz',p=r.points||0,id=esc(s.id);
