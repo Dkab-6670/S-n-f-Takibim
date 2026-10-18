@@ -17,8 +17,11 @@
  .card{@apply bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-3}
  .inp{@apply border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-base bg-white dark:bg-slate-900 outline-none}
  .btn{@apply text-white text-sm font-semibold px-4 py-2 rounded-lg}
- [data-nav]{@apply flex-1 flex flex-col items-center justify-center text-[11px] text-slate-500 min-h-[56px] border-0 bg-transparent}
- [data-nav].on{@apply text-indigo-700 font-bold bg-indigo-50 dark:bg-slate-700 dark:text-indigo-300}
+ #bn [data-nav]{@apply flex-1 flex flex-col items-center justify-center text-[11px] text-slate-500 min-h-[56px] border-0 bg-transparent}
+ #bn [data-nav].on{@apply text-indigo-700 font-bold bg-indigo-50 dark:bg-slate-700 dark:text-indigo-300}
+ #tn [data-nav]{@apply px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700}
+ #tn [data-nav]:hover{@apply bg-indigo-50 dark:bg-slate-700}
+ #tn [data-nav].on{@apply bg-indigo-600 text-white border-indigo-600}
 </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
@@ -32,7 +35,7 @@
   </div>
  </div>
 </header>
-<nav id="tn" class="hidden md:flex max-w-6xl mx-auto mt-2 px-3 gap-2"></nav>
+<nav id="tn" class="hidden md:flex flex-wrap max-w-6xl mx-auto mt-3 px-3 gap-2"></nav>
 <main class="max-w-6xl mx-auto px-3 py-3">
  <div id="ptitle" class="sticky z-30 card font-bold text-lg flex flex-wrap items-center gap-x-3 gap-y-1" style="top:env(safe-area-inset-top,0px)"></div>
  <div id="view"></div>
@@ -59,8 +62,8 @@ const _d=new Date(), today=new Date(_d-_d.getTimezoneOffset()*6e4).toISOString()
 const isO=v=>v!==null&&typeof v==='object';
 
 /* ========== 2. DURUM ve VERİ BİÇİMİ ========== */
-const KEYS=['students','lessons','ezberItems','homeworks'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_'};
-const S={students:[],lessons:[],ezberItems:[],homeworks:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
+const KEYS=['students','lessons','ezberItems','homeworks','msgs'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_'};
+const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
 const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function prepare(l,p){let m=l.reduce((a,x)=>Math.max(a,typeof x._o==='number'?x._o:-1),-1);l.forEach(x=>{if(!x.id)x.id=uid(p);if(typeof x._o!=='number')x._o=++m;});}
 function toList(v,p){
@@ -134,7 +137,7 @@ function reg(id,icon,title,html,after,nav){P[id]={icon,title,html,after};if(nav)
 function drawNav(){
   const b=NAV.map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'"><span class="text-xl">'+n[1]+'</span>'+esc(n[2])+'</button>').join('');
   $('bn').innerHTML=b;
-  $('tn').innerHTML=NAV.map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'" class="px-3 py-2 rounded-lg bg-white dark:bg-slate-800 border text-sm">'+n[1]+' '+esc(n[2])+'</button>').join('');
+  $('tn').innerHTML=NAV.map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'">'+n[1]+' '+esc(n[2])+'</button>').join('');
 }
 let pending=false;
 const typing=()=>{const a=document.activeElement;return a&&$('view').contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);};
@@ -561,7 +564,7 @@ function bdayBar(){
 
 /* Öğrenci kartı (modal): Bugün, Profil, Veli */
 const cm=document.createElement('div');cm.className='fixed inset-0 z-[130] hidden bg-black/60 overflow-y-auto p-3';
-cm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-xl mx-auto p-4"><div class="flex justify-between items-start gap-2"><div><div id="cmN" class="font-bold text-lg"></div><div id="cmS" class="text-xs text-slate-500"></div></div><button id="cmX" class="text-xl px-2">✕</button></div><div id="cmB" class="mt-1"></div><div class="flex gap-2 my-3" id="cmT"></div><div id="cmC"></div></div>';
+cm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-xl mx-auto p-4"><div class="flex justify-between items-start gap-2"><div><div id="cmN" class="font-bold text-lg"></div><div id="cmS" class="text-xs text-slate-500"></div></div><button id="cmX" class="text-xl px-2">✕</button></div><div class="flex items-center gap-2 mt-2"><button data-act="cprev" class="px-3 py-2 rounded-lg border text-sm font-semibold">◀ Önceki</button><span id="cmP" class="flex-1 text-center text-xs text-slate-500"></span><button data-act="cnext" class="px-3 py-2 rounded-lg border text-sm font-semibold">Sonraki ▶</button></div><div id="cmB" class="mt-1"></div><div class="flex gap-2 my-3" id="cmT"></div><div id="cmC"></div></div>';
 document.body.appendChild(cm);
 let cur=null,ctab='t';
 const cS=()=>S.students.find(x=>x.id===cur);
@@ -597,11 +600,11 @@ function cProf(s){
    +'<div class="font-bold text-sm mt-3">Ezber ('+done+'/'+ez.length+')'+(hf?' · Hafızlık '+hf+'/30 cüz':'')+'</div>'+(ez.map(n=>{const k=bestE(s,n);return bar(esc(n),k*50,k===2?'#10b981':k===1?'#f59e0b':'#94a3b8',['Başlamadı','Çalışıyor','Tamam ✓'][k]);}).join('')||'<span class="text-xs text-slate-400 italic">Ezber atanmamış.</span>')
    +'<div class="font-bold text-sm mt-3">Davranış notları</div>'+nt+'<div class="font-bold text-sm mt-3">Rehberlik</div>'+rb;
 }
-const TPL=[['Bugün derse gelmedi','Sayın veli, {ad} bugün derse gelmedi. Bilginize sunarım.'],['Ödevini yapmadı','Sayın veli, {ad} bugün ödevini yapmadı. Bilginize sunarım.'],['Kitabını getirmedi','Sayın veli, {ad} bugün kitabını getirmedi. Bilginize sunarım.'],['Derste uyudu','Sayın veli, {ad} bugün derste uyudu. Bilginize sunarım.'],['Ezberini tamamladı (tebrik)','Sayın veli, {ad} ezberini başarıyla tamamladı. Tebrik ederiz.'],['Bugün çok başarılıydı','Sayın veli, {ad} bugün derste çok başarılıydı. Tebrik ederiz.']];
-const cParent=s=>'<label class="text-xs">Veli telefonu</label><input id="cmTel" type="tel" class="inp w-full mb-2" placeholder="05xx xxx xx xx" value="'+esc(s.tel||'')+'"><label class="text-xs">Doğum tarihi</label><input id="cmDob" type="date" class="inp w-full mb-2" value="'+esc(s.dob||'')+'"><div class="flex gap-2 mb-3"><button data-act="call" class="flex-1 min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">📞 Ara</button><button data-act="wa" class="flex-1 min-h-[44px] rounded-lg bg-green-600 text-white font-semibold">💬 WhatsApp</button></div><select id="cmTpl" class="inp w-full mb-2">'+TPL.map((t,i)=>'<option value="'+i+'">'+esc(t[0])+'</option>').join('')+'</select><textarea id="cmMsg" rows="3" class="inp w-full">'+esc(TPL[0][1].replace('{ad}',s.name))+'</textarea>';
+const DEFM=[['Bugün derse gelmedi','Sayın veli, {ad} bugün derse gelmedi. Bilginize sunarım.'],['Ödevini yapmadı','Sayın veli, {ad} bugün ödevini yapmadı. Bilginize sunarım.'],['Kitabını getirmedi','Sayın veli, {ad} bugün kitabını getirmedi. Bilginize sunarım.'],['Derste uyudu','Sayın veli, {ad} bugün derste uyudu. Bilginize sunarım.'],['Ezberini tamamladı (tebrik)','Sayın veli, {ad} ezberini başarıyla tamamladı. Tebrik ederiz.'],['Bugün çok başarılıydı','Sayın veli, {ad} bugün derste çok başarılıydı. Tebrik ederiz.']];
+const cParent=s=>'<label class="text-xs">Veli telefonu</label><input id="cmTel" type="tel" class="inp w-full mb-2" placeholder="05xx xxx xx xx" value="'+esc(s.tel||'')+'"><label class="text-xs">Doğum tarihi</label><input id="cmDob" type="date" class="inp w-full mb-2" value="'+esc(s.dob||'')+'"><div class="flex gap-2 mb-3"><button data-act="call" class="flex-1 min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">📞 Ara</button><button data-act="wa" class="flex-1 min-h-[44px] rounded-lg bg-green-600 text-white font-semibold">💬 WhatsApp</button></div><select id="cmTpl" class="inp w-full mb-2">'+msgs().map((t,i)=>'<option value="'+i+'">'+esc(t[0])+'</option>').join('')+'</select><textarea id="cmMsg" rows="3" class="inp w-full">'+esc(msgs()[0][1].split('{ad}').join(s.name))+'</textarea><div class="flex flex-wrap gap-2 mt-2"><button data-act="msave" class="px-3 py-2 rounded-lg border text-sm">💾 Güncelle</button><button data-act="mnew" class="px-3 py-2 rounded-lg border text-sm">➕ Yeni mesaj olarak kaydet</button><button data-act="mren" class="px-3 py-2 rounded-lg border text-sm">✏️ Başlık</button><button data-act="mdel" class="px-3 py-2 rounded-lg border text-sm text-red-600">🗑️ Sil</button></div><p class="text-xs text-slate-500 mt-1">Mesajı yukarıda düzenleyin. Öğrencinin adı otomatik olarak {ad} biçiminde saklanır.</p>';
 function cardShow(){
   const s=cS();if(!s)return;
-  $('cmN').textContent=s.name;$('cmS').textContent='No: '+s.no+' · '+s.sinif+'/'+String(s.sube).toUpperCase()+(s.absent?' · 🚫 sürekli devamsız':'');
+  $('cmN').textContent=s.name;cpos();$('cmS').textContent='No: '+s.no+' · '+s.sinif+'/'+String(s.sube).toUpperCase()+(s.absent?' · 🚫 sürekli devamsız':'');
   $('cmB').innerHTML=badges(s).map(x=>'<span class="inline-block bg-amber-100 text-amber-900 border border-amber-300 rounded-full px-2.5 py-0.5 text-xs font-bold mr-1 mb-1">'+esc(x)+'</span>').join('');
   $('cmT').innerHTML=[['t','📝 Bugün'],['p','📈 Profil'],['v','📞 Veli']].map(x=>tgb('ctab',x[1],x[0],ctab===x[0])).join('');
   $('cmC').innerHTML=ctab==='t'?cToday(s):ctab==='p'?cProf(s):cParent(s);
@@ -619,7 +622,7 @@ cm.addEventListener('change',e=>{
   const s=cS(),i=e.target.id;if(!s)return;
   if(i==='cmTel'){s.tel=T(e.target.value);save();}
   else if(i==='cmDob'){s.dob=e.target.value;save();}
-  else if(i==='cmTpl')$('cmMsg').value=TPL[+e.target.value][1].replace('{ad}',s.name);
+  else if(i==='cmTpl')$('cmMsg').value=msgs()[+e.target.value][1].split('{ad}').join(s.name);
 });
 const _save=save;save=function(){_save();if(cur&&cOpen())cardShow();};
 
@@ -854,6 +857,29 @@ function parentView(k){
     const f=document.createElement('iframe');f.setAttribute('sandbox','');f.srcdoc=v.html;f.className='flex-1 w-full bg-white border-0';b.replaceWith(f);
   }).catch(()=>{$('pvb').textContent='Bu bağlantı geçersiz, süresi dolmuş ya da internet bağlantınız yok.';});
 }
+
+/* ========== AŞAMA C6: VELİ MESAJ ŞABLONLARI, KARTLAR ARASI GEÇİŞ ========== */
+const msgs=()=>S.msgs.length?S.msgs.map(m=>[m.name,m.text,m.id]):DEFM.map((x,i)=>[x[0],x[1],'d'+i]);
+const ensureMsgs=()=>{if(!S.msgs.length)S.msgs=DEFM.map(x=>({name:x[0],text:x[1]}));};
+const tplTxt=s=>$('cmMsg').value.split(s.name).join('{ad}');
+const selMsg=(s,i)=>{$('cmTpl').value=String(i);$('cmMsg').value=msgs()[i][1].split('{ad}').join(s.name);};
+Object.assign(ACT,{
+  msave(){const s=cS();if(!s)return;const i=+$('cmTpl').value;ensureMsgs();const m=S.msgs[i];if(!m)return;m.text=tplTxt(s);save();selMsg(s,i);toast('Mesaj güncellendi');},
+  mnew(){const s=cS();if(!s)return;const n=T(prompt('Yeni mesajın başlığı:')||'');if(!n)return;const t=tplTxt(s);ensureMsgs();S.msgs.push({name:n,text:t});save();selMsg(s,S.msgs.length-1);toast('Yeni mesaj eklendi');},
+  mren(){const s=cS();if(!s)return;const i=+$('cmTpl').value;ensureMsgs();const m=S.msgs[i];if(!m)return;const n=T(prompt('Mesaj başlığı:',m.name)||'');if(!n)return;m.name=n;save();selMsg(s,i);},
+  mdel(){const s=cS();if(!s)return;const i=+$('cmTpl').value;ensureMsgs();const m=S.msgs[i];if(!m||!confirm('"'+m.name+'" mesajı silinsin mi?'))return;S.msgs.splice(i,1);save();cardShow();},
+  cprev(){cmove(-1);},cnext(){cmove(1);}
+});
+function cList(){const g=grp();return g.some(x=>x.id===cur)?g:sorted(S.students.filter(x=>!x.absent));}
+function cpos(){const l=cList(),i=l.findIndex(x=>x.id===cur);$('cmP').textContent=i<0?'':(i+1)+' / '+l.length;}
+function cmove(d){const l=cList();if(l.length<2)return;const i=l.findIndex(x=>x.id===cur);cur=l[(i+d+l.length)%l.length].id;cardShow();cm.scrollTop=0;}
+document.addEventListener('keydown',e=>{
+  if(!cOpen()||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  if(e.key==='ArrowLeft')cmove(-1);else if(e.key==='ArrowRight')cmove(1);else if(e.key==='Escape')cm.classList.add('hidden');
+});
+let tx=0,ty=0;
+cm.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+cm.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;if(Math.abs(dx)>90&&Math.abs(dy)<50&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))cmove(dx<0?1:-1);},{passive:true});
 
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
