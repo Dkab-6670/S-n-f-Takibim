@@ -297,7 +297,15 @@ gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wr
   return '<div class="col-span-full text-sm font-bold">Var '+c.Var+' · Yok '+c.Yok+' · İzinli '+c.Izinli+' · İşaretsiz '+c.None+'</div>'+cards;
 });
 ACT.allvar=()=>{const l=grp().filter(s=>(rd(s).status||'None')==='None');if(!l.length)return toast('İşaretsiz öğrenci yok');del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='Var';});},l.length+' öğrenci "Var" yapıldı');};
-
+clearattendance: () => {
+  const l = grp();
+  if (!l.length) return toast('Öğrenci listesi boş.');
+  del(() => {
+    l.forEach(s => {
+      dayRec(s, G.donem, G.date).status = 'None';
+    });
+  }, l.length + ' öğrenci işaretleri kaldırıldı');
+}
 /* Günlük Ders & Ödev */
 gpage('ders','📚','Günlük Ders & Ödev','Ders',()=>'<div class="mb-3 flex gap-2"><button data-act="bulk1" data-v="1" class="btn bg-emerald-600">➕ Herkese +1</button><button data-act="bulk1" data-v="-1" class="btn bg-red-600">➖ Herkese −1</button></div>',()=>grp().map(s=>{
   const r=rd(s),cz=per(s).kuranDurum==='cuz',p=r.points||0,id=esc(s.id);
