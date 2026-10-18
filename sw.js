@@ -1,4 +1,4 @@
-const CACHE = 'sinif-takip-v2';
+const CACHE = 'sinif-takip-v3';
 const CDN = ['cdn.tailwindcss.com', 'cdnjs.cloudflare.com', 'www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
