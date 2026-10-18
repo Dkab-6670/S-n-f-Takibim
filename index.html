@@ -897,7 +897,7 @@ const bkBar=()=>{
 const h7=P.home.html;P.home.html=()=>bkBar()+h7();
 
 /* ========== AŞAMA C8: ÖĞRETMEN ADI (KARNE), YOKLAMA İŞARETLERİNİ KALDIR ========== */
-const tname=()=>T(lsg('teacher_name')||'');
+const tname=()=>{const el=document.getElementById('tnm');return T(el&&S.page==='karne'&&typeof el.value==='string'?el.value:(lsg('teacher_name')||''));};
 ACT.clearattendance=()=>{
   const l=grp().filter(s=>(rd(s).status||'None')!=='None');
   if(!l.length)return toast('İşaretli öğrenci yok');
@@ -905,6 +905,8 @@ ACT.clearattendance=()=>{
 };
 const k8=P.karne.html;
 P.karne.html=()=>'<div class="card flex flex-wrap items-center gap-2"><label class="text-sm font-semibold">👤 Ders öğretmeni (karnede görünür):</label><input id="tnm" class="inp flex-1 min-w-[180px]" placeholder="Adınızı soyadınızı yazın" value="'+esc(tname())+'"></div>'+k8();
+let tnT;
+$('view').addEventListener('input',e=>{if(e.target.id==='tnm'){lss('teacher_name',T(e.target.value));clearTimeout(tnT);tnT=setTimeout(relist,250);}});
 $('view').addEventListener('change',e=>{if(e.target.id==='tnm'){lss('teacher_name',T(e.target.value));relist();toast('Adınız kaydedildi');}});
 
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
