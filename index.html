@@ -670,12 +670,12 @@ const kk2=s=>T(s.sinif)+'|'+T(s.sube).toLowerCase();
 S.szSel='';
 gpage('soz','🎲','Söz Hakkı',null,null,()=>{
   const g=grp(),sel=g.find(s=>s.id===S.szSel);
-  const top='<div class="card col-span-full text-center"><button data-act="szgo" class="btn bg-indigo-600 !py-3 text-lg w-full">🎲 Öğrenci seç</button>'+(sel?'<div class="text-2xl font-bold mt-3">🎯 '+esc(sel.name)+'</div><button data-act="szpt" class="mt-2 w-full min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">➕ Doğru cevap +1 puan</button>':'')+'</div>';
-  const l=g.slice().sort((a,b)=>(a.soz||0)-(b.soz||0)||num(a.no)-num(b.no));
-  return top+'<div class="card col-span-full"><div class="text-xs font-bold mb-2">Söz alma sayıları (en az olan üstte, 🔇 hiç almayan) <button data-act="szrs" class="underline ml-2">Sıfırla</button></div>'+l.map(s=>'<div class="flex items-center gap-2 text-xs mb-1"><span class="w-40 truncate'+(s.soz?'':' text-red-600 font-bold')+'">'+(s.soz?'':'🔇 ')+esc(s.name)+'</span><div class="flex-1 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><div class="h-2.5 bg-indigo-500" style="width:'+Math.min(100,(s.soz||0)*20)+'%"></div></div><b>'+(s.soz||0)+'</b></div>').join('')+'</div>';
+  const top='<div class="card col-span-full text-center"><button data-act="szgo" class="btn bg-indigo-600 !py-3 text-lg w-full">🎲 Öğrenci seç</button><div class="text-[11px] text-slate-500 mt-1">Yoklamada Yok ya da İzinli işaretlenenler seçime katılmaz (pasif).</div>'+(sel?'<div class="text-2xl font-bold mt-3">🎯 '+esc(sel.name)+'</div><button data-act="szpt" class="mt-2 w-full min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">➕ Doğru cevap +1 puan</button>':'')+'</div>';
+  const l=g.slice().sort((a,b)=>(sozPas(a)-sozPas(b))||(a.soz||0)-(b.soz||0)||num(a.no)-num(b.no));
+  return top+'<div class="card col-span-full"><div class="text-xs font-bold mb-2">Söz alma sayıları (en az olan üstte, 🔇 hiç almayan) <button data-act="szrs" class="underline ml-2">Sıfırla</button></div>'+l.map(s=>'<div class="flex items-center gap-2 text-xs mb-1'+(sozPas(s)?' opacity-50':'')+'"><span class="w-40 truncate'+(!sozPas(s)&&!s.soz?' text-red-600 font-bold':'')+'">'+(sozPas(s)?'⏸️ ':s.soz?'':'🔇 ')+esc(s.name)+(sozPas(s)?' ('+(rd(s).status==='Yok'?'Yok':'İzinli')+')':'')+'</span><div class="flex-1 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><div class="h-2.5 bg-indigo-500" style="width:'+Math.min(100,(s.soz||0)*20)+'%"></div></div><b>'+(s.soz||0)+'</b></div>').join('')+'</div>';
 });
 Object.assign(ACT,{
-  szgo(){const g=grp();if(!g.length)return alert('Öğrenci yok.');let r=Math.max(1,...g.map(s=>s.sozT||0)),e=g.filter(s=>(s.sozT||0)!==r);if(!e.length){r++;e=g;}
+  szgo(){const g=grp().filter(s=>!sozPas(s));if(!g.length)return alert('Söz hakkı için uygun öğrenci yok (yoklamada Yok ya da İzinli işaretlenenler pasiftir).');let r=Math.max(1,...g.map(s=>s.sozT||0)),e=g.filter(s=>(s.sozT||0)!==r);if(!e.length){r++;e=g;}
     const s=e[Math.floor(Math.random()*e.length)];s.sozT=r;s.soz=(s.soz||0)+1;S.szSel=s.id;save();relist();},
   szpt(){const s=S.students.find(x=>x.id===S.szSel);if(!s)return;const r=dayRec(s,G.donem,G.date);r.points=(r.points||0)+1;save();toast('+1 puan verildi');},
   szrs(){if(!confirm('Bu sınıfın söz sayaçları sıfırlansın mı?'))return;S.szSel='';del(()=>{grp().forEach(s=>{s.soz=0;s.sozT=0;});},'Söz sayaçları sıfırlandı');}
@@ -783,10 +783,10 @@ function chartCard(){
     const net=g.map(s=>dd(s).reduce((t,[d,r])=>t+(r.points||0)+(r.bp||0),0));
     const bk=[['Eksi',x=>x<0,'#ef4444'],['Sıfır',x=>x===0,'#94a3b8'],['1-5',x=>x>=1&&x<=5,'#60a5fa'],['6-10',x=>x>=6&&x<=10,'#6366f1'],['11-20',x=>x>=11&&x<=20,'#10b981'],['21+',x=>x>20,'#059669']];
     const names=[...new Set(g.flatMap(ezOf))];
-    body='<div class="font-bold text-sm mt-2">Günlük devam yüzdesi (son '+pc.length+' kayıtlı gün)</div>'+col('dev','#10b981')
-     +'<div class="font-bold text-sm mt-3">Abdestli oranı (%)</div>'+col('ab','#3b82f6')
-     +'<div class="font-bold text-sm mt-3 mb-1">Puan dağılımı (ders + davranış, öğrenci sayısı)</div>'+bk.map(b=>{const n=net.filter(b[1]).length;return bar(b[0],Math.round(n*100/g.length),b[2],n);}).join('')
-     +'<div class="font-bold text-sm mt-3 mb-1">Ezber ilerlemesi (tamamlayan %)</div>'+(names.length?names.map(n=>{const a=g.filter(s=>ezOf(s).includes(n)),k=a.filter(s=>bestE(s,n)===2).length,p=a.length?Math.round(k*100/a.length):0;return bar(esc(n),p,'#10b981','%'+p+' ('+k+'/'+a.length+')');}).join(''):'<span class="text-xs text-slate-400 italic">Ezber atanmamış.</span>');
+    body='<div class="font-bold text-sm mt-2">Günlük Devam Yüzdesi (son '+pc.length+' kayıtlı gün)</div>'+col('dev','#10b981')
+     +'<div class="font-bold text-sm mt-3">Abdestli Oranı (%)</div>'+col('ab','#3b82f6')
+     +'<div class="font-bold text-sm mt-3 mb-1">Puan Dağılımı (ders + davranış, öğrenci sayısı)</div>'+bk.map(b=>{const n=net.filter(b[1]).length;return bar(b[0],Math.round(n*100/g.length),b[2],n);}).join('')
+     +'<div class="font-bold text-sm mt-3 mb-1">Ezber İlerlemesi (tamamlayan %)</div>'+(names.length?names.map(n=>{const a=g.filter(s=>ezOf(s).includes(n)),k=a.filter(s=>bestE(s,n)===2).length,p=a.length?Math.round(k*100/a.length):0;return bar(esc(n),p,'#10b981','%'+p+' ('+k+'/'+a.length+')');}).join(''):'<span class="text-xs text-slate-400 italic">Ezber atanmamış.</span>');
   }
   return '<div class="font-bold mt-4 mb-2">📊 Sınıf Grafikleri</div>'+gbar()+'<div class="card">'+body+'</div>';
 }
@@ -937,6 +937,19 @@ ACT.call=()=>{telSync();_call();};
 ACT.wa=()=>{telSync();_wa();};
 $('cmX').addEventListener('click',telSync);
 cm.addEventListener('click',e=>{if(e.target===cm)telSync();});
+
+/* ========== AŞAMA C10: EKRAN KAPANMASIN, SÖZ HAKKINDA PASİF ÖĞRENCİLER ========== */
+const sozPas=s=>['Yok','Izinli'].includes(rd(s).status);
+let wl=null;
+async function wake(){
+  if(lsg('wl_off')==='1'||!('wakeLock' in navigator)||document.visibilityState!=='visible'||wl)return;
+  try{wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null;});}catch(e){wl=null;}
+}
+function wakeOff(){try{if(wl)wl.release();}catch(e){}wl=null;}
+wake();document.addEventListener('visibilitychange',wake);addEventListener('pointerdown',wake,{passive:true});
+const wlCard=()=>'<div class="card"><b>🔆 Ekran kapanmasın</b><p class="text-xs text-slate-500 my-1">Uygulama açıkken telefonun ekranı kararmaz. Pil tüketimi artar. '+('wakeLock' in navigator?'':'Bu tarayıcı bu özelliği desteklemiyor. ')+'</p><button data-act="wltog" class="btn '+(lsg('wl_off')==='1'?'bg-slate-600':'bg-emerald-600')+'">'+(lsg('wl_off')==='1'?'Kapalı (açmak için dokunun)':'Açık (kapatmak için dokunun)')+'</button></div>';
+const tw0=P.tan.html;P.tan.html=()=>tw0()+wlCard();
+ACT.wltog=()=>{if(lsg('wl_off')==='1'){lss('wl_off','0');wake();}else{lss('wl_off','1');wakeOff();}render(true);};
 
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
