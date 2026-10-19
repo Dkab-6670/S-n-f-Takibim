@@ -31,7 +31,7 @@
   <div class="flex items-center gap-2 text-xs bg-indigo-800 rounded-lg px-2 py-1">
    <span id="dot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span id="stx">Çevrimdışı</span>
    <button id="rc" class="font-mono font-bold text-yellow-300" title="Dokunun: 5 sn göster">-----</button>
-   <button id="rcB" title="Oda kodunu değiştir">🔑</button><button id="th">🌙</button>
+   <button id="pf" class="max-w-[8rem] truncate font-semibold" title="Profilim">👤 Profil</button><button id="rcB" title="Oda kodunu değiştir">🔑</button><button id="th">🌙</button>
   </div>
  </div>
 </header>
@@ -462,13 +462,13 @@ function karne(s){
   const cnt=l=>{let a=0,b=0;l.forEach(h=>{const x=(s.hwStatus||{})[h.id];if(x==='Yapti')a++;else if(x==='Yapmadi')b++;});return row('Yaptı / yapmadı / işaretsiz',a+' / '+b+' / '+(l.length-a-b));};
   const od=S.homeworks.filter(h=>!h.rb&&ap(h,s)),rg=S.homeworks.filter(h=>h.rb&&(h.donem||'1')===dn&&ap(h,s));
   const hf=Object.values(s.cuz||{}).filter(x=>x===2).length;
-  return '<div class="k"><h2>Dönem Karnesi · '+dn+'. Dönem</h2><div><b>'+esc(s.name)+'</b> · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · No: '+esc(s.no)+'</div>'
+  return '<div class="k"><h2>'+(prof().okul?esc(prof().okul)+' · ':'')+'Dönem Karnesi · '+dn+'. Dönem</h2><div><b>'+esc(s.name)+'</b> · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · No: '+esc(s.no)+'</div>'
    +bdgHtml(s)+'<h3>Devam</h3><table>'+row('Var / yok / izinli (gün)',v+' / '+y+' / '+iz)+row('Abdestli gün',ab)+'</table>'
    +'<h3>Puanlar ve Davranış</h3><table>'+row('Ders puanı (artı / eksi / net)','+'+p+' / '+m+' / '+(p+m))+row('Davranış puanı (artı / eksi / net)','+'+bp+' / '+bm+' / '+(bp+bm))+row('Kitabı yok / derste uyudu (gün)',bk+' / '+sl)+nt.slice(-4).map(n=>row(esc(n[0].slice(8)+'.'+n[0].slice(5,7)+' · '+n[1]),(n[2]>0?'+':'')+n[2])).join('')+'</table>'
    +'<h3>Kur\'an</h3><table>'+row('Seviye',cz?'Cüzde':'Kur\'an\'da')+row('Hafızlık',pr.hafiz?'Hafız · '+hf+'/30 cüz':'-')+'</table>'
    +(ds?'<h3>Ders Puanları (ortalama)</h3><table>'+ds+'</table>':'')+(es?'<h3>Ezberler</h3><table>'+es+'</table>':'')
    +(od.length?'<h3>Ödevler ('+od.length+')</h3><table>'+cnt(od)+'</table>':'')+(rg.length?'<h3>Rehberlik Faaliyetleri ('+rg.length+')</h3><table>'+cnt(rg)+'</table>':'')
-   +'<h3>Öğretmen Görüşü</h3><div class="l"></div><div class="g">Ders Öğretmeni: '+(tname()?'<b>'+esc(tname())+'</b>':'____________')+'</div></div>';
+   +'<h3>Öğretmen Görüşü</h3><div class="l"></div><div class="g">Ders Öğretmeni: '+(tname()?'<b>'+esc(tsign())+'</b>':'____________')+'</div></div>';
 }
 S.kst='ALL';
 const kList=()=>S.kst==='ALL'?grp():grp().filter(s=>s.id===S.kst);
@@ -897,17 +897,46 @@ const bkBar=()=>{
 const h7=P.home.html;P.home.html=()=>bkBar()+h7();
 
 /* ========== AŞAMA C8: ÖĞRETMEN ADI (KARNE), YOKLAMA İŞARETLERİNİ KALDIR ========== */
-const tname=()=>{const el=document.getElementById('tnm');return T(el&&S.page==='karne'&&typeof el.value==='string'?el.value:(lsg('teacher_name')||''));};
+const prof=()=>{try{const o=JSON.parse(lsg('profile_v1')||'null');if(o&&typeof o==='object')return o;}catch(e){}return {name:T(lsg('teacher_name')||''),okul:'',brans:''};};
+const tname=()=>T(prof().name||'');
+const tsign=()=>{const p=prof();return T(p.name||'')+(T(p.brans||'')?' · '+T(p.brans):'');};
+const pm2=document.createElement('div');pm2.className='fixed inset-0 z-[160] hidden items-center justify-center bg-black/60 p-4';
+pm2.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full p-5"><b class="text-lg">👤 Profilim</b><p class="text-xs text-slate-500 my-2">Bu bilgiler sadece bu cihazda saklanır. Her öğretmen kendi telefonunda ya da bilgisayarında kendi profilini kullanır. Adınız karnelerde "Ders Öğretmeni" olarak görünür.</p><label class="text-xs">Ad Soyad</label><input id="pfN" class="inp w-full mb-2" placeholder="Örn: Ayşe Yılmaz"><label class="text-xs">Branş / ders (isteğe bağlı)</label><input id="pfB" class="inp w-full mb-2" placeholder="Örn: Kur\'an-ı Kerim"><label class="text-xs">Okul (isteğe bağlı, karne başlığında görünür)</label><input id="pfO" class="inp w-full mb-3"><div class="flex gap-2"><button data-act="pfsave" class="btn bg-indigo-600 flex-1">Kaydet</button><button data-act="pfx" class="px-4 py-2 rounded-lg border">Kapat</button></div></div>';
+document.body.appendChild(pm2);
+const pfLabel=()=>{const b=document.getElementById('pf');if(b)b.textContent='👤 '+(tname()||'Profil');};
+const pfOpen=()=>{const p=prof();$('pfN').value=p.name||'';$('pfB').value=p.brans||'';$('pfO').value=p.okul||'';pm2.classList.remove('hidden');pm2.classList.add('flex');setTimeout(()=>$('pfN').focus(),50);};
+Object.assign(ACT,{
+  prof:pfOpen,
+  pfx(){pm2.classList.add('hidden');pm2.classList.remove('flex');},
+  pfsave(){const n=T($('pfN').value);if(!n)return alert('Lütfen adınızı yazın.');lss('profile_v1',JSON.stringify({name:n,brans:T($('pfB').value),okul:T($('pfO').value)}));ACT.pfx();pfLabel();toast('Profil kaydedildi');render(true);}
+});
+$('pf').onclick=pfOpen;pfLabel();
+if(!tname()&&!new URLSearchParams(location.search).get('k'))setTimeout(pfOpen,1500);
 ACT.clearattendance=()=>{
   const l=grp().filter(s=>(rd(s).status||'None')!=='None');
   if(!l.length)return toast('İşaretli öğrenci yok');
   del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='None';});},l.length+' öğrenci işaretleri kaldırıldı');
 };
 const k8=P.karne.html;
-P.karne.html=()=>'<div class="card flex flex-wrap items-center gap-2"><label class="text-sm font-semibold">👤 Ders öğretmeni (karnede görünür):</label><input id="tnm" class="inp flex-1 min-w-[180px]" placeholder="Adınızı soyadınızı yazın" value="'+esc(tname())+'"></div>'+k8();
-let tnT;
-$('view').addEventListener('input',e=>{if(e.target.id==='tnm'){lss('teacher_name',T(e.target.value));clearTimeout(tnT);tnT=setTimeout(relist,250);}});
-$('view').addEventListener('change',e=>{if(e.target.id==='tnm'){lss('teacher_name',T(e.target.value));relist();toast('Adınız kaydedildi');}});
+P.karne.html=()=>'<div class="card flex flex-wrap items-center justify-between gap-2"><span class="text-sm">👤 Karnede görünecek ad: <b>'+esc(tname()||'(belirtilmedi)')+'</b></span><button data-act="prof" class="btn bg-slate-600">Profilimi düzenle</button></div>'+k8();
+
+/* ========== AŞAMA C9: VELİ TELEFONU YAZARKEN KAYDEDİLSİN ========== */
+let telT=null;
+const telSync=()=>{
+  const s=cS(),el=document.getElementById('cmTel');
+  if(s&&el&&ctab==='v'&&T(el.value)!==T(s.tel||'')){s.tel=T(el.value);clearTimeout(telT);telT=null;_save();}
+  else if(telT){clearTimeout(telT);telT=null;_save();}
+};
+cm.addEventListener('input',e=>{
+  if(e.target.id!=='cmTel')return;const s=cS();if(!s)return;
+  s.tel=T(e.target.value);clearTimeout(telT);telT=setTimeout(()=>{telT=null;_save();},600);
+});
+const _cmove=cmove;cmove=function(d){telSync();_cmove(d);};
+const _call=ACT.call,_wa=ACT.wa;
+ACT.call=()=>{telSync();_call();};
+ACT.wa=()=>{telSync();_wa();};
+$('cmX').addEventListener('click',telSync);
+cm.addEventListener('click',e=>{if(e.target===cm)telSync();});
 
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
