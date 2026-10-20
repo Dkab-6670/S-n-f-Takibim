@@ -170,8 +170,8 @@ const okSube=v=>T(v).toLowerCase()||'a';
 const filt=()=>sorted(S.students.filter(s=>{const f=S.F,q=f.q.toLowerCase();
   return (f.sinif==='ALL'||T(s.sinif)===f.sinif)&&(f.sube==='ALL'||T(s.sube).toLowerCase()===f.sube)&&(!q||String(s.name).toLowerCase().includes(q)||String(s.no).toLowerCase().includes(q));}));
 function drawList(){
-  const l=filt();$('ogrCnt').textContent=l.length+' / '+S.students.length;
-  $('ogrList').innerHTML=l.length?l.map(s=>'<div class="card mb-2 flex flex-wrap items-center justify-between gap-2'+(s.absent?' opacity-60':'')+'"><div><b>'+esc(s.name)+'</b><div class="text-xs text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+(s.absent?' · 🚫 sürekli devamsız':'')+'</div></div><div class="flex gap-2"><button data-act="edit" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border">✏️</button><button data-act="abs" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-xs">'+(s.absent?'Aktif yap':'Devamsız yap')+'</button><button data-act="del" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-red-600">🗑️</button></div></div>').join(''):'<div class="card text-center text-sm text-slate-400">Öğrenci yok.</div>';
+  const l=filt();$('ogrCnt').textContent=(S.F.sinif==='ALL'?'Tüm sınıflar':S.F.sinif+(S.F.sube==='ALL'?'. sınıf':'/'+S.F.sube.toUpperCase()))+': '+l.length+' öğrenci'+(l.length!==S.students.length?' (toplam '+S.students.length+')':'');
+  $('ogrList').innerHTML=l.length?l.map((s,i)=>'<div class="card mb-2 flex flex-wrap items-center justify-between gap-2'+(s.absent?' opacity-60':'')+'"><div><b>'+(i+1)+'. '+esc(s.name)+'</b><div class="text-xs text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+(s.absent?' · 🚫 sürekli devamsız':'')+'</div></div><div class="flex gap-2"><button data-act="edit" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border">✏️</button><button data-act="abs" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-xs">'+(s.absent?'Aktif yap':'Devamsız yap')+'</button><button data-act="del" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-red-600">🗑️</button></div></div>').join(''):'<div class="card text-center text-sm text-slate-400">Öğrenci yok.</div>';
 }
 reg('ogr','👥','Öğrenciler',()=>{
   const F=S.F,opt=(a,v)=>a.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===v?' selected':'')+'>'+esc(x[1])+'</option>').join('');
@@ -256,12 +256,20 @@ $('view').addEventListener('change',e=>{const g=e.target.dataset.g;if(!g||g==='q
 $('view').addEventListener('input',e=>{if(e.target.dataset.g==='q'){G.q=e.target.value;relist();}});
 ACT.gd=a=>{const n=+a.dataset.v;if(!n)G.date=today;else{const d=new Date(G.date+'T12:00:00');d.setDate(d.getDate()+n);G.date=d.toISOString().slice(0,10);}render(true);};
 const relist=()=>{const l=$('glist');if(l&&P[S.page]&&P[S.page].list)l.innerHTML=P[S.page].list();};
+let HI=0;
+function ghead(){
+  const cl=S.students.filter(s=>(G.sinif==='ALL'||T(s.sinif)===G.sinif)&&(G.sube==='ALL'||T(s.sube).toLowerCase()===G.sube));
+  const n=cl.length,pas=cl.filter(s=>s.absent).length,sh=grp().length;
+  const lab=G.sinif==='ALL'?'Tüm sınıflar':G.sinif+(G.sube==='ALL'?'. sınıf':'/'+G.sube.toUpperCase());
+  return '<div class="col-span-full text-sm font-semibold text-indigo-700 dark:text-indigo-300">👥 '+esc(lab)+': <b>'+n+'</b> öğrenci'+(pas?' · '+pas+' sürekli devamsız (pasif)':'')+(sh!==n-pas?' · listelenen '+sh:'')+'</div>';
+}
 function gpage(id,icon,title,nav,top,list){
-  reg(id,icon,title,()=>gbar()+(top?top():'')+'<div id="glist" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">'+list()+'</div>',null,nav);
-  P[id].list=list;
+  const L=()=>{HI=0;return ghead()+list();};
+  reg(id,icon,title,()=>gbar()+(top?top():'')+'<div id="glist" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">'+L()+'</div>',null,nav);
+  P[id].list=L;
 }
 const B=(s,f,v,txt,on,c)=>'<button data-act="m" data-f="'+f+'" data-v="'+esc(v)+'" data-id="'+esc(s.id)+'" class="flex-1 min-h-[44px] rounded-lg border font-semibold text-sm '+(on?c:'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+txt+'</button>';
-const hd=s=>'<div class="font-semibold underline decoration-dotted cursor-pointer" data-act="card" data-id="'+esc(s.id)+'">'+esc(s.name)+'</div><div class="text-[11px] text-slate-500 mb-2">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div>';
+const hd=s=>'<div class="font-semibold underline decoration-dotted cursor-pointer" data-act="card" data-id="'+esc(s.id)+'"><span class="text-indigo-600 dark:text-indigo-300 font-bold">'+(++HI)+'.</span> '+esc(s.name)+'</div><div class="text-[11px] text-slate-500 mb-2">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div>';
 const stBtns=s=>{const v=rd(s).status||'None';return '<div class="flex gap-1.5">'+B(s,'status','Var','Var',v==='Var',GR)+B(s,'status','Yok','Yok',v==='Yok',RD)+B(s,'status','Izinli','İzinli',v==='Izinli',AM)+'</div>';};
 
 /* işaretleme (tek yer) */
@@ -334,7 +342,7 @@ const ARR=k=>k==='ders'?S.lessons:k==='ezber'?S.ezberItems:k==='reh'?S.homeworks
 const tgt=x=>(x.sinif==='ALL'?'Tüm sınıflar':x.sinif+'. sınıf');
 const chips=k=>{const t=TS[k],c='flex items-center gap-1.5 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm';
   return '<label class="'+c+'"><input type="checkbox" data-chip="'+k+'" data-v="ALL"'+(t.all?' checked':'')+'> Tüm sınıflar</label>'+classes().map(x=>'<label class="'+c+(t.all?' opacity-40':'')+'"><input type="checkbox" data-chip="'+k+'" data-v="'+esc(x)+'"'+(t.set[x]?' checked':'')+(t.all?' disabled':'')+'> '+esc(x)+'. Sınıf</label>').join('');};
-const tlist=k=>ARR(k).map(x=>'<div class="flex items-center justify-between gap-2 text-sm border-b border-slate-200 dark:border-slate-700 py-1"><span><b>'+esc(x.name)+'</b> <span class="text-xs text-slate-500">'+esc(tgt(x))+(k==='odev'?' · '+esc(x.start)+' → '+esc(x.end):'')+'</span></span><span class="flex gap-1"><button data-act="tedit" data-k="'+k+'" data-id="'+esc(x.id||'')+'" class="px-2">✏️</button><button data-act="tdel" data-k="'+k+'" data-id="'+esc(x.id||'')+'" class="px-2 text-red-600">🗑️</button></span></div>').join('')||'<div class="text-xs text-slate-400 italic">Henüz yok.</div>';
+/* tlist: C11 bölümünde (gruplanmış liste) */
 const tsec=(k,title)=>'<div class="card"><b>'+title+'</b><div class="flex flex-wrap gap-2 my-2">'+chips(k)+'</div><div class="flex flex-wrap gap-2"><input data-tn="'+k+'" class="inp flex-1 min-w-[160px]" placeholder="Ad" value="'+esc(TS[k].name)+'">'
   +(k==='odev'?'<input type="date" data-td="start" class="inp" value="'+esc(TS.odev.start)+'"><input type="date" data-td="end" class="inp" value="'+esc(TS.odev.end)+'">':'')+'<button data-act="tadd" data-k="'+k+'" class="btn bg-indigo-600">Ekle</button></div><div class="mt-3">'+tlist(k)+'</div></div>';
 reg('tan','⚙️','Ders, Ezber & Ödev Tanımları',()=>tsec('ders','📚 Ders ata')+tsec('ezber','📖 Ezber konusu ata')+tsec('odev','📝 Ödev ata (tarih aralığıyla)'),null,null);
@@ -400,9 +408,9 @@ gpage('reh','🧭','Rehberlik Faaliyetleri',null,()=>'<details class="card" data
   const l=g.filter(s=>ap(a,s)),c=rbSt(a,l),t=l.length||1,pc=n=>Math.round(n*100/t);
   const head='<div class="card col-span-full mb-0"><div class="font-bold">'+esc(a.name)+' <span class="text-xs font-normal text-slate-500">'+esc(tgt(a))+'</span></div><div class="flex h-3 rounded-full overflow-hidden my-2 bg-slate-200 dark:bg-slate-700"><div style="width:'+pc(c.Yapti)+'%" class="bg-emerald-500"></div><div style="width:'+pc(c.Yapmadi)+'%" class="bg-red-500"></div></div><div class="text-sm mb-2">✅ '+c.Yapti+' · ❌ '+c.Yapmadi+' · ❔ '+c.None+'</div><div class="flex flex-wrap gap-2 mb-2">'
    +[['all','Hepsi'],['no','❌ Yapmayanlar'],['none','❔ İşaretsizler']].map(f=>'<button data-act="rfl" data-v="'+f[0]+'" class="px-3 py-1.5 rounded-full border text-xs font-semibold '+(S.rf===f[0]?'bg-slate-700 text-white border-slate-700':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+f[1]+'</button>').join('')
-   +'</div><div class="flex gap-2"><button data-act="rall" class="btn bg-emerald-600">✅ İşaretsizleri Yaptı yap</button><button data-act="tedit" data-k="reh" data-id="'+esc(a.id)+'" class="px-3 border rounded-lg">✏️</button><button data-act="tdel" data-k="reh" data-id="'+esc(a.id)+'" class="px-3 border rounded-lg text-red-600">🗑️</button></div></div>';
+   +'</div><div class="flex gap-2"><button data-act="rall" class="btn bg-emerald-600">✅ İşaretsizleri Yaptı yap</button><button data-act="gedit" data-k="reh" data-key="'+esc(gkey('reh',a))+'" class="px-3 border rounded-lg">✏️</button><button data-act="tdel" data-k="reh" data-id="'+esc(a.id)+'" class="px-3 border rounded-lg text-red-600">🗑️</button></div></div>';
   const rows=l.filter(s=>{const v=(s.hwStatus||{})[a.id]||'None';return S.rf==='all'||(S.rf==='no'&&v==='Yapmadi')||(S.rf==='none'&&v==='None');}).map(s=>{const v=(s.hwStatus||{})[a.id]||'None';
-    return '<div class="card mb-0 !py-2 flex items-center gap-2'+(v==='Yapmadi'?' !bg-red-50 dark:!bg-red-950 !border-red-300':'')+'"><div class="flex-1 min-w-0"><div class="font-semibold truncate">'+esc(s.name)+'</div><div class="text-[11px] text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div></div><div class="flex gap-1.5 w-44 shrink-0">'+B(s,'hw',a.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',a.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div></div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu filtrede öğrenci yok.</div>';
+    return '<div class="card mb-0 !py-2 flex items-center gap-2'+(v==='Yapmadi'?' !bg-red-50 dark:!bg-red-950 !border-red-300':'')+'"><div class="flex-1 min-w-0"><div class="font-semibold truncate"><span class="text-indigo-600 font-bold">'+(++HI)+'.</span> '+esc(s.name)+'</div><div class="text-[11px] text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div></div><div class="flex gap-1.5 w-44 shrink-0">'+B(s,'hw',a.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',a.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div></div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu filtrede öğrenci yok.</div>';
   return sw+row1+head+rows;
 });
 Object.assign(ACT,{
@@ -538,7 +546,7 @@ gpage('haf','📜','Hafızlık Çizelgesi',null,null,()=>{
   return top+(l.map(s=>{let d=0,w=0,h='';
     for(let n=1;n<=30;n++){const v=(s.cuz||{})['c'+n]||0;if(v===2)d++;else if(v===1)w++;
       h+='<button data-act="cz" data-id="'+esc(s.id)+'" data-n="'+n+'" class="min-h-[34px] rounded-md border text-[11px] font-bold '+(v===2?'bg-emerald-500 text-white border-emerald-600':v===1?'bg-amber-300 text-amber-900 border-amber-500':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-500')+'">'+n+'</button>';}
-    return '<div class="card mb-0 md:col-span-2 xl:col-span-3"><div class="flex justify-between gap-2"><div><b>'+esc(s.name)+'</b> <span class="text-[11px] text-slate-500">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · '+esc(s.no)+'</span></div><b class="text-emerald-600">'+d+'/30</b></div><div class="h-2 rounded-full bg-slate-200 dark:bg-slate-700 my-2 overflow-hidden"><div class="h-2 bg-emerald-500" style="width:'+Math.round(d*100/30)+'%"></div></div><div class="grid grid-cols-10 gap-1">'+h+'</div><div class="text-[11px] text-slate-500 mt-1">🟩 '+d+' tamam · 🟨 '+w+' çalışıyor</div></div>';
+    return '<div class="card mb-0 md:col-span-2 xl:col-span-3"><div class="flex justify-between gap-2"><div><b>'+(++HI)+'. '+esc(s.name)+'</b> <span class="text-[11px] text-slate-500">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · '+esc(s.no)+'</span></div><b class="text-emerald-600">'+d+'/30</b></div><div class="h-2 rounded-full bg-slate-200 dark:bg-slate-700 my-2 overflow-hidden"><div class="h-2 bg-emerald-500" style="width:'+Math.round(d*100/30)+'%"></div></div><div class="grid grid-cols-10 gap-1">'+h+'</div><div class="text-[11px] text-slate-500 mt-1">🟩 '+d+' tamam · 🟨 '+w+' çalışıyor</div></div>';
   }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok. Hafızlık yapanları Ezber sayfasında 👳 ile işaretleyin ya da "Tüm öğrenciler"i seçin.</div>');
 });
 Object.assign(ACT,{
@@ -677,7 +685,7 @@ gpage('soz','🎲','Söz Hakkı',null,null,()=>{
   const g=grp(),sel=g.find(s=>s.id===S.szSel);
   const top='<div class="card col-span-full text-center"><button data-act="szgo" class="btn bg-indigo-600 !py-3 text-lg w-full">🎲 Öğrenci seç</button><div class="text-[11px] text-slate-500 mt-1">Yoklamada Yok ya da İzinli işaretlenenler seçime katılmaz (pasif).</div>'+(sel?'<div class="text-2xl font-bold mt-3">🎯 '+esc(sel.name)+'</div><button data-act="szpt" class="mt-2 w-full min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">➕ Doğru cevap +1 puan</button>':'')+'</div>';
   const l=g.slice().sort((a,b)=>(sozPas(a)-sozPas(b))||(a.soz||0)-(b.soz||0)||num(a.no)-num(b.no));
-  return top+'<div class="card col-span-full"><div class="text-xs font-bold mb-2">Söz alma sayıları (en az olan üstte, 🔇 hiç almayan) <button data-act="szrs" class="underline ml-2">Sıfırla</button></div>'+l.map(s=>'<div class="flex items-center gap-2 text-xs mb-1'+(sozPas(s)?' opacity-50':'')+'"><span class="w-40 truncate'+(!sozPas(s)&&!s.soz?' text-red-600 font-bold':'')+'">'+(sozPas(s)?'⏸️ ':s.soz?'':'🔇 ')+esc(s.name)+(sozPas(s)?' ('+(rd(s).status==='Yok'?'Yok':'İzinli')+')':'')+'</span><div class="flex-1 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><div class="h-2.5 bg-indigo-500" style="width:'+Math.min(100,(s.soz||0)*20)+'%"></div></div><b>'+(s.soz||0)+'</b></div>').join('')+'</div>';
+  return top+'<div class="card col-span-full"><div class="text-xs font-bold mb-2">Söz alma sayıları (en az olan üstte, 🔇 hiç almayan) <button data-act="szrs" class="underline ml-2">Sıfırla</button></div>'+l.map((s,i)=>'<div class="flex items-center gap-2 text-xs mb-1'+(sozPas(s)?' opacity-50':'')+'"><span class="w-40 truncate'+(!sozPas(s)&&!s.soz?' text-red-600 font-bold':'')+'">'+(sozPas(s)?'⏸️ ':s.soz?'':'🔇 ')+(i+1)+'. '+esc(s.name)+(sozPas(s)?' ('+(rd(s).status==='Yok'?'Yok':'İzinli')+')':'')+'</span><div class="flex-1 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><div class="h-2.5 bg-indigo-500" style="width:'+Math.min(100,(s.soz||0)*20)+'%"></div></div><b>'+(s.soz||0)+'</b></div>').join('')+'</div>';
 });
 Object.assign(ACT,{
   szgo(){const g=grp().filter(s=>!sozPas(s));if(!g.length)return alert('Söz hakkı için uygun öğrenci yok (yoklamada Yok ya da İzinli işaretlenenler pasiftir).');let r=Math.max(1,...g.map(s=>s.sozT||0)),e=g.filter(s=>(s.sozT||0)!==r);if(!e.length){r++;e=g;}
@@ -955,6 +963,70 @@ wake();document.addEventListener('visibilitychange',wake);addEventListener('poin
 const wlCard=()=>'<div class="card"><b>🔆 Ekran kapanmasın</b><p class="text-xs text-slate-500 my-1">Uygulama açıkken telefonun ekranı kararmaz. Pil tüketimi artar. '+('wakeLock' in navigator?'':'Bu tarayıcı bu özelliği desteklemiyor. ')+'</p><button data-act="wltog" class="btn '+(lsg('wl_off')==='1'?'bg-slate-600':'bg-emerald-600')+'">'+(lsg('wl_off')==='1'?'Kapalı (açmak için dokunun)':'Açık (kapatmak için dokunun)')+'</button></div>';
 const tw0=P.tan.html;P.tan.html=()=>tw0()+wlCard();
 ACT.wltog=()=>{if(lsg('wl_off')==='1'){lss('wl_off','0');wake();}else{lss('wl_off','1');wakeOff();}render(true);};
+
+/* ========== AŞAMA C11: ATAMALARI SINIF KUTUCUKLARIYLA DÜZENLE ========== */
+function gkey(k,x){return k==='odev'?x.name+'|'+x.start+'|'+x.end:k==='reh'?x.name+'|'+(x.donem||'1'):x.name;}
+function members(k,key){return ARR(k).filter(x=>gkey(k,x)===key);}
+function dropItems(k,m){if(k==='ders')S.lessons=S.lessons.filter(x=>!m.includes(x));else if(k==='ezber')S.ezberItems=S.ezberItems.filter(x=>!m.includes(x));else S.homeworks=S.homeworks.filter(x=>!m.includes(x));}
+function addItem(k,it){if(k==='ders')S.lessons.push(it);else if(k==='ezber')S.ezberItems.push(it);else S.homeworks.push(it);}
+const tlist=k=>{
+  const seen=new Set(),rows=[];
+  ARR(k).forEach(x=>{const key=gkey(k,x);if(seen.has(key))return;seen.add(key);rows.push([key,members(k,key)]);});
+  return rows.map(r=>{const key=r[0],m=r[1],all=m.some(x=>x.sinif==='ALL');
+    const cls=all?'Tüm sınıflar':m.map(x=>x.sinif).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true})).join(', ')+'. sınıf';
+    return '<div class="flex items-center justify-between gap-2 text-sm border-b border-slate-200 dark:border-slate-700 py-1"><span><b>'+esc(m[0].name)+'</b> <span class="text-xs text-slate-500">'+esc(cls)+(k==='odev'?' · '+esc(m[0].start)+' → '+esc(m[0].end):'')+'</span></span><span class="flex gap-1"><button data-act="gedit" data-k="'+k+'" data-key="'+esc(key)+'" class="px-2">✏️</button><button data-act="gdel" data-k="'+k+'" data-key="'+esc(key)+'" class="px-2 text-red-600">🗑️</button></span></div>';
+  }).join('')||'<div class="text-xs text-slate-400 italic">Henüz yok.</div>';
+};
+const em=document.createElement('div');em.className='fixed inset-0 z-[150] hidden items-center justify-center bg-black/60 p-4';
+em.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-5"><b class="text-lg">✏️ Atamayı Düzenle</b><label class="text-xs block mt-3">Ad</label><input id="emN" class="inp w-full mb-2"><div id="emD"></div><div class="text-xs font-bold mb-1">Hangi sınıflara atanacak?</div><div id="emC" class="flex flex-wrap gap-2 mb-2"></div><p class="text-[11px] text-slate-500 mb-3">"Tüm sınıflar" seçiliyken bir sınıfın işaretini kaldırırsanız atama sadece işaretli sınıflara kalır. İşaretini kaldırdığınız sınıfta atama görünmez olur, kayıtlı işaretlemeler silinmez.</p><div class="flex gap-2"><button data-act="emsave" class="btn bg-indigo-600 flex-1">Kaydet</button><button data-act="emx" class="px-4 py-2 rounded-lg border">Kapat</button></div></div>';
+document.body.appendChild(em);
+let EM=null;
+function emRender(){
+  const c='flex items-center gap-1.5 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm';
+  $('emC').innerHTML='<label class="'+c+' font-semibold"><input type="checkbox" data-emc="ALL"'+(EM.all?' checked':'')+'> Tüm sınıflar</label>'+EM.cls.map(x=>'<label class="'+c+'"><input type="checkbox" data-emc="'+esc(x)+'"'+(EM.set[x]?' checked':'')+'> '+esc(x)+'. Sınıf</label>').join('');
+}
+em.addEventListener('change',e=>{
+  const c=e.target.dataset&&e.target.dataset.emc;if(c===undefined||!EM)return;
+  if(c==='ALL'){EM.all=e.target.checked;if(e.target.checked)EM.cls.forEach(x=>{EM.set[x]=true;});}
+  else{EM.set[c]=e.target.checked;if(!e.target.checked)EM.all=false;}
+  emRender();
+});
+Object.assign(ACT,{
+  gedit(a){
+    const k=a.dataset.k,m=members(k,a.dataset.key);if(!m.length)return;
+    const all=m.some(x=>x.sinif==='ALL'),cls=[...new Set(classes().concat(m.map(x=>x.sinif).filter(x=>x!=='ALL')))].sort((p,q)=>p.localeCompare(q,'tr',{numeric:true}));
+    EM={k:k,key:a.dataset.key,all:all,cls:cls,set:Object.fromEntries(cls.map(x=>[x,all||m.some(y=>y.sinif===x)]))};
+    $('emN').value=m[0].name;
+    $('emD').innerHTML=k==='odev'?'<div class="flex gap-2 mb-2"><div class="flex-1"><label class="text-xs">Başlangıç</label><input type="date" id="emS" class="inp w-full" value="'+esc(m[0].start)+'"></div><div class="flex-1"><label class="text-xs">Bitiş</label><input type="date" id="emE" class="inp w-full" value="'+esc(m[0].end)+'"></div></div>':'';
+    emRender();em.classList.remove('hidden');em.classList.add('flex');
+  },
+  emx(){em.classList.add('hidden');em.classList.remove('flex');},
+  emsave(){
+    const k=EM.k,old=members(k,EM.key),base=old[0],name=T($('emN').value);
+    if(!base)return ACT.emx();
+    if(!name||BAD.test(name))return alert('Ad boş olamaz ve . # $ / [ ] içeremez.');
+    const target=EM.all?['ALL']:EM.cls.filter(x=>EM.set[x]);
+    if(!target.length)return alert('En az bir sınıf seçin ya da "Tüm sınıflar"ı işaretleyin.');
+    let st,en;if(k==='odev'){st=$('emS').value;en=$('emE').value;if(!st||!en||en<st)return alert('Başlangıç ve bitiş tarihini doğru seçin.');}
+    const oldAll=old.some(x=>x.sinif==='ALL'),oldCls=old.map(x=>x.sinif),oldName=base.name,allId=(old.find(x=>x.sinif==='ALL')||{}).id;
+    const mk=cls=>k==='ders'||k==='ezber'?{name:name,sinif:cls}:k==='odev'?{name:name,sinif:cls,sube:'ALL',start:st,end:en}:{name:name,sinif:cls,sube:'ALL',donem:base.donem||'1',rb:true};
+    const copy=(fromId,toId,cls)=>{if(k==='ders'||k==='ezber'||!fromId)return;S.students.forEach(s=>{if((cls==='ALL'||T(s.sinif)===cls)&&s.hwStatus&&s.hwStatus[fromId]!==undefined)s.hwStatus[toId]=s.hwStatus[fromId];});};
+    const used=new Set(),made=[];
+    if(target[0]==='ALL'&&!oldAll){
+      used.add(base);Object.assign(base,mk('ALL'));
+      old.slice(1).forEach(o=>copy(o.id,base.id,o.sinif));
+    }else target.forEach(cls=>{
+      let it=old.find(x=>!used.has(x)&&x.sinif===cls)||old.find(x=>!used.has(x)&&x.sinif==='ALL');
+      if(it){used.add(it);Object.assign(it,mk(cls));}
+      else{it=mk(cls);if(k==='odev'||k==='reh'){it.id=uid('HW_');copy(allId,it.id,cls);}made.push(it);}
+    });
+    if(name!==oldName&&(k==='ders'||k==='ezber'))S.students.filter(s=>oldAll||oldCls.includes(T(s.sinif))).forEach(s=>Object.values(s.periods||{}).forEach(p=>Object.values(p.days||{}).forEach(d=>{
+      const o=k==='ezber'?d.ezberStatus:d.scores;if(o&&o[oldName]!==undefined){o[name]=o[oldName];delete o[oldName];}})));
+    dropItems(k,old.filter(x=>!used.has(x)));made.forEach(x=>addItem(k,x));
+    ACT.emx();save();render(true);toast('Atama güncellendi');
+  },
+  gdel(a){const k=a.dataset.k,m=members(k,a.dataset.key);if(!m.length||!confirm('"'+m[0].name+'" tüm sınıflardan silinsin mi?'))return;del(()=>dropItems(k,m),'1 atama silindi');}
+});
 
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
