@@ -299,7 +299,7 @@ gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wr
 ACT.allvar=()=>{const l=grp().filter(s=>(rd(s).status||'None')==='None');if(!l.length)return toast('İşaretsiz öğrenci yok');del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='Var';});},l.length+' öğrenci "Var" yapıldı');};
 
 /* Günlük Ders & Ödev */
-gpage('ders','📚','Günlük Ders & Ödev','Ders',()=>'<div class="mb-3 flex gap-2"><button data-act="bulk1" data-v="1" class="btn bg-emerald-600">➕ Herkese +1</button><button data-act="bulk1" data-v="-1" class="btn bg-red-600">➖ Herkese −1</button></div>',()=>grp().map(s=>{
+gpage('ders','📚','Günlük Ders & Ödev','Ders',()=>'<div class="mb-3 flex flex-wrap items-center gap-2"><button data-act="bulk1" data-v="1" class="btn bg-emerald-600">➕ Herkese +1</button><button data-act="bulk1" data-v="-1" class="btn bg-red-600">➖ Herkese −1</button><span class="text-[11px] text-slate-500">Yoklamada Yok / İzinli olanlar hariç</span></div>',()=>grp().map(s=>{
   const r=rd(s),cz=per(s).kuranDurum==='cuz',p=r.points||0,id=esc(s.id);
   const ls=lsOf(s).map(l=>{
     const cuz=cz&&KUR.test(l.name),ab=/kur/i.test(l.name)&&!r.abdest;
@@ -312,7 +312,12 @@ gpage('ders','📚','Günlük Ders & Ödev','Ders',()=>'<div class="mb-3 flex ga
    +'<div class="flex gap-1.5">'+B(s,'book','Yok','📕 Kitabı yok',r.book==='Yok',RD)+B(s,'slept','1','😴 Uyudu',r.slept,AM)+'</div><div class="mt-2">'+ls+'</div>'+hw
    +'<input data-chg="note" data-id="'+id+'" class="inp w-full mt-2 text-sm" placeholder="Günlük not" value="'+esc(r.notes||'')+'"></div>';
 }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>');
-ACT.bulk1=a=>{const d=+a.dataset.v,l=grp();if(!l.length||!confirm('Ekrandaki '+l.length+' öğrenciye '+(d>0?'+':'')+d+' puan verilsin mi?'))return;del(()=>{l.forEach(s=>{const r=dayRec(s,G.donem,G.date);r.points=(r.points||0)+d;});},l.length+' öğrenciye '+(d>0?'+':'')+d+' puan verildi');};
+ACT.bulk1=a=>{
+  const d=+a.dataset.v,all=grp(),l=all.filter(s=>!sozPas(s)),ex=all.length-l.length,sg=(d>0?'+':'')+d;
+  if(!l.length)return toast('Puan verilecek öğrenci yok (Yok ya da İzinli olanlar hariç).');
+  if(!confirm(l.length+' öğrenciye '+sg+' puan verilsin mi?'+(ex?'\n('+ex+' öğrenci yoklamada Yok ya da İzinli olduğu için hariç.)':'')))return;
+  del(()=>{l.forEach(s=>{const r=dayRec(s,G.donem,G.date);r.points=(r.points||0)+d;});},l.length+' öğrenciye '+sg+' puan verildi'+(ex?' ('+ex+' hariç)':''));
+};
 
 /* Kur'an & Ezber Takibi */
 gpage('ezber','📖',"Kur'an & Ezber Takibi",'Ezber',null,()=>grp().map(s=>{
