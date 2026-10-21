@@ -65,8 +65,8 @@ const _d=new Date(), today=new Date(_d-_d.getTimezoneOffset()*6e4).toISOString()
 const isO=v=>v!==null&&typeof v==='object';
 
 /* ========== 2. DURUM ve VERİ BİÇİMİ ========== */
-const KEYS=['students','lessons','ezberItems','homeworks','msgs','plans'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_',plans:'PL_'};
-const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],plans:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
+const KEYS=['students','lessons','ezberItems','homeworks','msgs','plans','yplan'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_',plans:'PL_',yplan:'YP_'};
+const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],plans:[],yplan:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
 const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function prepare(l,p){let m=l.reduce((a,x)=>Math.max(a,typeof x._o==='number'?x._o:-1),-1);l.forEach(x=>{if(!x.id)x.id=uid(p);if(typeof x._o!=='number')x._o=++m;});}
 function toList(v,p){
@@ -164,7 +164,7 @@ const ACT={};
 /* ========== 5. SAYFA: ANA SAYFA ========== */
 /* Düzen: Bugün kartı (bildirimler) > sınıf seçimi > büyük günlük kısayollar > sakin diğer sayfalar > özet satırı */
 const HQ=['yok','ders','ezber'];
-const HGRP=[['📅 Günlük işler',['dav','reh']],['🏫 Sınıf',['ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne']],['🧰 Diğer',['ayar']]];
+const HGRP=[['📅 Günlük işler',['dav','reh','yplan']],['🏫 Sınıf',['ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne']],['🧰 Diğer',['ayar']]];
 ACT.hcls=a=>{G.sinif=a.dataset.s;G.sube=a.dataset.b;G.date=today;G.q='';gsave();render(true);};
 const todayCard=()=>{
   const it=[alertItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
@@ -1729,7 +1729,7 @@ const bdDk=()=>{const n=+lsg('tahta_dk');return n>=5&&n<=180?n:40;};
 const bdSt=id=>S.students.find(x=>x.id===id);
 const bdFish=s=>{const p=akP(s),t=akTier(p);return {p:p,t:t,e:AKE[t],n:akSp(s).n,tn:AKN[t],nx:AKT[t+1]};};
 if(kioskOn())document.body.classList.add('kiosk');
-const _go=go;go=function(id){if(kioskOn()&&id!=='tahta')return;_go(id);};
+const _go=go;go=function(id){if(kioskOn()&&id!=='tahta')return;if(id==='yplan')YP.sc=true;_go(id);};
 
 function bdPlus(s,kind){
   const r=dayRec(s,G.donem,G.date);
@@ -1864,6 +1864,52 @@ setInterval(()=>{
   if(!kioskOn()&&S.page==='tahta'&&BD.sess)render();
 },5000);
 $('view').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='sbIn')ACT.bdenter();});
+
+/* ========== YILLIK PLAN: hafta hafta plan, "Bu hafta" otomatik, favori, not, işlendi, etkinlik takvimi ========== */
+/* Kayıt: S.yplan = [{hafta,tarih,sinif,ders,konu,kaz,nt,ok,fav}] ve etkinlik {t:'e',tarih,konu} */
+const YP={sinif:'ALL',fav:false,sc:true};
+const ypAdd=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10);};
+const ypNow=x=>!!x.tarih&&x.tarih<=bdNow()&&bdNow()<ypAdd(x.tarih,7);
+const ypOk=x=>x.t!=='e'&&(YP.sinif==='ALL'||x.sinif===YP.sinif||x.sinif==='ALL');
+const ysel=(at,v)=>'<select '+at+' class="inp">'+['ALL'].concat(classes()).map(c=>'<option value="'+esc(c)+'"'+(c===v?' selected':'')+'>'+(c==='ALL'?'Tüm sınıflar':esc(c)+'. sınıf')+'</option>').join('')+'</select>';
+const ypCard=x=>{
+  const now=ypNow(x),id=esc(x.id);
+  return '<div'+(now?' id="ypNow"':'')+' class="card '+(now?'!border-2 !border-indigo-500 ':'')+(x.ok&&!now?'opacity-60':'')+'"><div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-bold bg-indigo-100 text-indigo-800 rounded-full px-2 py-0.5">'+(x.hafta||'?')+'. hafta</span><span class="text-xs text-slate-500">'+(x.tarih?fdt(x.tarih)+' – '+fdt(ypAdd(x.tarih,4))+' · ':'')+(x.sinif==='ALL'?'Tüm sınıflar':esc(x.sinif)+'. sınıf')+(x.ders?' · '+esc(x.ders):'')+'</span>'+(now?'<span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">📍 Bu hafta</span>':'')+'<span class="ml-auto flex gap-2"><button data-act="ypfav" data-id="'+id+'" class="text-xl">'+(x.fav?'⭐':'☆')+'</button><button data-act="ypdel" data-id="'+id+'" class="text-lg">🗑</button></span></div>'
+   +'<div class="font-semibold mt-1">'+esc(x.konu)+'</div>'+(x.kaz?'<div class="text-sm text-slate-600 dark:text-slate-300">'+esc(x.kaz)+'</div>':'')
+   +'<textarea data-ypn="'+id+'" class="inp w-full mt-2 text-sm" rows="2" placeholder="Not ekle…">'+esc(x.nt||'')+'</textarea>'
+   +'<button data-act="ypok" data-id="'+id+'" class="mt-2 px-3 py-1.5 rounded-lg border text-sm font-semibold '+(x.ok?'bg-emerald-600 text-white border-emerald-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+(x.ok?'✅ İşlendi':'İşlendi olarak işaretle')+'</button></div>';
+};
+reg('yplan','📆','Yıllık Plan',()=>{
+  const td=bdNow(),now=S.yplan.filter(x=>ypOk(x)&&ypNow(x)),ev=S.yplan.filter(x=>x.t==='e'&&x.id&&x.tarih>=td).sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const rows=S.yplan.filter(x=>ypOk(x)&&(!YP.fav||x.fav)).sort((a,b)=>String(a.sinif).localeCompare(String(b.sinif),'tr',{numeric:true})||(a.hafta||0)-(b.hafta||0));
+  const evH='<div class="card"><b>🗓️ Etkinlik takvimi</b>'+(ev.length?ev.slice(0,8).map(x=>{const n=Math.round((new Date(x.tarih+'T12:00:00')-new Date(td+'T12:00:00'))/864e5);return '<div class="flex items-center gap-2 text-sm py-1.5 border-b border-slate-200 dark:border-slate-700"><b class="w-24 shrink-0">'+fdt(x.tarih)+'</b><span class="flex-1">'+esc(x.konu)+'</span><span class="text-xs text-slate-500">'+(n?n+' gün kaldı':'bugün')+'</span><button data-act="ypevx" data-id="'+esc(x.id)+'" class="px-1">✖</button></div>';}).join(''):'<div class="text-sm text-slate-500 mt-1">Yaklaşan etkinlik yok.</div>')
+    +'<div class="flex flex-wrap gap-2 mt-2"><input type="date" id="ypED" class="inp"><input id="ypEN" class="inp flex-1 min-w-[140px]" placeholder="Etkinlik adı"><button data-act="ypev" class="btn bg-indigo-600">Ekle</button></div></div>';
+  const addH='<details class="card"><summary class="font-bold cursor-pointer">➕ Plan ekle (tek satır ya da toplu yapıştır)</summary><p class="text-xs text-slate-500 my-2">Her satıra bir hafta yazın: <b>hafta ; konu ; kazanım</b>. Excel ya da Word tablosundan kopyaladığınız satırları da yapıştırabilirsiniz (sütunlar sekmeyle ayrılır). Hafta numarası yazmazsanız sıradaki haftaya eklenir. Hafta tarihleri, 1. haftanın başlangıcından hesaplanır.</p><div class="flex flex-wrap items-center gap-2 mb-2">'+ysel('id="ypS"',YP.sinif)+'<input id="ypD" class="inp" placeholder="Ders (isteğe bağlı)" list="ypDL"><label class="text-xs">1. hafta başlangıcı (Pazartesi) <input type="date" id="ypB" class="inp" value="'+esc(lsg('yp_bas')||'')+'"></label></div><datalist id="ypDL">'+[...new Set(S.lessons.map(l=>l.name))].map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist><textarea id="ypT" rows="5" class="inp w-full" placeholder="1 ; Konu adı ; Kazanım"></textarea><button data-act="ypadd" class="btn bg-indigo-600 w-full mt-2">Planı ekle</button></details>';
+  return '<div class="card flex flex-wrap items-center gap-2">'+ysel('data-yf="sinif"',YP.sinif)+'<button data-act="ypfv" class="btn '+(YP.fav?'bg-amber-500':'bg-slate-500')+'">⭐ Favoriler</button></div>'
+   +'<div class="card !border-indigo-400"><b>📍 Bu hafta</b>'+(now.length?now.map(x=>'<div class="mt-1"><b>'+(x.hafta||'?')+'. hafta</b> · '+(x.sinif==='ALL'?'':esc(x.sinif)+'. sınıf · ')+esc(x.konu)+'</div>').join(''):'<div class="text-sm text-slate-500 mt-1">Bu haftaya ait plan satırı yok. Tarihleri ve 1. hafta başlangıcını kontrol edin.</div>')+'</div>'
+   +evH+addH+(rows.length?rows.map(ypCard).join(''):'<div class="card text-center text-sm text-slate-400">'+(YP.fav?'Favori plan satırı yok.':'Henüz plan eklenmedi.')+'</div>');
+},()=>{const e=$('ypNow');if(e&&YP.sc){YP.sc=false;setTimeout(()=>e.scrollIntoView({block:'center'}),60);}});
+$('view').addEventListener('change',e=>{
+  const d=e.target.dataset;
+  if(d.yf){YP[d.yf]=e.target.value;render(true);return;}
+  if(d.ypn){const x=S.yplan.find(y=>y.id===d.ypn);if(x){x.nt=T(e.target.value);save();}}
+});
+const ypBy=a=>S.yplan.find(y=>y.id===a.dataset.id);
+Object.assign(ACT,{
+  ypfv(){YP.fav=!YP.fav;render(true);},
+  ypfav(a){const x=ypBy(a);if(!x)return;x.fav=!x.fav;save();render(true);},
+  ypok(a){const x=ypBy(a);if(!x)return;x.ok=!x.ok;save();render(true);},
+  ypdel(a){const id=a.dataset.id;del(()=>{S.yplan=S.yplan.filter(y=>y.id!==id);},'Plan satırı silindi');},
+  ypevx(a){const id=a.dataset.id;del(()=>{S.yplan=S.yplan.filter(y=>y.id!==id);},'Etkinlik silindi');},
+  ypev(){const d=$('ypED').value,n=T($('ypEN').value);if(!d||!n)return alert('Tarih ve etkinlik adı girin.');S.yplan.push({t:'e',tarih:d,konu:n});save();render(true);},
+  ypadd(){
+    const sn=$('ypS').value,ders=T($('ypD').value),b=$('ypB').value,rows=$('ypT').value.split('\n').map(l=>l.split(/\t|;|\|/).map(T)).filter(c=>c.some(Boolean));
+    if(!b)return alert('1. haftanın başlangıç tarihini seçin.');if(!rows.length)return alert('Plan satırlarını yazın ya da yapıştırın.');
+    lss('yp_bas',b);let h=0;const add=[];
+    rows.forEach(c=>{let n=parseInt(c[0]);if(/^\d+\.?(\s*hafta)?$/i.test(c[0])&&n>0)c.shift();else n=h+1;h=n;add.push({hafta:n,tarih:ypAdd(b,(n-1)*7),sinif:sn,ders:ders,konu:c[0]||'',kaz:c[1]||''});});
+    del(()=>{add.forEach(x=>S.yplan.push(x));},add.length+' hafta eklendi');
+  }
+});
 
 const PK=new URLSearchParams(location.search).get('k');
 if(PK)parentView(PK);else{go(kioskOn()?'tahta':'home');if(S.room)listen(S.room);else room();}
