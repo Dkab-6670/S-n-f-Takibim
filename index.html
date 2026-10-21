@@ -31,7 +31,7 @@
   <div class="flex items-center gap-2 text-xs bg-indigo-800 rounded-lg px-2 py-1">
    <span id="dot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span id="stx">Çevrimdışı</span>
    <button id="rc" class="font-mono font-bold text-yellow-300" title="Dokunun: 5 sn göster">-----</button>
-   <button id="pf" class="max-w-[8rem] truncate font-semibold" title="Profilim">👤 Profil</button><button id="rcB" title="Oda kodunu değiştir">🔑</button><button data-go="ayar" title="Ayarlar">⚙️</button><button id="th">🌙</button>
+   <button id="pf" class="max-w-[8rem] truncate font-semibold" title="Profilim">👤 Profil</button><button id="rcB" title="Oda kodunu değiştir">🔑</button><button data-go="ayar" title="Ayarlar" class="hidden md:inline">⚙️</button><button id="th">🌙</button>
   </div>
  </div>
 </header>
@@ -1434,7 +1434,7 @@ P.home.html=()=>{
   const tiles=HGRP.map(g=>{const ks=g[1].filter(k=>P[k]&&pageOn(k));return ks.length?'<div class="font-bold text-sm mt-4 mb-2">'+g[0]+'</div><div class="grid grid-cols-2 md:grid-cols-4 gap-3">'+ks.map(k=>'<button data-go="'+k+'" class="card mb-0 text-left"><div class="text-2xl">'+P[k].icon+'</div><b class="text-sm">'+esc(P[k].title)+'</b></button>').join('')+'</div>':'';}).join('');
   const stats=[['Öğrenci',A.length],['Sınıf',classes().length],['Ders',S.lessons.length],['Ezber konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('');
   return bkBar()+alertBar()+remBar()+bdayBar()
-   +(combos.length?'<div class="font-bold text-sm mb-2">🏫 Sınıflarım</div><div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">'+cards+'</div>':'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
+   +(combos.length?'':'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
    +tiles+'<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">'+stats+'</div>';
 };
 
