@@ -171,7 +171,7 @@ const filt=()=>sorted(S.students.filter(s=>{const f=S.F,q=f.q.toLowerCase();
   return (f.sinif==='ALL'||T(s.sinif)===f.sinif)&&(f.sube==='ALL'||T(s.sube).toLowerCase()===f.sube)&&(!q||String(s.name).toLowerCase().includes(q)||String(s.no).toLowerCase().includes(q));}));
 function drawList(){
   const l=filt();$('ogrCnt').textContent=(S.F.sinif==='ALL'?'Tüm sınıflar':S.F.sinif+(S.F.sube==='ALL'?'. sınıf':'/'+S.F.sube.toUpperCase()))+': '+l.length+' öğrenci'+(l.length!==S.students.length?' (toplam '+S.students.length+')':'');
-  $('ogrList').innerHTML=l.length?l.map((s,i)=>'<div class="card mb-2 flex flex-wrap items-center justify-between gap-2'+(s.absent?' opacity-60':'')+'"><div><b>'+(i+1)+'. '+esc(s.name)+'</b><div class="text-xs text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+(s.absent?' · 🚫 sürekli devamsız':'')+'</div></div><div class="flex gap-2"><button data-act="edit" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border">✏️</button><button data-act="abs" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-xs">'+(s.absent?'Aktif yap':'Devamsız yap')+'</button><button data-act="del" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-red-600">🗑️</button></div></div>').join(''):'<div class="card text-center text-sm text-slate-400">Öğrenci yok.</div>';
+  $('ogrList').innerHTML=l.length?l.map((s,i)=>'<div class="card mb-2 flex flex-wrap items-center justify-between gap-2'+(s.absent?' opacity-60':'')+'"><div><b>'+(i+1)+'. '+av(s,24)+esc(s.name)+'</b><div class="text-xs text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+(s.absent?' · 🚫 sürekli devamsız':'')+'</div></div><div class="flex gap-2"><button data-act="edit" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border">✏️</button><button data-act="abs" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-xs">'+(s.absent?'Aktif yap':'Devamsız yap')+'</button><button data-act="del" data-id="'+esc(s.id)+'" class="px-2 py-1 rounded border text-red-600">🗑️</button></div></div>').join(''):'<div class="card text-center text-sm text-slate-400">Öğrenci yok.</div>';
 }
 reg('ogr','👥','Öğrenciler',()=>{
   const F=S.F,opt=(a,v)=>a.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===v?' selected':'')+'>'+esc(x[1])+'</option>').join('');
@@ -269,7 +269,7 @@ function gpage(id,icon,title,nav,top,list){
   P[id].list=L;
 }
 const B=(s,f,v,txt,on,c)=>'<button data-act="m" data-f="'+f+'" data-v="'+esc(v)+'" data-id="'+esc(s.id)+'" class="flex-1 min-h-[44px] rounded-lg border font-semibold text-sm '+(on?c:'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+txt+'</button>';
-const hd=s=>'<div class="font-semibold underline decoration-dotted cursor-pointer" data-act="card" data-id="'+esc(s.id)+'"><span class="text-indigo-600 dark:text-indigo-300 font-bold">'+(++HI)+'.</span> '+esc(s.name)+'</div><div class="text-[11px] text-slate-500 mb-2">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div>';
+const hd=s=>'<div class="font-semibold underline decoration-dotted cursor-pointer" data-act="card" data-id="'+esc(s.id)+'"><span class="text-indigo-600 dark:text-indigo-300 font-bold">'+(++HI)+'.</span> '+av(s,22)+esc(s.name)+'</div><div class="text-[11px] text-slate-500 mb-2">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div>';
 const stBtns=s=>{const v=rd(s).status||'None';return '<div class="flex gap-1.5">'+B(s,'status','Var','Var',v==='Var',GR)+B(s,'status','Yok','Yok',v==='Yok',RD)+B(s,'status','Izinli','İzinli',v==='Izinli',AM)+'</div>';};
 
 /* işaretleme (tek yer) */
@@ -692,10 +692,10 @@ function cProf(s){
    +'<div class="font-bold text-sm mt-3">Davranış notları</div>'+nt+'<div class="font-bold text-sm mt-3">Rehberlik</div>'+rb;
 }
 const DEFM=[['Bugün derse gelmedi','Sayın veli, {ad} bugün derse gelmedi. Bilginize sunarım.'],['Ödevini yapmadı','Sayın veli, {ad} bugün ödevini yapmadı. Bilginize sunarım.'],['Kitabını getirmedi','Sayın veli, {ad} bugün kitabını getirmedi. Bilginize sunarım.'],['Derste uyudu','Sayın veli, {ad} bugün derste uyudu. Bilginize sunarım.'],['Ezberini tamamladı (tebrik)','Sayın veli, {ad} ezberini başarıyla tamamladı. Tebrik ederiz.'],['Bugün çok başarılıydı','Sayın veli, {ad} bugün derste çok başarılıydı. Tebrik ederiz.']];
-const cParent=s=>'<label class="text-xs">Veli telefonu</label><input id="cmTel" type="tel" class="inp w-full mb-2" placeholder="05xx xxx xx xx" value="'+esc(s.tel||'')+'"><label class="text-xs">Doğum tarihi</label><input id="cmDob" type="date" class="inp w-full mb-2" value="'+esc(s.dob||'')+'"><div class="flex gap-2 mb-3"><button data-act="call" class="flex-1 min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">📞 Ara</button><button data-act="wa" class="flex-1 min-h-[44px] rounded-lg bg-green-600 text-white font-semibold">💬 WhatsApp</button></div><select id="cmTpl" class="inp w-full mb-2">'+msgs().map((t,i)=>'<option value="'+i+'">'+esc(t[0])+'</option>').join('')+'</select><textarea id="cmMsg" rows="3" class="inp w-full">'+esc(msgs()[0][1].split('{ad}').join(s.name))+'</textarea><div class="flex flex-wrap gap-2 mt-2"><button data-act="msave" class="px-3 py-2 rounded-lg border text-sm">💾 Güncelle</button><button data-act="mnew" class="px-3 py-2 rounded-lg border text-sm">➕ Yeni mesaj olarak kaydet</button><button data-act="mren" class="px-3 py-2 rounded-lg border text-sm">✏️ Başlık</button><button data-act="mdel" class="px-3 py-2 rounded-lg border text-sm text-red-600">🗑️ Sil</button></div><p class="text-xs text-slate-500 mt-1">Mesajı yukarıda düzenleyin. Öğrencinin adı otomatik olarak {ad} biçiminde saklanır.</p>';
+const cParent=s=>stage3Top(s)+'<label class="text-xs">Veli telefonu</label><input id="cmTel" type="tel" class="inp w-full mb-2" placeholder="05xx xxx xx xx" value="'+esc(s.tel||'')+'"><label class="text-xs">Doğum tarihi</label><input id="cmDob" type="date" class="inp w-full mb-2" value="'+esc(s.dob||'')+'"><div class="flex gap-2 mb-3"><button data-act="call" class="flex-1 min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">📞 Ara</button><button data-act="wa" class="flex-1 min-h-[44px] rounded-lg bg-green-600 text-white font-semibold">💬 WhatsApp</button><button data-act="shdoc" class="flex-1 min-h-[44px] rounded-lg bg-slate-600 text-white font-semibold">📎 Belgeyle paylaş</button></div><select id="cmTpl" class="inp w-full mb-2">'+msgs().map((t,i)=>'<option value="'+i+'">'+esc(t[0])+'</option>').join('')+'</select><textarea id="cmMsg" rows="3" class="inp w-full">'+esc(msgs()[0][1].split('{ad}').join(s.name))+'</textarea><div class="flex flex-wrap gap-2 mt-2"><button data-act="msave" class="px-3 py-2 rounded-lg border text-sm">💾 Güncelle</button><button data-act="mnew" class="px-3 py-2 rounded-lg border text-sm">➕ Yeni mesaj olarak kaydet</button><button data-act="mren" class="px-3 py-2 rounded-lg border text-sm">✏️ Başlık</button><button data-act="mdel" class="px-3 py-2 rounded-lg border text-sm text-red-600">🗑️ Sil</button></div><p class="text-xs text-slate-500 mt-1">Mesajı yukarıda düzenleyin. Öğrencinin adı otomatik olarak {ad} biçiminde saklanır.</p>';
 function cardShow(){
   const s=cS();if(!s)return;
-  $('cmN').textContent=s.name;cpos();$('cmS').textContent='No: '+s.no+' · '+s.sinif+'/'+String(s.sube).toUpperCase()+(s.absent?' · 🚫 sürekli devamsız':'');
+  $('cmN').innerHTML=av(s,40)+esc(s.name);cpos();$('cmS').textContent='No: '+s.no+' · '+s.sinif+'/'+String(s.sube).toUpperCase()+(s.absent?' · 🚫 sürekli devamsız':'');
   $('cmB').innerHTML=badges(s).map(x=>'<span class="inline-block bg-amber-100 text-amber-900 border border-amber-300 rounded-full px-2.5 py-0.5 text-xs font-bold mr-1 mb-1">'+esc(x)+'</span>').join('');
   $('cmT').innerHTML=[['t','📝 Bugün'],['p','📈 Profil'],['h','🕓 Geçmiş'],['v','📞 Veli']].map(x=>tgb('ctab',x[1],x[0],ctab===x[0])).join('');
   $('cmC').innerHTML=ctab==='t'?cToday(s):ctab==='p'?cProf(s):ctab==='h'?cHist(s):cParent(s);
@@ -745,7 +745,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d1',NEWS=[['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d2',NEWS=[['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1248,7 +1248,7 @@ const hwText=items=>{
   return '📚 ÖDEV DUYURUSU\n\nÖdev: '+h.name+'\nSınıf: '+cls+'\nTeslim: '+(tz||fdt(h.end)+' tarihinde')+(tz&&h.end?'\nSon tarih: '+fdt(h.end):'')+'\n\nÖğrencilerimizin ödevini zamanında hazırlamasını rica ederim.'+(tname()?'\n\n'+tname()+' · '+bransTitle():'');
 };
 const hm=document.createElement('div');hm.className='fixed inset-0 z-[160] hidden items-center justify-center bg-black/60 p-4';
-hm.innerHTML=`<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-5"><b class="text-lg">📤 Ödev mesajı</b><p class="text-xs text-slate-500 my-2">Metni düzenleyebilirsiniz. WhatsApp açılınca göndereceğiniz kişiyi ya da grubu siz seçersiniz.</p><textarea id="hmT" rows="10" class="inp w-full text-sm"></textarea><div class="flex flex-wrap gap-2 mt-3"><button data-act="hmwa" class="btn bg-green-600">💬 WhatsApp</button><button data-act="hmcp" class="btn bg-slate-600">📋 Kopyala</button><button data-act="hmx" class="px-4 py-2 rounded-lg border">Kapat</button></div></div>`;
+hm.innerHTML=`<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-5"><b class="text-lg">📤 Ödev mesajı</b><p class="text-xs text-slate-500 my-2">Metni düzenleyebilirsiniz. WhatsApp açılınca göndereceğiniz kişiyi ya da grubu siz seçersiniz.</p><textarea id="hmT" rows="10" class="inp w-full text-sm"></textarea><div class="flex flex-wrap gap-2 mt-3"><button data-act="hmwa" class="btn bg-green-600">💬 WhatsApp</button><button data-act="hmcp" class="btn bg-slate-600">📋 Kopyala</button><button data-act="hmdoc" class="btn bg-slate-600">📎 Belgeyle paylaş</button><button data-act="hmx" class="px-4 py-2 rounded-lg border">Kapat</button></div></div>`;
 document.body.appendChild(hm);
 const hwMsgOpen=items=>{if(!items||!items.length)return;$('hmT').value=hwText(items);hm.classList.remove('hidden');hm.classList.add('flex');};
 Object.assign(ACT,{
@@ -1276,7 +1276,7 @@ function wmDraw(){
   const l=wmList(),m=msgs(),sk=s=>s.id+'|'+G.date;
   if(!l.length){$('wmB').innerHTML='<p class="text-sm text-slate-500 my-4">'+fdt(G.date)+' tarihinde bu seçimde "Yok" işaretli öğrenci yok.</p>';return;}
   const rem=l.filter(s=>WM.sel[s.id]&&!WM.sent[sk(s)]).length;
-  const rows=l.map(s=>{const ok=!!nTel(s.tel);return '<div class="border border-slate-200 dark:border-slate-700 rounded-lg p-2 mb-2'+(WM.sent[sk(s)]?' bg-emerald-50 dark:bg-emerald-950':'')+'"><div class="flex items-center gap-2"><input type="checkbox" data-wms="'+esc(s.id)+'" class="w-5 h-5"'+(WM.sel[s.id]?' checked':'')+'><div class="flex-1 min-w-0"><div class="font-semibold text-sm truncate">'+esc(s.name)+'</div><div class="text-[11px] text-slate-500">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · No '+esc(s.no)+'</div></div><button data-act="wmgo" data-id="'+esc(s.id)+'" class="btn bg-green-600">'+(WM.sent[sk(s)]?'✓ Tekrar':'💬 Gönder')+'</button></div><input data-wmt="'+esc(s.id)+'" type="tel" class="inp w-full mt-2 text-sm'+(ok?'':' !border-red-400')+'" placeholder="Veli telefonu (05xx...)" value="'+esc(s.tel||'')+'"></div>';}).join('');
+  const rows=l.map(s=>{const ok=!!nTel(s.tel);return '<div class="border border-slate-200 dark:border-slate-700 rounded-lg p-2 mb-2'+(WM.sent[sk(s)]?' bg-emerald-50 dark:bg-emerald-950':'')+'"><div class="flex items-center gap-2"><input type="checkbox" data-wms="'+esc(s.id)+'" class="w-5 h-5"'+(WM.sel[s.id]?' checked':'')+'><div class="flex-1 min-w-0"><div class="font-semibold text-sm truncate">'+esc(s.name)+'</div><div class="text-[11px] text-slate-500">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · No '+esc(s.no)+'</div></div><button data-act="wmgo" data-id="'+esc(s.id)+'" class="btn bg-green-600">'+(WM.sent[sk(s)]?'✓ Tekrar':'💬 Gönder')+'</button><button data-act="wmdoc" data-id="'+esc(s.id)+'" class="btn bg-slate-600" title="Belgeyle paylaş">📎</button></div><input data-wmt="'+esc(s.id)+'" type="tel" class="inp w-full mt-2 text-sm'+(ok?'':' !border-red-400')+'" placeholder="Veli telefonu (05xx...)" value="'+esc(s.tel||'')+'"></div>';}).join('');
   $('wmB').innerHTML='<p class="text-xs text-slate-500 my-2">'+fdt(G.date)+' tarihinde Yok olan '+l.length+' öğrenci. Mesaj her veli için ayrı WhatsApp penceresinde açılır, Gönder düğmesine siz basarsınız.</p><select id="wmTpl" class="inp w-full mb-2">'+m.map((t,i)=>'<option value="'+i+'"'+(i===WM.tpl?' selected':'')+'>'+esc(t[0])+'</option>').join('')+'</select><textarea id="wmT" rows="3" class="inp w-full text-sm">'+esc(WM.text)+'</textarea><div class="text-[11px] text-slate-500 mb-2">{ad} yerine öğrencinin adı yazılır. Telefonu olmayan veliler kırmızı çerçevelidir, buraya yazabilirsiniz.</div><div class="flex flex-wrap gap-2 mb-3"><button data-act="wmall" class="px-3 py-2 rounded-lg border text-sm">Hepsini seç / kaldır</button><button data-act="wmnext" class="btn bg-green-600">▶ Sıradaki seçiliyi aç ('+rem+' kaldı)</button></div>'+rows;
 }
 const wmSend=s=>{
@@ -1437,6 +1437,80 @@ P.home.html=()=>{
    +(combos.length?'<div class="font-bold text-sm mb-2">🏫 Sınıflarım</div><div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">'+cards+'</div>':'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
    +tiles+'<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">'+stats+'</div>';
 };
+
+/* ========== AŞAMA 3: ÖĞRENCİ FOTOĞRAFI, FOTOĞRAFTAN TELEFON, BELGE PAYLAŞIMI ========== */
+/* Depolama gerekmez: fotoğraf küçültülüp öğrenci kaydında tutulur, OCR tarayıcıda çalışır, belge paylaşım menüsüyle gider. */
+const av=(s,z)=>s.photo?'<img src="'+esc(s.photo)+'" alt="" class="rounded-full object-cover inline-block align-middle mr-1" style="width:'+z+'px;height:'+z+'px">':'';
+const loadImg=f=>new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i);};i.onerror=()=>no(new Error('Görsel açılamadı'));i.src=u;});
+async function squareJpg(f,z,q){const i=await loadImg(f),c=document.createElement('canvas');c.width=c.height=z;const m=Math.min(i.width,i.height);c.getContext('2d').drawImage(i,(i.width-m)/2,(i.height-m)/2,m,m,0,0,z,z);return c.toDataURL('image/jpeg',q);}
+async function scaledBlob(f,max){const i=await loadImg(f),k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);return new Promise(ok=>c.toBlob(ok,'image/jpeg',.9));}
+
+/* Fotoğraftan veli telefonu okuma (Tesseract.js, ilk kullanımda internetten yüklenir) */
+const tessLoad=()=>window.Tesseract?Promise.resolve():new Promise((ok,no)=>{const e=document.createElement('script');e.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';e.onload=ok;e.onerror=()=>no(new Error('Metin okuma kütüphanesi yüklenemedi (internet?)'));document.head.appendChild(e);});
+const fmtTel=n=>n.slice(0,4)+' '+n.slice(4,7)+' '+n.slice(7,9)+' '+n.slice(9);
+function findPhones(text){
+  let t=String(text);for(let k=0;k<2;k++)t=t.replace(/(\d)[Oo]/g,'$10').replace(/[Oo](\d)/g,'0$1').replace(/(\d)[lI|]/g,'$11').replace(/[lI|](\d)/g,'1$1');
+  const out=[],seen={},re=/(?:\+?90[\s.\-]*)?0?[\s.\-]*\(?5\d{2}\)?[\s.\-]*\d{3}[\s.\-]*\d{2}[\s.\-]*\d{2}/g;
+  t.split('\n').forEach(line=>{(line.match(re)||[]).forEach(m=>{let d=m.replace(/\D/g,'');if(d.startsWith('90')&&d.length>=12)d=d.slice(2);if(d.length===10)d='0'+d;if(d.length!==11||seen[d])return;seen[d]=1;out.push({n:d,line:line.replace(m,'').replace(/[\s|_]+/g,' ').trim().slice(0,40)});});});
+  return out;
+}
+const stage3Top=s=>{
+  const o=S.ocr&&S.ocrFor===s.id?S.ocr:null;
+  return '<div class="flex items-center gap-3 mb-3">'+(s.photo?av(s,56):'<div class="w-14 h-14 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-2xl">👤</div>')
+   +'<div class="flex flex-wrap gap-2"><button data-act="phpick" class="px-3 py-2 rounded-lg border text-sm">📷 Fotoğraf</button>'+(s.photo?'<button data-act="phdel" class="px-3 py-2 rounded-lg border text-sm text-red-600">🗑️</button>':'')+'<button data-act="ocrpick" class="px-3 py-2 rounded-lg border text-sm">🔍 Fotoğraftan telefon oku</button></div></div>'
+   +(o?'<div class="card !p-2 !mb-3"><div class="text-xs font-bold mb-1">'+(o.length?'Bulunan numaralar (dokunup bu öğrenciye atayın):':'Fotoğrafta telefon numarası bulunamadı. Daha yakından ve düz çekmeyi deneyin.')+'</div>'+o.map(x=>'<button data-act="ocruse" data-n="'+x.n+'" class="w-full text-left rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 mb-1 text-sm">📞 <b>'+fmtTel(x.n)+'</b>'+(x.line?' <span class="text-[11px] text-slate-500">'+esc(x.line)+'</span>':'')+'</button>').join('')+'</div>':'');
+};
+
+/* gizli dosya girişleri ve belge paylaşım penceresi */
+const s3=document.createElement('div');
+s3.innerHTML='<input type="file" id="phF" accept="image/*" hidden><input type="file" id="ocrF" accept="image/*" hidden><input type="file" id="docF" hidden multiple>';
+document.body.appendChild(s3);
+let DOC={files:[],get:()=>''};
+const dmod=document.createElement('div');dmod.className='fixed inset-0 z-[170] hidden items-center justify-center bg-black/60 p-4';
+dmod.innerHTML=`<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-5"><b class="text-lg">📎 Belgeyle paylaş</b><div id="dmF" class="text-xs my-2"></div><textarea id="dmT" rows="6" class="inp w-full text-sm"></textarea><p class="text-[11px] text-slate-500 mt-1">Paylaş düğmesi telefonun paylaşım menüsünü açar. WhatsApp ve veliyi orada siz seçersiniz. Menü açılmazsa belge indirilir ve WhatsApp mesaj metniyle açılır, belgeyi elle eklersiniz.</p><div class="flex flex-wrap gap-2 mt-3"><button data-act="dmshare" class="btn bg-green-600">📤 Paylaş</button><button data-act="dmx" class="px-4 py-2 rounded-lg border">Kapat</button></div></div>`;
+document.body.appendChild(dmod);
+function docOpen(files){
+  DOC.files=files;
+  $('dmF').innerHTML=files.map(f=>'📄 '+esc(f.name)+' <span class="text-slate-500">('+Math.max(1,Math.round(f.size/1024))+' KB)</span>').join('<br>');
+  $('dmT').value=DOC.get();dmod.classList.remove('hidden');dmod.classList.add('flex');
+}
+document.addEventListener('change',async e=>{
+  const id=e.target.id;if(!['phF','ocrF','docF'].includes(id)||!e.target.files||!e.target.files[0])return;
+  const fl=[...e.target.files],f=fl[0],s=cS();
+  e.target.value='';
+  try{
+    if(id==='docF'){docOpen(fl);return;}
+    if(!s)return;
+    if(id==='phF'){s.photo=await squareJpg(f,160,.65);save();toast('Fotoğraf kaydedildi');}
+    else{
+      toast('Metin okunuyor… (ilk seferde biraz sürebilir)');
+      await tessLoad();
+      const img=await scaledBlob(f,1600);
+      const r=await Tesseract.recognize(img,'eng',{logger:m=>{if(m.status==='recognizing text')toast('Okunuyor %'+Math.round(m.progress*100));}});
+      S.ocr=findPhones(r.data.text);S.ocrFor=s.id;cardShow();
+    }
+  }catch(err){alert('İşlem yapılamadı: '+(err.message||err));}
+});
+Object.assign(ACT,{
+  phpick(){$('phF').click();},
+  phdel(){const s=cS();if(!s||!confirm('Fotoğraf kaldırılsın mı?'))return;delete s.photo;save();},
+  ocrpick(){$('ocrF').click();},
+  ocruse(a){const s=cS();if(!s)return;s.tel=a.dataset.n;S.ocr=null;save();toast('Telefon kaydedildi');},
+  shdoc(){DOC.get=()=>$('cmMsg').value;$('docF').click();},
+  hmdoc(){DOC.get=()=>$('hmT').value;$('docF').click();},
+  wmdoc(a){const s=find(a);if(!s)return;DOC.get=()=>wmFill(WM.text,s);$('docF').click();},
+  dmx(){dmod.classList.add('hidden');dmod.classList.remove('flex');},
+  async dmshare(){
+    const t=$('dmT').value,fl=DOC.files;
+    try{
+      if(navigator.canShare&&navigator.canShare({files:fl})){await navigator.share({files:fl,text:t});ACT.dmx();}
+      else{
+        fl.forEach(f=>{const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();a.remove();});
+        open('https://wa.me/?text='+encodeURIComponent(t),'_blank');toast('Belge indirildi, WhatsApp penceresine elle ekleyin');
+      }
+    }catch(err){if(!err||err.name!=='AbortError')alert('Paylaşılamadı: '+(err.message||err));}
+  }
+});
 
 /* Başlangıç: profil ve oda */
 if(!new URLSearchParams(location.search).get('k')){
