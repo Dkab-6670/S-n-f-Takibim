@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#4338ca">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={darkMode:'class'}</script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -28,8 +29,8 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
 <header class="bg-indigo-700 text-white shadow">
- <div class="max-w-6xl mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2" style="padding-top:max(.5rem,env(safe-area-inset-top))">
-  <b>🕌 Sınıf Takip</b>
+ <div class="max-w-6xl mx-auto px-3 pb-3 pt-3 flex flex-wrap items-center justify-between gap-2" style="padding-top:max(.75rem,env(safe-area-inset-top))">
+  <b class="text-lg">🕌 Sınıf Takip</b>
   <div class="flex items-center gap-2 text-xs bg-indigo-800 rounded-lg px-2 py-1 relative">
    <span id="dot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span id="stx">Çevrimdışı</span>
    <button id="rc" class="font-mono font-bold text-yellow-300" title="Dokunun: 5 sn göster">-----</button>
@@ -1724,6 +1725,7 @@ function kioskOn(){const v=lsg('kiosk_v1');return v==='1'||v==='2';}
 const BD={v:'grid',id:'',sid:'',given:false,t:Date.now()};
 const bdNow=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);};
 const bdCap=()=>Math.min(10,Math.max(1,+lsg('tahta_cap')||2));
+const bdDk=()=>{const n=+lsg('tahta_dk');return n>=5&&n<=180?n:40;};
 const bdSt=id=>S.students.find(x=>x.id===id);
 const bdFish=s=>{const p=akP(s),t=akTier(p);return {p:p,t:t,e:AKE[t],n:akSp(s).n,tn:AKN[t],nx:AKT[t+1]};};
 if(kioskOn())document.body.classList.add('kiosk');
@@ -1768,9 +1770,10 @@ const bdSessRef=()=>S.room?db.ref('rooms/'+S.room+'/tahtaOturum'):null;
 const bdLeft=()=>{const v=BD.sess;if(!v)return 0;const e=v.bas?v.bas+(v.dk||40)*6e4:(v.ol||bdSrv())+30*6e4;return Math.max(0,Math.ceil((e-bdSrv())/6e4));};
 let bdWR='';
 function bdWatch(){if(!S.room||bdWR===S.room)return;const rm=S.room;bdWR=rm;
-  auth().then(()=>db.ref('rooms/'+rm+'/tahtaOturum').on('value',x=>{BD.sess=x.val();bdSync();})).catch(()=>{bdWR='';});}
+  auth().then(()=>{db.ref('rooms/'+rm+'/tahtaOturum').on('value',x=>{BD.sess=x.val();bdSync();});db.ref('rooms/'+rm+'/tahtaKilit').on('value',x=>{BD.klt=x.val()||0;bdSync();});}).catch(()=>{bdWR='';});}
 function bdEnd(){lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');BD.v='grid';render(true);}
 function bdSync(){
+  if(lsg('kiosk_v1')==='1'&&BD.klt&&BD.klt>(+lsg('kiosk_st')||0))return bdEnd();
   if(lsg('kiosk_v1')==='1'&&lsg('kiosk_h')){const v=BD.sess;
     if(!v||v.h!==lsg('kiosk_h'))return bdEnd();
     if(v.bas)lss('kiosk_end',String(Date.now()+v.bas+(v.dk||40)*6e4-bdSrv()));}
@@ -1786,10 +1789,10 @@ function bdSetup(){
   const g=grp();let p=0,h=0;const ch=[];
   g.forEach(s=>{const r=rd(s);if(r.tp){p+=r.tp;ch.push(esc(s.name)+' +'+r.tp);}Object.values(s.hwSelf||{}).forEach(d=>{if(d===G.date)h++;});});
   const v=BD.sess,left=bdLeft(),k=(lsg('tahta_kod')||'').split('|'),ok=v&&left>0;
-  const sel='<div class="flex flex-wrap items-center gap-2"><select data-g="sinif" class="inp">'+o([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),G.sinif)+'</select><select data-g="sube" class="inp">'+o([['ALL','Tüm Şubeler']].concat(subes(G.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),G.sube)+'</select><label class="text-sm">Günlük yem hakkı: <select data-bd="cap" class="inp">'+[1,2,3,4,5].map(n=>'<option value="'+n+'"'+(n===bdCap()?' selected':'')+'>'+n+'</option>').join('')+'</select></label></div>';
-  const box=ok?'<div class="text-center mt-3"><div class="text-sm">'+(v.bas?'Tahta açık · '+left+' dk kaldı':'Tahtada kod bekleniyor · '+left+' dk içinde girilmeli')+'</div><div class="text-5xl font-mono font-bold tracking-widest my-2">'+(k[1]===v.h?esc(k[0]):'••••••')+'</div>'+(k[1]===v.h?'':'<div class="text-xs text-slate-500">Kod bu cihazda kayıtlı değil. Bitirip yenisini oluşturun.</div>')+'<div class="flex gap-2 justify-center mt-2"><button data-act="bdplus" class="btn bg-indigo-600">+10 dk</button><button data-act="bdend" class="btn bg-red-600">⏹ Bitir</button></div></div>'
-    :'<button data-act="bdcode" class="btn bg-emerald-600 !text-lg !py-3 w-full mt-3">📱 40 dk’lık kod oluştur ('+g.length+' öğrenci)</button>';
-  return '<div class="card"><b>📱 Geçici tahta kodu</b><p class="text-sm text-slate-500 my-2">Telefondan ya da bilgisayardan kod oluşturun, tahtaya girilsin. Öğrenci ekranı kod girildiği andan itibaren 40 dakika açık kalır, sonra kendiliğinden kilitlenir. Kod oluşturulduktan sonra 30 dakika içinde girilmelidir. Kodu tahtadaki öğretmene ya da sorumlu kişiye iletebilirsiniz.</p>'+sel+box+'</div>'
+  const sel='<div class="flex flex-wrap items-center gap-2"><select data-g="sinif" class="inp">'+o([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),G.sinif)+'</select><select data-g="sube" class="inp">'+o([['ALL','Tüm Şubeler']].concat(subes(G.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),G.sube)+'</select><label class="text-sm">Günlük yem hakkı: <select data-bd="cap" class="inp">'+[1,2,3,4,5].map(n=>'<option value="'+n+'"'+(n===bdCap()?' selected':'')+'>'+n+'</option>').join('')+'</select></label> <label class="text-sm">Süre: <select data-bd="dk" class="inp">'+[15,20,30,40,45,60,90].map(n=>'<option value="'+n+'"'+(n===bdDk()?' selected':'')+'>'+n+' dk</option>').join('')+'</select></label></div>';
+  const box=ok?'<div class="text-center mt-3"><div class="text-sm">'+(v.bas?'Tahta açık · '+left+' dk kaldı':'Tahtada kod bekleniyor · '+left+' dk içinde girilmeli')+'</div><div class="text-5xl font-mono font-bold tracking-widest my-2">'+(k[1]===v.h?esc(k[0]):'••••••')+'</div>'+(k[1]===v.h?'':'<div class="text-xs text-slate-500">Kod bu cihazda kayıtlı değil. Bitirip yenisini oluşturun.</div>')+'<div class="flex gap-2 justify-center mt-2"><button data-act="bdplus" class="btn bg-indigo-600">+10 dk</button></div></div>'
+    :'<button data-act="bdcode" class="btn bg-emerald-600 !text-lg !py-3 w-full mt-3">📱 '+bdDk()+' dk’lık kod oluştur ('+g.length+' öğrenci)</button>';
+  return '<div class="card"><b>📱 Geçici tahta kodu</b><p class="text-sm text-slate-500 my-2">Telefondan ya da bilgisayardan kod oluşturun, tahtaya girilsin. Öğrenci ekranı kod girildiği andan itibaren seçtiğiniz süre (varsayılan 40 dakika) açık kalır, sonra kendiliğinden kilitlenir. Kod oluşturulduktan sonra 30 dakika içinde girilmelidir. Kodu tahtadaki öğretmene ya da sorumlu kişiye iletebilirsiniz.</p>'+sel+box+'<button data-act="bdlock" class="btn bg-red-600 !text-base !py-3 w-full mt-3">🔒 Tahtayı şimdi kilitle</button></div>'
    +'<div class="card"><b>🖥️ Bu cihaz akıllı tahta ise</b><p class="text-sm text-slate-500 my-2">Bir kez ayarlayın: cihaz kod bekleme ekranına geçer, çıkış için PIN ister. Sonraki derslerde yalnızca kod oluşturmanız yeterli.</p><div class="flex flex-wrap gap-2"><button data-act="bdstandby" class="btn bg-indigo-600 !text-base !py-3">🔒 Kodlu bekleme ekranına al</button><button data-act="bdstart" class="btn bg-slate-600 !text-base !py-3">Süresiz öğrenci ekranı ('+g.length+')</button></div></div>'
    +'<div class="card"><b>📊 Bugün tahtadan</b><div class="text-sm mt-1">Verilen +: <b>'+p+'</b> · Öğrencinin işaretlediği ödev: <b>'+h+'</b></div>'+(ch.length?'<div class="text-xs text-slate-500 mt-1">'+ch.join(' · ')+'</div>':'')+'<p class="text-xs text-slate-500 mt-2">Bu + puanlar Ders takibindeki puanlara eklenir. Öğrencinin işaretlediği ödevleri Ödev sayfasından kontrol edebilirsiniz.</p></div>';
 }
@@ -1811,16 +1814,16 @@ async function bxGo(){
   else{bxF++;$('bxIn').value='';$('bxMsg').textContent='Yanlış PIN';if(bxF>=5){bxU=Date.now()+30000;bxF=0;}}
 }
 $('bxNo').onclick=bxClose;$('bxOk').onclick=bxGo;$('bxIn').addEventListener('keydown',e=>{if(e.key==='Enter')bxGo();});
-$('view').addEventListener('change',e=>{if(e.target.dataset.bd==='cap'){lss('tahta_cap',e.target.value);toast('Kaydedildi');}});
+$('view').addEventListener('change',e=>{if(e.target.dataset.bd==='cap'){lss('tahta_cap',e.target.value);toast('Kaydedildi');}else if(e.target.dataset.bd==='dk'){lss('tahta_dk',e.target.value);toast('Kaydedildi');}});
 Object.assign(ACT,{
   async bdcode(){
     if(!S.room)return alert('Önce oda kodunu girin.');if(!grp().length)return alert('Bu seçimde öğrenci yok.');
     const c=String(100000+crypto.getRandomValues(new Uint32Array(1))[0]%900000),h=await sha(c);
-    try{await auth();await bdSessRef().set({h:h,sn:G.sinif,sb:G.sube,cap:bdCap(),ol:firebase.database.ServerValue.TIMESTAMP,dk:40});}catch(e){return alert('Kod oluşturulamadı: '+e.message);}
+    try{await auth();await bdSessRef().set({h:h,sn:G.sinif,sb:G.sube,cap:bdCap(),ol:firebase.database.ServerValue.TIMESTAMP,dk:bdDk()});}catch(e){return alert('Kod oluşturulamadı: '+e.message);}
     lss('tahta_kod',c+'|'+h);
   },
   bdplus(){const r=bdSessRef();if(r)r.child('dk').transaction(x=>(x||40)+10);},
-  bdend(){const r=bdSessRef();if(r&&confirm('Tahta oturumu bitirilsin mi?'))r.remove();},
+  bdlock(){const r=bdSessRef();if(!r||!confirm('Tahta şimdi kilitlensin mi? Yeniden açmak için yeni kod gerekir.'))return;r.parent.child('tahtaKilit').set(firebase.database.ServerValue.TIMESTAMP);r.remove();toast('Kilit komutu gönderildi');},
   async bdstandby(){if(!await bdPin())return;lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.add('kiosk');BD.v='grid';render(true);try{await document.documentElement.requestFullscreen();}catch(e){}},
   async bdenter(){
     const m=t=>{const e=$('sbMsg');if(e)e.textContent=t;},c=(($('sbIn')||{}).value||'').trim(),r=bdSessRef();
@@ -1831,13 +1834,13 @@ Object.assign(ACT,{
     if(v.bas?v.bas+dk*6e4<=now:(v.ol||now)+30*6e4<now)return m('Kodun süresi dolmuş.');
     if(!v.bas)r.child('bas').set(firebase.database.ServerValue.TIMESTAMP);
     const end=(v.bas||now)+dk*6e4;sbF=0;
-    G.sinif=v.sn||'ALL';G.sube=v.sb||'ALL';lss('tahta_cap',String(v.cap||2));lss('kiosk_h',v.h);lss('kiosk_end',String(Date.now()+end-now));lss('kiosk_v1','1');
+    G.sinif=v.sn||'ALL';G.sube=v.sb||'ALL';lss('tahta_cap',String(v.cap||2));lss('kiosk_h',v.h);lss('kiosk_end',String(Date.now()+end-now));lss('kiosk_st',String(now));lss('kiosk_v1','1');
     BD.v='grid';BD.t=Date.now();render(true);try{await document.documentElement.requestFullscreen();}catch(e){}
   },
   async bdstart(){
     if(!grp().length)return alert('Bu seçimde öğrenci yok.');
     if(!lsg('pin_v1')){const a=prompt('Tahtadan çıkış için 4-6 haneli bir PIN belirleyin:');if(a===null)return;if(!/^\d{4,6}$/.test(a))return alert('PIN 4-6 rakam olmalı.');lss('pin_v1',await sha(a));}
-    lss('kiosk_v1','1');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.add('kiosk');BD.v='grid';BD.t=Date.now();render(true);
+    lss('kiosk_v1','1');lss('kiosk_h','');lss('kiosk_end','0');lss('kiosk_st',String(bdSrv()));document.body.classList.add('kiosk');BD.v='grid';BD.t=Date.now();render(true);
     try{await document.documentElement.requestFullscreen();}catch(e){}
   },
   bdpick(a){const s=bdSt(a.dataset.id);if(!s)return;if(sozPas(s))return toast('Bugün yoklamada yok görünüyor',1);BD.v='stu';BD.id=s.id;BD.t=Date.now();render(true);},
