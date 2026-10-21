@@ -1842,8 +1842,8 @@ Object.assign(ACT,{
   },
   bdpick(a){const s=bdSt(a.dataset.id);if(!s)return;if(sozPas(s))return toast('Bugün yoklamada yok görünüyor',1);BD.v='stu';BD.id=s.id;BD.t=Date.now();render(true);},
   bdback(){BD.v='grid';render(true);},
-  bdfeed(a){const s=bdSt(a.dataset.id);if(!s)return;BD.t=Date.now();bdPlus(s,'yem');render(true);},
-  bdhw(a){const s=bdSt(a.dataset.id),h=a.dataset.h;if(!s||!h)return;BD.t=Date.now();s.hwStatus=s.hwStatus||{};s.hwSelf=s.hwSelf||{};
+  bdfeed(a){const s=bdSt(a.dataset.id);if(!s||BD.v!=='stu'||BD.id!==s.id)return;BD.t=Date.now();bdPlus(s,'yem');render(true);},
+  bdhw(a){const s=bdSt(a.dataset.id),h=a.dataset.h;if(!s||!h||BD.v!=='stu'||BD.id!==s.id)return;BD.t=Date.now();s.hwStatus=s.hwStatus||{};s.hwSelf=s.hwSelf||{};
     if(s.hwSelf[h]&&s.hwStatus[h]==='Yapti'){delete s.hwStatus[h];delete s.hwSelf[h];}
     else if(!s.hwStatus[h]){s.hwStatus[h]='Yapti';s.hwSelf[h]=bdNow();}
     save();render(true);},
