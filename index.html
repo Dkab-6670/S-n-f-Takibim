@@ -24,6 +24,7 @@
  #tn [data-nav].on{@apply bg-indigo-600 text-white border-indigo-600}
 </style>
 <style>#akWrap:fullscreen{display:flex;flex-direction:column;background:#0b1d33}#akWrap:fullscreen canvas{flex:1;height:auto!important;min-height:0}#akWrap:-webkit-full-screen{display:flex;flex-direction:column;background:#0b1d33}#akWrap:-webkit-full-screen canvas{flex:1;height:auto!important;min-height:0}</style>
+<style>body.kiosk>header,body.kiosk #tn,body.kiosk #bn,body.kiosk #ptitle,body.kiosk #up,body.kiosk #undo{display:none!important}body.kiosk{padding-bottom:0!important}body.kiosk main{max-width:none}</style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
 <header class="bg-indigo-700 text-white shadow">
@@ -162,7 +163,7 @@ const ACT={};
 /* ========== 5. SAYFA: ANA SAYFA ========== */
 /* Düzen: Bugün kartı (bildirimler) > sınıf seçimi > büyük günlük kısayollar > sakin diğer sayfalar > özet satırı */
 const HQ=['yok','ders','ezber'];
-const HGRP=[['📅 Günlük işler',['dav','reh']],['🏫 Sınıf',['ogr','akv','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne']],['🧰 Diğer',['ayar']]];
+const HGRP=[['📅 Günlük işler',['dav','reh']],['🏫 Sınıf',['ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne']],['🧰 Diğer',['ayar']]];
 ACT.hcls=a=>{G.sinif=a.dataset.s;G.sube=a.dataset.b;G.date=today;G.q='';gsave();render(true);};
 const todayCard=()=>{
   const it=[alertItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
@@ -749,7 +750,7 @@ const pl=document.createElement('div');pl.className='fixed inset-0 z-[500] flex-
 pl.innerHTML='<div class="text-5xl">🔒</div><b class="text-lg">Sınıf Takip kilitli</b><input id="pinIn" type="password" inputmode="numeric" maxlength="6" class="text-3xl text-center w-64 max-w-full rounded-xl p-2 text-slate-900"><div id="pinMsg" class="min-h-[20px] text-red-300 text-sm"></div><button id="pinOk" class="bg-amber-400 text-slate-900 font-bold rounded-xl px-8 py-2">Aç</button>';
 document.body.appendChild(pl);
 let lastAct=Date.now(),fails=0,until=0;
-const lock=()=>{if(!lsg('pin_v1')||pl.style.display==='flex')return;pl.style.display='flex';$('pinIn').value='';setTimeout(()=>$('pinIn').focus(),50);};
+const lock=()=>{if(!lsg('pin_v1')||kioskOn()||pl.style.display==='flex')return;pl.style.display='flex';$('pinIn').value='';setTimeout(()=>$('pinIn').focus(),50);};
 async function unlock(){
   if(Date.now()<until){$('pinMsg').textContent='Çok fazla deneme, biraz bekleyin.';return;}
   if(await sha($('pinIn').value)===lsg('pin_v1')){pl.style.display='none';fails=0;lastAct=Date.now();$('pinMsg').textContent='';}
@@ -777,7 +778,7 @@ document.body.appendChild(nm);
 const nOpen=()=>{nm.classList.remove('hidden');nm.classList.add('flex');};
 $('nmOk').onclick=()=>{lss('news_seen',VER);nm.classList.add('hidden');nm.classList.remove('flex');};
 ACT.news=nOpen;
-if(lsg('news_seen')!==VER&&!new URLSearchParams(location.search).get('k'))setTimeout(nOpen,800);
+if(lsg('news_seen')!==VER&&!kioskOn()&&!new URLSearchParams(location.search).get('k'))setTimeout(nOpen,800);
 
 /* ========== AŞAMA C4: SÖZ HAKKI, KAĞIT ÇİZELGE, UYARILAR, EXCEL, SINIF GRAFİKLERİ ========== */
 const kk2=s=>T(s.sinif)+'|'+T(s.sube).toLowerCase();
@@ -1522,7 +1523,7 @@ Object.assign(ACT,{
 /* Başlangıç: profil ve oda */
 if(!new URLSearchParams(location.search).get('k')){
   if(!PS.list.length)pfShow('edit','');
-  else{if(PS.list.length>1&&!sessGet('who_ok'))pfShow('pick');applyProfile();}
+  else{if(PS.list.length>1&&!sessGet('who_ok')&&!kioskOn())pfShow('pick');applyProfile();}
 }
 
 /* ========== AKVARYUM: balıklarla katılım ve erdem takibi ========== */
@@ -1717,8 +1718,152 @@ $('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
 addEventListener('scroll',()=>$('up').classList.toggle('hidden',scrollY<300),{passive:true});
 $('view').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.keep;if(k)S[k]=e.target.open;},true);
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+/* ========== TAHTA MODU: kilitli öğrenci ekranı. Tahtadan verilen + ders puanına (r.points) yazılır ========== */
+/* Kayıt alanları: günlük kayıtta r.yem (verilen yem), r.tp (tahtadan toplam +); öğrencide s.hwSelf[ödevId]=tarih */
+function kioskOn(){const v=lsg('kiosk_v1');return v==='1'||v==='2';}
+const BD={v:'grid',id:'',sid:'',given:false,t:Date.now()};
+const bdNow=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);};
+const bdCap=()=>Math.min(10,Math.max(1,+lsg('tahta_cap')||2));
+const bdSt=id=>S.students.find(x=>x.id===id);
+const bdFish=s=>{const p=akP(s),t=akTier(p);return {p:p,t:t,e:AKE[t],n:akSp(s).n,tn:AKN[t],nx:AKT[t+1]};};
+if(kioskOn())document.body.classList.add('kiosk');
+const _go=go;go=function(id){if(kioskOn()&&id!=='tahta')return;_go(id);};
+
+function bdPlus(s,kind){
+  const r=dayRec(s,G.donem,G.date);
+  if(kind==='yem'){if((r.yem||0)>=bdCap())return toast('Bugünkü yem hakkın bitti',1);r.yem=(r.yem||0)+1;}
+  const t0=akTier(akP(s));
+  r.tp=(r.tp||0)+1;r.points=(r.points||0)+1;akAdd(s,1);save();
+  toast(akTier(akP(s))>t0?'🎉 '+s.name+' evrim geçirdi!':'+1 puan: '+s.name);
+}
+const bdRow=(a,b)=>'<div class="flex items-center justify-between gap-2 py-2 border-b border-slate-200 dark:border-slate-700"><span class="text-lg">'+a+'</span>'+b+'</div>';
+function bdGrid(){
+  const g=grp(),lab=G.sinif==='ALL'?'Tüm sınıflar':G.sinif+(G.sube==='ALL'?'. sınıf':'/'+G.sube.toUpperCase());
+  return '<div class="flex flex-wrap items-center justify-between gap-2 mb-3"><div class="text-2xl font-bold">🐠 '+esc(lab)+' · '+fdt(G.date)+' <span id="bdLeft" class="text-base font-normal text-slate-500">'+bdLeftTxt()+'</span></div><div class="flex gap-2"><button data-act="bdsoz" class="btn bg-indigo-600 !text-lg !px-5 !py-3">🎲 Söz hakkı</button><button data-act="bdfs" class="btn bg-slate-600 !py-3" title="Tam ekran">⛶</button><button data-act="bdexit" class="btn bg-slate-400 !py-3 opacity-50" title="Öğretmen">🔓</button></div></div>'
+   +(g.length?'<div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3">'+g.map(s=>{const f=bdFish(s),r=rd(s);return '<button data-act="bdpick" data-id="'+esc(s.id)+'" class="card !mb-0 text-center py-4'+(sozPas(s)?' opacity-40':'')+'"><div class="text-5xl">'+f.e+'</div><div class="font-bold text-lg mt-1 leading-tight">'+esc(s.name)+'</div><div class="text-sm text-slate-500">'+esc(f.n)+' · '+f.p+' yem'+(r.tp?' · +'+r.tp+' bugün':'')+'</div></button>';}).join('')+'</div>':'<p class="card">Öğrenci listesi yükleniyor ya da bu sınıfta öğrenci yok.</p>');
+}
+function bdStu(s){
+  const f=bdFish(s),r=rd(s),left=Math.max(0,bdCap()-(r.yem||0)),id=esc(s.id);
+  const hw=featOn('ders')?hwOf(s):[],ez=featOn('ezber')?ezOf(s):[];
+  const hwH=hw.length?hw.map(h=>{const v=(s.hwStatus||{})[h.id],me=(s.hwSelf||{})[h.id];
+    const c=v==='Yapti'&&me?'<button data-act="bdhw" data-id="'+id+'" data-h="'+esc(h.id)+'" class="btn bg-emerald-600">✅ Yaptım · geri al</button>':v==='Yapti'?'<b class="text-emerald-600">✅ Yaptı</b>':v==='Yapmadi'?'<b class="text-red-600">❌ Yapmadı</b>':'<button data-act="bdhw" data-id="'+id+'" data-h="'+esc(h.id)+'" class="btn bg-indigo-600 !text-base">Yaptım ✅</button>';
+    return bdRow('📚 '+esc(h.name),c);}).join(''):'<p class="text-slate-500">Bugün için ödev yok.</p>';
+  const ezH=ez.length?ez.map(n=>{const v=lastEz(s,n);return bdRow('📖 '+esc(n),'<b class="'+(v==='Tamamlandi'?'text-emerald-600':v==='DevamEdiyor'?'text-amber-600':'text-slate-400')+'">'+(v==='Tamamlandi'?'✓ Tamamlandı':v==='DevamEdiyor'?'⏳ Devam ediyor':'○ Başlamadı')+'</b>');}).join(''):'<p class="text-slate-500">Ezber ödevi yok.</p>';
+  const pt=r.points||0;
+  return '<button data-act="bdback" class="btn bg-slate-500 !text-lg !py-3 mb-3">← Herkes</button><div class="grid md:grid-cols-2 gap-3">'
+   +'<div class="card text-center"><div class="text-7xl">'+f.e+'</div><div class="text-3xl font-bold mt-2">'+esc(s.name)+'</div><div class="text-lg text-slate-500">'+esc(f.n)+' · '+f.tn+' · '+f.p+' yem</div><div class="text-sm text-slate-500">'+(f.nx!=null?'Sonraki evrime '+(f.nx-f.p)+' yem':'En üst seviyedesin 👑')+'</div>'
+   +(left?'<button data-act="bdfeed" data-id="'+id+'" class="btn bg-amber-500 !text-2xl !py-4 !px-8 mt-4">🍞 Balığıma yem ver</button><div class="text-sm mt-1">Bugün kalan hak: '+left+'</div>':'<div class="mt-4 text-lg font-bold text-amber-600">Bugünkü yem hakkın bitti 🍞</div>')
+   +'<div class="mt-3 text-lg">Bugünkü ders puanın: <b>'+(pt>0?'+':'')+pt+'</b> · Söz aldın: <b>'+(s.soz||0)+'</b></div></div>'
+   +'<div><div class="card"><div class="font-bold text-lg mb-1">📚 Ödevlerim</div>'+hwH+'</div>'+(featOn('ezber')?'<div class="card"><div class="font-bold text-lg mb-1">📖 Ezberlerim <span class="text-xs font-normal text-slate-500">(sadece görüntülenir)</span></div>'+ezH+'</div>':'')+'</div></div>';
+}
+function bdSozV(s){
+  return '<div class="card text-center py-10"><div class="text-xl text-slate-500">🎲 Söz sırası</div><div class="text-6xl font-bold my-6">'+esc(s.name)+'</div>'
+   +(BD.given?'<div class="text-emerald-600 text-2xl font-bold mb-4">✅ +1 verildi</div>':'<button data-act="bdok" class="btn bg-emerald-600 !text-2xl !px-8 !py-4">✅ Doğru cevap +1</button>')
+   +'<div class="mt-6 flex gap-3 justify-center"><button data-act="bdsoz" class="btn bg-indigo-600 !text-lg">🎲 Başka öğrenci</button><button data-act="bdback" class="btn bg-slate-500 !text-lg">Kapat</button></div></div>';
+}
+const bdLeftTxt=()=>{const e=+lsg('kiosk_end')||0;return e?'⏱ '+Math.max(0,Math.ceil((e-Date.now())/6e4))+' dk kaldı':'';};
+let bdOff=0;try{db.ref('.info/serverTimeOffset').on('value',x=>{bdOff=x.val()||0;});}catch(e){}
+const bdSrv=()=>Date.now()+bdOff;
+const bdSessRef=()=>S.room?db.ref('rooms/'+S.room+'/tahtaOturum'):null;
+const bdLeft=()=>{const v=BD.sess;if(!v)return 0;const e=v.bas?v.bas+(v.dk||40)*6e4:(v.ol||bdSrv())+30*6e4;return Math.max(0,Math.ceil((e-bdSrv())/6e4));};
+let bdWR='';
+function bdWatch(){if(!S.room||bdWR===S.room)return;const rm=S.room;bdWR=rm;
+  auth().then(()=>db.ref('rooms/'+rm+'/tahtaOturum').on('value',x=>{BD.sess=x.val();bdSync();})).catch(()=>{bdWR='';});}
+function bdEnd(){lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');BD.v='grid';render(true);}
+function bdSync(){
+  if(lsg('kiosk_v1')==='1'&&lsg('kiosk_h')){const v=BD.sess;
+    if(!v||v.h!==lsg('kiosk_h'))return bdEnd();
+    if(v.bas)lss('kiosk_end',String(Date.now()+v.bas+(v.dk||40)*6e4-bdSrv()));}
+  if(S.page==='tahta')render();
+}
+async function bdPin(){if(lsg('pin_v1'))return true;const a=prompt('Tahtadan çıkış için 4-6 haneli bir PIN belirleyin:');if(a===null)return false;if(!/^\d{4,6}$/.test(a)){alert('PIN 4-6 rakam olmalı.');return false;}lss('pin_v1',await sha(a));return true;}
+function bdStandby(){
+  return '<div class="card text-center py-12 max-w-md mx-auto mt-10"><div class="text-6xl">🔒</div><div class="text-2xl font-bold mt-2">Sınıf tahtası kilitli</div><p class="text-slate-500 my-2">Öğretmenin verdiği 6 haneli kodu girin.</p><input id="sbIn" type="password" inputmode="numeric" maxlength="6" class="inp text-4xl text-center w-full" placeholder="••••••"><div id="sbMsg" class="min-h-[22px] text-red-600 text-sm my-2"></div><button data-act="bdenter" class="btn bg-indigo-600 !text-lg !py-3 w-full">Başlat</button><button data-act="bdexit" class="btn bg-slate-400 opacity-50 mt-6">🔓 Öğretmen</button></div>';
+}
+function bdSetup(){
+  bdWatch();
+  const o=(a,v)=>a.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===v?' selected':'')+'>'+esc(x[1])+'</option>').join('');
+  const g=grp();let p=0,h=0;const ch=[];
+  g.forEach(s=>{const r=rd(s);if(r.tp){p+=r.tp;ch.push(esc(s.name)+' +'+r.tp);}Object.values(s.hwSelf||{}).forEach(d=>{if(d===G.date)h++;});});
+  const v=BD.sess,left=bdLeft(),k=(lsg('tahta_kod')||'').split('|'),ok=v&&left>0;
+  const sel='<div class="flex flex-wrap items-center gap-2"><select data-g="sinif" class="inp">'+o([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),G.sinif)+'</select><select data-g="sube" class="inp">'+o([['ALL','Tüm Şubeler']].concat(subes(G.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),G.sube)+'</select><label class="text-sm">Günlük yem hakkı: <select data-bd="cap" class="inp">'+[1,2,3,4,5].map(n=>'<option value="'+n+'"'+(n===bdCap()?' selected':'')+'>'+n+'</option>').join('')+'</select></label></div>';
+  const box=ok?'<div class="text-center mt-3"><div class="text-sm">'+(v.bas?'Tahta açık · '+left+' dk kaldı':'Tahtada kod bekleniyor · '+left+' dk içinde girilmeli')+'</div><div class="text-5xl font-mono font-bold tracking-widest my-2">'+(k[1]===v.h?esc(k[0]):'••••••')+'</div>'+(k[1]===v.h?'':'<div class="text-xs text-slate-500">Kod bu cihazda kayıtlı değil. Bitirip yenisini oluşturun.</div>')+'<div class="flex gap-2 justify-center mt-2"><button data-act="bdplus" class="btn bg-indigo-600">+10 dk</button><button data-act="bdend" class="btn bg-red-600">⏹ Bitir</button></div></div>'
+    :'<button data-act="bdcode" class="btn bg-emerald-600 !text-lg !py-3 w-full mt-3">📱 40 dk’lık kod oluştur ('+g.length+' öğrenci)</button>';
+  return '<div class="card"><b>📱 Geçici tahta kodu</b><p class="text-sm text-slate-500 my-2">Telefondan ya da bilgisayardan kod oluşturun, tahtaya girilsin. Öğrenci ekranı kod girildiği andan itibaren 40 dakika açık kalır, sonra kendiliğinden kilitlenir. Kod oluşturulduktan sonra 30 dakika içinde girilmelidir. Kodu tahtadaki öğretmene ya da sorumlu kişiye iletebilirsiniz.</p>'+sel+box+'</div>'
+   +'<div class="card"><b>🖥️ Bu cihaz akıllı tahta ise</b><p class="text-sm text-slate-500 my-2">Bir kez ayarlayın: cihaz kod bekleme ekranına geçer, çıkış için PIN ister. Sonraki derslerde yalnızca kod oluşturmanız yeterli.</p><div class="flex flex-wrap gap-2"><button data-act="bdstandby" class="btn bg-indigo-600 !text-base !py-3">🔒 Kodlu bekleme ekranına al</button><button data-act="bdstart" class="btn bg-slate-600 !text-base !py-3">Süresiz öğrenci ekranı ('+g.length+')</button></div></div>'
+   +'<div class="card"><b>📊 Bugün tahtadan</b><div class="text-sm mt-1">Verilen +: <b>'+p+'</b> · Öğrencinin işaretlediği ödev: <b>'+h+'</b></div>'+(ch.length?'<div class="text-xs text-slate-500 mt-1">'+ch.join(' · ')+'</div>':'')+'<p class="text-xs text-slate-500 mt-2">Bu + puanlar Ders takibindeki puanlara eklenir. Öğrencinin işaretlediği ödevleri Ödev sayfasından kontrol edebilirsiniz.</p></div>';
+}
+reg('tahta','🧑‍🎓','Tahta Modu',()=>{
+  G.date=bdNow();G.q='';
+  if(!kioskOn())return bdSetup();if(lsg('kiosk_v1')==='2')return bdStandby();
+  const a=bdSt(BD.id),b=bdSt(BD.sid);
+  return BD.v==='stu'&&a?bdStu(a):BD.v==='soz'&&b?bdSozV(b):bdGrid();
+});
+const bx=document.createElement('div');bx.className='fixed inset-0 z-[400] hidden items-center justify-center bg-black/60 p-4';
+bx.innerHTML='<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 w-full max-w-sm text-center"><b class="text-lg">🔓 Öğretmen çıkışı</b><input id="bxIn" type="password" inputmode="numeric" maxlength="6" class="inp text-3xl text-center w-full mt-3" placeholder="PIN"><div id="bxMsg" class="min-h-[20px] text-red-600 text-sm my-1"></div><div class="flex gap-2"><button id="bxNo" class="btn bg-slate-500 flex-1">Vazgeç</button><button id="bxOk" class="btn bg-indigo-600 flex-1">Çık</button></div></div>';
+document.body.appendChild(bx);
+let bxF=0,bxU=0,sbF=0,sbU=0;
+const bxClose=()=>{bx.classList.add('hidden');bx.classList.remove('flex');};
+function bxExit(){bxF=0;bxClose();lss('kiosk_v1','0');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.remove('kiosk');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}BD.v='grid';render(true);}
+async function bxGo(){
+  if(Date.now()<bxU){$('bxMsg').textContent='Çok fazla deneme, biraz bekleyin.';return;}
+  if(await sha($('bxIn').value)===lsg('pin_v1'))bxExit();
+  else{bxF++;$('bxIn').value='';$('bxMsg').textContent='Yanlış PIN';if(bxF>=5){bxU=Date.now()+30000;bxF=0;}}
+}
+$('bxNo').onclick=bxClose;$('bxOk').onclick=bxGo;$('bxIn').addEventListener('keydown',e=>{if(e.key==='Enter')bxGo();});
+$('view').addEventListener('change',e=>{if(e.target.dataset.bd==='cap'){lss('tahta_cap',e.target.value);toast('Kaydedildi');}});
+Object.assign(ACT,{
+  async bdcode(){
+    if(!S.room)return alert('Önce oda kodunu girin.');if(!grp().length)return alert('Bu seçimde öğrenci yok.');
+    const c=String(100000+crypto.getRandomValues(new Uint32Array(1))[0]%900000),h=await sha(c);
+    try{await auth();await bdSessRef().set({h:h,sn:G.sinif,sb:G.sube,cap:bdCap(),ol:firebase.database.ServerValue.TIMESTAMP,dk:40});}catch(e){return alert('Kod oluşturulamadı: '+e.message);}
+    lss('tahta_kod',c+'|'+h);
+  },
+  bdplus(){const r=bdSessRef();if(r)r.child('dk').transaction(x=>(x||40)+10);},
+  bdend(){const r=bdSessRef();if(r&&confirm('Tahta oturumu bitirilsin mi?'))r.remove();},
+  async bdstandby(){if(!await bdPin())return;lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.add('kiosk');BD.v='grid';render(true);try{await document.documentElement.requestFullscreen();}catch(e){}},
+  async bdenter(){
+    const m=t=>{const e=$('sbMsg');if(e)e.textContent=t;},c=(($('sbIn')||{}).value||'').trim(),r=bdSessRef();
+    if(Date.now()<sbU)return m('Çok fazla deneme, biraz bekleyin.');if(!r)return m('Oda bağlı değil.');
+    let v=null;try{await auth();v=(await r.once('value')).val();}catch(e){return m('Bağlantı hatası.');}
+    if(!v||v.h!==await sha(c)){sbF++;if(sbF>=5){sbU=Date.now()+30000;sbF=0;}return m('Kod yanlış.');}
+    const now=bdSrv(),dk=v.dk||40;
+    if(v.bas?v.bas+dk*6e4<=now:(v.ol||now)+30*6e4<now)return m('Kodun süresi dolmuş.');
+    if(!v.bas)r.child('bas').set(firebase.database.ServerValue.TIMESTAMP);
+    const end=(v.bas||now)+dk*6e4;sbF=0;
+    G.sinif=v.sn||'ALL';G.sube=v.sb||'ALL';lss('tahta_cap',String(v.cap||2));lss('kiosk_h',v.h);lss('kiosk_end',String(Date.now()+end-now));lss('kiosk_v1','1');
+    BD.v='grid';BD.t=Date.now();render(true);try{await document.documentElement.requestFullscreen();}catch(e){}
+  },
+  async bdstart(){
+    if(!grp().length)return alert('Bu seçimde öğrenci yok.');
+    if(!lsg('pin_v1')){const a=prompt('Tahtadan çıkış için 4-6 haneli bir PIN belirleyin:');if(a===null)return;if(!/^\d{4,6}$/.test(a))return alert('PIN 4-6 rakam olmalı.');lss('pin_v1',await sha(a));}
+    lss('kiosk_v1','1');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.add('kiosk');BD.v='grid';BD.t=Date.now();render(true);
+    try{await document.documentElement.requestFullscreen();}catch(e){}
+  },
+  bdpick(a){const s=bdSt(a.dataset.id);if(!s)return;if(sozPas(s))return toast('Bugün yoklamada yok görünüyor',1);BD.v='stu';BD.id=s.id;BD.t=Date.now();render(true);},
+  bdback(){BD.v='grid';render(true);},
+  bdfeed(a){const s=bdSt(a.dataset.id);if(!s)return;BD.t=Date.now();bdPlus(s,'yem');render(true);},
+  bdhw(a){const s=bdSt(a.dataset.id),h=a.dataset.h;if(!s||!h)return;BD.t=Date.now();s.hwStatus=s.hwStatus||{};s.hwSelf=s.hwSelf||{};
+    if(s.hwSelf[h]&&s.hwStatus[h]==='Yapti'){delete s.hwStatus[h];delete s.hwSelf[h];}
+    else if(!s.hwStatus[h]){s.hwStatus[h]='Yapti';s.hwSelf[h]=bdNow();}
+    save();render(true);},
+  bdsoz(){const g=grp().filter(s=>!sozPas(s));if(!g.length)return toast('Uygun öğrenci yok',1);
+    let r=Math.max(1,...g.map(s=>s.sozT||0)),e=g.filter(s=>(s.sozT||0)!==r);if(!e.length){r++;e=g;}
+    const s=e[Math.floor(Math.random()*e.length)];s.sozT=r;s.soz=(s.soz||0)+1;BD.v='soz';BD.sid=s.id;BD.given=false;BD.t=Date.now();save();render(true);},
+  bdok(){const s=bdSt(BD.sid);if(!s||BD.given)return;BD.given=true;bdPlus(s,'soz');render(true);},
+  bdfs(){try{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen();}catch(e){}},
+  bdexit(){if(!lsg('pin_v1'))return bxExit();bx.classList.remove('hidden');bx.classList.add('flex');$('bxIn').value='';$('bxMsg').textContent='';setTimeout(()=>$('bxIn').focus(),50);}
+});
+setInterval(()=>{
+  bdWatch();
+  if(lsg('kiosk_v1')==='1'){const e=+lsg('kiosk_end')||0;if(e&&Date.now()>e)return bdEnd();const el=$('bdLeft');if(el)el.textContent=bdLeftTxt();}
+  if(kioskOn()&&S.page==='tahta'&&BD.v!=='grid'&&Date.now()-BD.t>(BD.v==='stu'?45000:90000)){BD.v='grid';render(true);}
+  if(!kioskOn()&&S.page==='tahta'&&BD.sess)render();
+},5000);
+$('view').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='sbIn')ACT.bdenter();});
+
 const PK=new URLSearchParams(location.search).get('k');
-if(PK)parentView(PK);else{go('home');if(S.room)listen(S.room);else room();}
+if(PK)parentView(PK);else{go(kioskOn()?'tahta':'home');if(S.room)listen(S.room);else room();}
 </script>
 </body>
 </html>
