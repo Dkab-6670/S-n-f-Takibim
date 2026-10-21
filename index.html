@@ -31,10 +31,10 @@
 <header class="bg-indigo-700 text-white shadow">
  <div class="max-w-6xl mx-auto px-3 pb-3 pt-3 flex flex-wrap items-center justify-between gap-2" style="padding-top:max(.75rem,env(safe-area-inset-top))">
   <b class="text-lg">🕌 Sınıf Takip</b>
-  <div class="flex items-center gap-2 text-xs bg-indigo-800 rounded-lg px-2 py-1 relative">
-   <span id="dot" class="w-2.5 h-2.5 rounded-full bg-red-500"></span><span id="stx">Çevrimdışı</span>
-   <button id="rc" class="font-mono font-bold text-yellow-300" title="Dokunun: 5 sn göster">-----</button>
-   <button id="mnB" class="md:hidden px-1.5 text-lg font-bold leading-none" title="Menü" aria-label="Menü">⋮</button><div id="mn" class="hidden md:flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-2 absolute md:static right-0 top-full mt-2 md:mt-0 z-50 min-w-[12rem] md:min-w-0 p-2 md:p-0 rounded-xl md:rounded-none shadow-lg md:shadow-none bg-indigo-800"><button id="pf" class="md:max-w-[8rem] truncate font-semibold text-left py-1.5 md:py-0" title="Profilim">👤 Profil</button><button id="rcB" title="Oda kodunu değiştir" class="text-left py-1.5 md:py-0"><span>🔑</span><span class="md:hidden"> Oda kodunu değiştir</span></button><button data-go="ayar" title="Ayarlar" class="hidden md:inline">⚙️</button><button id="th" class="text-left py-1.5 md:py-0">🌙</button></div>
+  <div class="flex items-center gap-2 text-sm md:text-xs bg-indigo-800 rounded-lg px-3 py-2.5 md:px-2 md:py-1 relative w-full md:w-auto">
+   <span id="dot" class="w-3 h-3 md:w-2.5 md:h-2.5 rounded-full bg-red-500"></span><span id="stx" class="font-semibold">Çevrimdışı</span>
+   <button id="rc" class="font-mono font-bold text-yellow-300 ml-auto md:ml-0 text-base md:text-xs" title="Dokunun: 5 sn göster">-----</button>
+   <button id="mnB" class="md:hidden px-2 text-2xl font-bold leading-none" title="Menü" aria-label="Menü">⋮</button><div id="mn" class="hidden md:flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-2 absolute md:static right-0 top-full mt-2 md:mt-0 z-50 min-w-[12rem] md:min-w-0 p-2 md:p-0 rounded-xl md:rounded-none shadow-lg md:shadow-none bg-indigo-800"><button id="pf" class="md:max-w-[8rem] truncate font-semibold text-left py-1.5 md:py-0" title="Profilim">👤 Profil</button><button id="rcB" title="Oda kodunu değiştir" class="text-left py-1.5 md:py-0"><span>🔑</span><span class="md:hidden"> Oda kodunu değiştir</span></button><button data-go="ayar" title="Ayarlar" class="hidden md:inline">⚙️</button><button id="th" class="text-left py-1.5 md:py-0">🌙</button></div>
   </div>
  </div>
 </header>
@@ -95,7 +95,7 @@ let _auth=null,ref=null,last={},lastRoom='',online=true,queued=0,t2;
 const auth=()=>_auth||(_auth=new Promise((ok,no)=>{const a=firebase.auth(),u=a.onAuthStateChanged(x=>{u();x?ok():a.signInAnonymously().then(ok,e=>{_auth=null;alert('Giriş hatası: '+e.message+'\nFirebase > Authentication > Anonymous açık mı?');no(e);});});}));
 const genCode=()=>{const al='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='SNF-';crypto.getRandomValues(new Uint32Array(16)).forEach(n=>{s+=al[n%al.length]});return s;};
 const mask=c=>c.length>6?c.slice(0,4)+'•'.repeat(c.length-4):c;
-function status(c,t){$('dot').className='w-2.5 h-2.5 rounded-full bg-'+c+'-500';$('stx').textContent=t;}
+function status(c,t){$('dot').className='w-3 h-3 md:w-2.5 md:h-2.5 rounded-full bg-'+c+'-500';$('stx').textContent=t;}
 let tt;function toast(m,err){const t=$('toast');t.textContent=m;t.className=t.className.replace(/ bg-\S+/g,'')+(err?' bg-red-600':' bg-emerald-600')+' opacity-100';clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('opacity-100'),err?5000:1800);}
 function listen(code){
   S.room=code;lss('sync_room_code',code);$('rc').textContent=mask(code);status('amber','Yükleniyor...');
@@ -373,7 +373,7 @@ const chips=k=>{const t=TS[k],c='flex items-center gap-1.5 border border-slate-3
   return '<label class="'+c+'"><input type="checkbox" data-chip="'+k+'" data-v="ALL"'+(t.all?' checked':'')+'> Tüm sınıflar</label>'+classes().map(x=>'<label class="'+c+(t.all?' opacity-40':'')+'"><input type="checkbox" data-chip="'+k+'" data-v="'+esc(x)+'"'+(t.set[x]?' checked':'')+(t.all?' disabled':'')+'> '+esc(x)+'. Sınıf</label>').join('');};
 /* tlist: C11 bölümünde (gruplanmış liste) */
 const TESL=[['Bir sonraki derste',7],['1 hafta sonra, o haftanın ders saatinde',7],['2 hafta sonra, o haftanın ders saatinde',14],['3 hafta sonra, o haftanın ders saatinde',21],['Belirli bir tarihte',0]];
-const subSel=k=>'<select data-ts="'+k+'" data-tf="sube" class="inp"><option value="ALL">Tüm şubeler</option>'+subes('ALL').map(x=>'<option value="'+esc(x)+'"'+(TS[k].sube===x?' selected':'')+'>'+esc(x.toUpperCase())+' şubesi</option>').join('')+'</select>';
+const subSel=k=>{const t=TS[k],cs=t.all?[]:Object.keys(t.set).filter(x=>t.set[x]),l=cs.length?[...new Set(cs.flatMap(c=>subes(c)))].sort():subes('ALL');if(t.sube!=='ALL'&&!l.includes(t.sube))t.sube='ALL';return '<select data-ts="'+k+'" data-tf="sube" class="inp"><option value="ALL">Tüm şubeler</option>'+l.map(x=>'<option value="'+esc(x)+'"'+(t.sube===x?' selected':'')+'>'+esc(x.toUpperCase())+' şubesi</option>').join('')+'</select>';};
 const tsec=(k,title)=>'<div class="card"><b>'+title+'</b><div class="flex flex-wrap gap-2 my-2">'+chips(k)+'</div>'+(k==='ezber'||k==='odev'?'<div class="flex flex-wrap items-center gap-2 mb-2"><span class="text-xs text-slate-500">Şube:</span>'+subSel(k)+'</div>':'')+'<div class="flex flex-wrap gap-2"><input data-tn="'+k+'" class="inp flex-1 min-w-[160px]" placeholder="Ad" value="'+esc(TS[k].name)+'">'
   +(k==='odev'?'<select data-ts="odev" data-tf="teslim" class="inp"><option value="">Teslim zamanı…</option>'+TESL.map((x,i)=>'<option value="'+i+'"'+(TS.odev.teslim===x[0]?' selected':'')+'>'+esc(x[0])+'</option>').join('')+'</select><label class="text-xs">Veriliş <input type="date" data-td="start" class="inp" value="'+esc(TS.odev.start)+'"></label><label class="text-xs">Teslim <input type="date" data-td="end" class="inp" value="'+esc(TS.odev.end)+'"></label>':'')+'<button data-act="tadd" data-k="'+k+'" class="btn bg-indigo-600">Ekle</button></div><div class="mt-3">'+tlist(k)+'</div></div>';
 $('view').addEventListener('input',e=>{const k=e.target.dataset.tn;if(k)TS[k].name=e.target.value;});
