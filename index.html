@@ -135,15 +135,15 @@ $('undoBtn').onclick=()=>{if(!U)return;apply(JSON.parse(U));U=null;$('undo').cla
 const P={},NAV=[];
 function reg(id,icon,title,html,after,nav){P[id]={icon,title,html,after};if(nav)NAV.push([id,icon,nav]);drawNav();}
 function drawNav(){
-  const b=NAV.map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'"><span class="text-xl">'+n[1]+'</span>'+esc(n[2])+'</button>').join('');
+  const b=NAV.filter(n=>pageOn(n[0])).map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'"><span class="text-xl">'+n[1]+'</span>'+esc(n[2])+'</button>').join('');
   $('bn').innerHTML=b;
-  $('tn').innerHTML=NAV.map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'">'+n[1]+' '+esc(n[2])+'</button>').join('');
+  $('tn').innerHTML=NAV.filter(n=>pageOn(n[0])).map(n=>'<button data-nav="'+n[0]+'" data-go="'+n[0]+'">'+n[1]+' '+esc(n[2])+'</button>').join('');
 }
 let pending=false;
 const typing=()=>{const a=document.activeElement;return a&&$('view').contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName);};
 function render(force){
   if(!force&&typing()){pending=true;return;}
-  const p=P[S.page]||P.home;
+  if(!pageOn(S.page))S.page='home';const p=P[S.page]||P.home;
   $('ptitle').innerHTML=(S.page!=='home'?'<button data-go="home" class="btn bg-indigo-600 !px-3 !py-1 whitespace-nowrap">🏠 Ana Sayfa</button>':'')+'<span>'+p.icon+' '+esc(p.title)+'</span>'+(S.page!=='home'?'<span class="ml-auto text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full px-3 py-1 whitespace-nowrap">📌 '+(S.G.sinif==='ALL'?'Tüm sınıflar':esc(S.G.sinif)+(S.G.sube==='ALL'?'. sınıf':'/'+esc(S.G.sube.toUpperCase())))+'</span>':'');document.title=p.title+' | Sınıf Takip';
   $('view').innerHTML=p.html();if(p.after)p.after();
   document.documentElement.style.setProperty('--th',($('ptitle').offsetHeight+8)+'px');
@@ -162,7 +162,7 @@ reg('home','🏠','Ana Sayfa',()=>{
   const cl=classes();
   return bdayBar()+'<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'
    +[['Öğrenci',S.students.filter(s=>!s.absent).length],['Sınıf',cl.length],['Ders',S.lessons.length],['Ezber konusu',S.ezberItems.length]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
-   +'<div class="grid grid-cols-2 md:grid-cols-3 gap-3">'+Object.keys(P).filter(k=>k!=='home').map(k=>'<button data-go="'+k+'" class="card mb-0 text-left"><div class="text-3xl">'+P[k].icon+'</div><b>'+esc(P[k].title)+'</b></button>').join('')+'</div>';
+   +'<div class="grid grid-cols-2 md:grid-cols-3 gap-3">'+Object.keys(P).filter(k=>k!=='home'&&pageOn(k)).map(k=>'<button data-go="'+k+'" class="card mb-0 text-left"><div class="text-3xl">'+P[k].icon+'</div><b>'+esc(P[k].title)+'</b></button>').join('')+'</div>';
 },null,'Ana Sayfa');
 
 /* ========== 6. SAYFA: ÖĞRENCİLER ========== */
@@ -236,7 +236,7 @@ const G=S.G;
 try{Object.assign(G,JSON.parse(lsg('gs_v1')||'{}'));}catch(e){}
 G.date=today;G.q='';
 ['sinif','sube'].forEach(k=>Object.defineProperty(S.F,k,{get:()=>G[k],set:v=>{G[k]=v;},configurable:true,enumerable:true}));
-const gsave=()=>lss('gs_v1',JSON.stringify({sinif:G.sinif,sube:G.sube,donem:G.donem}));
+const gsave=()=>lss('gs_'+activeId(),JSON.stringify({sinif:G.sinif,sube:G.sube,donem:G.donem}));
 const rd=s=>((((s.periods||{})[G.donem]||{}).days||{})[G.date])||{};
 const per=s=>(s.periods||{})[G.donem]||{};
 const perO=s=>{s.periods=s.periods||{};return s.periods[G.donem]=s.periods[G.donem]||{hafiz:false,kuranDurum:'kuran',days:{}};};
@@ -310,7 +310,7 @@ ACT.allvar=()=>{const l=grp().filter(s=>(rd(s).status||'None')==='None');if(!l.l
 gpage('ders','📚','Günlük Ders & Ödev','Ders',()=>'<div class="mb-3 flex flex-wrap items-center gap-2"><button data-act="bulk1" data-v="1" class="btn bg-emerald-600">➕ Herkese +1</button><button data-act="bulk1" data-v="-1" class="btn bg-red-600">➖ Herkese −1</button><span class="text-[11px] text-slate-500">Yoklamada Yok / İzinli olanlar hariç</span></div>',()=>grp().map(s=>{
   const r=rd(s),cz=per(s).kuranDurum==='cuz',p=r.points||0,id=esc(s.id);
   const ls=lsOf(s).map(l=>{
-    const cuz=cz&&KUR.test(l.name),ab=/kur/i.test(l.name)&&!r.abdest;
+    const cuz=cz&&KUR.test(l.name),ab=/kur/i.test(l.name)&&!r.abdest&&featOn('ezber');
     const sel=cuz?'<span class="text-xs font-bold text-amber-700">📜 Cüzde · puan yok</span>':'<select data-chg="score" data-id="'+id+'" data-v="'+esc(l.name)+'" class="inp !py-1 !px-1 text-sm">'+['-',5,4,3,2,1].map(x=>'<option'+(String((r.scores||{})[l.name]||'-')===String(x)?' selected':'')+'>'+x+'</option>').join('')+'</select>';
     return '<div class="flex items-center justify-between gap-2 py-1"><span class="text-sm">'+esc(l.name)+(ab?' <span class="text-[10px] font-bold bg-blue-100 text-blue-800 rounded px-1.5">💧 Abdestsiz</span>':'')+'</span>'+sel+'</div>';
   }).join('');
@@ -345,7 +345,7 @@ const chips=k=>{const t=TS[k],c='flex items-center gap-1.5 border border-slate-3
 /* tlist: C11 bölümünde (gruplanmış liste) */
 const tsec=(k,title)=>'<div class="card"><b>'+title+'</b><div class="flex flex-wrap gap-2 my-2">'+chips(k)+'</div><div class="flex flex-wrap gap-2"><input data-tn="'+k+'" class="inp flex-1 min-w-[160px]" placeholder="Ad" value="'+esc(TS[k].name)+'">'
   +(k==='odev'?'<input type="date" data-td="start" class="inp" value="'+esc(TS.odev.start)+'"><input type="date" data-td="end" class="inp" value="'+esc(TS.odev.end)+'">':'')+'<button data-act="tadd" data-k="'+k+'" class="btn bg-indigo-600">Ekle</button></div><div class="mt-3">'+tlist(k)+'</div></div>';
-reg('tan','⚙️','Ders, Ezber & Ödev Tanımları',()=>tsec('ders','📚 Ders ata')+tsec('ezber','📖 Ezber konusu ata')+tsec('odev','📝 Ödev ata (tarih aralığıyla)'),null,null);
+reg('tan','⚙️','Ders, Ezber & Ödev Tanımları',()=>(featOn('ders')?tsec('ders','📚 Ders ata'):'')+(featOn('ezber')?tsec('ezber','📖 Ezber konusu ata'):'')+(featOn('ders')?tsec('odev','📝 Ödev ata (tarih aralığıyla)'):''),null,null);
 $('view').addEventListener('input',e=>{const k=e.target.dataset.tn;if(k)TS[k].name=e.target.value;});
 $('view').addEventListener('change',e=>{
   const d=e.target.dataset;
@@ -469,18 +469,18 @@ function karne(s){
     Object.entries(r.ezberStatus||{}).forEach(([k,x])=>{if(RK[x]>(ez[k]===undefined?-1:ez[k]))ez[k]=RK[x];});
     if(r.bn)nt.push([d,r.bn,b]);
   });
-  const cz=pr.kuranDurum==='cuz',row=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
+  if(!featOn('davranis'))nt.length=0;const cz=pr.kuranDurum==='cuz',row=(a,b)=>'<tr><td>'+a+'</td><td>'+b+'</td></tr>';
   const ds=lsOf(s).map(l=>cz&&KUR.test(l.name)?row(esc(l.name),'Cüzde, puanlanmaz'):row(esc(l.name),sc[l.name]?avg(sc[l.name])+' / 5':'-')).join('');
   const es=ezOf(s).map(n=>row(esc(n),['Başlamadı','Çalışıyor','Tamam ✓'][ez[n]||0])).join('');
   const cnt=l=>{let a=0,b=0;l.forEach(h=>{const x=(s.hwStatus||{})[h.id];if(x==='Yapti')a++;else if(x==='Yapmadi')b++;});return row('Yaptı / yapmadı / işaretsiz',a+' / '+b+' / '+(l.length-a-b));};
   const od=S.homeworks.filter(h=>!h.rb&&ap(h,s)),rg=S.homeworks.filter(h=>h.rb&&(h.donem||'1')===dn&&ap(h,s));
   const hf=Object.values(s.cuz||{}).filter(x=>x===2).length;
   return '<div class="k"><h2>'+(prof().okul?esc(prof().okul)+' · ':'')+'Dönem Karnesi · '+dn+'. Dönem</h2><div><b>'+esc(s.name)+'</b> · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · No: '+esc(s.no)+'</div>'
-   +bdgHtml(s)+'<h3>Devam</h3><table>'+row('Var / yok / izinli (gün)',v+' / '+y+' / '+iz)+row('Abdestli gün',ab)+'</table>'
-   +'<h3>Puanlar ve Davranış</h3><table>'+row('Ders puanı (artı / eksi / net)','+'+p+' / '+m+' / '+(p+m))+row('Davranış puanı (artı / eksi / net)','+'+bp+' / '+bm+' / '+(bp+bm))+row('Kitabı yok / derste uyudu (gün)',bk+' / '+sl)+nt.slice(-4).map(n=>row(esc(n[0].slice(8)+'.'+n[0].slice(5,7)+' · '+n[1]),(n[2]>0?'+':'')+n[2])).join('')+'</table>'
-   +'<h3>Kur\'an</h3><table>'+row('Seviye',cz?'Cüzde':'Kur\'an\'da')+row('Hafızlık',pr.hafiz?'Hafız · '+hf+'/30 cüz':'-')+'</table>'
-   +(ds?'<h3>Ders Puanları (ortalama)</h3><table>'+ds+'</table>':'')+(es?'<h3>Ezberler</h3><table>'+es+'</table>':'')
-   +(od.length?'<h3>Ödevler ('+od.length+')</h3><table>'+cnt(od)+'</table>':'')+(rg.length?'<h3>Rehberlik Faaliyetleri ('+rg.length+')</h3><table>'+cnt(rg)+'</table>':'')
+   +bdgHtml(s)+'<h3>Devam</h3><table>'+row('Var / yok / izinli (gün)',v+' / '+y+' / '+iz)+(featOn('ezber')?row('Abdestli gün',ab):'')+'</table>'
+   +'<h3>Puanlar ve Davranış</h3><table>'+(featOn('ders')?row('Ders puanı (artı / eksi / net)','+'+p+' / '+m+' / '+(p+m)):'')+(featOn('davranis')?row('Davranış puanı (artı / eksi / net)','+'+bp+' / '+bm+' / '+(bp+bm)):'')+(featOn('ders')?row('Kitabı yok / derste uyudu (gün)',bk+' / '+sl):'')+nt.slice(-4).map(n=>row(esc(n[0].slice(8)+'.'+n[0].slice(5,7)+' · '+n[1]),(n[2]>0?'+':'')+n[2])).join('')+'</table>'
+   +(featOn('ezber')?'<h3>Kur\'an</h3><table>'+row('Seviye',cz?'Cüzde':'Kur\'an\'da')+row('Hafızlık',pr.hafiz?'Hafız · '+hf+'/30 cüz':'-')+'</table>':'')
+   +(featOn('ders')&&ds?'<h3>Ders Puanları (ortalama)</h3><table>'+ds+'</table>':'')+(featOn('ezber')&&es?'<h3>Ezberler</h3><table>'+es+'</table>':'')
+   +(featOn('ders')&&od.length?'<h3>Ödevler ('+od.length+')</h3><table>'+cnt(od)+'</table>':'')+(featOn('reh')&&rg.length?'<h3>Rehberlik Faaliyetleri ('+rg.length+')</h3><table>'+cnt(rg)+'</table>':'')
    +'<h3>Öğretmen Görüşü</h3><div class="l"></div><div class="g">Ders Öğretmeni: '+(tname()?'<b>'+esc(tsign())+'</b>':'____________')+'</div></div>';
 }
 S.kst='ALL';
@@ -585,12 +585,12 @@ const cOpen=()=>!cm.classList.contains('hidden');
 const pm=(t,f,v,s)=>{const id=esc(s.id),a=f==='bp'?'bp':'m';
   return '<div class="flex items-center justify-between my-1"><span class="text-sm">'+t+'</span><span class="flex items-center gap-2"><button data-act="'+a+'" data-f="'+f+'" data-v="-1" data-id="'+id+'" class="w-11 h-11 rounded-xl bg-red-100 text-red-700 text-2xl font-bold">−</button><b class="w-10 text-center">'+(v>0?'+':'')+v+'</b><button data-act="'+a+'" data-f="'+f+'" data-v="1" data-id="'+id+'" class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 text-2xl font-bold">+</button></span></div>';};
 function cToday(s){
-  const r=rd(s),hws=hwOf(s).concat(S.homeworks.filter(h=>h.rb&&(h.donem||'1')===G.donem&&ap(h,s)));
+  const r=rd(s),hws=(featOn('ders')?hwOf(s):[]).concat(featOn('reh')?S.homeworks.filter(h=>h.rb&&(h.donem||'1')===G.donem&&ap(h,s)):[]);
   return '<div class="text-xs text-slate-500 mb-2">'+fdt(G.date)+' · '+G.donem+'. Dönem (tarihi üstteki çubuktan değiştirin)</div><div class="text-xs font-bold mb-1">Devamsızlık</div>'+stBtns(s)
-   +'<div class="flex gap-1.5 my-2">'+B(s,'abdest','1','💧 Abdestli',r.abdest,'bg-blue-600 text-white border-blue-600')+B(s,'book','Yok','📕 Kitabı yok',r.book==='Yok',RD)+B(s,'slept','1','😴 Uyudu',r.slept,AM)+'</div>'
-   +pm('Ders puanı','points',r.points||0,s)+pm('Davranış puanı','bp',r.bp||0,s)
+   +'<div class="flex gap-1.5 my-2">'+(featOn('ezber')?B(s,'abdest','1','💧 Abdestli',r.abdest,'bg-blue-600 text-white border-blue-600'):'')+(featOn('ders')?B(s,'book','Yok','📕 Kitabı yok',r.book==='Yok',RD)+B(s,'slept','1','😴 Uyudu',r.slept,AM):'')+'</div>'
+   +(featOn('ders')?pm('Ders puanı','points',r.points||0,s):'')+(featOn('davranis')?pm('Davranış puanı','bp',r.bp||0,s):'')
    +(hws.length?'<div class="text-xs font-bold mt-3 mb-1">Ödev ve rehberlik</div>'+hws.map(h=>{const v=(s.hwStatus||{})[h.id];return '<div class="text-xs mt-1">'+(h.rb?'🧭 ':'📚 ')+esc(h.name)+'</div><div class="flex gap-1.5">'+B(s,'hw',h.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',h.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div>';}).join(''):'')
-   +(ezOf(s).length?'<div class="text-xs font-bold mt-3 mb-1">Ezber (dokundukça değişir)</div><div class="flex flex-wrap gap-1.5">'+ezOf(s).map((n,i)=>{const v=lastEz(s,n);return B(s,'ez',i,(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+esc(n),v!=='Baslamadi',v==='Tamamlandi'?GR:AM);}).join('')+'</div>':'');
+   +(featOn('ezber')&&ezOf(s).length?'<div class="text-xs font-bold mt-3 mb-1">Ezber (dokundukça değişir)</div><div class="flex flex-wrap gap-1.5">'+ezOf(s).map((n,i)=>{const v=lastEz(s,n);return B(s,'ez',i,(v==='Tamamlandi'?'✓ ':v==='DevamEdiyor'?'⏳ ':'')+esc(n),v!=='Baslamadi',v==='Tamamlandi'?GR:AM);}).join('')+'</div>':'');
 }
 function lines(ser,W,H){
   const all=ser.flatMap(x=>x.v);if(all.length<2)return '<p class="text-xs text-slate-400 italic">Yeterli veri yok.</p>';
@@ -732,6 +732,7 @@ reg('uyari','🔔','Uyarılar',()=>{
 },null,null);
 ACT.ntf=()=>Notification.requestPermission().then(()=>render(true));
 const alertBar=()=>{
+  if(!featOn('rapor'))return '';
   const A=alerts();
   if(A.n&&'Notification' in window&&Notification.permission==='granted'&&lsg('ntf_day')!==today){lss('ntf_day',today);try{new Notification('Sınıf Takip: '+A.n+' uyarı',{body:'Uyarılar sayfasına bakın.'});}catch(e){}}
   return A.n?'<button data-go="uyari" class="card w-full text-left !bg-amber-100 !border-amber-300 text-amber-900 font-semibold">🔔 '+A.n+' uyarı var, dokunup görün</button>':'';
@@ -910,21 +911,7 @@ const bkBar=()=>{
 const h7=P.home.html;P.home.html=()=>bkBar()+h7();
 
 /* ========== AŞAMA C8: ÖĞRETMEN ADI (KARNE), YOKLAMA İŞARETLERİNİ KALDIR ========== */
-const prof=()=>{try{const o=JSON.parse(lsg('profile_v1')||'null');if(o&&typeof o==='object')return o;}catch(e){}return {name:T(lsg('teacher_name')||''),okul:'',brans:''};};
-const tname=()=>T(prof().name||'');
-const tsign=()=>{const p=prof();return T(p.name||'')+(T(p.brans||'')?' · '+T(p.brans):'');};
-const pm2=document.createElement('div');pm2.className='fixed inset-0 z-[160] hidden items-center justify-center bg-black/60 p-4';
-pm2.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full p-5"><b class="text-lg">👤 Profilim</b><p class="text-xs text-slate-500 my-2">Bu bilgiler sadece bu cihazda saklanır. Her öğretmen kendi telefonunda ya da bilgisayarında kendi profilini kullanır. Adınız karnelerde "Ders Öğretmeni" olarak görünür.</p><label class="text-xs">Ad Soyad</label><input id="pfN" class="inp w-full mb-2" placeholder="Örn: Ayşe Yılmaz"><label class="text-xs">Branş / ders (isteğe bağlı)</label><input id="pfB" class="inp w-full mb-2" placeholder="Örn: Kur\'an-ı Kerim"><label class="text-xs">Okul (isteğe bağlı, karne başlığında görünür)</label><input id="pfO" class="inp w-full mb-3"><div class="flex gap-2"><button data-act="pfsave" class="btn bg-indigo-600 flex-1">Kaydet</button><button data-act="pfx" class="px-4 py-2 rounded-lg border">Kapat</button></div></div>';
-document.body.appendChild(pm2);
-const pfLabel=()=>{const b=document.getElementById('pf');if(b)b.textContent='👤 '+(tname()||'Profil');};
-const pfOpen=()=>{const p=prof();$('pfN').value=p.name||'';$('pfB').value=p.brans||'';$('pfO').value=p.okul||'';pm2.classList.remove('hidden');pm2.classList.add('flex');setTimeout(()=>$('pfN').focus(),50);};
-Object.assign(ACT,{
-  prof:pfOpen,
-  pfx(){pm2.classList.add('hidden');pm2.classList.remove('flex');},
-  pfsave(){const n=T($('pfN').value);if(!n)return alert('Lütfen adınızı yazın.');lss('profile_v1',JSON.stringify({name:n,brans:T($('pfB').value),okul:T($('pfO').value)}));ACT.pfx();pfLabel();toast('Profil kaydedildi');render(true);}
-});
-$('pf').onclick=pfOpen;pfLabel();
-if(!tname()&&!new URLSearchParams(location.search).get('k'))setTimeout(pfOpen,1500);
+/* profil sistemi: C12 bölümünde */
 ACT.clearattendance=()=>{
   const l=grp().filter(s=>(rd(s).status||'None')!=='None');
   if(!l.length)return toast('İşaretli öğrenci yok');
@@ -1028,18 +1015,148 @@ Object.assign(ACT,{
   gdel(a){const k=a.dataset.k,m=members(k,a.dataset.key);if(!m.length||!confirm('"'+m[0].name+'" tüm sınıflardan silinsin mi?'))return;del(()=>dropItems(k,m),'1 atama silindi');}
 });
 
+/* ========== AŞAMA C12: PROFİLLER, ÖZELLİK SEÇİMİ, GİRİŞ ========== */
+var FEAT=[
+  ['yoklama','✅','Yoklama','Var / yok / izinli işaretleme',['yok']],
+  ['ders','📚','Ders ve Ödev Takibi','Ders puanı, ödev, kitap ve uyku takibi',['ders']],
+  ['ezber','📖',"Kur'an ve Ezber",'Ezber, abdest, cüz bilgisi ve hafızlık çizelgesi',['ezber','haf']],
+  ['davranis','🌟','Davranış Takibi','Ders dışı artı / eksi puan ve notlar',['dav']],
+  ['reh','🧭','Rehberlik','Rehberlik çalışmaları ve takibi',['reh']],
+  ['oturma','🪑','Oturma Planı','Sınıf krokisi, sıraya dokunup yoklama ve puan',['oturma']],
+  ['soz','🎲','Söz Hakkı','Rastgele öğrenci seçimi',['soz']],
+  ['rapor','📊','İstatistik ve Uyarılar','Tablolar, grafikler ve uyarılar',['stat','uyari']],
+  ['karne','📝','Dönem Karnesi','Karne, PDF ve veli bağlantısı',['karne']]
+];
+var PF={};FEAT.forEach(f=>f[4].forEach(p=>{PF[p]=f[0];}));
+var PS=null;
+function allOn(){const o={};FEAT.forEach(f=>{o[f[0]]=true;});return o;}
+function loadPS(){
+  try{const o=JSON.parse(lsg('profiles_v2')||'null');if(o&&Array.isArray(o.list))return o;}catch(e){}
+  let old=null;try{old=JSON.parse(lsg('profile_v1')||'null');}catch(e){}
+  const nm=T((old&&old.name)||lsg('teacher_name')||'');
+  return nm?{list:[{id:'p1',name:nm,brans:T((old&&old.brans)||''),okul:T((old&&old.okul)||''),emoji:'👤',features:allOn()}],active:'p1'}:{list:[],active:''};
+}
+function activeP(){return (PS&&(PS.list.find(p=>p.id===PS.active)||PS.list[0]))||{id:'',name:'',brans:'',okul:'',emoji:'👤',features:null};}
+function activeId(){return activeP().id||'p0';}
+function featOn(f){const p=activeP();return !p.features||p.features[f]!==false;}
+function pageOn(id){const f=PF&&PF[id];return !f||featOn(f);}
+function prof(){return activeP();}
+const tname=()=>T(prof().name||'');
+const tsign=()=>{const p=prof();return T(p.name||'')+(T(p.brans||'')?' · '+T(p.brans):'');};
+const savePS=()=>lss('profiles_v2',JSON.stringify(PS));
+const sessGet=k=>{try{return sessionStorage.getItem(k);}catch(e){return null;}},sessSet=(k,v)=>{try{sessionStorage.setItem(k,v);}catch(e){}};
+PS=loadPS();
+
+/* Profil penceresi: seçici ve düzenleme */
+const pfm=document.createElement('div');pfm.className='fixed inset-0 z-[200] hidden bg-slate-900/85 overflow-y-auto p-4';
+pfm.innerHTML='<div id="pfb" class="max-w-xl mx-auto"></div>';document.body.appendChild(pfm);
+const EMO=['👤','👨‍🏫','👩‍🏫','📖','🕌','🌙','⭐','🌿','🎓','✏️','🧮','🔬'];
+const BRN=["Kur'an-ı Kerim",'Tecvid','Siyer','Fıkıh','İtikad','Hadis','Din Kültürü','Matematik','Türkçe','Fen Bilimleri','Sosyal Bilgiler','İngilizce','Rehberlik'];
+const PRE2={all:allOn,temel:()=>({yoklama:true,ders:true,davranis:true,karne:true,rapor:true,ezber:false,reh:false,oturma:false,soz:false}),sade:()=>({yoklama:true,ders:true,karne:true,ezber:false,davranis:false,reh:false,oturma:false,soz:false,rapor:false})};
+const defFor=b=>{const o=allOn();if(T(b)&&!/kur|ezber|tecvid|hafız|hafiz|din|siyer|fıkıh|akaid|itikad|hadis/i.test(b))o.ezber=false;return o;};
+let PE=null,PV='pick';
+function pfShow(v,id){
+  PV=v;
+  if(v==='edit'){const p=id?PS.list.find(x=>x.id===id):null;
+    PE=p?{id:p.id,emoji:p.emoji||'👤',name:p.name,brans:p.brans||'',okul:p.okul||'',features:Object.assign(allOn(),p.features||{}),touched:true}:{id:'',emoji:'👤',name:'',brans:'',okul:'',features:allOn(),touched:false};}
+  pfm.classList.remove('hidden');pfDraw();
+}
+function pfCap(){if(!PE||PV!=='edit')return;const n=$('pfN'),b=$('pfB'),o=$('pfO');if(n&&typeof n.value==='string')PE.name=n.value;if(b&&typeof b.value==='string')PE.brans=b.value;if(o&&typeof o.value==='string')PE.okul=o.value;}
+const pfFeat=()=>FEAT.map(f=>'<label class="flex items-start gap-2 border border-slate-200 dark:border-slate-600 rounded-lg p-2 mb-1.5 cursor-pointer"><input type="checkbox" data-ft="'+f[0]+'"'+(PE.features[f[0]]!==false?' checked':'')+' class="mt-1 w-4 h-4"><span class="text-xl">'+f[1]+'</span><span><b class="text-sm">'+esc(f[2])+'</b><span class="block text-xs text-slate-500">'+esc(f[3])+'</span></span></label>').join('');
+function pfDraw(){
+  pfCap();
+  const w='bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl p-5';let h;
+  if(PV==='pick'){
+    h='<div class="'+w+'"><div class="text-center mb-4"><div class="text-4xl">🕌</div><b class="text-xl">Sınıf Takip</b><div class="text-sm text-slate-500">Kim kullanıyor?</div></div><div class="grid grid-cols-2 gap-3">'
+     +PS.list.map(p=>'<div class="relative border-2 rounded-xl p-4 text-center cursor-pointer '+(p.id===PS.active?'border-indigo-500 bg-indigo-50 dark:bg-slate-700':'border-slate-200 dark:border-slate-600')+'" data-act="pfpick" data-id="'+esc(p.id)+'"><div class="text-4xl">'+esc(p.emoji||'👤')+'</div><div class="font-bold truncate">'+esc(p.name)+'</div><div class="text-xs text-slate-500 truncate">'+esc(p.brans||'')+'</div><button data-act="pfedit" data-id="'+esc(p.id)+'" class="absolute top-1 right-1 text-sm px-1.5" title="Düzenle">✏️</button></div>').join('')
+     +'<div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 text-center cursor-pointer flex flex-col justify-center" data-act="pfnew"><div class="text-3xl">➕</div><div class="font-semibold text-sm">Yeni profil</div></div></div>'
+     +(PS.list.length?'<button data-act="pfx" class="mt-4 w-full py-2 border rounded-lg">Kapat</button>':'')+'</div>';
+  }else{
+    h='<div class="'+w+'"><b class="text-lg">'+(PE.id?'✏️ Profili Düzenle':'👋 Hoş geldiniz! Profilinizi oluşturalım')+'</b><div class="mt-3 flex flex-wrap gap-2">'
+     +EMO.map(e=>'<button data-act="pfemo" data-v="'+e+'" class="text-2xl w-11 h-11 rounded-lg border '+(PE.emoji===e?'border-indigo-500 bg-indigo-50 dark:bg-slate-700':'border-slate-200 dark:border-slate-600')+'">'+e+'</button>').join('')+'</div>'
+     +'<label class="text-xs block mt-3">Ad Soyad</label><input id="pfN" class="inp w-full mb-2" placeholder="Örn: Ayşe Yılmaz" value="'+esc(PE.name)+'">'
+     +'<label class="text-xs block">Branş / ders (isteğe bağlı)</label><input id="pfB" list="pfBl" class="inp w-full mb-2" value="'+esc(PE.brans)+'"><datalist id="pfBl">'+BRN.map(x=>'<option value="'+esc(x)+'">').join('')+'</datalist>'
+     +'<label class="text-xs block">Okul (isteğe bağlı, karne başlığında görünür)</label><input id="pfO" class="inp w-full mb-3" value="'+esc(PE.okul)+'">'
+     +'<div class="font-bold text-sm mb-1">Hangi özellikleri kullanmak istiyorsunuz?</div><div class="flex flex-wrap gap-2 mb-2">'
+     +[['all','Hepsi'],['temel','Temel ders takibi'],['sade','Sadece yoklama ve ders']].map(x=>'<button data-act="pfpre" data-v="'+x[0]+'" class="px-3 py-1.5 rounded-full border text-xs font-semibold">'+x[1]+'</button>').join('')+'</div><div id="pfF">'+pfFeat()+'</div>'
+     +'<p class="text-[11px] text-slate-500 mt-1">Seçimi istediğiniz zaman profil düğmesinden değiştirebilirsiniz. Kapattığınız özellikler sadece sizin ekranınızdan gizlenir, öğrenci verisi silinmez ve diğer öğretmenler etkilenmez.</p>'
+     +'<div class="flex gap-2 mt-3"><button data-act="pfsave" class="btn bg-indigo-600 flex-1">Kaydet</button>'+(PS.list.length?'<button data-act="pfback" class="px-4 py-2 rounded-lg border">Geri</button>':'')+'</div>'
+     +(PE.id&&PS.list.length>1?'<button data-act="pfdel" class="mt-3 text-xs text-red-600 underline">Bu profili sil</button>':'')+'</div>';
+  }
+  $('pfb').innerHTML=h;
+}
+pfm.addEventListener('change',e=>{const f=e.target.dataset&&e.target.dataset.ft;if(f&&PE){PE.features[f]=e.target.checked;PE.touched=true;}});
+pfm.addEventListener('input',e=>{if(e.target.id==='pfB'&&PE&&!PE.touched){PE.features=defFor(e.target.value);const fb=$('pfF');if(fb)fb.innerHTML=pfFeat();}});
+function applyProfile(){
+  let o={};try{o=JSON.parse(lsg('gs_'+activeId())||'null')||JSON.parse(lsg('gs_v1')||'null')||{};}catch(e){}
+  G.sinif=o.sinif||'ALL';G.sube=o.sube||'ALL';G.donem=o.donem||'1';
+  const p=activeP(),b=$('pf');if(b)b.textContent=(p.emoji||'👤')+' '+(tname()||'Profil');
+  drawNav();if(!pageOn(S.page))S.page='home';render(true);
+}
+const pfClose=()=>pfm.classList.add('hidden');
+Object.assign(ACT,{
+  prof(){pfShow('edit',activeId()==='p0'?'':activeId());},
+  pfpick(a){PS.active=a.dataset.id;savePS();sessSet('who_ok','1');pfClose();applyProfile();},
+  pfedit(a){pfShow('edit',a.dataset.id);},
+  pfnew(){pfShow('edit','');},
+  pfback(){pfShow('pick');},
+  pfx(){pfClose();},
+  pfemo(a){pfCap();PE.emoji=a.dataset.v;pfDraw();},
+  pfpre(a){pfCap();PE.features=PRE2[a.dataset.v]();PE.touched=true;const fb=$('pfF');if(fb)fb.innerHTML=pfFeat();},
+  pfsave(){
+    pfCap();const n=T(PE.name);if(!n)return alert('Lütfen adınızı yazın.');
+    const p={id:PE.id||('p'+Date.now().toString(36)),name:n,brans:T(PE.brans),okul:T(PE.okul),emoji:PE.emoji||'👤',features:PE.features};
+    const i=PS.list.findIndex(x=>x.id===p.id);if(i>=0)PS.list[i]=p;else PS.list.push(p);
+    PS.active=p.id;savePS();sessSet('who_ok','1');pfClose();applyProfile();toast('Profil kaydedildi');
+    if(!S.room)openRoom();
+  },
+  pfdel(){
+    if(PS.list.length<2||!PE.id||!confirm('Bu profil silinsin mi? (Öğrenci verisi silinmez.)'))return;
+    PS.list=PS.list.filter(x=>x.id!==PE.id);if(PS.active===PE.id)PS.active=PS.list[0].id;savePS();applyProfile();pfShow('pick');
+  }
+});
+$('pf').onclick=()=>pfShow('pick');
+
+/* Giriş: oda bağlantısı penceresi */
+const rmm=document.createElement('div');rmm.className='fixed inset-0 z-[150] hidden bg-slate-900/80 overflow-y-auto p-4';
+rmm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md mx-auto mt-6 p-5"><div id="rmb"></div></div>';document.body.appendChild(rmm);
+function openRoom(){
+  $('rmb').innerHTML='<b class="text-lg">🔑 Sınıf Odasına Bağlan</b><p class="text-xs text-slate-500 my-2">Öğrenci verileri bir "oda"da saklanır. Başka öğretmenlerle aynı sınıfları kullanacaksanız onlarla aynı oda kodunu girin. Kodu bilmiyorsanız oda sahibinden isteyin.</p><input id="rmC" class="inp w-full mb-2 font-mono uppercase" placeholder="SNF-..."><button data-act="rmjoin" class="btn bg-indigo-600 w-full">Bağlan</button><div class="text-center text-xs text-slate-400 my-3">veya</div><button data-act="rmnew" class="w-full py-2 border rounded-lg font-semibold">✨ Yeni oda oluştur</button><p class="text-[11px] text-slate-500 mt-1">Yeni oda oluşturunca ekrandaki mevcut veriler yeni odaya kopyalanır.</p>'+(S.room?'<button data-act="rmx" class="mt-3 w-full py-2 text-sm">Kapat</button>':'');
+  rmm.classList.remove('hidden');
+}
+Object.assign(ACT,{
+  rmjoin(){const c=T($('rmC').value).toUpperCase();if(!c)return alert('Oda kodunu yazın.');lastRoom='';listen(c);rmm.classList.add('hidden');},
+  rmnew(){const n=genCode();lastRoom='';S.room=n;listen(n);save();$('rmb').innerHTML='<b class="text-lg">✅ Yeni oda oluşturuldu</b><p class="text-sm my-2">Oda kodunuz:</p><div class="font-mono font-bold text-lg break-all bg-slate-100 dark:bg-slate-700 rounded-lg p-3">'+esc(n)+'</div><p class="text-xs text-slate-500 my-2">Bir yere yazın. Diğer cihazlarda ve diğer öğretmenlerde 🔑 düğmesiyle bu kodu girin.</p><button data-act="rmx" class="btn bg-indigo-600 w-full">Tamam</button>';},
+  rmx(){rmm.classList.add('hidden');}
+});
+
+/* Tanımlar'a profil kartı ve İstatistikler'de kapalı özelliklerin gizlenmesi */
+const featCount=()=>FEAT.filter(f=>featOn(f[0])).length;
+const tp12=P.tan.html;P.tan.html=()=>'<div class="card flex flex-wrap items-center justify-between gap-2"><span class="text-sm">'+esc(prof().emoji||'👤')+' <b>'+esc(tname()||'Profil yok')+'</b> · '+featCount()+'/'+FEAT.length+' özellik açık</span><button data-act="prof" class="btn bg-slate-600">Profil ve özellikler</button></div>'+tp12();
+const stF=P.stat.html;
+P.stat.html=()=>{
+  let h=stF();
+  const cut=t=>{h=h.replace(new RegExp('<div class="card mb-0"><div class="font-bold mb-2">[^<]*'+t+'[^<]*<span[\\s\\S]*?</div></div>','g'),'');};
+  const sum=t=>{h=h.replace(new RegExp('<div class="card mb-0 text-center"><div class="text-2xl[^"]*">[^<]*</div><div class="text-xs text-slate-500">'+t+'</div></div>','g'),'');};
+  if(!featOn('ezber')){['Ezber Tamamlayan','Abdestli Gün','Hafız Öğrenciler','Cüzde Olan'].forEach(cut);['Tamamlanan Ezber','Hafız'].forEach(sum);}
+  if(!featOn('davranis'))cut('Davranış Puanı');
+  if(!featOn('reh'))cut('Rehberlik');
+  if(!featOn('ders')){['Kitabı Olmayanlar','Derste Uyuyanlar','Ödevi'].forEach(cut);}
+  return h;
+};
+
+/* Başlangıç: profil ve oda */
+if(!new URLSearchParams(location.search).get('k')){
+  if(!PS.list.length)pfShow('edit','');
+  else{if(PS.list.length>1&&!sessGet('who_ok'))pfShow('pick');applyProfile();}
+}
+
 /* ========== 8. TEMA, ODA KODU, BAŞLANGIÇ ========== */
 const mq=matchMedia('(prefers-color-scheme: dark)');let tema=lsg('tema_v1');
 function theme(){const d=tema?tema==='dark':mq.matches;document.documentElement.classList.toggle('dark',d);$('th').textContent=d?'☀️':'🌙';}
 $('th').onclick=()=>{tema=document.documentElement.classList.contains('dark')?'light':'dark';lss('tema_v1',tema);theme();};theme();
 $('rc').onclick=()=>{if(!S.room)return;$('rc').textContent=S.room;setTimeout(()=>{$('rc').textContent=mask(S.room);},5000);};
-function room(){
-  const c=prompt('Oda kodunu girin.\nYeni oda oluşturmak için boş bırakıp Tamam deyin (mevcut veriler yeni odaya kopyalanır):');
-  if(c===null)return;
-  const code=T(c).toUpperCase();
-  if(code){lastRoom='';listen(code);}
-  else{const n=genCode();lastRoom='';S.room=n;listen(n);save();alert('Yeni oda kodunuz:\n'+n+'\n\nBir yere yazın. Diğer cihazlarda "🔑" ile bu kodu girin.');}
-}
+function room(){openRoom();}
 $('rcB').onclick=room;
 $('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
 addEventListener('scroll',()=>$('up').classList.toggle('hidden',scrollY<300),{passive:true});
