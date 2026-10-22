@@ -14,6 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
 <style type="text/tailwindcss">
  .card{@apply bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-3}
  .inp{@apply border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-base bg-white dark:bg-slate-900 outline-none}
@@ -90,6 +91,13 @@ const sorted=l=>l.slice().sort((a,b)=>num(a.sinif)-num(b.sinif)||String(a.sube).
 
 /* ========== 3. FIREBASE: giriş, dinleme, kayıt ========== */
 firebase.initializeApp(firebaseConfig);
+/* App Check (Dolandırıcılık Savunması / reCAPTCHA Enterprise). Site anahtarı gizli değildir.
+   Anahtarı konsoldan KOPYALAYIP yapıştırın: I/l ve 0/O karışabilir. */
+const AC_KEY='6LfNoPgiAAAAAIznhVub2OCLY0ISKomsiXtZ4tI9';
+try{
+  if(location.hostname==='localhost'||location.hostname==='127.0.0.1')self.FIREBASE_APPCHECK_DEBUG_TOKEN=true; /* yalnızca yerel deneme */
+  firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(AC_KEY),true);
+}catch(e){console.warn('App Check başlatılamadı:',e);}
 const db=firebase.database();
 let _auth=null,ref=null,last={},lastRoom='',online=true,queued=0,t2;
 const auth=()=>_auth||(_auth=new Promise((ok,no)=>{const a=firebase.auth(),u=a.onAuthStateChanged(x=>{u();x?ok():a.signInAnonymously().then(ok,e=>{_auth=null;alert('Giriş hatası: '+e.message+'\nFirebase > Authentication > Anonymous açık mı?');no(e);});});}));
