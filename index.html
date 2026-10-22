@@ -65,8 +65,8 @@ const _d=new Date(), today=new Date(_d-_d.getTimezoneOffset()*6e4).toISOString()
 const isO=v=>v!==null&&typeof v==='object';
 
 /* ========== 2. DURUM ve VERİ BİÇİMİ ========== */
-const KEYS=['students','lessons','ezberItems','homeworks','msgs','plans','yplan','prog'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_',plans:'PL_',yplan:'YP_',prog:'PG_'};
-const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],plans:[],yplan:[],prog:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
+const KEYS=['students','lessons','ezberItems','homeworks','msgs','plans','yplan','prog','kyer'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_',plans:'PL_',yplan:'YP_',prog:'PG_',kyer:'KY_'};
+const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],plans:[],yplan:[],prog:[],kyer:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
 const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function prepare(l,p){let m=l.reduce((a,x)=>Math.max(a,typeof x._o==='number'?x._o:-1),-1);l.forEach(x=>{if(!x.id)x.id=uid(p);if(typeof x._o!=='number')x._o=++m;});}
 function toList(v,p){
@@ -424,11 +424,20 @@ gpage('dav','🌟','Davranış Takibi',null,()=>'<datalist id="bhN">'+['Arkadaş
 
 /* Rehberlik (telefon için: çalışma bazlı ve öğrenci bazlı görünüm) */
 TS.reh={all:false,set:{},name:''};S.rv='';S.rview='act';S.rf='all';
-const rbActs=()=>S.homeworks.filter(h=>h.rb&&(h.donem||'1')===G.donem&&(G.sinif==='ALL'||h.sinif==='ALL'||h.sinif===G.sinif));
+const rehSel=()=>{const r=T(prof().reh||'').split('|');return r.length===2&&r[0]?{s:r[0],b:r[1]}:null;};
+const rehLabel=r=>r.s+'/'+String(r.b).toUpperCase();
+const rehMine=h=>{const r=rehSel();return !!r&&(h.sinif==='ALL'||h.sinif===r.s)&&(!h.sube||h.sube==='ALL'||String(h.sube).toLowerCase()===r.b);};
+const rbActs=()=>S.homeworks.filter(h=>h.rb&&(h.donem||'1')===G.donem&&rehMine(h));
 const rbSt=(a,l)=>{const c={Yapti:0,Yapmadi:0,None:0};l.forEach(s=>{c[(s.hwStatus||{})[a.id]||'None']++;});return c;};
 const tgb=(k,t,v,on)=>'<button data-act="'+k+'" data-v="'+v+'" class="flex-1 min-h-[44px] rounded-lg border font-semibold text-sm '+(on?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+t+'</button>';
 const EMPTY='<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
-gpage('reh','🧭','Rehberlik Faaliyetleri',null,()=>'<details class="card" data-keep="kOpen"'+(S.kOpen?' open':'')+'><summary class="cursor-pointer font-semibold">➕ Yeni rehberlik çalışması ata ('+G.donem+'. dönem)</summary><div class="flex flex-wrap gap-2 my-2">'+chips('reh')+'</div><div class="flex gap-2"><input data-tn="reh" class="inp flex-1" placeholder="Çalışma adı" value="'+esc(TS.reh.name)+'"><button data-act="radd" class="btn bg-purple-600">Ata</button></div></details>',()=>{
+const rehCombos=()=>[...new Set(S.students.filter(s=>!s.absent).map(s=>T(s.sinif)+'|'+T(s.sube).toLowerCase()))].filter(x=>x.split('|')[0]).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true}));
+const rehAsk=()=>{const c=rehCombos();
+  return '<div class="card col-span-full"><b>🧭 Şube rehber öğretmeni olduğunuz sınıf hangisi?</b><p class="text-xs text-slate-500 my-2">Rehberlik çalışmaları yalnızca bu sınıfa atanır ve sadece bu sınıfın öğrencileri görünür. Daha sonra değiştirebilirsiniz.</p>'
+   +(c.length?'<div class="flex flex-wrap gap-2"><select id="rehSel" class="inp"><option value="">Sınıf seçin…</option>'+c.map(x=>{const q=x.split('|');return '<option value="'+esc(x)+'">'+esc(q[0])+'/'+esc(q[1].toUpperCase())+'</option>';}).join('')+'</select><button data-act="rehset" class="btn bg-purple-600">Kaydet</button></div>':'<p class="text-sm text-red-600">Önce Öğrenciler sayfasından öğrenci ekleyin.</p>')+'<p class="text-[11px] text-slate-500 mt-2">Şube rehber öğretmeni değilseniz bu özelliği Profil ve özellikler bölümünden kapatabilirsiniz.</p></div>';};
+const rehTop=()=>{const r=rehSel();return r?'<div class="flex items-center justify-between gap-2 my-2 text-sm"><span>Atanacağı sınıf: <b>'+esc(rehLabel(r))+'</b> (şube rehber sınıfınız)</span><button data-act="rehchg" class="px-3 py-1 rounded-lg border text-xs">Değiştir</button></div>':'';};
+gpage('reh','🧭','Rehberlik Faaliyetleri',null,()=>'<details class="card" data-keep="kOpen"'+(S.kOpen?' open':'')+'><summary class="cursor-pointer font-semibold">➕ Yeni rehberlik çalışması ata ('+G.donem+'. dönem)</summary>'+rehTop()+'<div class="flex gap-2"><input data-tn="reh" class="inp flex-1" placeholder="Çalışma adı" value="'+esc(TS.reh.name)+'"><button data-act="radd" class="btn bg-purple-600">Ata</button></div></details>',()=>{
+  if(!rehSel())return rehAsk();
   const acts=rbActs(),g=grp(),sw='<div class="col-span-full flex gap-2">'+tgb('rv','📋 Çalışma bazlı','act',S.rview==='act')+tgb('rv','👤 Öğrenci bazlı','stu',S.rview==='stu')+'</div>';
   if(!acts.length)return sw+'<div class="card col-span-full text-center text-sm text-slate-400">Bu dönem ve sınıf için rehberlik çalışması yok. Yukarıdan atayın.</div>';
   if(S.rview==='stu')return sw+(g.map(s=>{let y=0,n=0;
@@ -452,13 +461,21 @@ Object.assign(ACT,{
   radd(){
     const t=TS.reh,name=T(t.name);
     if(!name)return alert('Çalışma adını yazın.');
-    const tg=t.all?['ALL']:Object.keys(t.set).filter(x=>t.set[x]);
-    if(!tg.length)return alert('Sınıf işaretleyin ya da "Tüm sınıflar"ı seçin.');
-    tg.forEach(x=>S.homeworks.push({name,sinif:x,sube:'ALL',donem:G.donem,rb:true}));
+    const r=rehSel();if(!r)return alert('Önce şube rehber öğretmeni olduğunuz sınıfı seçin.');
+    S.homeworks.push({name,sinif:r.s,sube:r.b,donem:G.donem,rb:true});
     t.name='';save();render(true);
   },
+  rehset(){
+    const v=$('rehSel')?$('rehSel').value:'';if(!v)return alert('Listeden bir sınıf seçin.');
+    const p=activeP();if(!p.id)return alert('Önce profil oluşturun.');
+    const r=v.split('|');
+    let n=0;S.homeworks.forEach(h=>{if(h.rb&&(h.sinif==='ALL'||(h.sinif===r[0]&&(!h.sube||h.sube==='ALL')))){h.sinif=r[0];h.sube=r[1];n++;}});
+    p.reh=v;savePS();if(n)save();G.sinif=r[0];G.sube=r[1];gsave();render(true);toast('Şube rehber sınıfı: '+r[0]+'/'+r[1].toUpperCase()+(n?' · '+n+' çalışma bu sınıfa bağlandı':''));
+  },
+  rehchg(){const p=activeP();if(!p.id)return;delete p.reh;savePS();render(true);},
   rall(){const a=rbActs().find(x=>x.id===S.rv);if(!a)return;const l=grp().filter(s=>ap(a,s)&&!(s.hwStatus||{})[a.id]);if(!l.length)return toast('İşaretsiz öğrenci yok');del(()=>{l.forEach(s=>{s.hwStatus=s.hwStatus||{};s.hwStatus[a.id]='Yapti';});},l.length+' öğrenci "Yaptı" yapıldı');}
 });
+{const h0=P.reh.html;P.reh.html=()=>{const r=rehSel();if(r&&(G.sinif!==r.s||G.sube!==r.b)){G.sinif=r.s;G.sube=r.b;gsave();}return h0();};}
 /* İstatistikler */
 const sbox=(t,n,body,c)=>'<div class="card mb-0"><div class="font-bold mb-2">'+t+' <span class="text-xs text-white rounded-full px-2 py-0.5 '+c+'">'+n+'</span></div><div class="flex flex-wrap gap-1.5 overflow-y-auto" style="max-height:15rem">'+(body||'<span class="text-xs text-slate-400 italic">Kayıt yok.</span>')+'</div></div>';
 reg('stat','📊','İstatistikler',()=>{
@@ -471,7 +488,7 @@ reg('stat','📊','İstatistikler',()=>{
   const cz=A.filter(s=>{let k='kuran';Object.values(s.periods||{}).forEach(p=>{if(p.kuranDurum)k=p.kuranDurum;});return k==='cuz';});
   const ab=S.students.filter(s=>s.absent);
   const hwy=A.filter(s=>{const h=S.homeworks.filter(x=>!x.rb&&x.start<=today&&ap(x,s)).sort((a,b)=>a.end<b.end?1:-1).slice(0,3);return h.length>=3&&h.every(x=>['Yapmadi','Eksik'].includes((s.hwStatus||{})[x.id]))&&h.reduce((t,x)=>t+hwW((s.hwStatus||{})[x.id]),0)>=2.5;});
-  const rbm=S.homeworks.filter(h=>h.rb).map(h=>{const l=A.filter(s=>ap(h,s)&&(s.hwStatus||{})[h.id]==='Yapmadi');return l.length?'<div class="w-full text-xs font-bold mt-1">'+esc(h.name)+' ('+(h.donem||'1')+'. dönem)</div>'+l.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''):'';}).join('');
+  const rbm=S.homeworks.filter(h=>h.rb&&(!rehSel()||rehMine(h))).map(h=>{const l=A.filter(s=>ap(h,s)&&(s.hwStatus||{})[h.id]==='Yapmadi');return l.length?'<div class="w-full text-xs font-bold mt-1">'+esc(h.name)+' ('+(h.donem||'1')+'. dönem)</div>'+l.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''):'';}).join('');
   const tot=k=>m.reduce((t,x)=>t+x[k],0);
   return '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'+[['Öğrenci',A.length],['Tamamlanan Ezber',tot('ez')],['Hafız',hz.length],['Toplam Artı Puan',tot('p')]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
    +'<div class="grid grid-cols-1 md:grid-cols-2 gap-3">'
@@ -486,7 +503,7 @@ reg('stat','📊','İstatistikler',()=>{
    +sbox('📜 Cüzde Olan Öğrenciler',cz.length,cz.map(s=>chip(s,'bg-amber-100 text-amber-800 border-amber-200')).join(''),'bg-amber-600')
    +sbox('🚫 Sürekli Devamsız Öğrenciler',ab.length,ab.map(s=>chip(s,'bg-rose-100 text-rose-800 border-rose-200')).join(''),'bg-rose-600')
    +sbox('🔔 Son 3 Ödevi Yapmayanlar',hwy.length,hwy.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''),'bg-red-600')
-   +sbox('🧭 Rehberlik Çalışmasına Katılmayanlar',S.homeworks.filter(h=>h.rb).length,rbm,'bg-slate-600')+'</div>';
+   +sbox('🧭 Rehberlik Çalışmasına Katılmayanlar',S.homeworks.filter(h=>h.rb&&(!rehSel()||rehMine(h))).length,rbm,'bg-slate-600')+'</div>';
 },null,null);
 /* ========== AŞAMA C2: KARNE, OTURMA PLANI, HAFIZLIK ========== */
 const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'-';
@@ -1106,7 +1123,7 @@ Object.assign(ACT,{
     let st,en;if(k==='odev'){st=$('emS').value;en=$('emE').value;if(!st||!en||en<st)return alert('Başlangıç ve bitiş tarihini doğru seçin.');}
     const oldAll=old.some(x=>x.sinif==='ALL'),oldCls=old.map(x=>x.sinif),oldName=base.name,allId=(old.find(x=>x.sinif==='ALL')||{}).id;
     const sb=$('emSb')?$('emSb').value:'ALL',tz=$('emT')?T($('emT').value):'';
-    const mk=cls=>k==='ders'?{name:name,sinif:cls}:k==='ezber'?{name:name,sinif:cls,sube:sb}:k==='odev'?{name:name,sinif:cls,sube:sb,start:st,end:en,teslim:tz}:{name:name,sinif:cls,sube:'ALL',donem:base.donem||'1',rb:true};
+    const mk=cls=>k==='ders'?{name:name,sinif:cls}:k==='ezber'?{name:name,sinif:cls,sube:sb}:k==='odev'?{name:name,sinif:cls,sube:sb,start:st,end:en,teslim:tz}:{name:name,sinif:cls,sube:base.sube||'ALL',donem:base.donem||'1',rb:true};
     const copy=(fromId,toId,cls)=>{if(k==='ders'||k==='ezber'||!fromId)return;S.students.forEach(s=>{if((cls==='ALL'||T(s.sinif)===cls)&&s.hwStatus&&s.hwStatus[fromId]!==undefined)s.hwStatus[toId]=s.hwStatus[fromId];});};
     const used=new Set(),made=[];
     if(target[0]==='ALL'&&!oldAll){
@@ -1220,7 +1237,7 @@ Object.assign(ACT,{
   pfsave(){
     pfCap();const n=T(PE.name);if(!n)return alert('Lütfen adınızı yazın.');
     const p={id:PE.id||('p'+Date.now().toString(36)),name:n,brans:T(PE.brans),okul:T(PE.okul),emoji:PE.emoji||'👤',features:PE.features};
-    const i=PS.list.findIndex(x=>x.id===p.id);if(i>=0)PS.list[i]=p;else PS.list.push(p);
+    const i=PS.list.findIndex(x=>x.id===p.id);if(i>=0&&PS.list[i].reh)p.reh=PS.list[i].reh;if(i>=0)PS.list[i]=p;else PS.list.push(p);
     PS.active=p.id;savePS();sessSet('who_ok','1');pfClose();applyProfile();toast('Profil kaydedildi');
     if(!S.room)openRoom();
   },
@@ -1932,7 +1949,7 @@ reg('bugun','🗓️','Bugün',()=>{
   const ev=S.yplan.filter(x=>x.t==='e'&&x.id&&x.tarih>=td&&x.tarih<=ypAdd(td,14)).sort((a,b)=>a.tarih.localeCompare(b.tarih));
   const all=S.prog.slice().sort((a,b)=>(+a.gun||0)-(+b.gun||0)||bgT(a.bas)-bgT(b.bas));
   return '<div class="card"><div class="text-sm text-slate-500">'+GUNL[new Date().getDay()]+' · '+fdt(td)+'</div></div><div id="bgNow" class="card !border-indigo-400">'+bgNow()+'</div>'
-   +l.map(x=>{const pl=bgPlan(x),act=bgT(x.bas)<=m&&m<bgT(x.bit);return '<div class="card '+(act?'!border-2 !border-indigo-500':'')+'"><div class="flex items-center gap-2"><b class="w-24 shrink-0">'+esc(x.bas)+'–'+esc(x.bit)+'</b><span class="flex-1 font-semibold">'+bgLab(x)+'</span><button data-act="bgyok" data-id="'+esc(x.id)+'" class="btn bg-slate-600 !py-1.5">Yoklama</button></div>'+(pl.length?pl.map(y=>'<div class="text-sm mt-1">📆 '+(y.hafta||'?')+'. hafta · '+esc(y.konu)+(y.kaz?'<div class="text-xs text-slate-500">'+esc(y.kaz)+'</div>':'')+'</div>').join(''):'<div class="text-xs text-slate-400 mt-1">Bu hafta için plan satırı yok.</div>')+'</div>';}).join('')
+   +l.map(x=>{const pl=bgPlan(x),act=bgT(x.bas)<=m&&m<bgT(x.bit);return '<div class="card '+(act?'!border-2 !border-indigo-500':'')+'"><div class="flex items-center gap-2"><b class="w-24 shrink-0">'+esc(x.bas)+'–'+esc(x.bit)+'</b><span class="flex-1 font-semibold">'+bgLab(x)+'</span><button data-act="bgyok" data-id="'+esc(x.id)+'" class="btn bg-slate-600 !py-1.5">Yoklama</button></div>'+(pl.length?pl.map(y=>'<div class="text-sm mt-1">📆 '+(y.hafta||'?')+'. hafta · '+esc(y.konu)+(y.kaz?'<div class="text-xs text-slate-500">'+esc(y.kaz)+'</div>':'')+'</div>').join(''):'<div class="text-xs text-slate-400 mt-1">Bu hafta için plan satırı yok.</div>')+kyBlock(x)+'</div>';}).join('')
    +(ev.length?'<div class="card"><b>🗓️ Yaklaşan etkinlikler</b>'+ev.slice(0,5).map(x=>'<div class="text-sm mt-1"><b>'+fdt(x.tarih)+'</b> · '+esc(x.konu)+'</div>').join('')+'</div>':'')
    +'<details class="card"><summary class="font-bold cursor-pointer">⚙️ Ders programını düzenle</summary><div class="flex flex-wrap gap-2 my-2">'+[1,2,3,4,5,6].map(g=>'<label class="text-sm flex items-center gap-1"><input type="checkbox" id="bgG'+g+'"> '+GUNL[g].slice(0,3)+'</label>').join('')+'</div><div class="flex flex-wrap items-center gap-2"><label class="text-xs">Başlangıç <input type="time" id="bgB" class="inp"></label><label class="text-xs">Süre (dk) <input type="number" id="bgS" class="inp w-20" value="40"></label><select id="bgC" class="inp">'+classes().map(c=>'<option value="'+esc(c)+'">'+esc(c)+'. sınıf</option>').join('')+'</select><select id="bgU" class="inp">'+sb.map(x=>'<option value="'+esc(x)+'">'+(x==='ALL'?'Tüm şubeler':esc(x.toUpperCase())+' şubesi')+'</option>').join('')+'</select><input id="bgD" class="inp" placeholder="Ders adı" list="bgDL"></div><datalist id="bgDL">'+[...new Set(S.lessons.map(x=>x.name))].map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist><button data-act="bgadd" class="btn bg-indigo-600 w-full mt-2">Seçili günlere ekle</button>'
    +(all.length?'<div class="mt-3">'+all.map(x=>'<div class="flex items-center gap-2 text-sm py-1 border-b border-slate-200 dark:border-slate-700"><b class="w-10">'+GUNL[x.gun].slice(0,3)+'</b><span class="w-24">'+esc(x.bas)+'–'+esc(x.bit)+'</span><span class="flex-1">'+bgLab(x)+'</span><button data-act="bgdel" data-id="'+esc(x.id)+'" class="px-1">✖</button></div>').join('')+'</div>':'')+'</details>';
@@ -1948,6 +1965,31 @@ Object.assign(ACT,{
   bgyok(a){const x=S.prog.find(y=>y.id===a.dataset.id);if(!x)return;G.sinif=x.sinif||'ALL';G.sube=x.sube&&x.sube!=='ALL'?String(x.sube).toLowerCase():'ALL';G.date=bdNow();gsave();go('yok');}
 });
 setInterval(()=>{const e=$('bgNow');if(e&&S.page==='bugun')e.innerHTML=bgNow();},30000);
+
+/* ========== KALDIĞIMIZ YER: sınıf ve derse göre konu / sayfa notu, bir sonraki derste hatırlatma ========== */
+/* Kayıt: S.kyer = [{sinif,sube,ders,konu,sayfa,tarih}] */
+const kySame=(a,b)=>a.sinif===b.sinif&&(a.sube||'ALL')===(b.sube||'ALL')&&String(a.ders||'')===String(b.ders||'');
+const kyLast=(x,before)=>S.kyer.filter(k=>kySame(k,x)&&(!before||k.tarih<before)).sort((a,b)=>a.tarih<b.tarih?1:a.tarih>b.tarih?-1:0)[0]||null;
+const kyTxt=k=>'<b>'+esc(k.konu||'-')+'</b>'+(k.sayfa?' · sayfa '+esc(k.sayfa):'');
+function kyBlock(x){
+  const td=bdNow(),prev=kyLast(x,td),cur=S.kyer.find(k=>kySame(k,x)&&k.tarih===td),id=esc(x.id);
+  return (prev?'<div class="mt-2 text-sm rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-300 p-2">📌 Geçen derste kaldığımız yer ('+fdt(prev.tarih)+'): '+kyTxt(prev)+'</div>':'<div class="mt-2 text-xs text-slate-400">Bu sınıfın kaldığımız yer notu henüz yok.</div>')
+   +'<div class="flex flex-wrap items-center gap-2 mt-2"><input id="kyK_'+id+'" class="inp flex-1 min-w-[140px] text-sm" placeholder="Bugün kaldığımız konu" value="'+esc(cur?cur.konu:'')+'"><input id="kyP_'+id+'" class="inp w-24 text-sm" placeholder="Sayfa" value="'+esc(cur?cur.sayfa:'')+'"><button data-act="kysave" data-id="'+id+'" class="btn bg-amber-600 !py-1.5">📌 Kaydet</button></div>'+(cur?'<div class="text-[11px] text-emerald-700 mt-1">Bugün kaydedildi, gelecek derste hatırlatılacak.</div>':'');
+}
+function kyBar(){
+  const td=bdNow(),l=bgToday().map(x=>[x,kyLast(x,td)]).filter(p=>p[1]);
+  return l.length?'<button data-go="bugun" class="card w-full text-left !bg-amber-100 !border-amber-400 text-amber-900"><div class="font-semibold">📌 Bugünkü derslerde kaldığınız yer</div>'+l.map(p=>'<div class="text-sm mt-1">'+bgLab(p[0])+' → '+kyTxt(p[1])+' <span class="text-xs">('+fdt(p[1].tarih)+')</span></div>').join('')+'</button>':'';
+}
+ACT.kysave=a=>{
+  const x=S.prog.find(y=>y.id===a.dataset.id);if(!x)return;
+  const k=T($('kyK_'+a.dataset.id).value),p=T($('kyP_'+a.dataset.id).value);
+  if(!k&&!p)return alert('Konuyu ya da sayfayı yazın.');
+  const td=bdNow(),o=S.kyer.find(y=>kySame(y,x)&&y.tarih===td);
+  if(o){o.konu=k;o.sayfa=p;}else S.kyer.push({sinif:x.sinif,sube:x.sube||'ALL',ders:x.ders||'',konu:k,sayfa:p,tarih:td});
+  save();render(true);toast('Kaldığımız yer kaydedildi');
+};
+{const hk=P.home.html;P.home.html=()=>kyBar()+hk();}
+
 
 /* ========== ÇIKTILAR: sınıf listesi, ödev çizelgesi, veli imza sirküleri, veli izin belgesi (A4) ========== */
 function ctOpen(ti,land,body){
