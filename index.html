@@ -94,7 +94,7 @@ const sorted=l=>l.slice().sort((a,b)=>num(a.sinif)-num(b.sinif)||String(a.sube).
 firebase.initializeApp(firebaseConfig);
 /* App Check (Dolandırıcılık Savunması / reCAPTCHA Enterprise). Site anahtarı gizli değildir.
    Anahtarı konsoldan KOPYALAYIP yapıştırın: I/l ve 0/O karışabilir. */
-const AC_KEY='6LfNoPgiAAAAAIznhVub2OCLY0ISKomsiXtZ4tI9';
+const AC_KEY='6Ldb4fstAAAAALCKPD9LkXvl5GuMqpv2KnET_f2B';
 try{
   if(location.hostname==='localhost'||location.hostname==='127.0.0.1')self.FIREBASE_APPCHECK_DEBUG_TOKEN=true; /* yalnızca yerel deneme */
   firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(AC_KEY),true);
