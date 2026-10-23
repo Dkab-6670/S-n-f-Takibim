@@ -190,6 +190,11 @@ const classChips=A=>{
     +cs.map(k=>{const c=k.split('|');return chip(c[0],c[1],esc(c[0])+(c[1]!=='ALL'?'/'+esc(c[1].toUpperCase()):''),G.sinif===c[0]&&G.sube===c[1]);}).join('')+'</div>';
 };
 const HQ=['yok','ders','ezber'];
+let HEDIT=false;
+function hOrd(i){const d=HGRP[i][1];let m={};try{m=JSON.parse(lsg('home_ord')||'{}')||{};}catch(e){}let o=Array.isArray(m[i])?m[i].filter((k,j)=>d.includes(k)&&m[i].indexOf(k)===j):[];return o.concat(d.filter(k=>!o.includes(k)));}
+ACT.hedit=()=>{HEDIT=!HEDIT;render(true);};
+ACT.hmv=a=>{const i=+a.dataset.g,vis=hOrd(i).filter(k=>P[k]&&pageOn(k)),o=hOrd(i),k=a.dataset.k,j=vis.indexOf(k),t=vis[j+(+a.dataset.d)];if(j<0||!t)return;const x=o.indexOf(k),y=o.indexOf(t);o[x]=t;o[y]=k;let m={};try{m=JSON.parse(lsg('home_ord')||'{}')||{};}catch(e){}m[i]=o;lss('home_ord',JSON.stringify(m));render(true);};
+ACT.hrs=()=>{lss('home_ord','');render(true);};
 const HGRP=[['📅 Günlük işler',['bugun','odevhiz','dav','reh','yplan']],['🏫 Sınıf',['ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne','cikti']],['🧰 Diğer',['ayar']]];
 const todayCard=()=>{
   const it=[alertItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
@@ -205,7 +210,10 @@ reg('home','🏠','Ana Sayfa',()=>{
   const A=S.students.filter(s=>!s.absent);
   const q=HQ.filter(k=>P[k]&&pageOn(k));
   const quick=q.length?'<div class="grid gap-3 mb-4" style="grid-template-columns:repeat('+q.length+',minmax(0,1fr))">'+q.map(k=>'<button data-go="'+k+'" class="card mb-0 py-5 flex flex-col items-center justify-center gap-1 text-center !bg-indigo-50 dark:!bg-slate-700 !border-indigo-200 dark:!border-slate-600"><span class="text-4xl">'+P[k].icon+'</span><b class="text-sm">'+esc(P[k].title)+'</b></button>').join('')+'</div>':'';
-  const more=HGRP.map(g=>{const ks=g[1].filter(k=>P[k]&&pageOn(k));return ks.length?'<div class="text-xs font-semibold text-slate-500 mt-3 mb-1">'+g[0]+'</div><div class="grid grid-cols-3 md:grid-cols-6 gap-2">'+ks.map(k=>'<button data-go="'+k+'" class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-2 px-1 text-center text-xs font-medium"><div class="text-xl">'+P[k].icon+'</div>'+esc(P[k].title)+'</button>').join('')+'</div>':'';}).join('');
+  const more=HGRP.map((g,gi)=>{const ks=hOrd(gi).filter(k=>P[k]&&pageOn(k));return ks.length?'<div class="text-xs font-semibold text-slate-500 mt-3 mb-1">'+g[0]+'</div><div class="grid grid-cols-3 md:grid-cols-6 gap-2">'+ks.map((k,i)=>{const b='<button data-go="'+k+'" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-2 px-1 text-center text-xs font-medium"><div class="text-xl">'+P[k].icon+'</div>'+esc(P[k].title)+'</button>';
+    if(!HEDIT)return b;const bt='flex-1 h-8 rounded bg-slate-200 dark:bg-slate-700 text-sm font-bold';
+    return '<div class="rounded-lg ring-2 ring-indigo-300 p-1">'+b.replace('data-go="'+k+'"','data-noop="1"')+'<div class="flex gap-1 mt-1"><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="-1" class="'+bt+(i?'':' opacity-30')+'" aria-label="Sola">◀</button><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="1" class="'+bt+(i<ks.length-1?'':' opacity-30')+'" aria-label="Sağa">▶</button></div></div>';}).join('')+'</div>':'';}).join('')
+   +'<div class="text-center mt-4 flex justify-center gap-4"><button data-act="hedit" class="text-sm font-semibold text-indigo-600">'+(HEDIT?'✔ Düzenlemeyi bitir':'✏️ Kısayolları sırala')+'</button>'+(HEDIT&&lsg('home_ord')?'<button data-act="hrs" class="text-xs text-slate-500 underline">Varsayılana dön</button>':'')+'</div>';
   const sm=[A.length+' öğrenci',classes().length+' sınıf'].concat(featOn('ders')?[S.lessons.length+' ders']:[],featOn('ezber')?[S.ezberItems.length+' ezber konusu']:[]).join(' · ');
   return todayCard()
    +(A.length?classChips(A):'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
@@ -223,7 +231,7 @@ function drawList(){
 reg('ogr','👥','Öğrenciler',()=>{
   const F=S.F,opt=(a,v)=>a.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===v?' selected':'')+'>'+esc(x[1])+'</option>').join('');
   return '<div class="card"><b class="text-sm">Öğrenci ekle</b><div class="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2"><input id="ns" class="inp" placeholder="Sınıf (7)"><input id="nb" class="inp" placeholder="Şube (d)"><input id="nn" class="inp" placeholder="Okul no"><input id="na" class="inp col-span-2" placeholder="Adı soyadı"></div><button data-act="add" class="btn bg-indigo-600 mt-2">➕ Ekle</button>'
-   +'<details class="mt-3" data-keep="bOpen"'+(S.bOpen?' open':'')+'><summary class="text-xs cursor-pointer text-slate-500">Toplu ekle (S.No ⇥ Okul No ⇥ Sınıf ⇥ Şube ⇥ Ad Soyad)</summary><textarea id="nbulk" rows="5" class="inp w-full mt-2 text-xs font-mono"></textarea><button data-act="bulk" class="btn bg-slate-600 mt-2">Listeyi ekle</button></details></div>'
+   +'<details class="mt-3" data-keep="bOpen"'+(S.bOpen?' open':'')+'><summary class="text-xs cursor-pointer text-slate-500">Toplu ekle (S.No ⇥ Okul No ⇥ Sınıf ⇥ Şube ⇥ Ad Soyad)</summary><textarea id="nbulk" rows="5" class="inp w-full mt-2 text-xs font-mono"></textarea><button data-act="bulk" class="btn bg-slate-600 mt-2">Listeyi ekle</button></details><button data-act="pbopen" class="btn bg-indigo-600 mt-3">📷 Toplu fotoğraf ekle</button></div>'
    +'<div class="card flex flex-wrap items-center gap-2"><select id="fs" class="inp">'+opt([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),F.sinif)+'</select><select id="fb" class="inp">'+opt([['ALL','Tüm Şubeler']].concat(subes(F.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),F.sube)+'</select><input id="fq" class="inp" placeholder="Ad / No ara" value="'+esc(F.q)+'"><b id="ogrCnt" class="text-sm"></b></div><div id="ogrList"></div>';
 },drawList,'Öğrenci');
 $('view').addEventListener('change',e=>{
@@ -517,11 +525,19 @@ Object.assign(ACT,{
 const sbox=(t,n,body,c)=>'<div class="card mb-0"><div class="font-bold mb-2">'+t+' <span class="text-xs text-white rounded-full px-2 py-0.5 '+c+'">'+n+'</span></div><div class="flex flex-wrap gap-1.5 overflow-y-auto" style="max-height:15rem">'+(body||'<span class="text-xs text-slate-400 italic">Kayıt yok.</span>')+'</div></div>';
 const ST_DEF=['ab','hwy','rb','ez','p','pm','bp','bk','sl','ab2','hz','cz'];
 function stOrd(){let o=[];try{o=JSON.parse(lsg('stat_ord')||'[]');}catch(e){}if(!Array.isArray(o))o=[];o=o.filter((k,i)=>ST_DEF.includes(k)&&o.indexOf(k)===i);return o.concat(ST_DEF.filter(k=>!o.includes(k)));}
-function stBoxes(items){const m={};items.forEach(x=>m[x[0]]=x[1]);const o=stOrd();
+const ST_T={ab:'🚫 Sürekli Devamsız',hwy:'🔔 Son 3 Ödevi Yapmayanlar',rb:'🧭 Rehberlik',ez:'🏆 Ezber',p:'➕ Artı Puan',pm:'➖ Eksi Puan',bp:'🌟 Davranış Puanı',bk:'📕 Kitabı Olmayanlar',sl:'😴 Derste Uyuyanlar',ab2:'💧 Abdestli Gün',hz:'👳 Hafızlar',cz:'📜 Cüzdekiler'};
+function stHid(){try{const o=JSON.parse(lsg('stat_hid')||'[]');return Array.isArray(o)?o.filter(k=>ST_DEF.includes(k)):[];}catch(e){return [];}}
+function stBoxes(items){const m={};items.forEach(x=>m[x[0]]=x[1]);const h=stHid(),o=stOrd().filter(k=>!h.includes(k));
+  const bt='w-7 h-7 rounded bg-slate-200 dark:bg-slate-700 text-xs font-bold';
   return '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">'+o.map((k,i)=>'<div class="relative">'+m[k]+'<div class="absolute top-2 right-2 flex gap-1">'
-   +'<button data-act="stmv" data-k="'+k+'" data-d="-1" class="w-7 h-7 rounded bg-slate-200 dark:bg-slate-700 text-xs font-bold'+(i?'':' opacity-30')+'" aria-label="Yukarı">▲</button>'
-   +'<button data-act="stmv" data-k="'+k+'" data-d="1" class="w-7 h-7 rounded bg-slate-200 dark:bg-slate-700 text-xs font-bold'+(i<o.length-1?'':' opacity-30')+'" aria-label="Aşağı">▼</button></div></div>').join('')+'</div>';}
-ACT.stmv=a=>{const o=stOrd(),k=a.dataset.k,i=o.indexOf(k),j=i+(+a.dataset.d);if(i<0||j<0||j>=o.length)return;o.splice(i,1);o.splice(j,0,k);lss('stat_ord',JSON.stringify(o));render(true);};
+   +'<button data-act="stmv" data-k="'+k+'" data-d="-1" class="'+bt+(i?'':' opacity-30')+'" aria-label="Yukarı">▲</button>'
+   +'<button data-act="stmv" data-k="'+k+'" data-d="1" class="'+bt+(i<o.length-1?'':' opacity-30')+'" aria-label="Aşağı">▼</button>'
+   +'<button data-act="sthd" data-k="'+k+'" class="'+bt+'" aria-label="Gizle" title="Gizle">✕</button></div></div>').join('')+'</div>'
+   +(h.length?'<div class="card mt-3"><div class="text-xs font-semibold text-slate-500 mb-2">Gizlenen kutular (dokunup geri getirin)</div><div class="flex flex-wrap gap-1.5">'+h.map(k=>'<button data-act="sthd" data-k="'+k+'" class="px-3 py-1.5 rounded-full border border-slate-300 dark:border-slate-600 text-xs font-semibold">+ '+ST_T[k]+'</button>').join('')+'</div></div>':'')
+   +((lsg('stat_ord')||h.length)?'<div class="text-center mt-3"><button data-act="strs" class="text-xs text-indigo-600 underline">Varsayılan düzene dön</button></div>':'');}
+ACT.stmv=a=>{const h=stHid(),o=stOrd(),v=o.filter(k=>!h.includes(k)),k=a.dataset.k,i=v.indexOf(k),t=v[i+(+a.dataset.d)];if(i<0||!t)return;const x=o.indexOf(k),y=o.indexOf(t);o[x]=t;o[y]=k;lss('stat_ord',JSON.stringify(o));render(true);};
+ACT.sthd=a=>{const h=stHid(),k=a.dataset.k,i=h.indexOf(k);if(i<0)h.push(k);else h.splice(i,1);lss('stat_hid',JSON.stringify(h));render(true);};
+ACT.strs=()=>{lss('stat_ord','');lss('stat_hid','');render(true);};
 reg('stat','📊','İstatistikler',()=>{
   const A=S.students.filter(s=>!s.absent);
   const m=A.map(s=>{const z={s,ez:new Set(),ab:0,p:0,pm:0,bp:0,bk:0,sl:0};
@@ -1591,8 +1607,9 @@ function findPhones(text){
 }
 const stage3Top=s=>{
   const o=S.ocr&&S.ocrFor===s.id?S.ocr:null;
-  return '<div class="flex items-center gap-3 mb-3">'+(s.photo?av(s,56):'<div class="w-14 h-14 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-2xl">👤</div>')
+  return '<div class="flex items-center gap-3 mb-1">'+(s.photo?'<button data-act="phbig" class="shrink-0" aria-label="Fotoğrafı büyüt">'+av(s,56)+'</button>':'<div class="w-14 h-14 shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-2xl">👤</div>')
    +'<div class="flex flex-wrap gap-2"><button data-act="phpick" class="px-3 py-2 rounded-lg border text-sm">📷 Fotoğraf</button>'+(s.photo?'<button data-act="phdel" class="px-3 py-2 rounded-lg border text-sm text-red-600">🗑️</button>':'')+'<button data-act="ocrpick" class="px-3 py-2 rounded-lg border text-sm">🔍 Fotoğraftan telefon oku</button></div></div>'
+   +'<div class="flex items-center gap-2 text-xs mb-3"><span class="text-slate-500">Fotoğraf izni (veli):</span><button data-act="phok" data-v="1" class="px-2.5 py-1 rounded-full border '+(s.phOk===true?'bg-emerald-600 text-white border-emerald-600':'border-slate-300 dark:border-slate-600')+'">✅ Var</button><button data-act="phok" data-v="0" class="px-2.5 py-1 rounded-full border '+(s.phOk===false?'bg-red-600 text-white border-red-600':'border-slate-300 dark:border-slate-600')+'">🚫 Yok</button>'+(s.phOk===undefined?'<span class="text-slate-400">belirtilmedi</span>':'')+'</div>'
    +(o?'<div class="card !p-2 !mb-3"><div class="text-xs font-bold mb-1">'+(o.length?'Bulunan numaralar (dokunup bu öğrenciye atayın):':'Fotoğrafta telefon numarası bulunamadı. Daha yakından ve düz çekmeyi deneyin.')+'</div>'+o.map(x=>'<button data-act="ocruse" data-n="'+x.n+'" class="w-full text-left rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 mb-1 text-sm">📞 <b>'+fmtTel(x.n)+'</b>'+(x.line?' <span class="text-[11px] text-slate-500">'+esc(x.line)+'</span>':'')+'</button>').join('')+'</div>':'');
 };
 
@@ -1616,7 +1633,7 @@ document.addEventListener('change',async e=>{
   try{
     if(id==='docF'){docOpen(fl);return;}
     if(!s)return;
-    if(id==='phF'){s.photo=await squareJpg(f,160,.65);save();toast('Fotoğraf kaydedildi');}
+    if(id==='phF'){if(s.phOk===false)return alert('Bu öğrenci için fotoğraf izni yok.');s.photo=await squareJpg(f,240,.7);save();toast('Fotoğraf kaydedildi');}
     else{
       toast('Metin okunuyor… (ilk seferde biraz sürebilir)');
       await tessLoad();
@@ -1627,7 +1644,7 @@ document.addEventListener('change',async e=>{
   }catch(err){alert('İşlem yapılamadı: '+(err.message||err));}
 });
 Object.assign(ACT,{
-  phpick(){$('phF').click();},
+  phpick(){const s=cS();if(s&&s.phOk===false)return alert('Bu öğrenci için fotoğraf izni yok. Önce izni "Var" yapın.');$('phF').click();},
   phdel(){const s=cS();if(!s||!confirm('Fotoğraf kaldırılsın mı?'))return;delete s.photo;save();},
   ocrpick(){$('ocrF').click();},
   ocruse(a){const s=cS();if(!s)return;s.tel=a.dataset.n;S.ocr=null;save();toast('Telefon kaydedildi');},
@@ -1645,6 +1662,64 @@ Object.assign(ACT,{
       }
     }catch(err){if(!err||err.name!=='AbortError')alert('Paylaşılamadı: '+(err.message||err));}
   }
+});
+
+/* ===== Fotoğraf: büyütme, izin işareti, toplu ekleme ===== */
+const pbig=document.createElement('div');pbig.className='fixed inset-0 z-[180] hidden items-center justify-center bg-black/70 p-4';pbig.dataset.act='phbigx';document.body.appendChild(pbig);
+const pbm=document.createElement('div');pbm.className='fixed inset-0 z-[170] hidden items-center justify-center bg-black/60 p-3';document.body.appendChild(pbm);
+const pbIn=document.createElement('input');pbIn.type='file';pbIn.accept='image/*';pbIn.multiple=true;pbIn.hidden=true;document.body.appendChild(pbIn);
+let PB={rows:[],ok:false,busy:false};
+const pbNm=t=>String(t||'').toLocaleLowerCase('tr').replace(/[^a-zçğıöşü]/g,'');
+const pbList=()=>S.students.filter(x=>!x.absent).slice().sort((a,b)=>String(a.sinif).localeCompare(String(b.sinif),'tr',{numeric:true})||String(a.sube).localeCompare(String(b.sube),'tr')||(parseInt(a.no)||0)-(parseInt(b.no)||0)||String(a.name).localeCompare(String(b.name),'tr'));
+function pbMatch(fn){
+  const L=pbList(),base=fn.replace(/\.[^.]+$/,''),nums=base.match(/\d+/g)||[];
+  if(nums.length){const n=String(+nums[0]),m=L.filter(x=>String(x.no).trim().replace(/^0+(?=\d)/,'')===n);if(m.length===1)return m[0].id;}
+  const nb=pbNm(base);
+  if(nb.length>3){const m=L.filter(x=>{const ns=pbNm(x.name);return ns.length>3&&(nb.includes(ns)||ns.includes(nb));});if(m.length===1)return m[0].id;}
+  return '';
+}
+function pbCount(){const n=PB.rows.filter(r=>r.sid).length,e=$('pbCnt');if(e)e.textContent=n+' / '+PB.rows.length+' fotoğraf bir öğrenciye eşleşti';}
+function pbDraw(){
+  const L=pbList(),opt=sid=>'<option value="">— atla —</option>'+L.map(x=>'<option value="'+x.id+'"'+(x.id===sid?' selected':'')+(x.phOk===false?' disabled':'')+'>'+esc(x.sinif+'/'+String(x.sube).toUpperCase()+' '+x.no+' '+x.name)+(x.photo?' 📷':'')+(x.phOk===false?' (izin yok)':'')+'</option>').join('');
+  const rows=PB.rows.map((r,i)=>'<div class="flex items-center gap-2 py-1.5 border-b border-slate-200 dark:border-slate-700"><img src="'+r.url+'" class="w-12 h-12 rounded-full object-cover shrink-0" alt=""><div class="flex-1 min-w-0"><div class="text-[11px] text-slate-500 truncate">'+esc(r.fname)+(r.skip?' · <span class="text-red-600">izin yok, atlandı</span>':'')+'</div><select data-pbs="'+i+'" class="inp w-full text-xs">'+opt(r.sid)+'</select></div></div>').join('');
+  pbm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4"><b class="text-lg">📷 Toplu fotoğraf ekle</b>'
+   +'<p class="text-xs text-slate-500 my-2">Galeriden birden fazla fotoğraf seçin. Her biri otomatik olarak küçültülüp kare yapılır. Dosya adında okul numarası (örn. 101.jpg) ya da öğrenci adı varsa otomatik eşleşir, diğerlerini listeden seçersiniz.</p>'
+   +'<button data-act="pbpick" class="btn bg-slate-600 w-full">'+(PB.rows.length?'➕ Başka fotoğraf seç':'🖼️ Fotoğrafları seç')+'</button>'
+   +(PB.busy?'<div class="text-sm my-3 text-center">Fotoğraflar hazırlanıyor…</div>':'')
+   +(PB.rows.length?'<div id="pbCnt" class="text-xs font-semibold my-2"></div><div>'+rows+'</div>'
+    +'<label class="flex gap-2 text-xs mt-3"><input type="checkbox" id="pbOk"'+(PB.ok?' checked':'')+'><span>Fotoğrafı eklenecek öğrencilerin velilerinden fotoğraf izni aldım. (İzni "Yok" işaretli öğrenciler eklenmez.)</span></label>':'')
+   +'<div class="flex gap-2 mt-3">'+(PB.rows.length?'<button data-act="pbsave" class="btn bg-emerald-600 flex-1">Kaydet</button>':'')+'<button data-act="pbx" class="btn bg-slate-500 flex-1">Kapat</button></div></div>';
+  pbCount();
+}
+pbIn.addEventListener('change',async()=>{
+  const fl=[...pbIn.files].slice(0,100);pbIn.value='';if(!fl.length)return;
+  PB.busy=true;pbDraw();
+  for(const f of fl){
+    try{const url=await squareJpg(f,240,.7);let sid=pbMatch(f.name),skip=false;const st=S.students.find(x=>x.id===sid);if(st&&st.phOk===false){sid='';skip=true;}PB.rows.push({url:url,fname:f.name,sid:sid,skip:skip});}catch(e){}
+  }
+  PB.busy=false;pbDraw();
+});
+document.addEventListener('change',e=>{
+  if(e.target.dataset&&e.target.dataset.pbs!==undefined){const r=PB.rows[+e.target.dataset.pbs];if(r){r.sid=e.target.value;r.skip=false;pbCount();}}
+  else if(e.target.id==='pbOk')PB.ok=e.target.checked;
+});
+const pbShow=(el,on)=>{el.classList.toggle('hidden',!on);el.classList.toggle('flex',on);};
+Object.assign(ACT,{
+  pbopen(){PB={rows:[],ok:false,busy:false};pbDraw();pbShow(pbm,true);},
+  pbx(){pbShow(pbm,false);PB={rows:[],ok:false,busy:false};},
+  pbpick(){pbIn.click();},
+  pbsave(){
+    const m={};PB.rows.forEach(r=>{if(r.sid)m[r.sid]=r.url;});const ids=Object.keys(m);
+    if(!ids.length)return alert('Hiçbir fotoğraf bir öğrenciyle eşleşmedi. Listeden öğrenci seçin.');
+    if(!PB.ok)return alert('Önce veli izni kutusunu işaretleyin.');
+    let n=0;ids.forEach(id=>{const st=S.students.find(x=>x.id===id);if(!st||st.phOk===false)return;st.photo=m[id];if(st.phOk!==true)st.phOk=true;n++;});
+    save();ACT.pbx();render(true);toast(n+' fotoğraf eklendi');
+  },
+  phbig(){const s=cS();if(!s||!s.photo)return;pbig.innerHTML='<div class="text-center"><img src="'+esc(s.photo)+'" alt="" class="rounded-2xl object-cover mx-auto shadow-2xl" style="width:min(80vw,300px);height:min(80vw,300px)"><div class="text-white font-bold mt-3">'+esc(s.name)+'</div><div class="text-white/60 text-xs mt-1">Kapatmak için dokunun</div></div>';pbShow(pbig,true);},
+  phbigx(){pbShow(pbig,false);},
+  phok(a){const s=cS();if(!s)return;const v=a.dataset.v==='1';
+    if(s.phOk===v)delete s.phOk;else{s.phOk=v;if(!v&&s.photo&&confirm('Bu öğrencinin kayıtlı fotoğrafı da kaldırılsın mı?'))delete s.photo;}
+    save();cardShow();}
 });
 
 /* Başlangıç: profil ve oda */
