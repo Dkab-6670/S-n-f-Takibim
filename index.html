@@ -575,66 +575,96 @@ ACT.kp=()=>{
   open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');
 };
 
-/* Oturma planı: boş yere dokun → öğrenci adına dokun, sürükle, kapı/tahta/pencere/pano/dolap, düzgün çıktı */
-S.om='move';let spick=null,sdr=null;S.pc='';S.fo='kapi';
+/* Oturma planı: boş yere dokun → öğrenci adına dokun, sürükle, kapı/tahta/pencere/pano/dolap, kare birleştirme, A4'e tam sığan çıktı */
+S.om='move';let spick=null,sdr=null;S.pc='';S.fo='kapi';S.mg='';
 const FOBJ={kapi:['🚪','Kapı','bg-amber-100 border-amber-500','#fde68a'],masa:['🧑‍🏫','Öğretmen masası','bg-indigo-100 border-indigo-500','#c7d2fe'],pencere:['🪟','Pencere','bg-sky-100 border-sky-500','#bae6fd'],pano:['📋','Pano','bg-emerald-100 border-emerald-500','#a7f3d0'],tahta:['⬛','Tahta','bg-slate-300 border-slate-600','#cbd5e1'],dolap:['🗄️','Dolap','bg-orange-100 border-orange-500','#fed7aa']};
 const scol=v=>v==='Var'?'bg-emerald-100 border-emerald-500 text-slate-900':v==='Yok'?'bg-red-100 border-red-500 text-slate-900':v==='Izinli'?'bg-amber-100 border-amber-500 text-slate-900':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600';
 const scard=s=>{const r=rd(s),v=r.status&&r.status!=='None'?r.status:'',p=r.points||0;
   return '<div class="spc relative border-2 rounded-lg p-1 text-center text-[11px] leading-tight font-semibold cursor-pointer select-none '+scol(v)+(spick===s.id?' ring-4 ring-indigo-500':'')+'" style="touch-action:'+(S.om==='move'?'none':'auto')+'" data-id="'+esc(s.id)+'">'+(p?'<span class="absolute top-0 right-1 text-[10px] font-bold text-indigo-700">'+(p>0?'+':'')+p+'</span>':'')+esc(s.name.split(' ').slice(0,2).join(' '))+'<div class="font-normal opacity-70 text-[9px]">'+esc(s.no)+'</div></div>';};
 const pcls=()=>sorted(S.students.filter(s=>!s.absent&&T(s.sinif)===G.sinif&&T(s.sube).toLowerCase()===G.sube));
 const planOf=()=>S.plans.find(x=>x.sinif===G.sinif&&x.sube===G.sube)||null;
-const pv=()=>planOf()||{cols:6,rows:0,f:{}};
-const pw=()=>{let p=planOf();if(!p){p={sinif:G.sinif,sube:G.sube,cols:6,rows:0,f:{}};S.plans.push(p);}if(!p.f)p.f={};return p;};
+const pv=()=>planOf()||{cols:6,rows:0,f:{},m:{}};
+const pw=()=>{let p=planOf();if(!p){p={sinif:G.sinif,sube:G.sube,cols:6,rows:0,f:{},m:{}};S.plans.push(p);}if(!p.f)p.f={};if(!p.m)p.m={};return p;};
+/* Birleşik kareler: p.m['satır,sütun'] = 'satırSayısı,sütunSayısı' (sol üst kare "çapa" olur) */
+const mgm=p=>p.m||{};
+const msz=v=>String(v).split(',').map(n=>Math.max(1,parseInt(n)||1));
+function mcov(p){const cv={};Object.keys(mgm(p)).forEach(a=>{const [r,c]=a.split(',').map(Number),[rs,cs]=msz(p.m[a]);for(let i=0;i<rs;i++)for(let j=0;j<cs;j++)if(i||j)cv[(r+i)+','+(c+j)]=a;});return cv;}
+const mext=p=>Object.keys(mgm(p)).map(a=>{const [r,c]=a.split(',').map(Number),[rs,cs]=msz(p.m[a]);return [r+rs-1,c+cs-1];});
 function pdim(g,p){
-  const f=Object.keys(p.f||{}).map(k=>k.split(',').map(Number)),se=g.filter(s=>s.seat).map(s=>s.seat.split(',').map(Number));
-  const mr=Math.max(-1,...f.map(x=>x[0]),...se.map(x=>x[0])),mc=Math.max(-1,...f.map(x=>x[1]),...se.map(x=>x[1]));
+  const f=Object.keys(p.f||{}).map(k=>k.split(',').map(Number)),se=g.filter(s=>s.seat).map(s=>s.seat.split(',').map(Number)),me=mext(p);
+  const mr=Math.max(-1,...f.map(x=>x[0]),...se.map(x=>x[0]),...me.map(x=>x[0])),mc=Math.max(-1,...f.map(x=>x[1]),...se.map(x=>x[1]),...me.map(x=>x[1]));
   const cols=Math.min(12,Math.max(3,p.cols||6,mc+1));
   const rows=p.rows?Math.max(p.rows,mr+1):Math.max(5,Math.ceil(g.length/cols)+1,mr+2);
   return {cols,rows};
 }
 function cellH(r,c,p,at){
-  const k=r+','+c,s=at[k],fo=(p.f||{})[k],d=' data-r="'+r+'" data-c="'+c+'"';
-  if(fo&&FOBJ[fo])return '<div class="sc min-h-[62px] border-2 rounded-lg flex flex-col items-center justify-center text-[10px] leading-tight text-center font-bold text-slate-900 '+FOBJ[fo][2]+'"'+d+' data-f="'+fo+'"><span class="text-xl">'+FOBJ[fo][0]+'</span>'+esc(FOBJ[fo][1])+'</div>';
+  const k=r+','+c,s=at[k],fo=(p.f||{})[k],mv=mgm(p)[k],d=' data-r="'+r+'" data-c="'+c+'"'+(mv?' data-mg="1"':'');
+  const sp=mv?msz(mv):[1,1],st=mv?' style="grid-row:span '+sp[0]+';grid-column:span '+sp[1]+'"':'',mh='min-h-[62px]';
+  const mk=S.mg===k;
+  if(fo&&FOBJ[fo])return '<div class="sc '+mh+' border-2 rounded-lg flex flex-col items-center justify-center text-[10px] leading-tight text-center font-bold text-slate-900 '+FOBJ[fo][2]+(mk?' ring-4 ring-indigo-500':'')+'"'+d+' data-f="'+fo+'"'+st+'><span class="text-xl">'+FOBJ[fo][0]+'</span>'+esc(FOBJ[fo][1])+'</div>';
   const pk=S.pc===k;
-  return '<div class="sc min-h-[62px] border-2 border-dashed rounded-lg flex items-center justify-center '+(pk?'!border-indigo-500 bg-indigo-100 dark:bg-indigo-900':'border-slate-300 dark:border-slate-600')+'"'+d+'>'+(s?scard(s):(pk?'<span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-200">Seçili</span>':''))+'</div>';
+  if(mv)return '<div class="sc '+mh+' border-2 rounded-lg flex items-center justify-center text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-700 border-slate-400'+(mk?' ring-4 ring-indigo-500':'')+'"'+d+st+'>'+(mk?'<span class="font-bold text-indigo-700">Seçili</span>':'')+'</div>';
+  return '<div class="sc '+mh+' border-2 border-dashed rounded-lg flex items-center justify-center '+(pk||mk?'!border-indigo-500 bg-indigo-100 dark:bg-indigo-900':'border-slate-300 dark:border-slate-600')+'"'+d+'>'+(s?scard(s):((pk||mk)?'<span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-200">Seçili</span>':''))+'</div>';
 }
 gpage('oturma','🪑','Oturma Planı',null,null,()=>{
   if(G.sinif==='ALL'||G.sube==='ALL')return '<div class="card col-span-full text-sm text-center">Üstteki çubuktan bir sınıf ve şube seçin (örn. 7 / D).</div>';
-  const g=pcls(),p=pv(),dm=pdim(g,p),at={};g.forEach(s=>{if(s.seat)at[s.seat]=s;});
-  let cells='';for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++)cells+=cellH(r,c,p,at);
+  const g=pcls(),p=pv(),dm=pdim(g,p),at={},cv=mcov(p);g.forEach(s=>{if(s.seat)at[s.seat]=s;});
+  let cells='';for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++){if(cv[r+','+c])continue;cells+=cellH(r,c,p,at);}
   const md=[['move','✏️ Yerleştir'],['mob','🚪 Düzen'],['att','✅ Yoklama'],['pp','➕ Puan'],['pm','➖ Puan']].map(m=>tgb('om',m[1],m[0],S.om===m[0])).join('');
-  const msg={move:'Boş sıraya dokunun, sonra öğrenci adına dokunun (ya da önce öğrenci, sonra sıra). Sürükleyip de bırakabilirsiniz. Dolu sıraya bırakırsanız yer değiştirirler.',mob:'Eşya seçip karelere dokunun, aynı eşyaya tekrar dokunmak kaldırır. Öğrenci olan karelere eşya konmaz.',att:'Dokundukça: Var → Yok → İzinli → boş.',pp:'Dokununca ders puanı +1.',pm:'Dokununca ders puanı −1.'}[S.om];
-  const pal=Object.keys(FOBJ).map(k=>'<button data-act="fsel" data-v="'+k+'" class="px-2.5 min-h-[40px] rounded-lg border text-xs font-semibold '+(S.fo===k?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+FOBJ[k][0]+' '+esc(FOBJ[k][1])+'</button>').join('')+'<button data-act="fsel" data-v="sil" class="px-2.5 min-h-[40px] rounded-lg border text-xs font-semibold '+(S.fo==='sil'?'bg-red-600 text-white border-red-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">❌ Sil</button>';
+  const msg={move:'Boş sıraya dokunun, sonra öğrenci adına dokunun (ya da önce öğrenci, sonra sıra). Sürükleyip de bırakabilirsiniz. Dolu sıraya bırakırsanız yer değiştirirler.',mob:S.fo==='bir'?(S.mg?'İkinci köşe kareye dokunun: iki köşe arasındaki alan tek kare olur. Vazgeçmek için aynı kareye tekrar dokunun.':'Birleştirmek için önce alanın bir köşesindeki kareye, sonra karşı köşedeki kareye dokunun.'):S.fo==='ayir'?'Birleşik kareye dokunun, tekrar ayrı karelere bölünür.':'Eşya seçip karelere dokunun, aynı eşyaya tekrar dokunmak kaldırır. Öğrenci olan karelere eşya konmaz. Tahta gibi geniş eşyalar için 🔗 Birleştir\'i kullanın.',att:'Dokundukça: Var → Yok → İzinli → boş.',pp:'Dokununca ders puanı +1.',pm:'Dokununca ders puanı −1.'}[S.om];
+  const pb=(v,t,cl)=>'<button data-act="fsel" data-v="'+v+'" class="px-2.5 min-h-[40px] rounded-lg border text-xs font-semibold '+(S.fo===v?cl+' text-white':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+t+'</button>';
+  const pal=Object.keys(FOBJ).map(k=>pb(k,FOBJ[k][0]+' '+esc(FOBJ[k][1]),'bg-indigo-600 border-indigo-600')).join('')+pb('bir','🔗 Birleştir','bg-teal-600 border-teal-600')+pb('ayir','✂️ Ayır','bg-teal-600 border-teal-600')+pb('sil','❌ Sil','bg-red-600 border-red-600');
   const sz=(t,d,n)=>t+': <button data-act="psz" data-d="'+d+'" data-v="-1" class="inp font-bold !px-3">−</button><b>'+n+'</b><button data-act="psz" data-d="'+d+'" data-v="1" class="inp font-bold !px-3">+</button>';
   const mob=S.om==='mob'?'<div class="flex flex-wrap gap-1.5 mb-2">'+pal+'</div><div class="flex flex-wrap items-center gap-2 text-xs mb-2">'+sz('Sıra','rows',dm.rows)+' &nbsp; '+sz('Sütun','cols',dm.cols)+'</div>':'';
   const free=g.filter(s=>!s.seat);
   return '<div class="col-span-full"><div class="flex flex-wrap gap-2 mb-2 [&>*]:min-w-[28%]">'+md+'</div><p class="text-xs text-slate-500 mb-2">'+msg+' ('+G.date.slice(8)+'.'+G.date.slice(5,7)+')</p>'+mob
    +'<div class="grid gap-1.5" style="grid-template-columns:repeat('+dm.cols+',minmax(0,1fr))">'+cells+'</div>'
-   +'<div class="flex flex-wrap items-center justify-between gap-2 mt-3 mb-1"><div class="text-xs font-bold">Sırası olmayanlar ('+free.length+')</div><button data-act="pprint" class="btn bg-emerald-600">🖨️ Çıktı al</button></div>'
+   +'<div class="flex flex-wrap items-center justify-between gap-2 mt-3 mb-1"><div class="text-xs font-bold">Sırası olmayanlar ('+free.length+')</div><button data-act="pprint" class="btn bg-emerald-600">🖨️ Çıktı al (A4)</button></div>'
    +'<div class="tray grid grid-cols-4 sm:grid-cols-6 gap-1.5 min-h-[50px] border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-1.5">'+(free.map(scard).join('')||'<span class="text-xs text-slate-400 italic">Herkes yerleşti.</span>')+'</div></div>';
 });
-ACT.om=a=>{S.om=a.dataset.v;spick=null;S.pc='';relist();};
-ACT.fsel=a=>{S.fo=a.dataset.v;relist();};
+/* Sayfa açıldığında sınıf seçili değilse şube rehber olunan sınıf otomatik gelir; üstteki çubuktan başka sınıfa geçilebilir */
+{const h0=P.oturma.html;P.oturma.html=()=>{
+  if(G.sinif==='ALL'){const r=rehSel();if(r){const a=T(r.s),b=T(r.b).toLowerCase();if(classes().includes(a)&&subes(a).includes(b)){G.sinif=a;G.sube=b;}}}
+  return h0();};}
+ACT.om=a=>{S.om=a.dataset.v;spick=null;S.pc='';S.mg='';relist();};
+ACT.fsel=a=>{S.fo=a.dataset.v;S.mg='';relist();};
 const seatedAt=k=>S.students.some(x=>!x.absent&&x.seat===k&&T(x.sinif)===G.sinif&&T(x.sube).toLowerCase()===G.sube);
 const place=(s,k)=>{
-  if((pv().f||{})[k]){toast('Bu karede eşya var',true);return;}
+  const p=pv();
+  if((p.f||{})[k]||mgm(p)[k]){toast('Bu karede eşya ya da birleşik alan var',true);return;}
   const o=S.students.find(x=>x!==s&&!x.absent&&x.seat===k&&T(x.sinif)===G.sinif&&T(x.sube).toLowerCase()===G.sube);
   if(o)o.seat=s.seat||'';s.seat=k;S.pc='';save();relist();
 };
+function mrect(a,b){const [r1,c1]=a.split(',').map(Number),[r2,c2]=b.split(',').map(Number);return {r:Math.min(r1,r2),c:Math.min(c1,c2),h:Math.abs(r1-r2)+1,w:Math.abs(c1-c2)+1};}
 const mobTap=k=>{
-  if(S.fo==='sil'){const p=planOf();if(p&&p.f&&p.f[k]){delete p.f[k];save();relist();}return;}
+  if(S.fo==='bir'){
+    if(!S.mg){S.mg=k;relist();return;}
+    if(S.mg===k){S.mg='';relist();return;}
+    const R=mrect(S.mg,k);S.mg='';
+    const p=pw(),cv=mcov(p),ks=[];
+    for(let i=0;i<R.h;i++)for(let j=0;j<R.w;j++)ks.push((R.r+i)+','+(R.c+j));
+    if(ks.some(x=>cv[x]||p.m[x])){toast('Alan başka bir birleşik kareyle çakışıyor, önce "Ayır" ile ayırın',true);relist();return;}
+    if(ks.some(seatedAt)){toast('Bu alanda öğrenci var, önce taşıyın',true);relist();return;}
+    const a=R.r+','+R.c;let obj=null;
+    ks.forEach(x=>{const o=p.f[x];if(o&&!obj)obj=o;delete p.f[x];});
+    if(obj)p.f[a]=obj;
+    p.m[a]=R.h+','+R.w;
+    save();relist();return;
+  }
+  if(S.fo==='ayir'){const p=planOf();if(p&&p.m&&p.m[k]){delete p.m[k];save();relist();}return;}
+  if(S.fo==='sil'){const p=planOf();if(!p)return;if(p.f&&p.f[k]){delete p.f[k];save();relist();}else if(p.m&&p.m[k]){delete p.m[k];save();relist();}return;}
   if(seatedAt(k))return toast('Bu sırada öğrenci var, önce taşıyın',true);
   const p=pw();if(p.f[k]===S.fo)delete p.f[k];else p.f[k]=S.fo;save();relist();
 };
 ACT.psz=a=>{
-  const g=pcls(),dm=pdim(g,pv()),d=a.dataset.d,v=+a.dataset.v,p=pw(),n=dm[d]+v;
+  const g=pcls(),dm=pdim(g,pv()),d=a.dataset.d,v=+a.dataset.v,p=pw(),n=dm[d]+v,me=mext(p);
   if(d==='rows'){
     if(n<3||n>20)return;
-    if(v<0&&(g.some(s=>s.seat&&+s.seat.split(',')[0]>=n)||Object.keys(p.f).some(k=>+k.split(',')[0]>=n)))return toast('Son sırada öğrenci ya da eşya var',true);
+    if(v<0&&(g.some(s=>s.seat&&+s.seat.split(',')[0]>=n)||Object.keys(p.f).some(k=>+k.split(',')[0]>=n)||me.some(x=>x[0]>=n)))return toast('Son sırada öğrenci, eşya ya da birleşik alan var',true);
     p.rows=n;
   }else{
     if(n<3||n>12)return;
-    if(v<0&&(g.some(s=>s.seat&&+s.seat.split(',')[1]>=n)||Object.keys(p.f).some(k=>+k.split(',')[1]>=n)))return toast('Son sütunda öğrenci ya da eşya var',true);
+    if(v<0&&(g.some(s=>s.seat&&+s.seat.split(',')[1]>=n)||Object.keys(p.f).some(k=>+k.split(',')[1]>=n)||me.some(x=>x[1]>=n)))return toast('Son sütunda öğrenci, eşya ya da birleşik alan var',true);
     p.cols=n;
   }
   save();relist();
@@ -669,25 +699,51 @@ $('view').addEventListener('click',e=>{
   const c=e.target.closest('.sc');if(!c||e.target.closest('.spc'))return;
   const k=c.dataset.r+','+c.dataset.c;
   if(S.om==='mob'){mobTap(k);return;}
-  if(S.om!=='move'||c.dataset.f)return;
+  if(S.om!=='move'||c.dataset.f||c.dataset.mg)return;
   if(spick){const s=S.students.find(x=>x.id===spick);spick=null;if(s)place(s,k);return;}
   S.pc=S.pc===k?'':k;relist();
 });
+/* A4 çıktısı: sayfa tam dolar, kareler sayfaya göre büyür/küçülür, tek sayfaya sığar.
+   Sütun sayısı sıradan fazla ya da eşitse yatay, değilse dikey A4 seçilir. */
+function planPrintHtml(g,p,dm,ti,meta){
+  const at={},used={},cv=mcov(p);g.forEach(s=>{if(s.seat)at[s.seat]=s;});
+  const land=dm.cols>=dm.rows,W=land?281:194,H=land?194:281,gap=2;
+  const free=g.filter(s=>!s.seat);
+  const cw=(W-gap*(dm.cols-1))/dm.cols,ch=(H-34-gap*(dm.rows-1))/dm.rows;
+  const fs=Math.max(6,Math.min(15,Math.floor(cw/2.4),Math.floor(ch/1.25)));
+  let cells='';
+  for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++){
+    const k=r+','+c;if(cv[k])continue;
+    const s=at[k],fo=(p.f||{})[k],mv=mgm(p)[k],sp=mv?msz(mv):[1,1];
+    const pos='grid-row:'+(r+1)+' / span '+sp[0]+';grid-column:'+(c+1)+' / span '+sp[1]+';';
+    if(fo&&FOBJ[fo]){used[fo]=1;cells+='<div class="c f" style="'+pos+'background:'+FOBJ[fo][3]+'"><div><div class="i">'+FOBJ[fo][0]+'</div>'+esc(FOBJ[fo][1])+'</div></div>';}
+    else if(s)cells+='<div class="c s" style="'+pos+'"><div><b>'+esc(s.name)+'</b><br><small>No: '+esc(s.no)+'</small></div></div>';
+    else if(mv)cells+='<div class="c m" style="'+pos+'"></div>';
+    else cells+='<div class="c e" style="'+pos+'"></div>';
+  }
+  const leg=Object.keys(used).map(k=>FOBJ[k][0]+' '+esc(FOBJ[k][1])).join(' &nbsp; ');
+  let fn=[],fl=0;for(const s of free){if(fl+s.name.length>(land?420:300))break;fn.push(esc(s.name));fl+=s.name.length+2;}
+  const fr=free.length?'Sırası olmayanlar ('+free.length+'): '+fn.join(', ')+(fn.length<free.length?' … ve '+(free.length-fn.length)+' öğrenci daha':''):'';
+  return '<!doctype html><meta charset="utf-8"><title>'+esc(ti)+'</title><style>'
+   +'@page{size:A4 '+(land?'landscape':'portrait')+';margin:8mm}'
+   +'*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+   +'html,body{margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111}'
+   +'.pg{width:'+W+'mm;height:'+(H-1)+'mm;display:flex;flex-direction:column;overflow:hidden;page-break-after:avoid;break-after:avoid}'
+   +'.hd h2{margin:0;font-size:18pt;line-height:1.2}.hd .mt{font-size:10pt;color:#444;margin:1mm 0 2mm}'
+   +'.gr{flex:1;min-height:0;display:grid;grid-template-columns:repeat('+dm.cols+',minmax(0,1fr));grid-template-rows:repeat('+dm.rows+',minmax(0,1fr));gap:'+gap+'mm}'
+   +'.c{border:.35mm solid #444;border-radius:1.5mm;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding:.6mm;line-height:1.15;font-size:'+fs+'pt;min-width:0;min-height:0;overflow-wrap:anywhere}'
+   +'.c.e{border:.35mm dashed #bbb}.c.m{background:#f1f5f9;border-color:#94a3b8}.c.f{font-weight:700;font-size:'+Math.max(6,fs-1)+'pt}.c.f .i{font-size:'+Math.round(fs*1.6)+'pt;line-height:1.1}'
+   +'.c.s small{color:#555;font-size:'+Math.max(6,Math.round(fs*0.8))+'pt}'
+   +'.ft{flex:none;font-size:9pt;margin-top:2mm;max-height:15mm;overflow:hidden;line-height:1.3}'
+   +'</style><div class="pg"><div class="hd"><h2>'+esc(ti)+'</h2><div class="mt">'+meta+'</div></div><div class="gr">'+cells+'</div>'
+   +(leg||fr?'<div class="ft">'+(leg?'<div>'+leg+'</div>':'')+(fr?'<div>'+fr+'</div>':'')+'</div>':'')
+   +'</div><script>onload=function(){setTimeout(print,300)}<\/script>';
+}
 ACT.pprint=()=>{
   if(G.sinif==='ALL'||G.sube==='ALL')return alert('Önce üstteki çubuktan sınıf ve şube seçin.');
-  const g=pcls(),p=pv(),dm=pdim(g,p),at={},used={};g.forEach(s=>{if(s.seat)at[s.seat]=s;});
-  let tb='';
-  for(let r=0;r<dm.rows;r++){tb+='<tr>';for(let c=0;c<dm.cols;c++){
-    const k=r+','+c,s=at[k],fo=(p.f||{})[k];
-    if(fo&&FOBJ[fo]){used[fo]=1;tb+='<td class="f" style="background:'+FOBJ[fo][3]+'"><div class="i">'+FOBJ[fo][0]+'</div>'+esc(FOBJ[fo][1])+'</td>';}
-    else if(s)tb+='<td class="s"><b>'+esc(s.name)+'</b><br><small>No: '+esc(s.no)+'</small></td>';
-    else tb+='<td class="e"></td>';
-  }tb+='</tr>';}
-  const ti='Oturma Planı · '+G.sinif+'/'+G.sube.toUpperCase(),free=g.filter(s=>!s.seat);
-  const leg=Object.keys(used).map(k=>FOBJ[k][0]+' '+esc(FOBJ[k][1])).join(' &nbsp; ');
-  const fr=free.length?'Sırası olmayanlar: '+free.map(s=>esc(s.name)).join(', '):'';
-  const h='<!doctype html><meta charset="utf-8"><title>'+esc(ti)+'</title><style>@page{size:landscape;margin:10mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font-family:Arial,sans-serif;margin:8px}h2{margin:0 0 2px;font-size:18px}.m{font-size:12px;color:#444;margin-bottom:6px}table{border-collapse:separate;border-spacing:5px;width:100%;table-layout:fixed}td{height:'+(dm.rows>8?62:78)+'px;border:1.5px solid #555;border-radius:6px;text-align:center;vertical-align:middle;font-size:12px;padding:2px;overflow:hidden}td.e{border:1.5px dashed #bbb}td.f{font-weight:700;font-size:11px}td.f .i{font-size:20px}td.s small{color:#555}.ft{margin-top:8px;font-size:12px}</style><h2>'+esc(ti)+'</h2><div class="m">'+fdt(today)+' · '+(g.length-free.length)+'/'+g.length+' öğrenci yerleşti'+(tname()?' · '+esc(tname()):'')+'</div><table>'+tb+'</table><div class="ft">'+leg+'</div><div class="ft">'+fr+'</div><script>onload=function(){setTimeout(print,300)}<\/script>';
-  open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');
+  const g=pcls(),p=pv(),dm=pdim(g,p),ti='Oturma Planı · '+G.sinif+'/'+G.sube.toUpperCase(),free=g.filter(s=>!s.seat);
+  const meta=fdt(today)+' · '+(g.length-free.length)+'/'+g.length+' öğrenci yerleşti'+(tname()?' · '+esc(tname()):'');
+  open(URL.createObjectURL(new Blob([planPrintHtml(g,p,dm,ti,meta)],{type:'text/html'})),'_blank');
 };
 
 /* Hafızlık çizelgesi */
