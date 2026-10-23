@@ -883,7 +883,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d2',NEWS=[['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d3',NEWS=[['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1556,7 +1556,7 @@ const profCard=()=>'<div class="card flex flex-wrap items-center justify-between
 const sect=(key,title,body)=>'<details class="mb-3" data-keep="'+key+'"'+(S[key]?' open':'')+'><summary class="card cursor-pointer font-bold !mb-2">'+title+'</summary>'+body+'</details>';
 reg('ayar','⚙️','Ayarlar',()=>sect('o_prof','👤 Profil ve özellikler',profCard())
   +sect('o_tan','📚 Ders, ezber ve ödev tanımları',(featOn('ders')?tsec('ders','📚 Ders ata'):'')+(featOn('ezber')?tsec('ezber','📖 Ezber konusu ata'):'')+(featOn('ders')?tsec('odev','📝 Ödev ata (tarih aralığıyla)'):''))
-  +sect('o_sec','🔒 Güvenlik ve ekran',pinCard()+wlCard())
+  +sect('o_sec','🔒 Güvenlik ve ekran',accCard()+pinCard()+wlCard())
   +sect('o_bak','💾 Yedekleme ve Excel',yedH()),null,null);
 
 
@@ -1920,7 +1920,7 @@ bx.innerHTML='<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 w-full max-
 document.body.appendChild(bx);
 let bxF=0,bxU=0,sbF=0,sbU=0;
 const bxClose=()=>{bx.classList.add('hidden');bx.classList.remove('flex');};
-function bxExit(){bxF=0;bxClose();lss('kiosk_v1','0');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.remove('kiosk');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}BD.v='grid';render(true);}
+function bxExit(){bxF=0;bxClose();setTimeout(()=>{try{gateEnforce();}catch(e){}},0);lss('kiosk_v1','0');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.remove('kiosk');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}BD.v='grid';render(true);}
 async function bxGo(){
   if(Date.now()<bxU){$('bxMsg').textContent='Çok fazla deneme, biraz bekleyin.';return;}
   if(await sha($('bxIn').value)===lsg('pin_v1'))bxExit();
@@ -2306,8 +2306,49 @@ Object.assign(ACT,{
 });
 {const hy=P.home.html;P.home.html=()=>ysBar()+hy();}
 
+/* ========== ÖĞRETMEN GİRİŞİ (e-posta / Google) ========== */
+/* Veli bağlantısı (?k=) ve tahta cihazı giriş istemez; öğretmen ekranı ister. Not: Bu ekran arayüz kapısıdır, veri güvenliği Firebase kurallarıyla sağlanır. */
+const IZINLI=[]; /* Boş: giriş yapan herkes geçer. Dolu ise yalnızca bu e-postalar (küçük harf) ve doğrulanmış hesaplar geçer. Örn: ['ad@gmail.com'] */
+const KAYIT_ACIK=true; /* false: "Hesap oluştur" düğmesi gizlenir (hesapları Firebase konsolundan açarsınız) */
+var TCH={started:false,start:null};
+const tOK=u=>!!u&&!u.isAnonymous&&(!IZINLI.length||(IZINLI.includes(String(u.email||'').toLowerCase())&&u.emailVerified));
+const tErr=e=>({'auth/invalid-email':'E-posta adresi geçersiz.','auth/missing-password':'Şifreyi yazın.','auth/invalid-credential':'E-posta ya da şifre yanlış.','auth/wrong-password':'E-posta ya da şifre yanlış.','auth/user-not-found':'E-posta ya da şifre yanlış.','auth/email-already-in-use':'Bu e-posta ile hesap zaten var. Giriş yapın.','auth/weak-password':'Şifre en az 6 karakter olmalı.','auth/too-many-requests':'Çok fazla deneme. Biraz bekleyip tekrar deneyin.','auth/popup-blocked':'Açılır pencere engellendi. Tarayıcıda bu site için izin verin.','auth/popup-closed-by-user':'Giriş penceresi kapatıldı.','auth/cancelled-popup-request':'','auth/operation-not-allowed':'Bu giriş yöntemi Firebase\'de kapalı (Authentication → Sign-in method).','auth/unauthorized-domain':'Bu adres Firebase → Authentication → Settings → Authorized domains listesinde yok.','auth/network-request-failed':'İnternet bağlantısı yok.'}[e&&e.code]??('Hata: '+((e&&(e.message||e.code))||'bilinmiyor')));
+const gl=document.createElement('div');gl.className='fixed inset-0 z-[700] bg-indigo-900 text-white p-6 overflow-y-auto';gl.style.display='none';
+gl.innerHTML='<div class="m-auto flex flex-col items-center gap-3 w-full text-center"><div class="text-5xl">🕌</div><b class="text-xl">Sınıf Takip</b><div class="text-sm text-indigo-200">Öğretmen girişi</div>'
+ +'<input id="gE" type="email" autocomplete="username" class="inp text-slate-900 w-72 max-w-full" placeholder="E-posta">'
+ +'<input id="gP" type="password" autocomplete="current-password" class="inp text-slate-900 w-72 max-w-full" placeholder="Şifre">'
+ +'<div id="gM" class="min-h-[20px] text-amber-300 text-sm max-w-xs"></div>'
+ +'<button id="gIn" class="bg-amber-400 text-slate-900 font-bold rounded-xl px-8 py-2 w-72 max-w-full">Giriş yap</button>'
+ +'<button id="gGo" class="bg-white text-slate-800 font-semibold rounded-xl px-8 py-2 w-72 max-w-full">Google ile giriş</button>'
+ +'<div class="flex gap-5 text-sm underline text-indigo-200"><button id="gNew">Hesap oluştur</button><button id="gRs">Şifremi unuttum</button></div></div>';
+document.body.appendChild(gl);
+const gMsg=t=>{$('gM').textContent=t||'';};
+const gOpen=()=>{gl.style.display='flex';gMsg('');};
+function gDone(){_auth=null;gl.style.display='none';$('gP').value='';if(!TCH.started){TCH.started=true;if(TCH.start)TCH.start();}}
+async function gAccept(u,isNew){
+  const em=String(u.email||'').toLowerCase();
+  if(IZINLI.length&&!IZINLI.includes(em)){await firebase.auth().signOut();return gMsg('Bu hesabın bu uygulamaya erişim izni yok.');}
+  if(IZINLI.length&&!u.emailVerified){if(!isNew){try{await u.sendEmailVerification();}catch(e){}}await firebase.auth().signOut();return gMsg('E-postanıza doğrulama bağlantısı gönderildi. Doğruladıktan sonra tekrar giriş yapın.');}
+  gDone();
+}
+const gRun=async f=>{gMsg('');try{await f();}catch(e){gMsg(tErr(e));}};
+$('gIn').onclick=()=>gRun(async()=>{const e=T($('gE').value),p=$('gP').value;if(!e||!p)return gMsg('E-posta ve şifreyi yazın.');const c=await firebase.auth().signInWithEmailAndPassword(e,p);await gAccept(c.user,false);});
+$('gP').addEventListener('keydown',ev=>{if(ev.key==='Enter')$('gIn').click();});
+$('gGo').onclick=()=>gRun(async()=>{const c=await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());await gAccept(c.user,false);});
+$('gNew').onclick=()=>gRun(async()=>{const e=T($('gE').value),p=$('gP').value;if(!e||!p)return gMsg('E-posta yazın ve en az 6 karakterli bir şifre belirleyin.');if(p.length<6)return gMsg('Şifre en az 6 karakter olmalı.');const c=await firebase.auth().createUserWithEmailAndPassword(e,p);try{await c.user.sendEmailVerification();}catch(x){}await gAccept(c.user,true);});
+$('gRs').onclick=()=>gRun(async()=>{const e=T($('gE').value);if(!e)return gMsg('Önce e-posta adresinizi yazın.');await firebase.auth().sendPasswordResetEmail(e);gMsg('Şifre sıfırlama bağlantısı e-postanıza gönderildi.');});
+if(!KAYIT_ACIK)$('gNew').style.display='none';
+function gateStart(fn){
+  TCH.start=fn;
+  if(kioskOn()){TCH.started=true;fn();return;} /* tahta cihazı giriş istemez */
+  const off=firebase.auth().onAuthStateChanged(u=>{off();if(tOK(u))gDone();else gOpen();});
+}
+function gateEnforce(){if(kioskOn()||tOK(firebase.auth().currentUser))return;gOpen();}
+function accCard(){const u=firebase.auth().currentUser;if(!u||u.isAnonymous)return '';return '<div class="card"><b>👤 Hesap</b><p class="text-xs text-slate-500 my-1">'+esc(u.email||u.displayName||'Öğretmen')+' olarak giriş yapıldı.</p><button data-act="tchout" class="btn bg-red-600">Çıkış yap</button></div>';}
+Object.assign(ACT,{async tchout(){if(!confirm('Hesaptan çıkış yapılsın mı?'))return;try{await firebase.auth().signOut();}catch(e){}location.reload();}});
+
 const PK=new URLSearchParams(location.search).get('k');
-if(PK)parentView(PK);else{go(kioskOn()?'tahta':'home');if(S.room)listen(S.room);else room();}
+if(PK)parentView(PK);else gateStart(()=>{go(kioskOn()?'tahta':'home');if(S.room)listen(S.room);else room();});
 </script>
 </body>
 </html>
