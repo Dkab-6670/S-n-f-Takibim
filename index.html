@@ -515,6 +515,13 @@ Object.assign(ACT,{
   return h0();};}
 /* İstatistikler */
 const sbox=(t,n,body,c)=>'<div class="card mb-0"><div class="font-bold mb-2">'+t+' <span class="text-xs text-white rounded-full px-2 py-0.5 '+c+'">'+n+'</span></div><div class="flex flex-wrap gap-1.5 overflow-y-auto" style="max-height:15rem">'+(body||'<span class="text-xs text-slate-400 italic">Kayıt yok.</span>')+'</div></div>';
+const ST_DEF=['ab','hwy','rb','ez','p','pm','bp','bk','sl','ab2','hz','cz'];
+function stOrd(){let o=[];try{o=JSON.parse(lsg('stat_ord')||'[]');}catch(e){}if(!Array.isArray(o))o=[];o=o.filter((k,i)=>ST_DEF.includes(k)&&o.indexOf(k)===i);return o.concat(ST_DEF.filter(k=>!o.includes(k)));}
+function stBoxes(items){const m={};items.forEach(x=>m[x[0]]=x[1]);const o=stOrd();
+  return '<div class="grid grid-cols-1 md:grid-cols-2 gap-3">'+o.map((k,i)=>'<div class="relative">'+m[k]+'<div class="absolute top-2 right-2 flex gap-1">'
+   +'<button data-act="stmv" data-k="'+k+'" data-d="-1" class="w-7 h-7 rounded bg-slate-200 dark:bg-slate-700 text-xs font-bold'+(i?'':' opacity-30')+'" aria-label="Yukarı">▲</button>'
+   +'<button data-act="stmv" data-k="'+k+'" data-d="1" class="w-7 h-7 rounded bg-slate-200 dark:bg-slate-700 text-xs font-bold'+(i<o.length-1?'':' opacity-30')+'" aria-label="Aşağı">▼</button></div></div>').join('')+'</div>';}
+ACT.stmv=a=>{const o=stOrd(),k=a.dataset.k,i=o.indexOf(k),j=i+(+a.dataset.d);if(i<0||j<0||j>=o.length)return;o.splice(i,1);o.splice(j,0,k);lss('stat_ord',JSON.stringify(o));render(true);};
 reg('stat','📊','İstatistikler',()=>{
   const A=S.students.filter(s=>!s.absent);
   const m=A.map(s=>{const z={s,ez:new Set(),ab:0,p:0,pm:0,bp:0,bk:0,sl:0};
@@ -528,19 +535,20 @@ reg('stat','📊','İstatistikler',()=>{
   const rbm=S.homeworks.filter(h=>h.rb&&rehShow(h)).map(h=>{const l=A.filter(s=>ap(h,s)&&(s.hwStatus||{})[h.id]==='Yapmadi');return l.length?'<div class="w-full text-xs font-bold mt-1">'+esc(h.name)+' ('+(h.donem||'1')+'. dönem)</div>'+l.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''):'';}).join('');
   const tot=k=>m.reduce((t,x)=>t+x[k],0);
   return '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">'+[['Öğrenci',A.length],['Tamamlanan Ezber',tot('ez')],['Hafız',hz.length],['Toplam Artı Puan',tot('p')]].map(x=>'<div class="card mb-0 text-center"><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+x[1]+'</div><div class="text-xs text-slate-500">'+x[0]+'</div></div>').join('')+'</div>'
-   +'<div class="grid grid-cols-1 md:grid-cols-2 gap-3">'
-   +lb('🏆 En Çok Ezber Tamamlayan','ez','bg-emerald-100 text-emerald-800 border-emerald-200',' ezber',false,'bg-emerald-600')
-   +lb('💧 En Çok Abdestli Gün','ab','bg-blue-100 text-blue-800 border-blue-200',' gün',false,'bg-blue-600')
-   +lb('➕ En Yüksek Artı Puan','p','bg-indigo-100 text-indigo-800 border-indigo-200','',false,'bg-indigo-600')
-   +lb('➖ En Fazla Eksi Puan','pm','bg-red-100 text-red-800 border-red-200','',true,'bg-red-600')
-   +lb('🌟 Davranış Puanı (En Yüksek)','bp','bg-teal-100 text-teal-800 border-teal-200','',false,'bg-teal-600')
-   +lb('📕 Kitabı Olmayanlar','bk','bg-orange-100 text-orange-800 border-orange-200',' gün',false,'bg-orange-600')
-   +lb('😴 Derste Uyuyanlar','sl','bg-amber-100 text-amber-800 border-amber-200',' gün',false,'bg-amber-600')
-   +sbox('👳 Hafız Öğrenciler',hz.length,hz.map(s=>chip(s,'bg-purple-100 text-purple-800 border-purple-200')).join(''),'bg-purple-600')
-   +sbox('📜 Cüzde Olan Öğrenciler',cz.length,cz.map(s=>chip(s,'bg-amber-100 text-amber-800 border-amber-200')).join(''),'bg-amber-600')
-   +sbox('🚫 Sürekli Devamsız Öğrenciler',ab.length,ab.map(s=>chip(s,'bg-rose-100 text-rose-800 border-rose-200')).join(''),'bg-rose-600')
-   +sbox('🔔 Son 3 Ödevi Yapmayanlar',hwy.length,hwy.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''),'bg-red-600')
-   +sbox('🧭 Rehberlik Çalışmasına Katılmayanlar',S.homeworks.filter(h=>h.rb&&rehShow(h)).length,rbm,'bg-slate-600')+'</div>';
+   +stBoxes([
+    ['ab',sbox('🚫 Sürekli Devamsız Öğrenciler',ab.length,ab.map(s=>chip(s,'bg-rose-100 text-rose-800 border-rose-200')).join(''),'bg-rose-600')],
+    ['hwy',sbox('🔔 Son 3 Ödevi Yapmayanlar',hwy.length,hwy.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''),'bg-red-600')],
+    ['rb',sbox('🧭 Rehberlik Çalışmasına Katılmayanlar',S.homeworks.filter(h=>h.rb&&rehShow(h)).length,rbm,'bg-slate-600')],
+    ['ez',lb('🏆 En Çok Ezber Tamamlayan','ez','bg-emerald-100 text-emerald-800 border-emerald-200',' ezber',false,'bg-emerald-600')],
+    ['p',lb('➕ En Yüksek Artı Puan','p','bg-indigo-100 text-indigo-800 border-indigo-200','',false,'bg-indigo-600')],
+    ['pm',lb('➖ En Fazla Eksi Puan','pm','bg-red-100 text-red-800 border-red-200','',true,'bg-red-600')],
+    ['bp',lb('🌟 Davranış Puanı (En Yüksek)','bp','bg-teal-100 text-teal-800 border-teal-200','',false,'bg-teal-600')],
+    ['bk',lb('📕 Kitabı Olmayanlar','bk','bg-orange-100 text-orange-800 border-orange-200',' gün',false,'bg-orange-600')],
+    ['sl',lb('😴 Derste Uyuyanlar','sl','bg-amber-100 text-amber-800 border-amber-200',' gün',false,'bg-amber-600')],
+    ['ab2',lb('💧 En Çok Abdestli Gün','ab','bg-blue-100 text-blue-800 border-blue-200',' gün',false,'bg-blue-600')],
+    ['hz',sbox('👳 Hafız Öğrenciler',hz.length,hz.map(s=>chip(s,'bg-purple-100 text-purple-800 border-purple-200')).join(''),'bg-purple-600')],
+    ['cz',sbox('📜 Cüzde Olan Öğrenciler',cz.length,cz.map(s=>chip(s,'bg-amber-100 text-amber-800 border-amber-200')).join(''),'bg-amber-600')]
+   ])+'<div class="text-xs text-slate-400 text-center mt-3">Kutuların köşesindeki ▲ ▼ ile sırayı değiştirebilirsiniz.</div>';
 },null,null);
 /* ========== AŞAMA C2: KARNE, OTURMA PLANI, HAFIZLIK ========== */
 const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'-';
@@ -925,6 +933,8 @@ ACT.prn=a=>{
 };
 
 /* Uyarılar ve bildirim */
+function alSeen(){try{const o=JSON.parse(lsg('al_seen')||'[]');return Array.isArray(o)?o:[];}catch(e){return [];}}
+function alMark(A){try{const old=alSeen(),live=A.keys;lss('al_seen',JSON.stringify(old.filter(k=>live.includes(k)).concat(live.filter(k=>!old.includes(k)))));}catch(e){}}
 function alerts(){
   const A={hw:[],ez:[],ab:[],due:[],rem:[]},wk=dmin(-6),act=S.students.filter(s=>!s.absent),ge={};
   act.forEach(s=>{if(allD(s).some(([d,r])=>d>=wk&&Object.values(r.ezberStatus||{}).some(v=>v!=='Baslamadi')))ge[kk2(s)]=1;});
@@ -939,10 +949,12 @@ function alerts(){
   S.homeworks.filter(h=>!h.rb&&h.end>=dmin(-7)&&h.end<=dmin(2)&&h.end!==dmin(1)).forEach(h=>{const n=act.filter(s=>ap(h,s)&&!(s.hwStatus||{})[h.id]).length;
     if(n)A.due.push([h,n,h.end<today?'süresi geçti':h.end===today?'bugün bitiyor':h.end===dmin(1)?'yarın bitiyor':'2 gün sonra bitiyor']);});
   S.homeworks.filter(h=>!h.rb&&h.end===dmin(1)).forEach(h=>{A.rem.push([h,act.filter(s=>ap(h,s)&&!(s.hwStatus||{})[h.id]).length]);});
-  A.n=A.hw.length+A.ez.length+A.ab.length+A.due.length+A.rem.length;return A;
+  A.n=A.hw.length+A.ez.length+A.ab.length+A.due.length+A.rem.length;
+  A.keys=[].concat(A.hw.map(x=>'hw'+x[0].id+':'+x[1]),A.ab.map(x=>'ab'+x[0].id+':'+x[1]),A.ez.map(x=>'ez'+x[0].id+':'+wk),A.due.map(x=>'du'+x[0].id+':'+x[2]),A.rem.map(x=>'rm'+x[0].id+':'+today));
+  const sn=alSeen();A.nNew=A.keys.filter(k=>!sn.includes(k)).length;return A;
 }
 reg('uyari','🔔','Uyarılar',()=>{
-  const A=alerts(),sec=(t,l,f)=>l.length?'<div class="card"><b class="text-sm">'+t+' ('+l.length+')</b><div class="flex flex-wrap gap-1.5 mt-2">'+l.map(f).join('')+'</div></div>':'';
+  const A=alerts();alMark(A);const sec=(t,l,f)=>l.length?'<div class="card"><b class="text-sm">'+t+' ('+l.length+')</b><div class="flex flex-wrap gap-1.5 mt-2">'+l.map(f).join('')+'</div></div>':'';
   const ch=c=>x=>chip(x[0],c,x[1]);
   return '<div class="card flex flex-wrap items-center justify-between gap-2"><span class="text-sm">'+(A.n?A.n+' uyarı var.':'Şu an uyarı yok. 👍')+'</span>'+('Notification' in window&&Notification.permission!=='granted'?'<button data-act="ntf" class="btn bg-amber-600">🔔 Bildirimleri aç</button>':'')+'</div>'
    +sec('📅 Yarın ödev kontrolü var',A.rem,x=>'<span class="bg-yellow-100 text-yellow-900 border-yellow-300 text-xs px-2.5 py-1 rounded-full border"><b>'+esc(x[0].name)+'</b> · '+esc(tgt(x[0]))+(x[0].sube&&x[0].sube!=='ALL'?' '+esc(String(x[0].sube).toUpperCase()):'')+' · '+x[1]+' öğrenci işaretsiz</span>')
@@ -953,8 +965,8 @@ ACT.ntf=()=>Notification.requestPermission().then(()=>render(true));
 const alertItem=()=>{
   if(!featOn('rapor'))return null;
   const A=alerts();
-  if(A.n&&'Notification' in window&&Notification.permission==='granted'&&lsg('ntf_day')!==today){lss('ntf_day',today);try{new Notification('Sınıf Takip: '+A.n+' uyarı',{body:'Uyarılar sayfasına bakın.'});}catch(e){}}
-  return A.n?['uyari','🔔',A.n+' uyarı var, dokunup görün','a']:null;
+  if(A.nNew&&'Notification' in window&&Notification.permission==='granted'&&lsg('ntf_day')!==today){lss('ntf_day',today);try{new Notification('Sınıf Takip: '+A.nNew+' uyarı',{body:'Uyarılar sayfasına bakın.'});}catch(e){}}
+  return A.nNew?['uyari','🔔',A.nNew+' yeni uyarı, dokunup görün','a']:null;
 };
 
 /* Excel raporu ve toplu yükleme (Yedekleme sayfasına eklenir) */
@@ -1545,6 +1557,7 @@ const remItem=()=>{
   if(!featOn('ders'))return null;
   const l=S.homeworks.filter(h=>!h.rb&&h.end===dmin(1));
   if(!l.length)return null;
+  if(pageOn('uyari')){const sn=alSeen();if(l.every(h=>sn.includes('rm'+h.id+':'+today)))return null;}
   if('Notification' in window&&Notification.permission==='granted'&&lsg('ntf_hw')!==today){lss('ntf_hw',today);try{new Notification('Yarın ödev kontrol günü',{body:[...new Set(l.map(h=>h.name))].join(', ')});}catch(e){}}
   const nm2=[...new Set(l.map(h=>esc(h.name)+' ('+esc(tgt(h))+(h.sube&&h.sube!=='ALL'?' '+esc(String(h.sube).toUpperCase()):'')+')'))].join(', ');
   return [pageOn('uyari')?'uyari':'ders','📅','Yarın ödev kontrol günü: '+nm2,'y'];
