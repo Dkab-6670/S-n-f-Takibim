@@ -124,7 +124,7 @@ function listen(code){
       const d=sn.val();
       if(d){KEYS.forEach(k=>{S[k]=toList(d[k],PRE[k]);});last=snap();lastRoom=code;if(KEYS.some(k=>Array.isArray(d[k])))sn.ref.update(last);}
       status('emerald','Canlı');render();
-    },err=>{status('red','Bağlantı hatası');alert('Firebase hatası: '+err.message);});
+    },err=>{status('red','Bağlantı hatası');if(kioskOn()){if(lsg('kiosk_v1')==='1'&&lsg('kiosk_h'))bdEnd();return;}alert('Firebase hatası: '+err.message);});
   }).catch(()=>status('red','Giriş hatası'));
 }
 function save(){
@@ -1347,12 +1347,12 @@ $('pf').onclick=()=>pfShow('pick');
 const rmm=document.createElement('div');rmm.className='fixed inset-0 z-[150] hidden bg-slate-900/80 overflow-y-auto p-4';
 rmm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md mx-auto mt-6 p-5"><div id="rmb"></div></div>';document.body.appendChild(rmm);
 function openRoom(){
-  $('rmb').innerHTML='<b class="text-lg">🔑 Sınıf Odasına Bağlan</b><p class="text-xs text-slate-500 my-2">Öğrenci verileri bir "oda"da saklanır. Başka öğretmenlerle aynı sınıfları kullanacaksanız onlarla aynı oda kodunu girin. Kodu bilmiyorsanız oda sahibinden isteyin.</p><input id="rmC" class="inp w-full mb-2 font-mono uppercase" placeholder="SNF-..."><button data-act="rmjoin" class="btn bg-indigo-600 w-full">Bağlan</button><div class="text-center text-xs text-slate-400 my-3">veya</div><button data-act="rmnew" class="w-full py-2 border rounded-lg font-semibold">✨ Yeni oda oluştur</button><p class="text-[11px] text-slate-500 mt-1">Yeni oda oluşturunca ekrandaki mevcut veriler yeni odaya kopyalanır.</p>'+(S.room?'<button data-act="rmx" class="mt-3 w-full py-2 text-sm">Kapat</button>':'');
+  $('rmb').innerHTML='<b class="text-lg">🔑 Sınıf Alanım</b><p class="text-xs text-slate-500 my-2">Verileriniz hesabınıza bağlı bir odada saklanır; normalde burayı kullanmanız gerekmez. Eski bir oda kodunuz varsa ve verilerin sahibi sizseniz buraya yazıp bağlanabilirsiniz.</p><input id="rmC" class="inp w-full mb-2 font-mono uppercase" placeholder="SNF-..."><button data-act="rmjoin" class="btn bg-indigo-600 w-full">Bağlan</button><div class="text-center text-xs text-slate-400 my-3">veya</div><button data-act="rmnew" class="w-full py-2 border rounded-lg font-semibold">✨ Yeni boş oda oluştur</button><p class="text-[11px] text-slate-500 mt-1">Yeni oda oluşturunca ekrandaki mevcut veriler yeni odaya kopyalanır.</p>'+(S.room?'<button data-act="rmx" class="mt-3 w-full py-2 text-sm">Kapat</button>':'');
   rmm.classList.remove('hidden');
 }
 Object.assign(ACT,{
-  rmjoin(){const c=T($('rmC').value).toUpperCase();if(!c)return alert('Oda kodunu yazın.');lastRoom='';listen(c);rmm.classList.add('hidden');},
-  rmnew(){const n=genCode();lastRoom='';S.room=n;listen(n);save();$('rmb').innerHTML='<b class="text-lg">✅ Yeni oda oluşturuldu</b><p class="text-sm my-2">Oda kodunuz:</p><div class="font-mono font-bold text-lg break-all bg-slate-100 dark:bg-slate-700 rounded-lg p-3">'+esc(n)+'</div><p class="text-xs text-slate-500 my-2">Bir yere yazın. Diğer cihazlarda ve diğer öğretmenlerde 🔑 düğmesiyle bu kodu girin.</p><button data-act="rmx" class="btn bg-indigo-600 w-full">Tamam</button>';},
+  async rmjoin(){const c=T($('rmC').value).toUpperCase(),u=firebase.auth().currentUser;if(!c)return alert('Oda kodunu yazın.');if(!/^SNF-[A-Z2-9]{16}$/.test(c))return alert('Oda kodu SNF- ile başlayan 16 karakterlik koddur.');if(!tOK(u))return alert('Önce giriş yapın.');if(!await claim(c,u))return alert('Bu oda size ait değil ya da başka bir hesaba bağlı.');lastRoom='';listen(c);rmm.classList.add('hidden');},
+  async rmnew(){const u=firebase.auth().currentUser,n=genCode();if(!tOK(u)||!await claim(n,u))return alert('Oda oluşturulamadı. Firebase kurallarının güncel olduğundan emin olun.');lastRoom='';S.room=n;listen(n);save();$('rmb').innerHTML='<b class="text-lg">✅ Yeni oda oluşturuldu</b><p class="text-sm my-2">Verileriniz bu odaya kopyalandı. Oda kodu hesabınıza bağlıdır, paylaşmanız gerekmez.</p><button data-act="rmx" class="btn bg-indigo-600 w-full">Tamam</button>';},
   rmx(){rmm.classList.add('hidden');}
 });
 
@@ -1884,7 +1884,7 @@ const bdLeft=()=>{const v=BD.sess;if(!v)return 0;const e=v.bas?v.bas+(v.dk||40)*
 let bdWR='';
 function bdWatch(){if(!S.room||bdWR===S.room)return;const rm=S.room;bdWR=rm;
   auth().then(()=>{db.ref('rooms/'+rm+'/tahtaOturum').on('value',x=>{BD.sess=x.val();bdSync();});db.ref('rooms/'+rm+'/tahtaKilit').on('value',x=>{BD.klt=x.val()||0;bdSync();});}).catch(()=>{bdWR='';});}
-function bdEnd(){lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');BD.v='grid';render(true);}
+function bdEnd(){lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');if(ref){ref.off();ref=null;}last={};lastRoom='';KEYS.forEach(k=>{S[k]=[];});BD.v='grid';render(true);}
 function bdSync(){
   if(lsg('kiosk_v1')==='1'&&BD.klt&&BD.klt>(+lsg('kiosk_st')||0))return bdEnd();
   if(lsg('kiosk_v1')==='1'&&lsg('kiosk_h')){const v=BD.sess;
@@ -1920,7 +1920,7 @@ bx.innerHTML='<div class="bg-white dark:bg-slate-800 rounded-2xl p-5 w-full max-
 document.body.appendChild(bx);
 let bxF=0,bxU=0,sbF=0,sbU=0;
 const bxClose=()=>{bx.classList.add('hidden');bx.classList.remove('flex');};
-function bxExit(){bxF=0;bxClose();setTimeout(()=>{try{gateEnforce();}catch(e){}},0);lss('kiosk_v1','0');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.remove('kiosk');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}BD.v='grid';render(true);}
+function bxExit(){bxF=0;bxClose();setTimeout(()=>{try{gateEnforce();}catch(e){}},0);lss('kiosk_v1','0');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.remove('kiosk');try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}location.reload();}
 async function bxGo(){
   if(Date.now()<bxU){$('bxMsg').textContent='Çok fazla deneme, biraz bekleyin.';return;}
   if(await sha($('bxIn').value)===lsg('pin_v1'))bxExit();
@@ -1932,21 +1932,23 @@ Object.assign(ACT,{
   async bdcode(){
     if(!S.room)return alert('Önce oda kodunu girin.');if(!grp().length)return alert('Bu seçimde öğrenci yok.');
     const c=String(100000+crypto.getRandomValues(new Uint32Array(1))[0]%900000),h=await sha(c);
-    try{await auth();await bdSessRef().set({h:h,sn:G.sinif,sb:G.sube,cap:bdCap(),ol:firebase.database.ServerValue.TIMESTAMP,dk:bdDk()});}catch(e){return alert('Kod oluşturulamadı: '+e.message);}
+    try{await auth();await bdSessRef().set({h:h,sn:G.sinif,sb:G.sube,cap:bdCap(),ol:firebase.database.ServerValue.TIMESTAMP,dk:bdDk()});await db.ref('kioskKod/'+S.room).set({[c]:bdSrv()+(bdDk()+30)*6e4});}catch(e){return alert('Kod oluşturulamadı: '+e.message);}
     lss('tahta_kod',c+'|'+h);
   },
-  bdplus(){const r=bdSessRef();if(r)r.child('dk').transaction(x=>(x||40)+10);},
-  bdlock(){const r=bdSessRef();if(!r||!confirm('Tahta şimdi kilitlensin mi? Yeniden açmak için yeni kod gerekir.'))return;r.parent.child('tahtaKilit').set(firebase.database.ServerValue.TIMESTAMP);r.remove();toast('Kilit komutu gönderildi');},
-  async bdstandby(){if(!await bdPin())return;lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.add('kiosk');BD.v='grid';render(true);try{await document.documentElement.requestFullscreen();}catch(e){}},
+  bdplus(){const r=bdSessRef();if(!r)return;r.child('dk').transaction(x=>(x||40)+10);const rm=S.room;db.ref('kioskKod/'+rm).once('value').then(x=>{const v=x.val()||{};Object.keys(v).forEach(k=>db.ref('kioskKod/'+rm+'/'+k).set(v[k]+6e5));}).catch(()=>{});},
+  bdlock(){const r=bdSessRef();if(!r||!confirm('Tahta şimdi kilitlensin mi? Yeniden açmak için yeni kod gerekir.'))return;r.parent.child('tahtaKilit').set(firebase.database.ServerValue.TIMESTAMP);r.remove();db.ref('kioskKod/'+S.room).remove().catch(()=>{});toast('Kilit komutu gönderildi');},
+  async bdstandby(){if(!await bdPin())return;if(!confirm('Bu cihazdaki hesaptan çıkış yapılıp tahta kod bekleme ekranına alınacak. Devam edilsin mi?'))return;lss('kiosk_v1','2');lss('kiosk_h','');lss('kiosk_end','0');document.body.classList.add('kiosk');if(ref){ref.off();ref=null;}try{await firebase.auth().signOut();await firebase.auth().signInAnonymously();}catch(e){}_auth=null;bdWR='';last={};lastRoom='';KEYS.forEach(k=>{S[k]=[];});BD.v='grid';render(true);try{await document.documentElement.requestFullscreen();}catch(e){}},
   async bdenter(){
     const m=t=>{const e=$('sbMsg');if(e)e.textContent=t;},c=(($('sbIn')||{}).value||'').trim(),r=bdSessRef();
     if(Date.now()<sbU)return m('Çok fazla deneme, biraz bekleyin.');if(!r)return m('Oda bağlı değil.');
-    let v=null;try{await auth();v=(await r.once('value')).val();}catch(e){return m('Bağlantı hatası.');}
+    if(!/^\d{6}$/.test(c))return m('Kod 6 haneli olmalı.');
+    let v=null;try{await auth();await db.ref('kioskUid/'+S.room+'/'+firebase.auth().currentUser.uid).set({k:c});v=(await r.once('value')).val();}catch(e){sbF++;if(sbF>=5){sbU=Date.now()+30000;sbF=0;}return m('Kod yanlış, süresi dolmuş ya da bağlantı yok.');}
     if(!v||v.h!==await sha(c)){sbF++;if(sbF>=5){sbU=Date.now()+30000;sbF=0;}return m('Kod yanlış.');}
     const now=bdSrv(),dk=v.dk||40;
     if(v.bas?v.bas+dk*6e4<=now:(v.ol||now)+30*6e4<now)return m('Kodun süresi dolmuş.');
     if(!v.bas)r.child('bas').set(firebase.database.ServerValue.TIMESTAMP);
     const end=(v.bas||now)+dk*6e4;sbF=0;
+    bdWR='';bdWatch();lastRoom='';listen(S.room);
     G.sinif=v.sn||'ALL';G.sube=v.sb||'ALL';lss('tahta_cap',String(v.cap||2));lss('kiosk_h',v.h);lss('kiosk_end',String(Date.now()+end-now));lss('kiosk_st',String(now));lss('kiosk_v1','1');
     BD.v='grid';BD.t=Date.now();render(true);try{await document.documentElement.requestFullscreen();}catch(e){}
   },
@@ -2325,13 +2327,22 @@ document.body.appendChild(gl);
 const gMsg=t=>{$('gM').textContent=t||'';};
 const gOpen=()=>{gl.style.display='flex';gMsg('');};
 /* Oda kodu hesaba bağlanır: users/<uid>/room. Yeni cihazda girişten sonra kod otomatik gelir. */
-function tWarn(){if(TCH.warned)return;TCH.warned=true;toast('Oda kodu hesaba kaydedilemedi: Firebase kurallarına "users" bölümünü ekleyin.',true);}
+function tWarn(){if(TCH.warned)return;TCH.warned=true;toast('Oda hesaba bağlanamadı: Firebase kurallarını güncelleyin (owners, users, kioskKod, kioskUid).',true);}
+/* Oda sahipliği: owners/<oda> = uid. Kurallar odayı yalnızca sahibine (ve kodla yetkilenen tahtaya) açar. */
+const claim=async(room,u)=>{try{await db.ref('owners/'+room).set(u.uid);return true;}catch(e){return false;}};
 async function tRoomLoad(){
   const u=firebase.auth().currentUser;if(!tOK(u))return;
   try{
     await auth();const r=db.ref('users/'+u.uid+'/room'),v=(await r.once('value')).val();
-    if(typeof v==='string'&&v){TCH.cloudRoom=v;if(v!==S.room){S.room=v;lss('sync_room_code',v);TCH.changed=true;}}
-    else if(S.room){await r.set(S.room);TCH.cloudRoom=S.room;}
+    let room=(typeof v==='string'&&v)?v:'';
+    if(room&&!await claim(room,u))room='';
+    if(!room&&S.room&&confirm('Bu cihazda daha önce kullanılmış bir sınıf odası kayıtlı.\n\nBu oda ve içindeki öğrenci verileri SİZE mi ait?\n\nTamam: oda bu hesaba bağlanır.\nİptal: size ait yeni boş bir alan oluşturulur.')){
+      if(await claim(S.room,u))room=S.room;else alert('Bu oda başka bir hesaba bağlı. Size ait yeni bir alan oluşturulacak.');
+    }
+    if(!room){room=genCode();if(!await claim(room,u))throw new Error('Oda oluşturulamadı');toast('Size ait yeni sınıf alanı oluşturuldu');}
+    if(room!==v)await r.set(room);
+    TCH.cloudRoom=room;
+    if(room!==S.room){S.room=room;lss('sync_room_code',room);TCH.changed=true;}
   }catch(e){console.warn('Hesap-oda eşlemesi:',e);tWarn();}
 }
 function tRoomSave(c){
@@ -2365,10 +2376,10 @@ function gateStart(fn){
 }
 function gateEnforce(){if(kioskOn()||tOK(firebase.auth().currentUser))return;gOpen();}
 function accCard(){const u=firebase.auth().currentUser;if(!u||u.isAnonymous)return '';return '<div class="card"><b>👤 Hesap</b><p class="text-xs text-slate-500 my-1">'+esc(u.email||u.displayName||'Öğretmen')+' olarak giriş yapıldı.</p><button data-act="tchout" class="btn bg-red-600">Çıkış yap</button></div>';}
-Object.assign(ACT,{async tchout(){if(!confirm('Hesaptan çıkış yapılsın mı?'))return;try{await firebase.auth().signOut();}catch(e){}location.reload();}});
+Object.assign(ACT,{async tchout(){if(!confirm('Hesaptan çıkış yapılsın mı?'))return;try{localStorage.removeItem('sync_room_code');}catch(e){}try{await firebase.auth().signOut();}catch(e){}location.reload();}});
 
 const PK=new URLSearchParams(location.search).get('k');
-if(PK)parentView(PK);else gateStart(()=>{go(kioskOn()?'tahta':'home');if(S.room)listen(S.room);else room();});
+if(PK)parentView(PK);else gateStart(()=>{go(kioskOn()?'tahta':'home');if(kioskOn()){if(lsg('kiosk_v1')==='1'&&S.room)listen(S.room);}else if(S.room)listen(S.room);else room();});
 </script>
 </body>
 </html>
