@@ -962,7 +962,7 @@ const xl=()=>window.XLSX?Promise.resolve():new Promise((ok,no)=>{const e=documen
 const shs=a=>{const w=XLSX.utils.aoa_to_sheet(a);w['!cols']=a[0].map((_,i)=>({wch:Math.min(40,Math.max(8,...a.map(r=>String(r[i]??'').length))+2)}));w['!autofilter']={ref:w['!ref']};return w;};
 const xlsCard=()=>'<div class="card"><b>📗 Excel raporu (.xlsx)</b><p class="text-xs text-slate-500 my-1">Seçili sınıf, şube ve dönem için (üstteki çubuktan seçilir, sürekli devamsızlar hariç). Özet, Günlük, Ezber ve Ödev-Rehberlik sayfaları.</p><button data-act="xrep" class="btn bg-emerald-600">📥 Raporu indir</button></div>'
   +'<div class="card"><b>📤 Excel\'den toplu öğrenci yükle</b><p class="text-xs text-slate-500 my-1">Sütunlar: S.No, Okul No, Sınıf, Şube, Ad Soyad (ya da tek sütunda "7/D"). Aynı sınıf, şube ve numaralı öğrenci tekrar eklenmez.</p><div class="flex flex-wrap gap-2"><button data-act="xtpl" class="btn bg-slate-600">Şablonu indir</button><button data-act="ximp" class="btn bg-indigo-600">Excel dosyası seç</button><input type="file" id="xlf" accept=".xlsx,.xls,.csv" hidden></div></div>';
-const yd0=P.yedek.html;P.yedek.html=()=>yd0()+xlsCard()+ybCard();
+const yd0=P.yedek.html;P.yedek.html=()=>yd0()+xlsCard()+ybCard()+ysCard();
 const stx=v=>v==='Yapti'?'Tam':v==='Eksik'?'Eksik':v==='Yapmadi'?'Yapmadı':'';
 Object.assign(ACT,{
   async xrep(){
@@ -1059,6 +1059,7 @@ Object.assign(ACT,{
       await auth();
       await db.ref('share/'+t).set({html:'<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+KCSS+'</style>'+karne(s),exp:exp});
       const l=shr();l.unshift({t:t,n:s.name,exp:exp});lss('shares_v1',JSON.stringify(l.slice(0,50)));
+      S.ayar=S.ayar.filter(x=>!(x.kim==='_share'&&+String(x.rb).split('|')[1]<Date.now()));S.ayar.push({kim:'_share',rb:t+'|'+exp});save();
       shName=s.name;$('shUrl').value=location.origin+location.pathname+'?k='+t;sm.classList.remove('hidden');sm.classList.add('flex');render(true);
     }catch(e){alert('Bağlantı oluşturulamadı: '+e.message+'\nFirebase kurallarına "share" bölümünü eklediniz mi?');}
   },
@@ -1068,7 +1069,7 @@ Object.assign(ACT,{
   shx(){sm.classList.add('hidden');sm.classList.remove('flex');},
   async shdel(a){
     const t=a.dataset.t;if(!confirm('Bu veli bağlantısı iptal edilsin mi? Veli artık göremez.'))return;
-    try{await auth();await db.ref('share/'+t).remove();lss('shares_v1',JSON.stringify(shr().filter(x=>x.t!==t)));toast('Bağlantı iptal edildi');render(true);}
+    try{await auth();await db.ref('share/'+t).remove();lss('shares_v1',JSON.stringify(shr().filter(x=>x.t!==t)));S.ayar=S.ayar.filter(x=>!(x.kim==='_share'&&String(x.rb).split('|')[0]===t));save();toast('Bağlantı iptal edildi');render(true);}
     catch(e){alert('İptal edilemedi: '+e.message);}
   }
 });
@@ -2259,6 +2260,51 @@ Object.assign(ACT,{
   }
 });
 setTimeout(()=>ybTick(),20000);setInterval(()=>ybTick(),600000);
+
+/* ========== YIL SONU: öğrenci verilerini kalıcı olarak temizleme ========== */
+/* Öğrenciye ait her şey (yoklama, puan, notlar, ödev/ezber/rehberlik işaretleri, fotoğraf, oturma yeri) öğrenci kaydının içindedir; öğrenciler silinince hepsi gider. */
+const ysCnt=()=>{let days=0,ph=0,hw=0;S.students.forEach(s=>{if(s.photo)ph++;Object.values(s.periods||{}).forEach(p=>{days+=Object.keys((p&&p.days)||{}).length;});hw+=Object.keys(s.hwStatus||{}).length;});return {n:S.students.length,days:days,ph:ph,hw:hw};};
+const ysTok=()=>{const m={};shr().forEach(x=>{m[x.t]=1;});S.ayar.filter(x=>x.kim==='_share').forEach(x=>{const t=String(x.rb||'').split('|')[0];if(t)m[t]=1;});return Object.keys(m);};
+function ysCard(){
+  const c=ysCnt(),tk=ysTok();
+  return '<div class="card !border-red-300"><b>🧹 Yıl sonu: öğrenci verilerini temizle</b><p class="text-xs text-slate-500 my-1">Eğitim yılı bitince tüm öğrenci bilgilerini kalıcı olarak silmek için. Yıllık plan, ders programı, etkinlikler, “Kaldığımız yer” notları ve ayarlarınız silinmez.</p>'
+   +'<div class="text-sm my-2">Şu an: <b>'+c.n+'</b> öğrenci · <b>'+c.days+'</b> günlük kayıt · <b>'+c.ph+'</b> fotoğraf · <b>'+c.hw+'</b> ödev/ezber/rehberlik işareti</div>'
+   +'<ol class="text-sm list-decimal pl-5 space-y-1"><li><b>Önce yedeğinizi indirin</b> (yukarıdaki yedek ve Excel düğmeleri). İndirdiğiniz dosyalar öğrenci verisi içerir, saklama süreniz bitince onları da silin.</li><li>Neleri sileceğinizi seçin.</li><li>Onaylayın.</li></ol>'
+   +'<div class="my-2 space-y-1 text-sm"><label class="flex gap-2"><input type="checkbox" checked disabled> <span>Tüm öğrenciler ve onlara ait her kayıt (yoklama, puan, notlar, ödev/ezber/rehberlik işaretleri, fotoğraflar, oturma yerleri)</span></label>'
+   +'<label class="flex gap-2"><input type="checkbox" id="ysC" checked> <span>Bulut yedeklerini sil (içlerinde öğrenci verisi var)</span></label>'
+   +'<label class="flex gap-2"><input type="checkbox" id="ysS" checked> <span>Veli karne bağlantılarını iptal et ('+tk.length+' bilinen bağlantı)</span></label>'
+   +'<label class="flex gap-2"><input type="checkbox" id="ysA"> <span>Ödev, ezber ve rehberlik atamalarını da sil (öğrenci verisi değil, yeni yıl için kalabilir)</span></label></div>'
+   +'<label class="flex gap-2 text-sm"><input type="checkbox" id="ysOk"> <span>Yedeğimi aldım, silmenin geri alınamayacağını biliyorum.</span></label>'
+   +'<input id="ysT" class="inp w-full mt-2" placeholder="Onay için SİL yazın" autocomplete="off">'
+   +'<button data-act="ysdo" class="btn bg-red-600 w-full mt-2">Yıl sonu temizliğini yap</button>'
+   +'<p class="text-xs text-slate-500 mt-2">Bu güncellemeden önce oluşturulmuş ve başka cihazlarda üretilmiş veli bağlantıları listede görünmeyebilir. Bunlar oluşturulduktan en geç 30 gün sonra kendiliğinden süresi dolar.</p></div>';
+}
+function ysBar(){
+  /* Oda boşsa (başka cihazdan silindiyse) bu cihazdaki eski bağlantı listesi de temizlenir */
+  if(!S.students.length&&lastRoom===S.room&&shr().length)lss('shares_v1','[]');
+  const d=new Date(),y=d.getFullYear(),m=d.getMonth()+1,g=d.getDate();
+  if(!S.students.length||lsg('ys_dis')===String(y))return '';
+  if(!((m===6&&g>=15)||m===7||m===8))return '';
+  return '<div class="card !bg-red-50 !border-red-300 text-red-900"><div class="font-semibold">🧹 Eğitim yılı bitti mi?</div><div class="text-sm mt-1">Öğrenci verilerini yıl sonunda silmeniz gerekiyor. Ayarlar → Yedekleme ve Excel bölümünde önce yedek alın, sonra “Yıl sonu temizliği”ni yapın.</div><div class="flex gap-2 mt-2"><button data-go="ayar" class="btn bg-red-600 !py-1.5">Ayarlar</button><button data-act="ysdis" class="px-3 py-1.5 rounded-lg border text-sm">Bu yıl hatırlatma</button></div></div>';
+}
+Object.assign(ACT,{
+  ysdis(){lss('ys_dis',String(new Date().getFullYear()));render(true);},
+  async ysdo(){
+    if(!$('ysOk').checked||T($('ysT').value).toLocaleUpperCase('tr')!=='SİL')return alert('Onay kutusunu işaretleyin ve kutuya SİL yazın.');
+    const n=S.students.length;if(!n)return alert('Silinecek öğrenci yok.');
+    const wc=$('ysC').checked,ws=$('ysS').checked,wa=$('ysA').checked,tk=ysTok();
+    if(!confirm(n+' öğrenci ve onlara ait tüm kayıtlar kalıcı olarak silinecek. Devam edilsin mi?'))return;
+    const rep=[n+' öğrenci ve tüm kayıtları silindi'];
+    del(()=>{S.students=[];if(wa){S.homeworks=[];S.ezberItems=[];}},'Yıl sonu temizliği yapıldı');
+    if(wa)rep.push('Ödev, ezber ve rehberlik atamaları silindi');
+    try{await auth();}catch(e){}
+    if(ws){let k=0;for(const t of tk){try{await db.ref('share/'+t).remove();k++;}catch(e){}}lss('shares_v1','[]');S.ayar=S.ayar.filter(x=>x.kim!=='_share');save();rep.push(k+'/'+tk.length+' veli bağlantısı iptal edildi');}
+    if(wc&&S.room){try{await ybRef().remove();await ybMeta().remove();YB.list=[];rep.push('Bulut yedekleri silindi');}catch(e){rep.push('Bulut yedekleri SİLİNEMEDİ (Firebase kurallarını kontrol edin)');}}
+    render(true);
+    alert('Yıl sonu temizliği tamamlandı:\n- '+rep.join('\n- ')+'\n\nİndirdiğiniz yedek dosyalarını da saklama süreniz bitince silmeyi unutmayın.');
+  }
+});
+{const hy=P.home.html;P.home.html=()=>ysBar()+hy();}
 
 const PK=new URLSearchParams(location.search).get('k');
 if(PK)parentView(PK);else{go(kioskOn()?'tahta':'home');if(S.room)listen(S.room);else room();}
