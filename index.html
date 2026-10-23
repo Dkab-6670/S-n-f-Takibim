@@ -883,7 +883,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d3',NEWS=[['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d4',NEWS=[['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -2324,7 +2324,27 @@ gl.innerHTML='<div class="m-auto flex flex-col items-center gap-3 w-full text-ce
 document.body.appendChild(gl);
 const gMsg=t=>{$('gM').textContent=t||'';};
 const gOpen=()=>{gl.style.display='flex';gMsg('');};
-function gDone(){_auth=null;gl.style.display='none';$('gP').value='';if(!TCH.started){TCH.started=true;if(TCH.start)TCH.start();}}
+/* Oda kodu hesaba bağlanır: users/<uid>/room. Yeni cihazda girişten sonra kod otomatik gelir. */
+function tWarn(){if(TCH.warned)return;TCH.warned=true;toast('Oda kodu hesaba kaydedilemedi: Firebase kurallarına "users" bölümünü ekleyin.',true);}
+async function tRoomLoad(){
+  const u=firebase.auth().currentUser;if(!tOK(u))return;
+  try{
+    await auth();const r=db.ref('users/'+u.uid+'/room'),v=(await r.once('value')).val();
+    if(typeof v==='string'&&v){TCH.cloudRoom=v;if(v!==S.room){S.room=v;lss('sync_room_code',v);TCH.changed=true;}}
+    else if(S.room){await r.set(S.room);TCH.cloudRoom=S.room;}
+  }catch(e){console.warn('Hesap-oda eşlemesi:',e);tWarn();}
+}
+function tRoomSave(c){
+  const u=firebase.auth().currentUser;if(!c||!tOK(u)||c===TCH.cloudRoom)return;
+  auth().then(()=>db.ref('users/'+u.uid+'/room').set(c)).then(()=>{TCH.cloudRoom=c;}).catch(e=>{console.warn('Hesap-oda eşlemesi:',e);tWarn();});
+}
+const _listen=listen;listen=function(c){_listen(c);tRoomSave(c);};
+async function gDone(){
+  _auth=null;gl.style.display='none';$('gP').value='';
+  TCH.changed=false;await tRoomLoad();
+  if(!TCH.started){TCH.started=true;if(TCH.start)TCH.start();}
+  else if(TCH.changed&&S.room){lastRoom='';listen(S.room);}
+}
 async function gAccept(u,isNew){
   const em=String(u.email||'').toLowerCase();
   if(IZINLI.length&&!IZINLI.includes(em)){await firebase.auth().signOut();return gMsg('Bu hesabın bu uygulamaya erişim izni yok.');}
