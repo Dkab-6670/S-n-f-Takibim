@@ -213,7 +213,7 @@ function hqCard(){return '<div class="card"><input id="hq" type="search" class="
 function hqRun(v){
   const box=$('hqr');if(!box)return;const q=hqN(v);if(!q){box.innerHTML='';return;}
   const W=q.split(' ');const hit=txt=>{const n=hqN(txt);return W.every(w=>n.includes(w));};
-  const KW={ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
+  const KW={ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
   const res=[];
   Object.keys(P).forEach(k=>{if(k==='home'||!pageOn(k))return;const p=P[k];if(hit(p.title+' '+(KW[k]||'')))res.push(['<button data-go="'+k+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+p.icon+'</span><b class="flex-1">'+esc(p.title)+'</b><span class="text-[11px] text-slate-400">Sayfa</span></button>',hqN(p.title).startsWith(W[0])?0:1]);});
   [['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
@@ -925,7 +925,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d5',NEWS=[['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d6',NEWS=[['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1740,6 +1740,93 @@ Object.assign(ACT,{
     save();cardShow();}
 });
 
+/* ===== MEB çerçeve yıllık plan (Excel) içe aktarma ===== */
+const ypxm=document.createElement('div');ypxm.className='fixed inset-0 z-[170] hidden items-center justify-center bg-black/60 p-3';document.body.appendChild(ypxm);
+const ypxIn=document.createElement('input');ypxIn.type='file';ypxIn.accept='.xlsx,.xls';ypxIn.hidden=true;document.body.appendChild(ypxIn);
+let YPX={a:[],hr:-1,hd:[],map:{},y1:0,title:'',fname:'',useU:true,sn:'ALL',ders:''};
+const ypxClean=v=>String(v==null?'':v).replace(/\s*\n\s*/g,' ').replace(/\s+/g,' ').trim();
+const YPX_AY=['ocak','subat','mart','nisan','mayis','haziran','temmuz','agustos','eylul','ekim','kasim','aralik'];
+function ypxDate(txt,y1){
+  if(!y1)return null;const t=hqN(txt).split(' ').filter(Boolean);
+  const i=t.findIndex(x=>/^\d{1,2}$/.test(x));if(i<0)return null;
+  const m=t.slice(i+1).map(x=>YPX_AY.indexOf(x)).find(x=>x>=0);if(m===undefined)return null;
+  const d=+t[i];if(d<1||d>31)return null;const mo=m+1,y=mo>=9?y1:y1+1;
+  return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+}
+function ypxRows(){
+  const a=YPX.a,hr=YPX.hr,map=YPX.map,out=[];
+  for(let r=hr+1;r<a.length;r++){
+    const row=a[r]||[],hb=String(row[map.h]==null?'':row[map.h]),m=/(\d+)\s*\.\s*hafta/i.exec(hb);if(!m)continue;
+    const n=+m[1],dt=ypxDate(hb.replace(/^[\s\S]*?hafta\s*:?/i,''),YPX.y1);
+    const un=map.u>=0?ypxClean(row[map.u]):'',kn=map.k>=0?ypxClean(row[map.k]):'',kz=map.g>=0?ypxClean(row[map.g]):'';
+    let konu=kn||un;if(!konu)continue;
+    if(YPX.useU&&un&&kn&&un!==kn)konu=un+' · '+kn;
+    out.push({hafta:n,tarih:dt,konu:konu,kaz:kz});
+  }
+  return out;
+}
+function ypxPv(){
+  const e=$('ypxPv');if(!e)return;const rs=ypxRows(),nd=rs.filter(x=>!x.tarih).length;
+  e.innerHTML='<div class="text-xs font-semibold mb-1">'+rs.length+' hafta bulundu'+(rs.length?' ('+rs[0].hafta+'. – '+rs[rs.length-1].hafta+'. hafta)':'')+'</div>'
+   +rs.slice(0,5).map(x=>'<div class="text-xs border-b border-slate-200 dark:border-slate-700 py-1"><b>'+x.hafta+'. hafta</b> · '+esc(x.tarih||'tarih yok')+'<br>'+esc(x.konu)+(x.kaz?'<br><span class="text-slate-500">'+esc(x.kaz.slice(0,110))+(x.kaz.length>110?'…':'')+'</span>':'')+'</div>').join('')
+   +(rs.length>5?'<div class="text-xs text-slate-400 mt-1">… ve '+(rs.length-5)+' hafta daha</div>':'')
+   +(nd?'<div class="text-xs mt-2 text-amber-700">'+nd+' haftanın tarihi okunamadı. 1. haftanın başlangıcını (Pazartesi) seçin: <input type="date" id="ypxB" class="inp" value="'+esc(lsg('yp_bas')||'')+'"></div>':'');
+}
+function ypxDraw(){
+  const opts=(k,none)=>(none?'<option value="-1"'+(YPX.map[k]<0?' selected':'')+'>— yok —</option>':'')+YPX.hd.map((x,i)=>x?'<option value="'+i+'"'+(YPX.map[k]===i?' selected':'')+'>'+XLSX.utils.encode_col(i)+' – '+esc(x.slice(0,34))+'</option>':'').join('');
+  const sl=(k,lab,none)=>'<label class="text-xs block mb-1">'+lab+'<select data-ypx="'+k+'" class="inp w-full">'+opts(k,none)+'</select></label>';
+  ypxm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4"><b class="text-lg">📥 MEB yıllık planını içe aktar</b>'
+   +'<div class="text-xs text-slate-500 my-1 break-words">'+esc(YPX.fname)+(YPX.title?'<br>'+esc(YPX.title.slice(0,150)):'')+'</div>'
+   +'<div class="flex flex-wrap items-center gap-2 my-2">'+ysel('id="ypxS"',YPX.sn)+'<input id="ypxD" class="inp flex-1" placeholder="Ders adı" value="'+esc(YPX.ders)+'"></div>'
+   +'<details class="mb-2"><summary class="text-xs cursor-pointer text-slate-500">Sütun eşleştirmesi (otomatik bulundu, gerekirse değiştirin)</summary><div class="mt-2">'+sl('h','Hafta')+sl('k','Konu')+sl('u','Ünite / Tema',true)+sl('g','Kazanım (öğrenme çıktıları)',true)+'</div></details>'
+   +'<label class="flex gap-2 text-xs mb-2"><input type="checkbox" id="ypxU"'+(YPX.useU?' checked':'')+'><span>Ünite adını konunun önüne ekle</span></label>'
+   +'<div id="ypxPv" class="mb-3"></div>'
+   +'<div class="flex gap-2"><button data-act="ypxgo" class="btn bg-emerald-600 flex-1">İçe aktar</button><button data-act="ypxx" class="btn bg-slate-500 flex-1">Kapat</button></div></div>';
+  ypxPv();
+}
+async function ypxLoad(f){
+  try{
+    await xl();
+    const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]];
+    const rg=XLSX.utils.decode_range(ws['!ref']||'A1'),a=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,blankrows:true});
+    (ws['!merges']||[]).forEach(mg=>{
+      const sr=mg.s.r-rg.s.r,sc=mg.s.c-rg.s.c;if(!a[sr])return;const v=a[sr][sc];if(v===''||v==null)return;
+      for(let r=mg.s.r;r<=mg.e.r;r++)for(let c=mg.s.c;c<=mg.e.c;c++){const rr=r-rg.s.r,cc=c-rg.s.c;if(!a[rr])continue;if(a[rr][cc]===''||a[rr][cc]==null)a[rr][cc]=v;}
+    });
+    let hr=-1;for(let r=0;r<Math.min(a.length,25);r++){if(a[r].some(x=>hqN(x)==='hafta')){hr=r;break;}}
+    if(hr<0)return alert('Bu dosyada "HAFTA" başlıklı bir sütun bulamadım. MEB çerçeve yıllık plan dosyası mı?');
+    const hd=a[hr].map(x=>ypxClean(x)),find=fn=>hd.findIndex(x=>fn(hqN(x)));
+    const map={h:find(x=>x==='hafta'),k:find(x=>x.indexOf('konu')===0),u:find(x=>x.indexOf('unite')===0||x.indexOf('tema')===0),g:find(x=>x.indexOf('ogrenme ciktilari')>=0||x.indexOf('kazanim')>=0)};
+    if(map.k<0)map.k=map.u;if(map.k<0)return alert('Konu sütununu bulamadım. Dosyanın başlık satırını kontrol edin.');
+    let title='';for(let r=0;r<Math.min(a.length,6)&&!title;r++){const c=a[r].map(ypxClean).find(x=>hqN(x).indexOf('yillik plan')>=0);if(c)title=c;}
+    const ym=/(20\d\d)\s*-\s*(20\d\d)/.exec(title),cm=/(\d+)\s*\.?\s*SINIF\s+(.+?)\s+DERS/i.exec(title);
+    const cap=s=>s.toLocaleLowerCase('tr').split(' ').map(w=>w.charAt(0).toLocaleUpperCase('tr')+w.slice(1)).join(' ');
+    YPX={a:a,hr:hr,hd:hd,map:map,y1:ym?+ym[1]:0,title:title,fname:f.name,useU:true,sn:(cm&&classes().includes(cm[1]))?cm[1]:YP.sinif,ders:cm?cap(cm[2]):''};
+    if(!YPX.y1)alert('Eğitim yılı başlıktan okunamadı. Hafta tarihleri için 1. hafta başlangıcını girmeniz istenecek.');
+    ypxDraw();ypxm.classList.remove('hidden');ypxm.classList.add('flex');
+  }catch(e){alert('Dosya okunamadı: '+e.message);}
+}
+ypxIn.addEventListener('change',()=>{const f=ypxIn.files[0];ypxIn.value='';if(f)ypxLoad(f);});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.ypx){YPX.map[t.dataset.ypx]=+t.value;ypxPv();}
+  else if(t.id==='ypxU'){YPX.useU=t.checked;ypxPv();}
+  else if(t.id==='ypxS')YPX.sn=t.value;
+});
+Object.assign(ACT,{
+  ypxl(){ypxIn.click();},
+  ypxx(){ypxm.classList.add('hidden');ypxm.classList.remove('flex');},
+  ypxgo(){
+    const rs=ypxRows(),sn=$('ypxS').value,ders=T($('ypxD').value);
+    if(!rs.length)return alert('İçe aktarılacak hafta bulunamadı. Sütun eşleştirmesini kontrol edin.');
+    if(rs.some(x=>!x.tarih)){const b=($('ypxB')||{}).value;if(!b)return alert('Bazı haftaların tarihi okunamadı. 1. haftanın başlangıcını (Pazartesi) seçin.');lss('yp_bas',b);rs.forEach(x=>{if(!x.tarih)x.tarih=ypAdd(b,(x.hafta-1)*7);});}
+    const same=y=>y.t!=='e'&&y.sinif===sn&&String(y.ders||'')===ders,ex=S.yplan.filter(same).length;
+    const rep=ex>0&&confirm('Bu sınıf ve ders için '+ex+' plan satırı zaten var.\n\nTamam: mevcutları silip MEB planını ekle\nİptal: mevcutları silmeden yanına ekle');
+    ACT.ypxx();
+    del(()=>{if(rep)S.yplan=S.yplan.filter(y=>!same(y));rs.forEach(x=>S.yplan.push({hafta:x.hafta,tarih:x.tarih,sinif:sn,ders:ders,konu:x.konu,kaz:x.kaz}));},rs.length+' hafta eklendi');
+  }
+});
+
 /* Başlangıç: profil ve oda */
 if(!new URLSearchParams(location.search).get('k')){
   if(!PS.list.length)pfShow('edit','');
@@ -2108,7 +2195,7 @@ reg('yplan','📆','Yıllık Plan',()=>{
   const addH='<details class="card"><summary class="font-bold cursor-pointer">➕ Plan ekle (tek satır ya da toplu yapıştır)</summary><p class="text-xs text-slate-500 my-2">Her satıra bir hafta yazın: <b>hafta ; konu ; kazanım</b>. Excel ya da Word tablosundan kopyaladığınız satırları da yapıştırabilirsiniz (sütunlar sekmeyle ayrılır). Hafta numarası yazmazsanız sıradaki haftaya eklenir. Hafta tarihleri, 1. haftanın başlangıcından hesaplanır.</p><div class="flex flex-wrap items-center gap-2 mb-2">'+ysel('id="ypS"',YP.sinif)+'<input id="ypD" class="inp" placeholder="Ders (isteğe bağlı)" list="ypDL"><label class="text-xs">1. hafta başlangıcı (Pazartesi) <input type="date" id="ypB" class="inp" value="'+esc(lsg('yp_bas')||'')+'"></label></div><datalist id="ypDL">'+[...new Set(S.lessons.map(l=>l.name))].map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist><textarea id="ypT" rows="5" class="inp w-full" placeholder="1 ; Konu adı ; Kazanım"></textarea><button data-act="ypadd" class="btn bg-indigo-600 w-full mt-2">Planı ekle</button></details>';
   return '<div class="card flex flex-wrap items-center gap-2">'+ysel('data-yf="sinif"',YP.sinif)+'<button data-act="ypfv" class="btn '+(YP.fav?'bg-amber-500':'bg-slate-500')+'">⭐ Favoriler</button></div>'
    +'<div class="card !border-indigo-400"><b>📍 Bu hafta</b>'+(now.length?now.map(x=>'<div class="mt-1"><b>'+(x.hafta||'?')+'. hafta</b> · '+(x.sinif==='ALL'?'':esc(x.sinif)+'. sınıf · ')+esc(x.konu)+'</div>').join(''):'<div class="text-sm text-slate-500 mt-1">Bu haftaya ait plan satırı yok. Tarihleri ve 1. hafta başlangıcını kontrol edin.</div>')+'</div>'
-   +evH+addH+(rows.length?rows.map(ypCard).join(''):'<div class="card text-center text-sm text-slate-400">'+(YP.fav?'Favori plan satırı yok.':'Henüz plan eklenmedi.')+'</div>');
+   +evH+'<div class="card"><button data-act="ypxl" class="btn bg-emerald-600 w-full">📥 MEB çerçeve yıllık planını yükle (.xlsx)</button><div class="text-xs text-slate-500 mt-1">dogm.meb.gov.tr → Çerçeve Yıllık Planlar sayfasından indirdiğiniz Excel dosyasını seçin. Hafta, konu ve kazanımlar tarihleriyle birlikte eklenir.</div></div>'+addH+(rows.length?rows.map(ypCard).join(''):'<div class="card text-center text-sm text-slate-400">'+(YP.fav?'Favori plan satırı yok.':'Henüz plan eklenmedi.')+'</div>');
 },()=>{const e=$('ypNow');if(e&&YP.sc){YP.sc=false;setTimeout(()=>e.scrollIntoView({block:'center'}),60);}});
 $('view').addEventListener('change',e=>{
   const d=e.target.dataset;
