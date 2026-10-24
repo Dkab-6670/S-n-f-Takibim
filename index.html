@@ -235,7 +235,7 @@ reg('home','🏠','Ana Sayfa',()=>{
   const sm=[A.length+' öğrenci',classes().length+' sınıf'].concat(featOn('ders')?[S.lessons.length+' ders']:[],featOn('ezber')?[S.ezberItems.length+' ezber konusu']:[]).join(' · ');
   return hqCard()+todayCard()
    +(A.length?classChips(A):'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
-   +quick+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
+   +quick+ypHomeCard()+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
 },null,'Ana Sayfa');
 
 /* ========== 6. SAYFA: ÖĞRENCİLER ========== */
@@ -925,7 +925,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d8',NEWS=[['📥','Ders programını dosyadan yükleme','Bugün sayfasındaki ders programı bölümünden .json dosyası seçin ya da metin yapıştırın; tüm haftalık program tek seferde eklenir.'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d10',NEWS=[['📆','Ana sayfada haftalık plan kartları','Seçili sınıfın yıllık planı hızlı kısayolların altında, bu haftanın kartıyla açılır. Bir sınıfta iki ders varsa yan yana sekmelerle geçersiniz; sağa-sola kaydırarak ya da ◀ ▶ ile önceki ve sonraki haftalara bakarsınız.'],['📥','Ders programını dosyadan yükleme','Bugün sayfasındaki ders programı bölümünden .json dosyası seçin ya da metin yapıştırın; tüm haftalık program tek seferde eklenir.'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1984,6 +1984,68 @@ Object.assign(ACT,{
     const rows=PRI.rows.slice(),rep=PRI.rep&&S.prog.length>0;ACT.prx();
     del(()=>{if(rep)S.prog=[];rows.forEach(r=>S.prog.push({id:uid('PR_'),gun:r.gun,bas:r.bas,bit:r.bit,sinif:r.sinif,sube:r.sube,ders:r.ders}));},rows.length+' ders saati eklendi');
   }
+});
+
+/* ===== Ana sayfa: haftalık yıllık plan kartları (kaydırmalı) ===== */
+let HYS={k:'',i:0,cur:0,n:0,day:''};
+function ypGroups(){const m={};S.yplan.filter(y=>y.t!=='e'&&y.tarih&&y.konu).forEach(y=>{const k=(y.sinif||'ALL')+'|'+(y.ders||'');(m[k]=m[k]||[]).push(y);});Object.keys(m).forEach(k=>m[k].sort((a,b)=>a.tarih.localeCompare(b.tarih)||(+a.hafta||0)-(+b.hafta||0)));return m;}
+function ypGL(k){const p=k.split('|');return(p[0]==='ALL'?'Tüm sınıflar':p[0]+'. sınıf')+(p[1]?' · '+p[1]:'');}
+function ypItems(rows){
+  const out=[];
+  rows.forEach((y,i)=>{
+    if(i){const dd=Math.round((new Date(y.tarih+'T12:00:00')-new Date(rows[i-1].tarih+'T12:00:00'))/864e5);if(dd>7)out.push({t:'g',from:ypAdd(rows[i-1].tarih,7),to:ypAdd(y.tarih,-3)});}
+    out.push({t:'w',y:y,from:y.tarih,to:ypAdd(y.tarih,4)});
+  });
+  return out;
+}
+const ypEnd=it=>it.t==='g'?ypAdd(it.to,3):ypAdd(it.from,7);
+function ypCur(items,ref){let c=items.findIndex(it=>it.from<=ref&&ref<ypEnd(it));if(c<0){c=items.findIndex(it=>it.from>ref);if(c<0)c=items.length-1;}return c;}
+function ypRef(){const d=new Date().getDay(),t=bdNow();return d===6?ypAdd(t,2):d===0?ypAdd(t,1):t;}
+function ypAuto(g,sk){
+  const keys=Object.keys(g).sort();if(!keys.length)return '';
+  const st=lsg(sk||'yp_home_g');if(st&&g[st])return st;
+  try{const l=bgToday(),m=bgMin(),x=l.find(z=>bgT(z.bas)<=m&&m<bgT(z.bit))||l.find(z=>bgT(z.bas)>m)||l[l.length-1];
+    if(x){const k=keys.find(k=>{const p=k.split('|'),d=(p[1]||'').toLowerCase(),xd=String(x.ders||'').toLowerCase();return(p[0]==='ALL'||p[0]===String(x.sinif))&&(!d||!xd||xd.includes(d)||d.includes(xd));});if(k)return k;}}catch(e){}
+  return keys[0];
+}
+function ypItemH(it,i,cur,today){
+  const live=it.from<=today&&today<ypEnd(it),bd=live?'<span class="ml-auto px-2 py-0.5 rounded-full bg-indigo-600 text-white">Bu hafta</span>':(i===cur?'<span class="ml-auto px-2 py-0.5 rounded-full bg-slate-600 text-white">Sıradaki hafta</span>':'');
+  const st='flex:0 0 88%;scroll-snap-align:center;'+(i===cur?'border:2px solid #4f46e5;':'');
+  if(it.t==='g')return '<div class="card !mb-0" style="'+st+'"><div class="flex items-center gap-2 text-xs"><b>🏖️ Plan dışı hafta</b><span class="text-slate-500">'+fdt(it.from)+' – '+fdt(it.to)+'</span>'+bd+'</div><div class="text-sm mt-2 text-slate-500">Bu tarihlerde yıllık planda hafta yok (tatil ya da okul temelli çalışma olabilir).</div></div>';
+  const y=it.y,p=String(y.konu).split(' · '),un=p.length>1?p.shift():'',kn=p.join(' · ');
+  return '<div class="card !mb-0" style="'+st+'"><div class="flex items-center gap-2 text-xs"><b>'+(y.hafta?esc(y.hafta)+'. Hafta':'Hafta')+'</b><span class="text-slate-500">'+fdt(it.from)+' – '+fdt(it.to)+'</span>'+bd+'</div>'
+   +(un?'<div class="text-[11px] uppercase tracking-wide text-indigo-600 mt-2">'+esc(un)+'</div>':'')
+   +'<div class="font-bold text-base '+(un?'mt-1':'mt-2')+'">'+esc(kn)+'</div>'
+   +(y.kaz?'<div class="text-xs font-semibold text-slate-500 mt-2">Kazanım</div><div class="text-sm">'+esc(y.kaz)+'</div>':'<div class="text-xs text-slate-400 mt-2">Kazanım girilmemiş.</div>')+'</div>';
+}
+function ypHomeCard(){
+  if(!pageOn('yplan'))return '';
+  const all=ypGroups(),ak=Object.keys(all);if(!ak.length)return '';
+  const sn=String(G.sinif),one=sn&&sn!=='ALL';
+  const keys=ak.filter(k=>!one||k.split('|')[0]===sn||k.split('|')[0]==='ALL').sort();
+  if(!keys.length)return '<div class="card"><b>📆 Yıllık plan</b><div class="text-sm text-slate-500 mt-1">'+esc(sn)+'. sınıf için yıllık plan eklenmemiş.</div><button data-go="yplan" class="btn bg-indigo-600 mt-2">Plan ekle</button></div>';
+  const g={};keys.forEach(k=>{g[k]=all[k];});
+  const sk='yp_home_g'+(one?'_'+sn:''),k=ypAuto(g,sk),items=ypItems(g[k]),cur=ypCur(items,ypRef()),today=bdNow();
+  if(HYS.k!==k||HYS.day!==today)HYS={k:k,i:cur,cur:cur,n:items.length,day:today};else{HYS.cur=cur;HYS.n=items.length;if(HYS.i>=items.length)HYS.i=cur;}
+  setTimeout(ypHomeSync,0);
+  const ab='px-1.5 py-8 rounded-lg bg-slate-200 dark:bg-slate-700 text-sm shrink-0';
+  const tab=x=>{const p=x.split('|'),lab=one?(p[1]||'Tüm dersler'):ypGL(x);return '<button data-act="ypg" data-k="'+esc(x)+'" data-sk="'+sk+'" class="px-3 py-1.5 rounded-lg border text-xs font-semibold '+(x===k?'bg-indigo-600 text-white border-indigo-600':'border-slate-300 dark:border-slate-600')+'" style="flex:1 0 auto">'+esc(lab)+'</button>';};
+  return '<div class="card"><div class="flex items-center gap-2 mb-2"><b>📆 Yıllık plan'+(one?' · '+esc(sn)+'. sınıf':'')+'</b><button data-act="ypcur" class="ml-auto text-xs text-indigo-600 font-semibold">Bu haftaya dön</button></div>'
+   +(keys.length>1?'<div class="flex gap-1.5 overflow-x-auto pb-2 mb-1">'+keys.map(tab).join('')+'</div>':'<div class="text-xs text-slate-500 mb-2">'+esc(ypGL(k))+'</div>')
+   +'<div class="flex items-center gap-1"><button data-act="ypp" class="'+ab+'" aria-label="Önceki hafta">◀</button><div id="ypc" style="display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;flex:1;min-width:0;align-items:flex-start">'+items.map((it,i)=>ypItemH(it,i,cur,today)).join('')+'</div><button data-act="ypn" class="'+ab+'" aria-label="Sonraki hafta">▶</button></div>'
+   +'<div id="ypi" class="text-xs text-slate-500 text-center mt-1">'+(HYS.i+1)+' / '+items.length+'</div></div>';
+}
+function ypScrollTo(i,sm){const el=$('ypc');if(!el||!el.children[i])return;const c=el.children[i],er=el.getBoundingClientRect(),cr=c.getBoundingClientRect();el.scrollTo({left:el.scrollLeft+(cr.left-er.left)-(er.width-cr.width)/2,behavior:sm?'smooth':'auto'});}
+function ypHomeSync(){
+  const el=$('ypc');if(!el)return;ypScrollTo(HYS.i,false);let t;
+  el.onscroll=()=>{clearTimeout(t);t=setTimeout(()=>{const er=el.getBoundingClientRect(),mid=er.left+er.width/2;let b=0,bd=1e9;[].forEach.call(el.children,(c,i)=>{const r=c.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-mid);if(d<bd){bd=d;b=i;}});HYS.i=b;const e=$('ypi');if(e)e.textContent=(b+1)+' / '+el.children.length;},80);};
+}
+function ypMove(i){HYS.i=Math.max(0,Math.min(HYS.n-1,i));ypScrollTo(HYS.i,true);const e=$('ypi');if(e)e.textContent=(HYS.i+1)+' / '+HYS.n;}
+Object.assign(ACT,{
+  ypg(a){lss(a.dataset.sk||'yp_home_g',a.dataset.k);HYS.k='';render(true);},
+  ypp(){ypMove(HYS.i-1);},
+  ypn(){ypMove(HYS.i+1);},
+  ypcur(){ypMove(HYS.cur);}
 });
 
 /* Başlangıç: profil ve oda */
