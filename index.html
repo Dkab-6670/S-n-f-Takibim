@@ -541,7 +541,7 @@ Object.assign(ACT,{
   return h0();};}
 /* İstatistikler */
 const sbox=(t,n,body,c)=>'<div class="card mb-0"><div class="font-bold mb-2">'+t+' <span class="text-xs text-white rounded-full px-2 py-0.5 '+c+'">'+n+'</span></div><div class="flex flex-wrap gap-1.5 overflow-y-auto" style="max-height:15rem">'+(body||'<span class="text-xs text-slate-400 italic">Kayıt yok.</span>')+'</div></div>';
-const ST_DEF=['ab','hwy','rb','ez','p','pm','bp','bk','sl','ab2','hz','cz'];
+const ST_DEF=['rb','hz','cz','p','ab2','ez','bp','hwy','pm','bk','sl','ab'];
 function stOrd(){let o=[];try{o=JSON.parse(lsg('stat_ord')||'[]');}catch(e){}if(!Array.isArray(o))o=[];o=o.filter((k,i)=>ST_DEF.includes(k)&&o.indexOf(k)===i);return o.concat(ST_DEF.filter(k=>!o.includes(k)));}
 const ST_T={ab:'🚫 Sürekli Devamsız',hwy:'🔔 Son 3 Ödevi Yapmayanlar',rb:'🧭 Rehberlik',ez:'🏆 Ezber',p:'➕ Artı Puan',pm:'➖ Eksi Puan',bp:'🌟 Davranış Puanı',bk:'📕 Kitabı Olmayanlar',sl:'😴 Derste Uyuyanlar',ab2:'💧 Abdestli Gün',hz:'👳 Hafızlar',cz:'📜 Cüzdekiler'};
 function stHid(){try{const o=JSON.parse(lsg('stat_hid')||'[]');return Array.isArray(o)?o.filter(k=>ST_DEF.includes(k)):[];}catch(e){return [];}}
