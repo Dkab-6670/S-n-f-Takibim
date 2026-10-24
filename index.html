@@ -33,6 +33,8 @@
 </style>
 <style>#akWrap:fullscreen{display:flex;flex-direction:column;background:#0b1d33}#akWrap:fullscreen canvas{flex:1;height:auto!important;min-height:0}#akWrap:-webkit-full-screen{display:flex;flex-direction:column;background:#0b1d33}#akWrap:-webkit-full-screen canvas{flex:1;height:auto!important;min-height:0}</style>
 <style>body.kiosk>header,body.kiosk #tn,body.kiosk #bn,body.kiosk #ptitle,body.kiosk #up,body.kiosk #undo{display:none!important}body.kiosk{padding-bottom:0!important}body.kiosk main{max-width:none}</style>
+<style>.pc0{background:#e0f2fe}.pc1{background:#dcfce7}.pc2{background:#fef3c7}.pc3{background:#fce7f3}.pc4{background:#ede9fe}.pc5{background:#ccfbf1}
+.dark .pc0{background:rgba(14,165,233,.22)}.dark .pc1{background:rgba(34,197,94,.2)}.dark .pc2{background:rgba(245,158,11,.2)}.dark .pc3{background:rgba(236,72,153,.2)}.dark .pc4{background:rgba(139,92,246,.24)}.dark .pc5{background:rgba(20,184,166,.22)}</style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
 <header class="bg-indigo-700 text-white shadow">
@@ -235,7 +237,7 @@ reg('home','🏠','Ana Sayfa',()=>{
   const sm=[A.length+' öğrenci',classes().length+' sınıf'].concat(featOn('ders')?[S.lessons.length+' ders']:[],featOn('ezber')?[S.ezberItems.length+' ezber konusu']:[]).join(' · ');
   return hqCard()+todayCard()
    +(A.length?classChips(A):'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
-   +quick+prHomeCard()+ypHomeCard()+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
+   +quick+prHomeCard()+ypHomeCard()+(pageOn('yplan')?exCard():'')+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
 },null,'Ana Sayfa');
 
 /* ========== 6. SAYFA: ÖĞRENCİLER ========== */
@@ -2008,14 +2010,46 @@ function ypAuto(g,sk){
     if(x){const k=keys.find(k=>{const p=k.split('|'),d=(p[1]||'').toLowerCase(),xd=String(x.ders||'').toLowerCase();return(p[0]==='ALL'||p[0]===String(x.sinif))&&(!d||!xd||xd.includes(d)||d.includes(xd));});if(k)return k;}}catch(e){}
   return keys[0];
 }
+/* ===== Sınav tarihleri: S.yplan içinde {t:'e',sinav:1,tarih,sinif,ders,ad,konu} olarak tutulur; yıllık plan kartlarında ilgili haftada görünür ===== */
+const exNz=t=>hqN(t).replace(/\s/g,'');
+const exDm=(a,b)=>{const x=exNz(a),y=exNz(b);return !x||!y||x.includes(y)||y.includes(x);};
+const exAll=()=>S.yplan.filter(y=>y.t==='e'&&y.sinav&&y.tarih);
+function ypExFor(it,gk){
+  const g=String(gk||'').split('|'),gs=g[0]||'ALL',gd=g[1]||'';
+  return exAll().filter(e=>e.tarih>=it.from&&e.tarih<ypEnd(it)&&(e.sinif==='ALL'||gs==='ALL'||String(e.sinif)===gs)&&exDm(e.ders,gd)).sort((a,b)=>a.tarih.localeCompare(b.tarih));
+}
+const exDay=d=>GUNL[new Date(d+'T12:00:00').getDay()];
+function ypExH(l){return l.length?'<div class="mb-2 space-y-1">'+l.map(e=>'<div class="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 text-sm font-semibold">📝 '+(e.ders?esc(e.ders)+' · ':'')+esc(e.ad||'Sınav')+' · '+fdt(e.tarih)+' '+exDay(e.tarih)+'</div>').join('')+'</div>':'';}
+function exWeek(e){
+  const y=S.yplan.find(r=>r.t!=='e'&&r.tarih&&r.tarih<=e.tarih&&e.tarih<ypAdd(r.tarih,7)&&(r.sinif==='ALL'||e.sinif==='ALL'||String(r.sinif)===String(e.sinif))&&exDm(r.ders,e.ders));
+  return y?(y.hafta?y.hafta+'. hafta':'planda'):'';
+}
+function exCard(){
+  const td=bdNow(),l=exAll().sort((a,b)=>a.tarih.localeCompare(b.tarih));
+  const names=[...new Set(S.lessons.map(x=>x.name).concat((S.prog||[]).map(x=>x.ders),S.yplan.filter(y=>y.t!=='e'&&y.ders).map(y=>y.ders)).filter(Boolean))];
+  const rows=l.map(e=>{const w=exWeek(e),past=e.tarih<td,n=Math.round((new Date(e.tarih+'T12:00:00')-new Date(td+'T12:00:00'))/864e5);
+    return '<div class="flex items-center gap-2 text-sm py-1.5 border-b border-slate-200 dark:border-slate-700'+(past?' opacity-50':'')+'"><div class="flex-1 min-w-0"><b>'+fdt(e.tarih)+'</b> '+exDay(e.tarih)+' · '+(e.sinif==='ALL'?'Tüm sınıflar':esc(e.sinif)+'. sınıf')+(e.ders?' · '+esc(e.ders):'')+' · '+esc(e.ad||'Sınav')+'<div class="text-[11px] '+(w?'text-slate-500':'text-amber-700')+'">'+(w?(w==='planda'?'Yıllık planda bir haftaya denk geliyor':'Yıllık planda: '+esc(w)):'Yıllık planda bu tarihe denk gelen hafta yok')+(past?'':' · '+(n?n+' gün kaldı':'bugün'))+'</div></div><button data-act="ypevx" data-id="'+esc(e.id)+'" class="px-1" aria-label="Sil">✖</button></div>';}).join('');
+  const up=l.filter(e=>e.tarih>=td).length;
+  return '<details class="card" data-keep="exOpen"'+(S.exOpen?' open':'')+'><summary class="cursor-pointer font-bold">📝 Sınav tarihleri'+(up?' <span class="ml-1 text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 rounded-full px-2 py-0.5">'+up+' yaklaşan</span>':'')+'</summary><p class="text-xs text-slate-500 my-1">Girdiğiniz tarih, yıllık plan kartlarında ve etkinlik takviminde ilgili haftada görünür. Ders adı boş bırakılırsa o sınıfın tüm derslerine uygulanır.</p>'
+   +'<div class="flex flex-wrap items-center gap-2 mt-2">'+ysel('id="exS"',G.sinif)+'<input id="exD" class="inp flex-1 min-w-[140px]" placeholder="Ders" list="exDL"><input id="exN" class="inp flex-1 min-w-[140px]" placeholder="Sınav adı (örn. 1. Yazılı)"><input type="date" id="exT" class="inp"><button data-act="exadd" class="btn bg-rose-600">Ekle</button></div>'
+   +'<datalist id="exDL">'+names.map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist>'
+   +(rows?'<div class="mt-2">'+rows+'</div>':'<div class="text-xs text-slate-400 mt-2">Henüz sınav tarihi girilmedi.</div>')+'</details>';
+}
+ACT.exadd=()=>{
+  const sn=$('exS').value,d=T($('exD').value),n=T($('exN').value),t=$('exT').value;
+  if(!t)return alert('Sınav tarihini seçin.');if(!d&&!n)return alert('Ders adını ya da sınav adını yazın.');
+  S.yplan.push({t:'e',sinav:1,tarih:t,sinif:sn,ders:d,ad:n,konu:'📝 '+(d?d+' · ':'')+(n||'Sınav')});
+  save();render(true);toast('Sınav tarihi eklendi');
+};
 function ypRng(a,b){const x=new Date(a+'T12:00:00'),y=new Date(b+'T12:00:00');return x.getMonth()===y.getMonth()?x.getDate()+'/'+y.getDate()+' '+AYN[x.getMonth()]:x.getDate()+' '+AYN[x.getMonth()]+' / '+y.getDate()+' '+AYN[y.getMonth()];}
-function ypItemH(it,i,cur,today){
+function ypItemH(it,i,cur,today,gk){
   const live=it.from<=today&&today<ypEnd(it),bd=live?'<span class="px-2 py-0.5 rounded-full bg-white/25 text-white text-xs font-semibold sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2">Bu hafta</span>':(i===cur?'<span class="px-2 py-0.5 rounded-full bg-white/25 text-white text-xs font-semibold sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2">Sıradaki hafta</span>':'');
   const st='flex:0 0 88%;scroll-snap-align:center;overflow:hidden;'+(i===cur?'border:2px solid #0e6b78;':'');
+  const ex=ypExH(ypExFor(it,gk));
   const hd=(t,c)=>'<div class="relative -mx-4 -mt-4 mb-3 px-4 py-3 text-white font-semibold text-base flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-center" style="background:'+c+'"><span>'+t+'</span>'+bd+'</div>';
-  if(it.t==='g')return '<div class="card !mb-0 !bg-slate-50 dark:!bg-slate-800" style="'+st+'">'+hd('Plan dışı hafta - '+ypRng(it.from,it.to),'#64748b')+'<div class="text-sm text-slate-500">Bu tarihlerde yıllık planda hafta yok (tatil ya da okul temelli çalışma olabilir).</div></div>';
+  if(it.t==='g')return '<div class="card !mb-0 !bg-slate-50 dark:!bg-slate-800" style="'+st+'">'+hd('Plan dışı hafta - '+ypRng(it.from,it.to),'#64748b')+ex+'<div class="text-sm text-slate-500">Bu tarihlerde yıllık planda hafta yok (tatil ya da okul temelli çalışma olabilir).</div></div>';
   const y=it.y,p=String(y.konu).split(' · '),un=p.length>1?p.shift():'',kn=p.join(' · ');
-  return '<div class="card !mb-0 !bg-teal-50 dark:!bg-slate-800" style="'+st+'">'+hd((y.hafta?esc(y.hafta)+'. Hafta':'Hafta')+' - '+ypRng(it.from,it.to),'#0e6b78')
+  return '<div class="card !mb-0 !bg-teal-50 dark:!bg-slate-800" style="'+st+'">'+hd((y.hafta?esc(y.hafta)+'. Hafta':'Hafta')+' - '+ypRng(it.from,it.to),'#0e6b78')+ex
    +(un?'<div class="text-[11px] uppercase tracking-wide text-teal-700 dark:text-teal-300">'+esc(un)+'</div>':'')
    +'<div class="font-bold text-base '+(un?'mt-1':'')+'">'+esc(kn)+'</div>'
    +(y.kaz?'<div class="text-xs font-semibold text-slate-500 mt-2">Kazanım</div><div class="text-sm">'+esc(y.kaz)+'</div>':'<div class="text-xs text-slate-400 mt-2">Kazanım girilmemiş.</div>')+'</div>';
@@ -2034,7 +2068,7 @@ function ypHomeCard(){
   const tab=x=>{const p=x.split('|'),lab=one?(p[1]||'Tüm dersler'):ypGL(x);return '<button data-act="ypg" data-k="'+esc(x)+'" data-sk="'+sk+'" class="px-3 py-1.5 rounded-lg border text-xs font-semibold '+(x===k?'bg-indigo-600 text-white border-indigo-600':'border-slate-300 dark:border-slate-600')+'" style="flex:1 0 auto">'+esc(lab)+'</button>';};
   return '<div class="card"><div class="flex items-center gap-2 mb-2"><b>📆 Yıllık plan'+(one?' · '+esc(sn)+'. sınıf':'')+'</b><button data-act="ypcur" class="ml-auto text-xs text-indigo-600 font-semibold">Bu haftaya dön</button></div>'
    +(keys.length>1?'<div class="flex gap-1.5 overflow-x-auto pb-2 mb-1">'+keys.map(tab).join('')+'</div>':'<div class="text-xs text-slate-500 mb-2">'+esc(ypGL(k))+'</div>')
-   +'<div class="flex items-center gap-1"><button data-act="ypp" class="'+ab+'" aria-label="Önceki hafta">◀</button><div id="ypc" style="display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;flex:1;min-width:0;align-items:flex-start">'+items.map((it,i)=>ypItemH(it,i,cur,today)).join('')+'</div><button data-act="ypn" class="'+ab+'" aria-label="Sonraki hafta">▶</button></div>'
+   +'<div class="flex items-center gap-1"><button data-act="ypp" class="'+ab+'" aria-label="Önceki hafta">◀</button><div id="ypc" style="display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;flex:1;min-width:0;align-items:flex-start">'+items.map((it,i)=>ypItemH(it,i,cur,today,k)).join('')+'</div><button data-act="ypn" class="'+ab+'" aria-label="Sonraki hafta">▶</button></div>'
    +'<div id="ypi" class="text-xs text-slate-500 text-center mt-1">'+(HYS.i+1)+' / '+items.length+'</div></div>';
 }
 function ypScrollTo(i,sm){const el=$('ypc');if(!el||!el.children[i])return;const c=el.children[i],er=el.getBoundingClientRect(),cr=c.getBoundingClientRect();el.scrollTo({left:el.scrollLeft+(cr.left-er.left)-(er.width-cr.width)/2,behavior:sm?'smooth':'auto'});}
@@ -2069,14 +2103,14 @@ function prTable(){
   const nowD=new Date().getDay(),m=bgMin(),nb=nowD===5?z.f:z.w;
   const cp=(nowD>=1&&nowD<=6)?nb.findIndex(v=>bgT(v[0])<=m&&m<bgT(v[1])):-1;
   const bd='border border-slate-200 dark:border-slate-700';
-  let h='<div class="overflow-x-auto"><table class="w-full text-center" style="table-layout:fixed;border-collapse:collapse;min-width:300px"><thead><tr><th class="'+bd+' p-1 text-[10px] text-slate-500" style="width:15%">Ders</th>'
-   +days.map(d=>'<th class="'+bd+' p-1 text-xs '+(d===nowD?'bg-indigo-600 text-white':'bg-slate-100 dark:bg-slate-700')+'">'+DL[d]+'</th>').join('')+'</tr></thead><tbody>';
+  let h='<div class="overflow-x-auto"><table class="w-full text-center" style="table-layout:fixed;border-collapse:collapse;min-width:300px"><thead><tr><th class="'+bd+' p-1 text-[10px] text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-slate-800" style="width:15%">Ders</th>'
+   +days.map(d=>'<th class="'+bd+' p-1 text-xs '+(d===nowD?'bg-indigo-600 text-white':'bg-[#0e6b78] text-white')+'">'+DL[d]+'</th>').join('')+'</tr></thead><tbody>';
   for(let p=0;p<n;p++){
     const cur=p===cp,bl=(nowD===5?z.f:z.w)[p]||z.w[p]||z.f[p];
-    h+='<tr><td class="'+bd+' p-1 '+(cur?'bg-indigo-100 dark:bg-indigo-900/50 font-bold':'bg-slate-50 dark:bg-slate-800')+'"><div class="text-sm font-bold leading-none">'+(p+1)+'</div><div class="text-[9px] text-slate-500 leading-tight">'+esc(z.w[p]?z.w[p][0]:bl[0])+'</div></td>';
+    h+='<tr><td class="'+bd+' p-1 '+(cur?'bg-indigo-100 dark:bg-indigo-900/50 font-bold':'bg-teal-50 dark:bg-slate-800')+'"><div class="text-sm font-bold leading-none '+(cur?'':'text-teal-700 dark:text-teal-300')+'">'+(p+1)+'</div><div class="text-[9px] text-slate-500 leading-tight">'+esc(z.w[p]?z.w[p][0]:bl[0])+'</div></td>';
     days.forEach(d=>{
       const l=g[d+'|'+p]||[],today=d===nowD,act=today&&cur;
-      const cls=act?(l.length?'bg-indigo-600 text-white':'bg-amber-100 dark:bg-amber-900/40'):(today?'bg-indigo-50 dark:bg-slate-700/60':'');
+      const cls=act?(l.length?'bg-indigo-600 text-white':'bg-amber-100 dark:bg-amber-900/40'):(l.length?'pc'+((parseInt(l[0].sinif)||0)%6):(today?'bg-indigo-50 dark:bg-slate-700/60':''));
       const tx=l.length?l.map(x=>'<div class="text-[11px] leading-tight" title="'+esc(x.ders)+'"><b>'+esc(x.sinif)+(x.sube&&x.sube!=='ALL'?'/'+esc(String(x.sube).toUpperCase()):'')+'</b><br>'+esc(prAb(x.ders))+((z.w[p]&&x.bas!==z.w[p][0])?'<div class="text-[9px] opacity-70">'+esc(x.bas)+'</div>':'')+'</div>').join(''):(act?'<span class="text-[10px] text-amber-700 dark:text-amber-300">boş</span>':'');
       h+='<td class="'+bd+' p-1 '+cls+'" style="height:46px">'+tx+'</td>';
     });
@@ -2104,7 +2138,7 @@ function pdDayCard(d,D,z,m){
   const body=bl.length?bl.map(b=>{
     const p1=prPer(b.e[0],z),p2=prPer(b.e[b.e.length-1],z),lab=p1<0?'':(p1+1)+(p2!==p1&&p2>=0?'.–'+(p2+1):'')+'. ders';
     const ce=today?b.e.find(x=>bgT(x.bas)<=m&&m<bgT(x.bit)):null;
-    return '<div class="mt-2 p-2 rounded-lg '+(ce?'bg-indigo-600 text-white':'bg-slate-50 dark:bg-slate-700/50')+'"><div class="flex flex-wrap items-center gap-x-2 gap-y-1">'+(lab?'<span class="px-2 py-0.5 rounded-full text-xs font-bold '+(ce?'bg-white/25 text-white':'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200')+'">'+lab+'</span>':'')+'<span class="px-2 py-0.5 rounded-full text-xs font-semibold '+(ce?'bg-white/25 text-white':'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200')+'">'+esc(b.bas)+'–'+esc(b.bit)+'</span>'+(ce?'<span class="ml-auto text-xs font-semibold">▶ '+(bgT(ce.bit)-m)+' dk kaldı</span>':'')+'</div><div class="font-semibold">'+bgLab(b)+'</div>'
+    return '<div class="mt-2 p-2 rounded-lg '+(ce?'bg-indigo-600 text-white':'bg-slate-50 dark:bg-slate-700/50')+'"><div class="flex flex-wrap items-center gap-x-2 gap-y-1">'+(lab?'<span class="px-2 py-0.5 rounded-full text-xs font-bold '+(ce?'bg-white/25 text-white':'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200')+'">'+lab+'</span>':'')+'<span class="px-2 py-0.5 rounded-full text-xs font-semibold '+(ce?'bg-white/25 text-white':'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200')+'">'+esc(b.bas)+'–'+esc(b.bit)+'</span>'+(ce?'<span class="ml-auto text-xs font-semibold">▶ '+(bgT(ce.bit)-m)+' dk kaldı</span>':'')+'</div><div class="font-semibold">'+bgLab(b)+'</div>'+exAll().filter(e=>e.tarih===date&&(e.sinif==='ALL'||String(e.sinif)===String(b.sinif))&&exDm(e.ders,b.ders)).map(e=>'<div class="mt-1.5 px-2 py-1 rounded-md text-xs font-semibold '+(ce?'bg-white/90 text-rose-700':'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200')+'">📝 '+esc(e.ad||'Sınav')+(today?' · bugün':'')+'</div>').join('')
      
      +(today&&b.e[0].id?'<button data-act="bgyok" data-id="'+esc(b.e[0].id)+'" class="btn '+(ce?'bg-white !text-indigo-700':'bg-slate-600')+' !py-1 mt-2 text-xs">Yoklama</button>':'')+'</div>';}).join(''):'<div class="text-sm text-slate-500 mt-3">Bu gün ders yok.</div>';
   return '<div class="card !mb-0" style="flex:0 0 92%;scroll-snap-align:center;overflow:hidden;'+(today?'border:2px solid #4338ca;':'')+'"><div class="relative -mx-4 -mt-4 mb-1 px-4 py-2.5 text-white font-semibold flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center" style="background:'+(today?'#4338ca':'#0e6b78')+'"><span>'+GUNL[d]+' · '+fdt(date)+'</span>'+(today?'<span class="px-2 py-0.5 rounded-full bg-white/25 text-white text-xs font-semibold sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2">Bugün</span>':(tot?'<span class="px-2 py-0.5 rounded-full bg-white/25 text-white text-xs font-semibold sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2">'+tot+' ders saati</span>':''))+'</div>'+body+'</div>';
