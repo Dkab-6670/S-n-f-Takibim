@@ -216,7 +216,7 @@ function hqRun(v){
   const KW={ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
   const res=[];
   Object.keys(P).forEach(k=>{if(k==='home'||!pageOn(k))return;const p=P[k];if(hit(p.title+' '+(KW[k]||'')))res.push(['<button data-go="'+k+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+p.icon+'</span><b class="flex-1">'+esc(p.title)+'</b><span class="text-[11px] text-slate-400">Sayfa</span></button>',hqN(p.title).startsWith(W[0])?0:1]);});
-  [['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
+  [['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükle','vlxl','veli bilgi iletisim telefon anne baba excel yukle e okul'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
   res.sort((a,b)=>a[1]-b[1]);
   const st=S.students.filter(s=>hit(s.name+' '+s.no+' '+s.sinif+' '+s.sinif+String(s.sube))).slice(0,8).map(s=>'<button data-act="card" data-id="'+esc(s.id)+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">'+(s.photo?av(s,28):'<span class="text-xl">👤</span>')+'<b class="flex-1">'+esc(s.name)+'</b><span class="text-[11px] text-slate-400">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · '+esc(s.no)+'</span></button>');
   const all=res.map(x=>x[0]).slice(0,10).concat(st);
@@ -249,7 +249,7 @@ function drawList(){
 reg('ogr','👥','Öğrenciler',()=>{
   const F=S.F,opt=(a,v)=>a.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===v?' selected':'')+'>'+esc(x[1])+'</option>').join('');
   return '<div class="card"><b class="text-sm">Öğrenci ekle</b><div class="grid grid-cols-2 md:grid-cols-5 gap-2 mt-2"><input id="ns" class="inp" placeholder="Sınıf (7)"><input id="nb" class="inp" placeholder="Şube (d)"><input id="nn" class="inp" placeholder="Okul no"><input id="na" class="inp col-span-2" placeholder="Adı soyadı"></div><button data-act="add" class="btn bg-indigo-600 mt-2">➕ Ekle</button>'
-   +'<details class="mt-3" data-keep="bOpen"'+(S.bOpen?' open':'')+'><summary class="text-xs cursor-pointer text-slate-500">Toplu ekle (S.No ⇥ Okul No ⇥ Sınıf ⇥ Şube ⇥ Ad Soyad)</summary><textarea id="nbulk" rows="5" class="inp w-full mt-2 text-xs font-mono"></textarea><button data-act="bulk" class="btn bg-slate-600 mt-2">Listeyi ekle</button></details><button data-act="pbopen" class="btn bg-indigo-600 mt-3">📷 Toplu fotoğraf ekle</button></div>'
+   +'<details class="mt-3" data-keep="bOpen"'+(S.bOpen?' open':'')+'><summary class="text-xs cursor-pointer text-slate-500">Toplu ekle (S.No ⇥ Okul No ⇥ Sınıf ⇥ Şube ⇥ Ad Soyad)</summary><textarea id="nbulk" rows="5" class="inp w-full mt-2 text-xs font-mono"></textarea><button data-act="bulk" class="btn bg-slate-600 mt-2">Listeyi ekle</button></details><button data-act="pbopen" class="btn bg-indigo-600 mt-3">📷 Toplu fotoğraf ekle</button> <button data-act="vlxl" class="btn bg-teal-600 mt-3">👨‍👩‍👧 Veli bilgilerini Excel ile yükle</button></div>'
    +'<div class="card flex flex-wrap items-center gap-2"><select id="fs" class="inp">'+opt([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),F.sinif)+'</select><select id="fb" class="inp">'+opt([['ALL','Tüm Şubeler']].concat(subes(F.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),F.sube)+'</select><input id="fq" class="inp" placeholder="Ad / No ara" value="'+esc(F.q)+'"><b id="ogrCnt" class="text-sm"></b></div><div id="ogrList"></div>';
 },drawList,'Öğrenci');
 $('view').addEventListener('change',e=>{
@@ -873,7 +873,7 @@ function cProf(s){
    +'<div class="font-bold text-sm mt-3">Davranış notları</div>'+nt+'<div class="font-bold text-sm mt-3">Rehberlik</div>'+rb;
 }
 const DEFM=[['Bugün derse gelmedi','Sayın veli, {ad} bugün derse gelmedi. Bilginize sunarım.'],['Ödevini yapmadı','Sayın veli, {ad} bugün ödevini yapmadı. Bilginize sunarım.'],['Kitabını getirmedi','Sayın veli, {ad} bugün kitabını getirmedi. Bilginize sunarım.'],['Derste uyudu','Sayın veli, {ad} bugün derste uyudu. Bilginize sunarım.'],['Ezberini tamamladı (tebrik)','Sayın veli, {ad} ezberini başarıyla tamamladı. Tebrik ederiz.'],['Bugün çok başarılıydı','Sayın veli, {ad} bugün derste çok başarılıydı. Tebrik ederiz.']];
-const cParent=s=>stage3Top(s)+'<label class="text-xs">Veli telefonu</label><input id="cmTel" type="tel" class="inp w-full mb-2" placeholder="05xx xxx xx xx" value="'+esc(s.tel||'')+'"><label class="text-xs">Doğum tarihi</label><input id="cmDob" type="date" class="inp w-full mb-2" value="'+esc(s.dob||'')+'"><div class="flex gap-2 mb-3"><button data-act="call" class="flex-1 min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">📞 Ara</button><button data-act="wa" class="flex-1 min-h-[44px] rounded-lg bg-green-600 text-white font-semibold">💬 WhatsApp</button><button data-act="shdoc" class="flex-1 min-h-[44px] rounded-lg bg-slate-600 text-white font-semibold">📎 Belgeyle paylaş</button></div><select id="cmTpl" class="inp w-full mb-2">'+msgs().map((t,i)=>'<option value="'+i+'">'+esc(t[0])+'</option>').join('')+'</select><textarea id="cmMsg" rows="3" class="inp w-full">'+esc(msgs()[0][1].split('{ad}').join(s.name))+'</textarea><div class="flex flex-wrap gap-2 mt-2"><button data-act="msave" class="px-3 py-2 rounded-lg border text-sm">💾 Güncelle</button><button data-act="mnew" class="px-3 py-2 rounded-lg border text-sm">➕ Yeni mesaj olarak kaydet</button><button data-act="mren" class="px-3 py-2 rounded-lg border text-sm">✏️ Başlık</button><button data-act="mdel" class="px-3 py-2 rounded-lg border text-sm text-red-600">🗑️ Sil</button></div><p class="text-xs text-slate-500 mt-1">Mesajı yukarıda düzenleyin. Öğrencinin adı otomatik olarak {ad} biçiminde saklanır.</p>';
+const cParent=s=>stage3Top(s)+'<label class="text-xs">Veli telefonu</label><input id="cmTel" type="tel" class="inp w-full mb-2" placeholder="05xx xxx xx xx" value="'+esc(s.tel||'')+'"><label class="text-xs">Doğum tarihi</label><input id="cmDob" type="date" class="inp w-full mb-2" value="'+esc(s.dob||'')+'">'+vlBlk(s)+'<div class="flex gap-2 mb-3"><button data-act="call" class="flex-1 min-h-[44px] rounded-lg bg-emerald-600 text-white font-semibold">📞 Ara</button><button data-act="wa" class="flex-1 min-h-[44px] rounded-lg bg-green-600 text-white font-semibold">💬 WhatsApp</button><button data-act="shdoc" class="flex-1 min-h-[44px] rounded-lg bg-slate-600 text-white font-semibold">📎 Belgeyle paylaş</button></div><select id="cmTpl" class="inp w-full mb-2">'+msgs().map((t,i)=>'<option value="'+i+'">'+esc(t[0])+'</option>').join('')+'</select><textarea id="cmMsg" rows="3" class="inp w-full">'+esc(msgs()[0][1].split('{ad}').join(s.name))+'</textarea><div class="flex flex-wrap gap-2 mt-2"><button data-act="msave" class="px-3 py-2 rounded-lg border text-sm">💾 Güncelle</button><button data-act="mnew" class="px-3 py-2 rounded-lg border text-sm">➕ Yeni mesaj olarak kaydet</button><button data-act="mren" class="px-3 py-2 rounded-lg border text-sm">✏️ Başlık</button><button data-act="mdel" class="px-3 py-2 rounded-lg border text-sm text-red-600">🗑️ Sil</button></div><p class="text-xs text-slate-500 mt-1">Mesajı yukarıda düzenleyin. Öğrencinin adı otomatik olarak {ad} biçiminde saklanır.</p>';
 function cardShow(){
   const s=cS();if(!s)return;
   $('cmN').innerHTML=(s.photo?'<button data-act="phbig" class="align-middle" aria-label="Fotoğrafı büyüt">'+av(s,40)+'</button>':'')+esc(s.name);cpos();$('cmS').textContent='No: '+s.no+' · '+s.sinif+'/'+String(s.sube).toUpperCase()+(s.absent?' · 🚫 sürekli devamsız':'');
@@ -925,7 +925,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d6',NEWS=[['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d7',NEWS=[['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1824,6 +1824,117 @@ Object.assign(ACT,{
     const rep=ex>0&&confirm('Bu sınıf ve ders için '+ex+' plan satırı zaten var.\n\nTamam: mevcutları silip MEB planını ekle\nİptal: mevcutları silmeden yanına ekle');
     ACT.ypxx();
     del(()=>{if(rep)S.yplan=S.yplan.filter(y=>!same(y));rs.forEach(x=>S.yplan.push({hafta:x.hafta,tarih:x.tarih,sinif:sn,ders:ders,konu:x.konu,kaz:x.kaz}));},rs.length+' hafta eklendi');
+  }
+});
+
+/* ===== Veli iletişim bilgileri (Excel) içe aktarma ===== */
+const vlm=document.createElement('div');vlm.className='fixed inset-0 z-[170] hidden items-center justify-center bg-black/60 p-3';document.body.appendChild(vlm);
+const vlIn=document.createElement('input');vlIn.type='file';vlIn.accept='.xls,.xlsx';vlIn.hidden=true;document.body.appendChild(vlIn);
+let VL={rows:[],codes:[],fname:'',code:'',fill:true,over:false,sens:false};
+function vlTel(v){let d=String(v==null?'':v).replace(/\D/g,'');if(!d)return ypxClean(v);if(d.length===10&&d[0]==='5')d='0'+d;return /^05\d{9}$/.test(d)?d.replace(/^(\d{4})(\d{3})(\d{2})(\d{2})$/,'$1 $2 $3 $4'):d;}
+function vlCols(a){
+  let hr=-1;for(let r=1;r<Math.min(a.length,20);r++){if(a[r].some(x=>hqN(x)==='sinif')&&a[r].some(x=>hqN(x).indexOf('adi soyadi')===0)){hr=r;break;}}
+  if(hr<0)return null;
+  const g=a[hr-1]||[],c={};
+  a[hr].forEach((x,i)=>{const sub=hqN(x),grp=hqN(g[i]);
+    if(sub==='sinif')c.cls=i;else if(sub==='no')c.no=i;else if(sub.indexOf('adi soyadi')===0)c.ad=i;
+    else if(grp==='baba'||grp==='anne'){const k=grp==='baba'?'b':'a';if(sub==='adi')c[k+'n']=i;else if(sub.indexOf('telefon')===0)c[k+'t']=i;else if(sub.indexOf('mesleg')===0)c[k+'m']=i;else if(sub.indexOf('isyeri')===0)c[k+'i']=i;}
+    else if(sub.indexOf('anne baba')===0||sub.indexOf('oksuz')>=0)c.du=i;else if(sub.indexOf('aylik gelir')===0)c.ge=i;else if(sub.indexOf('evleri')===0)c.ev=i;else if(sub==='not')c.nt=i;});
+  return(c.cls!=null&&c.ad!=null)?{hr:hr,c:c}:null;
+}
+function vlRows(a,hc){
+  const c=hc.c,out=[],gv=(r,k)=>c[k]==null?'':ypxClean(r[c[k]]);
+  for(let i=hc.hr+1;i<a.length;i++){
+    const r=a[i]||[],code=gv(r,'cls');if(!code||!/^\d+\s*[A-Za-zÇĞİÖŞÜçğıöşü]/.test(code))continue;
+    out.push({code:code.replace(/\s+/g,'').toLocaleUpperCase('tr'),no:gv(r,'no'),ad:gv(r,'ad'),
+      b:{ad:gv(r,'bn'),tel:vlTel(gv(r,'bt')),meslek:gv(r,'bm'),is:gv(r,'bi')},
+      a:{ad:gv(r,'an'),tel:vlTel(gv(r,'at')),meslek:gv(r,'am'),is:gv(r,'ai')},
+      du:gv(r,'du'),ge:gv(r,'ge'),ev:gv(r,'ev'),nt:gv(r,'nt')});
+  }
+  return out;
+}
+const vlOk=t=>/^05\d{9}$/.test(String(t||'').replace(/\s/g,''));
+const vlHas=r=>!!(r.b.ad||r.b.tel||r.a.ad||r.a.tel||r.b.meslek||r.a.meslek||r.nt);
+function vlPairs(){
+  const m=/^(\d+)\s*(\D)/.exec(VL.code)||[],rows=VL.rows.filter(r=>r.code===VL.code&&vlHas(r));
+  const pool=S.students.filter(s=>String(s.sinif).trim()===m[1]&&String(s.sube).trim().toLocaleUpperCase('tr')===m[2]);
+  const tk=x=>hqN(x).split(' ').filter(Boolean).sort().join(' '),nn=x=>String(x||'').trim().replace(/^0+(?=\d)/,'');
+  const used=new Set(),pairs=[],miss=[];
+  rows.forEach(r=>{
+    let s=pool.find(x=>!used.has(x.id)&&tk(x.name)===tk(r.ad));
+    if(!s&&r.no){const l=pool.filter(x=>!used.has(x.id)&&nn(x.no)===nn(r.no));if(l.length===1)s=l[0];}
+    if(s){used.add(s.id);pairs.push([s,r]);}else miss.push(r);
+  });
+  return{pairs:pairs,miss:miss,pool:pool.length,rows:rows.length};
+}
+function vlPv(){
+  const e=$('vlPv');if(!e)return;const p=vlPairs(),bad=p.pairs.reduce((n,x)=>n+[x[1].b.tel,x[1].a.tel].filter(t=>t&&!vlOk(t)).length,0);
+  e.innerHTML=(p.pool?'':'<div class="text-xs text-amber-700 mb-1">Uygulamada '+esc(VL.code)+' sınıfı için öğrenci yok. Önce öğrencileri ekleyin ya da başka sınıf seçin.</div>')
+   +'<div class="text-xs font-semibold">'+p.rows+' öğrencide veli bilgisi var · <span class="text-emerald-700">'+p.pairs.length+' eşleşti</span>'+(p.miss.length?' · <span class="text-red-600">'+p.miss.length+' eşleşmedi</span>':'')+'</div>'
+   +p.pairs.slice(0,4).map(x=>'<div class="text-xs border-b border-slate-200 dark:border-slate-700 py-1"><b>'+esc(x[0].name)+'</b> · '+esc(x[1].b.ad||'—')+' / '+esc(x[1].a.ad||'—')+'</div>').join('')
+   +(p.pairs.length>4?'<div class="text-xs text-slate-400 mt-1">… ve '+(p.pairs.length-4)+' öğrenci daha</div>':'')
+   +(bad?'<div class="text-xs mt-2 text-amber-700">'+bad+' telefon numarası eksik ya da hatalı görünüyor (05xx xxx xx xx biçiminde değil). Bu numaralar veli bilgisinde yazılır ama veli telefonu alanına otomatik taşınmaz.</div>':'')
+   +(p.miss.length?'<div class="text-xs mt-2 text-red-600">Eşleşmeyenler: '+p.miss.slice(0,6).map(r=>esc(r.ad)).join(', ')+(p.miss.length>6?' …':'')+'</div>':'');
+}
+function vlDraw(){
+  const cnt=c=>VL.rows.filter(r=>r.code===c&&vlHas(r)).length,tot=c=>VL.rows.filter(r=>r.code===c).length;
+  vlm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4"><b class="text-lg">👨‍👩‍👧 Veli bilgilerini içe aktar</b>'
+   +'<div class="text-xs text-slate-500 my-1 break-words">'+esc(VL.fname)+'</div>'
+   +'<label class="text-xs block my-2">Sınıf (dosyada birden çok sınıf olabilir)<select data-vl="code" class="inp w-full">'+VL.codes.map(c=>'<option value="'+esc(c)+'"'+(c===VL.code?' selected':'')+'>'+esc(c)+' · '+cnt(c)+'/'+tot(c)+' öğrencide bilgi var</option>').join('')+'</select></label>'
+   +'<label class="flex gap-2 text-xs mb-1"><input type="checkbox" id="vlF"'+(VL.fill?' checked':'')+'><span>Veli telefonu boş olan öğrencilere baba (yoksa anne) telefonunu yaz</span></label>'
+   +'<label class="flex gap-2 text-xs mb-1"><input type="checkbox" id="vlO"'+(VL.over?' checked':'')+'><span>Dolu olan veli telefonlarının üzerine yaz</span></label>'
+   +'<label class="flex gap-2 text-xs mb-2"><input type="checkbox" id="vlS"'+(VL.sens?' checked':'')+'><span>Hassas bilgileri de al: aile durumu, aylık gelir, ev durumu (isteğe bağlı)</span></label>'
+   +'<div id="vlPv" class="mb-3"></div>'
+   +'<div class="flex gap-2"><button data-act="vlgo" class="btn bg-emerald-600 flex-1">İçe aktar</button><button data-act="vlx" class="btn bg-slate-500 flex-1">Kapat</button></div></div>';
+  vlPv();
+}
+async function vlLoad(f){
+  try{
+    await xl();
+    const wb=XLSX.read(await f.arrayBuffer(),{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]];
+    const rg=XLSX.utils.decode_range(ws['!ref']||'A1'),a=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,blankrows:true});
+    (ws['!merges']||[]).forEach(mg=>{
+      const sr=mg.s.r-rg.s.r,sc=mg.s.c-rg.s.c;if(!a[sr])return;const v=a[sr][sc];if(v===''||v==null)return;
+      for(let r=mg.s.r;r<=mg.e.r;r++)for(let c=mg.s.c;c<=mg.e.c;c++){const rr=r-rg.s.r,cc=c-rg.s.c;if(!a[rr])continue;if(a[rr][cc]===''||a[rr][cc]==null)a[rr][cc]=v;}
+    });
+    const hc=vlCols(a);if(!hc)return alert('Bu dosyada SINIF / ADI SOYADI / BABA / ANNE başlıklarını bulamadım. Veli iletişim bilgileri formu mu?');
+    const rows=vlRows(a,hc);if(!rows.length)return alert('Dosyada öğrenci satırı bulunamadı.');
+    const codes=[...new Set(rows.map(r=>r.code))].sort((x,y)=>x.localeCompare(y,'tr',{numeric:true}));
+    const rs=rehSel(),rc=rs?(String(rs.s)+String(rs.b)).toLocaleUpperCase('tr'):'';
+    const best=codes.slice().sort((x,y)=>rows.filter(r=>r.code===y&&vlHas(r)).length-rows.filter(r=>r.code===x&&vlHas(r)).length)[0];
+    VL={rows:rows,codes:codes,fname:f.name,code:codes.includes(rc)?rc:best,fill:true,over:false,sens:false};
+    vlDraw();vlm.classList.remove('hidden');vlm.classList.add('flex');
+  }catch(e){alert('Dosya okunamadı: '+e.message);}
+}
+vlIn.addEventListener('change',()=>{const f=vlIn.files[0];vlIn.value='';if(f)vlLoad(f);});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.vl==='code'){VL.code=t.value;vlPv();}
+  else if(t.id==='vlF')VL.fill=t.checked;else if(t.id==='vlO')VL.over=t.checked;else if(t.id==='vlS')VL.sens=t.checked;
+});
+const vlBlk=s=>{
+  const one=(t,p)=>p&&(p.ad||p.tel||p.meslek)?'<div class="flex items-center gap-2 py-1"><div class="flex-1 min-w-0 text-sm"><b>'+t+':</b> '+esc(p.ad||'')+(p.meslek?' · '+esc(p.meslek):'')+(p.is?' ('+esc(p.is)+')':'')+(p.tel?'<div class="text-xs text-slate-500">'+esc(p.tel)+'</div>':'')+'</div>'+(p.tel?'<button data-act="vcall" data-t="'+esc(p.tel)+'" class="w-10 h-10 rounded-lg bg-emerald-600 text-white" aria-label="Ara">📞</button><button data-act="vwa" data-t="'+esc(p.tel)+'" class="w-10 h-10 rounded-lg bg-green-600 text-white" aria-label="WhatsApp">💬</button>':'')+'</div>':'';
+  const ai=s.aile&&(s.aile.durum||s.aile.gelir||s.aile.ev)?'<div class="text-xs text-slate-500 mt-1">'+[s.aile.durum&&'Aile: '+esc(s.aile.durum),s.aile.gelir&&'Gelir: '+esc(s.aile.gelir),s.aile.ev&&'Ev: '+esc(s.aile.ev)].filter(Boolean).join(' · ')+'</div>':'';
+  const h=one('Baba',s.baba)+one('Anne',s.anne)+(s.vnot?'<div class="text-xs mt-1">Not: '+esc(s.vnot)+'</div>':'')+ai;
+  return h?'<div class="rounded-lg border border-slate-200 dark:border-slate-700 p-2 mb-3"><div class="text-xs font-semibold text-slate-500 mb-1">👨‍👩‍👧 Veli bilgileri</div>'+h+'</div>':'';
+};
+Object.assign(ACT,{
+  vlxl(){vlIn.click();},
+  vlx(){vlm.classList.add('hidden');vlm.classList.remove('flex');},
+  vcall(a){const p=nTel(a.dataset.t);if(!p)return alert('Telefon numarası geçersiz.');location.href='tel:+'+p;},
+  vwa(a){const p=nTel(a.dataset.t);if(!p)return alert('Telefon numarası geçersiz.');const m=$('cmMsg');open('https://wa.me/'+p+'?text='+encodeURIComponent(m?m.value:''),'_blank');},
+  vlgo(){
+    const p=vlPairs();if(!p.pairs.length)return alert('Eşleşen öğrenci yok. Sınıfı ve öğrenci adlarını kontrol edin.');
+    const mix=(o,n)=>{const r=Object.assign({},o||{});['ad','tel','meslek','is'].forEach(k=>{if(n[k])r[k]=n[k];});return r;};
+    ACT.vlx();
+    del(()=>{p.pairs.forEach(x=>{
+      const s=x[0],r=x[1];
+      if(r.b.ad||r.b.tel||r.b.meslek||r.b.is)s.baba=mix(s.baba,r.b);
+      if(r.a.ad||r.a.tel||r.a.meslek||r.a.is)s.anne=mix(s.anne,r.a);
+      if(r.nt)s.vnot=r.nt;
+      if(VL.fill||VL.over){const t=[r.b.tel,r.a.tel].find(vlOk);if(t&&(VL.over||!T(s.tel||'')))s.tel=t;}
+      if(VL.sens&&(r.du||r.ge||r.ev))s.aile=Object.assign({},s.aile||{},{durum:r.du||(s.aile&&s.aile.durum)||'',gelir:r.ge||(s.aile&&s.aile.gelir)||'',ev:r.ev||(s.aile&&s.aile.ev)||''});
+    });},p.pairs.length+' öğrencinin veli bilgisi eklendi');
   }
 });
 
