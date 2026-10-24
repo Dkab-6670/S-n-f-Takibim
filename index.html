@@ -925,7 +925,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d7',NEWS=[['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d8',NEWS=[['📥','Ders programını dosyadan yükleme','Bugün sayfasındaki ders programı bölümünden .json dosyası seçin ya da metin yapıştırın; tüm haftalık program tek seferde eklenir.'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1938,6 +1938,54 @@ Object.assign(ACT,{
   }
 });
 
+/* ===== Ders programı içe aktarma (JSON ya da metin) ===== */
+const prm=document.createElement('div');prm.className='fixed inset-0 z-[170] hidden items-center justify-center bg-black/60 p-3';document.body.appendChild(prm);
+const prIn=document.createElement('input');prIn.type='file';prIn.accept='.json,.txt,application/json,text/plain';prIn.hidden=true;document.body.appendChild(prIn);
+let PRI={rows:[],rep:false};
+function prDay(t){const n=hqN(t);if(n==='pzt'||n.indexOf('pazartesi')===0)return 1;if(n.indexOf('sal')===0)return 2;if(n.indexOf('car')===0)return 3;if(n.indexOf('per')===0)return 4;if(n==='cmt'||n.indexOf('cumartesi')===0)return 6;if(n.indexOf('cum')===0)return 5;return 0;}
+function prTime(t){const m=/^(\d{1,2})[:.](\d{2})$/.exec(String(t==null?'':t).trim());return m?String(+m[1]).padStart(2,'0')+':'+m[2]:'';}
+function prParse(txt){
+  txt=String(txt||'').trim();const out=[];
+  if(/^[\[{]/.test(txt)){
+    let j;try{j=JSON.parse(txt);}catch(e){return null;}
+    if(!Array.isArray(j))j=j.prog||j.program||[];
+    j.forEach(x=>{const g=+x.gun,b=prTime(x.bas),e=prTime(x.bit),sn=T(x.sinif),d=T(x.ders);let su=T(x.sube);su=(!su||su.toUpperCase()==='ALL')?'ALL':su.toLocaleLowerCase('tr');
+      if(g>=1&&g<=6&&b&&e&&sn&&d)out.push({gun:g,bas:b,bit:e,sinif:sn,sube:su,ders:d});});
+    return out;
+  }
+  txt.split('\n').forEach(l=>{
+    const m=/^\s*(\S+)\s+(\d{1,2}[:.]\d{2})\s*[-–]\s*(\d{1,2}[:.]\d{2})\s+(\d+)\s*\/\s*([A-Za-zÇĞİÖŞÜçğıöşü])\s+(.+?)\s*$/.exec(l);if(!m)return;
+    const g=prDay(m[1]);if(!g)return;out.push({gun:g,bas:prTime(m[2]),bit:prTime(m[3]),sinif:m[4],sube:m[5].toLocaleLowerCase('tr'),ders:m[6]});
+  });
+  return out;
+}
+function prBlk(){return '<div class="mb-3 p-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-600"><b class="text-sm">📥 Programı dosyadan ya da metinden yükle</b><p class="text-xs text-slate-500 my-1">.json dosyası seçin ya da her satıra “Pzt 09:05-09:45 8/E Kur’an-ı Kerim” biçiminde yazıp yapıştırın.</p><button data-act="prfile" class="btn bg-slate-600 mb-2">📂 Dosya seç</button><textarea id="prT" rows="3" class="inp w-full text-xs" placeholder="Pzt 09:05-09:45 8/E Kur’an-ı Kerim"></textarea><button data-act="prtxt" class="btn bg-indigo-600 w-full mt-2">Metinden oku</button></div>';}
+function prOpen(rows){
+  if(!rows||!rows.length)return alert('Programda ders bulunamadı. Biçimi kontrol edin.');
+  PRI={rows:rows,rep:S.prog.length>0};
+  const gl=[1,2,3,4,5,6].filter(g=>rows.some(r=>+r.gun===g));
+  prm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4"><b class="text-lg">📥 Ders programını içe aktar</b>'
+   +'<div class="text-xs font-semibold my-2">'+rows.length+' ders saati bulundu</div>'
+   +gl.map(g=>'<div class="text-xs mb-1"><b>'+GUNL[g]+':</b> '+rows.filter(r=>+r.gun===g).sort((a,b)=>bgT(a.bas)-bgT(b.bas)).map(r=>esc(r.bas)+' '+esc(r.sinif)+(r.sube&&r.sube!=='ALL'?'/'+esc(String(r.sube).toUpperCase()):'')+' '+esc(r.ders)).join(' · ')+'</div>').join('')
+   +(S.prog.length?'<label class="flex gap-2 text-xs mt-3"><input type="checkbox" id="prR" checked><span>Mevcut '+S.prog.length+' satırlık programı silip bunu yerine koy (işaretlemezseniz yanına eklenir)</span></label>':'')
+   +'<div class="flex gap-2 mt-3"><button data-act="prgo" class="btn bg-emerald-600 flex-1">İçe aktar</button><button data-act="prx" class="btn bg-slate-500 flex-1">Kapat</button></div></div>';
+  prm.classList.remove('hidden');prm.classList.add('flex');
+}
+prIn.addEventListener('change',async()=>{
+  const f=prIn.files[0];prIn.value='';if(!f)return;
+  try{const r=prParse(await f.text());if(r===null)return alert('Dosya geçerli bir JSON değil.');prOpen(r);}catch(e){alert('Dosya okunamadı: '+e.message);}
+});
+document.addEventListener('change',e=>{if(e.target.id==='prR')PRI.rep=e.target.checked;});
+Object.assign(ACT,{
+  prfile(){prIn.click();},
+  prtxt(){const r=prParse($('prT').value);if(r===null)return alert('Metin geçerli bir JSON değil.');prOpen(r);},
+  prx(){prm.classList.add('hidden');prm.classList.remove('flex');},
+  prgo(){
+    const rows=PRI.rows.slice(),rep=PRI.rep&&S.prog.length>0;ACT.prx();
+    del(()=>{if(rep)S.prog=[];rows.forEach(r=>S.prog.push({id:uid('PR_'),gun:r.gun,bas:r.bas,bit:r.bit,sinif:r.sinif,sube:r.sube,ders:r.ders}));},rows.length+' ders saati eklendi');
+  }
+});
+
 /* Başlangıç: profil ve oda */
 if(!new URLSearchParams(location.search).get('k')){
   if(!PS.list.length)pfShow('edit','');
@@ -2352,7 +2400,7 @@ reg('bugun','🗓️','Bugün',()=>{
   return '<div class="card"><div class="text-sm text-slate-500">'+GUNL[new Date().getDay()]+' · '+fdt(td)+'</div></div><div id="bgNow" class="card !border-indigo-400">'+bgNow()+'</div>'
    +l.map(x=>{const pl=bgPlan(x),act=bgT(x.bas)<=m&&m<bgT(x.bit);return '<div class="card '+(act?'!border-2 !border-indigo-500':'')+'"><div class="flex items-center gap-2"><b class="w-24 shrink-0">'+esc(x.bas)+'–'+esc(x.bit)+'</b><span class="flex-1 font-semibold">'+bgLab(x)+'</span><button data-act="bgyok" data-id="'+esc(x.id)+'" class="btn bg-slate-600 !py-1.5">Yoklama</button></div>'+(pl.length?pl.map(y=>'<div class="text-sm mt-1">📆 '+(y.hafta||'?')+'. hafta · '+esc(y.konu)+(y.kaz?'<div class="text-xs text-slate-500">'+esc(y.kaz)+'</div>':'')+'</div>').join(''):'<div class="text-xs text-slate-400 mt-1">Bu hafta için plan satırı yok.</div>')+kyBlock(x)+'</div>';}).join('')
    +(ev.length?'<div class="card"><b>🗓️ Yaklaşan etkinlikler</b>'+ev.slice(0,5).map(x=>'<div class="text-sm mt-1"><b>'+fdt(x.tarih)+'</b> · '+esc(x.konu)+'</div>').join('')+'</div>':'')
-   +pdCard()+'<details class="card"><summary class="font-bold cursor-pointer">⚙️ Ders programını düzenle</summary><div class="flex flex-wrap gap-2 my-2">'+[1,2,3,4,5,6].map(g=>'<label class="text-sm flex items-center gap-1"><input type="checkbox" id="bgG'+g+'"> '+GUNL[g].slice(0,3)+'</label>').join('')+'</div><div class="flex flex-wrap items-center gap-2"><label class="text-xs">Başlangıç <input type="time" id="bgB" class="inp"></label><label class="text-xs">Süre (dk) <input type="number" id="bgS" class="inp w-20" value="40"></label><select id="bgC" class="inp">'+classes().map(c=>'<option value="'+esc(c)+'">'+esc(c)+'. sınıf</option>').join('')+'</select><select id="bgU" class="inp">'+sb.map(x=>'<option value="'+esc(x)+'">'+(x==='ALL'?'Tüm şubeler':esc(x.toUpperCase())+' şubesi')+'</option>').join('')+'</select><input id="bgD" class="inp" placeholder="Ders adı" list="bgDL"></div><datalist id="bgDL">'+[...new Set(S.lessons.map(x=>x.name))].map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist><button data-act="bgadd" class="btn bg-indigo-600 w-full mt-2">Seçili günlere ekle</button>'
+   +pdCard()+'<details class="card"><summary class="font-bold cursor-pointer">⚙️ Ders programını düzenle</summary>'+prBlk()+'<div class="flex flex-wrap gap-2 my-2">'+[1,2,3,4,5,6].map(g=>'<label class="text-sm flex items-center gap-1"><input type="checkbox" id="bgG'+g+'"> '+GUNL[g].slice(0,3)+'</label>').join('')+'</div><div class="flex flex-wrap items-center gap-2"><label class="text-xs">Başlangıç <input type="time" id="bgB" class="inp"></label><label class="text-xs">Süre (dk) <input type="number" id="bgS" class="inp w-20" value="40"></label><select id="bgC" class="inp">'+classes().map(c=>'<option value="'+esc(c)+'">'+esc(c)+'. sınıf</option>').join('')+'</select><select id="bgU" class="inp">'+sb.map(x=>'<option value="'+esc(x)+'">'+(x==='ALL'?'Tüm şubeler':esc(x.toUpperCase())+' şubesi')+'</option>').join('')+'</select><input id="bgD" class="inp" placeholder="Ders adı" list="bgDL"></div><datalist id="bgDL">'+[...new Set(S.lessons.map(x=>x.name))].map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist><button data-act="bgadd" class="btn bg-indigo-600 w-full mt-2">Seçili günlere ekle</button>'
    +(all.length?'<div class="mt-3">'+all.map(x=>'<div class="flex items-center gap-2 text-sm py-1 border-b border-slate-200 dark:border-slate-700"><b class="w-10">'+GUNL[x.gun].slice(0,3)+'</b><span class="w-24">'+esc(x.bas)+'–'+esc(x.bit)+'</span><span class="flex-1">'+bgLab(x)+'</span><button data-act="bgdel" data-id="'+esc(x.id)+'" class="px-1">✖</button></div>').join('')+'</div>':'')+'</details>';
 });
 Object.assign(ACT,{
