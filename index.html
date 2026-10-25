@@ -262,7 +262,7 @@ function render(force){
   document.documentElement.style.setProperty('--th',($('ptitle').offsetHeight+8)+'px');
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===S.page));
 }
-function go(id){try{if(id==='ders'||id==='ezber')bgAuto();}catch(e){}S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
+function go(id){try{if(id==='ders'||id==='ezber')bgAuto();else if(id==='yplan')bgAutoYp();}catch(e){}S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
 $('view').addEventListener('focusout',()=>{if(pending){pending=false;setTimeout(render,0);}});
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return;}
@@ -3196,7 +3196,15 @@ function bgAuto(){
   G.sinif=sn;G.sube=c.sube&&c.sube!=='ALL'?String(c.sube).toLowerCase():'ALL';G.date=bdNow();gsave();
   toast('📍 Ders programına göre '+sn+(G.sube==='ALL'?'':'/'+G.sube.toUpperCase())+' seçildi');
 }
-document.addEventListener('change',e=>{const t=e.target,g=t&&t.dataset?t.dataset.g:'';if(g==='sinif'||g==='sube'){const c=bgCur();if(c)S.autoId=c.id;}});
+/* Yıllık Plan sayfası: kendi sınıf filtresi (YP.sinif) var; açılırken şu anki dersin sınıfına ayarlanır ve o haftaya kaydırır. */
+function bgAutoYp(){
+  const c=bgCur();if(!c||S.autoYp===c.id)return;
+  const sn=String(c.sinif||'');if(!sn||sn==='ALL')return;
+  if(!S.yplan.some(y=>y.t!=='e'&&(y.sinif===sn||y.sinif==='ALL')))return;
+  S.autoYp=c.id;YP.sinif=sn;YP.sc=true;
+  toast('📍 Ders programına göre '+sn+'. sınıfın yıllık planı seçildi');
+}
+document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'){const c=bgCur();if(c)S.autoId=c.id;}if(d.yf==='sinif'){const c=bgCur();if(c)S.autoYp=c.id;}});
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgCur();if(c)S.autoId=c.id;}});
 
 
