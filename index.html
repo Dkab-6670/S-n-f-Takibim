@@ -262,7 +262,7 @@ function render(force){
   document.documentElement.style.setProperty('--th',($('ptitle').offsetHeight+8)+'px');
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===S.page));
 }
-function go(id){S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
+function go(id){try{if(id==='ders'||id==='ezber')bgAuto();}catch(e){}S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
 $('view').addEventListener('focusout',()=>{if(pending){pending=false;setTimeout(render,0);}});
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return;}
@@ -2648,6 +2648,7 @@ function dxTkBody(){
   h+='</div></div>';
   const yy=hs?hs.y:1448;
   h+='<div class="card"><b>🔁 Hicri tarihi Miladiye çevir</b><div class="grid grid-cols-3 gap-2 mt-2"><label class="text-xs font-semibold">Gün<select id="dxHd" class="inp w-full">'+Array.from({length:30},(_,i)=>'<option>'+(i+1)+'</option>').join('')+'</select></label><label class="text-xs font-semibold">Ay<select id="dxHm" class="inp w-full">'+DN_HM.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('')+'</select></label><label class="text-xs font-semibold">Yıl<input id="dxHy" type="number" class="inp w-full" value="'+yy+'"></label></div><button data-act="dxh2m" class="btn dx-add mt-2 w-full">Çevir</button><div id="dxH2M" class="text-sm font-semibold mt-2">'+esc(S.dxH2M||'')+'</div></div>';
+  h+='<div class="card"><b>🔁 Miladi tarihi Hicriye çevir</b><label class="text-xs font-semibold block mt-2">Tarih<input id="dxMd" type="date" class="inp w-full mt-1" value="'+esc(S.dxMdv||dxIso(new Date()))+'"></label><button data-act="dxm2h" class="btn dx-add mt-2 w-full">Çevir</button><div id="dxM2H" class="text-sm font-semibold mt-2">'+esc(S.dxM2H||'')+'</div></div>';
   h+='<div class="card"><label class="text-xs font-semibold">Hicri tarih düzeltmesi<select id="dxHadj" class="inp w-full mt-1"><option value="-1"'+(cadj===-1?' selected':'')+'>−1 gün</option><option value="0"'+(cadj===0?' selected':'')+'>Düzeltme yok</option><option value="1"'+(cadj===1?' selected':'')+'>+1 gün</option></select></label><div class="text-xs text-slate-500 mt-1">Hesap Ümmü’l-Kurâ takvimine göredir. Diyanet’in ilan ettiği tarihle bir gün fark çıkarsa buradan ayarlayın; Ana sayfa, Dini Günler ve takvim birlikte güncellenir.</div></div>';
   return h;
 }
@@ -2721,6 +2722,14 @@ Object.assign(ACT,{
     for(let i=-60;i<460&&!f;i++){const x=new Date(g0,0,1+i,12),h=dxHj(x);if(h&&h.y===y&&h.m===m&&h.d===d)f=x;}
     S.dxH2M=f?d+' '+DN_HM[m-1]+' '+y+' = '+dnGreg(f)+', '+exDay(dxIso(f)):'Bu Hicri tarih bulunamadı (ayın 30. günü olmayabilir).';
     if(f){S.dxSel=dxIso(f);S.dxCm={y:f.getFullYear(),m:f.getMonth()};}render(true);
+  },
+  dxm2h(){
+    const v=($('dxMd')||{}).value||'',p=v.split('-').map(Number);S.dxMdv=v;
+    if(p.length!==3||!p[0]||!p[1]||!p[2]){S.dxM2H='Lütfen bir tarih seçin.';render(true);return;}
+    const x=new Date(p[0],p[1]-1,p[2],12),h=dxHj(x),ok=h&&h.y>=1300&&h.y<=1600;
+    S.dxM2H=ok?dnGreg(x)+', '+exDay(dxIso(x))+' = '+dxHt(h):'Bu tarih için Hicri karşılık hesaplanamadı (Hicri 1300–1600 arası desteklenir).';
+    if(ok){S.dxSel=dxIso(x);S.dxCm={y:x.getFullYear(),m:x.getMonth()};}
+    render(true);
   },
   dxaso(a){S.dxAs=a.dataset.id;render(true);scrollTo({top:0});},
   dxasb(){S.dxAs='';render(true);},
@@ -3171,6 +3180,25 @@ Object.assign(ACT,{
   bgyok(a){const x=S.prog.find(y=>y.id===a.dataset.id);if(!x)return;G.sinif=x.sinif||'ALL';G.sube=x.sube&&x.sube!=='ALL'?String(x.sube).toLowerCase():'ALL';G.date=bdNow();gsave();go('yok');}
 });
 setInterval(()=>{const e=$('bgNow');if(e&&S.page==='bugun')e.innerHTML=bgNow();},30000);
+/* ===== Ders programına göre sınıfı otomatik seç: Ders takip ve Ezber takip sayfası açılırken ===== */
+/* Şu an süren ders; yoksa 10 dk içinde başlayacak ders; yoksa 10 dk içinde bitmiş ders. */
+function bgCur(){
+  const m=bgMin(),l=bgToday().filter(x=>bgT(x.bas)>=0&&bgT(x.bit)>bgT(x.bas));
+  return l.find(x=>bgT(x.bas)<=m&&m<bgT(x.bit))
+    ||l.find(x=>bgT(x.bas)>m&&bgT(x.bas)-m<=10)
+    ||l.slice().reverse().find(x=>m>=bgT(x.bit)&&m-bgT(x.bit)<=10)||null;
+}
+/* Her ders için yalnızca bir kez uygulanır: öğretmen sınıfı elle değiştirirse o ders boyunca elle seçim korunur. */
+function bgAuto(){
+  const c=bgCur();if(!c||S.autoId===c.id)return;
+  const sn=String(c.sinif||'');if(!sn||sn==='ALL'||!classes().includes(sn))return;
+  S.autoId=c.id;
+  G.sinif=sn;G.sube=c.sube&&c.sube!=='ALL'?String(c.sube).toLowerCase():'ALL';G.date=bdNow();gsave();
+  toast('📍 Ders programına göre '+sn+(G.sube==='ALL'?'':'/'+G.sube.toUpperCase())+' seçildi');
+}
+document.addEventListener('change',e=>{const t=e.target,g=t&&t.dataset?t.dataset.g:'';if(g==='sinif'||g==='sube'){const c=bgCur();if(c)S.autoId=c.id;}});
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgCur();if(c)S.autoId=c.id;}});
+
 
 /* ========== KALDIĞIMIZ YER: sınıf ve derse göre konu / sayfa notu, bir sonraki derste hatırlatma ========== */
 /* Kayıt: S.kyer = [{sinif,sube,ders,konu,sayfa,tarih}] */
