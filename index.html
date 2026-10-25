@@ -255,7 +255,7 @@ const typing=()=>{const a=document.activeElement;return a&&$('view').contains(a)
 function render(force){
   if(!force&&typing()){pending=true;return;}
   if(!force&&S.page==='akv'&&akSoft())return;
-  if(!pageOn(S.page))S.page='home';if(window.__lp!==S.page){['o_prof','o_tan','o_sec','o_bak','bOpen','kOpen'].forEach(k=>{S[k]=false;});window.__lp=S.page;}const p=P[S.page]||P.home;
+  if(!pageOn(S.page))S.page='home';if(window.__lp!==S.page){['o_prof','o_tan','o_sec','o_bak','bOpen','kOpen','exOpen'].forEach(k=>{S[k]=false;});window.__lp=S.page;}const p=P[S.page]||P.home;
   $('ptitle').innerHTML=(S.page!=='home'?'<button data-go="home" class="btn bg-indigo-600 !px-3 !py-1 whitespace-nowrap">🏠 Ana Sayfa</button>':'')+'<span>'+p.icon+' '+esc(p.title)+'</span>'+(S.page!=='home'?'<span class="ml-auto text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full px-3 py-1 whitespace-nowrap">📌 '+(S.G.sinif==='ALL'?'Tüm sınıflar':esc(S.G.sinif)+(S.G.sube==='ALL'?'. sınıf':'/'+esc(S.G.sube.toUpperCase())))+'</span>':'');document.title=p.title+' | Sınıf Takip';
   document.body.classList.toggle('dx-home',S.page==='home');
   $('view').innerHTML=p.html();if(p.after)p.after();
@@ -2948,7 +2948,14 @@ $('rcB').onclick=room;
   m.addEventListener('click',close);document.addEventListener('click',e=>{if(!m.contains(e.target)&&e.target!==b)close();});})();
 $('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
 addEventListener('scroll',()=>$('up').classList.toggle('hidden',scrollY<300),{passive:true});
-$('view').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.keep;if(!k)return;S[k]=e.target.open;if(e.target.open){['o_prof','o_tan','o_sec','o_bak','bOpen','kOpen'].forEach(x=>{if(x!==k)S[x]=false;});document.querySelectorAll('#view details[data-keep]').forEach(d=>{if(d!==e.target&&d.open)d.open=false;});}},true);
+$('view').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.keep;if(!k)return;S[k]=e.target.open;if(e.target.open){['o_prof','o_tan','o_sec','o_bak','bOpen','kOpen','exOpen'].forEach(x=>{if(x!==k)S[x]=false;});document.querySelectorAll('#view details[data-keep]').forEach(d=>{if(d!==e.target&&d.open)d.open=false;});}},true);
+/* Sınav tarihleri paneli: panelin dışında başka bir işlem (düğme, seçim, sayfa geçişi) yapılınca kendiliğinden kapanır. */
+document.addEventListener('click',e=>{
+  if(!S.exOpen)return;const tg=e.target;
+  if(!tg||!tg.closest||tg.closest('.dx-ex'))return;
+  if(!tg.closest('button,select,a,summary,[data-act],[data-go],[data-nav]'))return;
+  S.exOpen=false;document.querySelectorAll('details.dx-ex[open]').forEach(d=>{d.open=false;});
+},true);
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 /* ========== TAHTA MODU: kilitli öğrenci ekranı. Tahtadan verilen + ders puanına (r.points) yazılır ========== */
 /* Kayıt alanları: günlük kayıtta r.yem (verilen yem), r.tp (tahtadan toplam +); öğrencide s.hwSelf[ödevId]=tarih */
