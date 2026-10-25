@@ -8,8 +8,6 @@
 <meta name="theme-color" content="#4338ca">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8F%AB%3C/text%3E%3C/svg%3E">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://sinif-takibim-default-rtdb.firebaseio.com" crossorigin>
@@ -37,15 +35,75 @@
 <style>body.kiosk>header,body.kiosk #tn,body.kiosk #bn,body.kiosk #ptitle,body.kiosk #up,body.kiosk #undo{display:none!important}body.kiosk{padding-bottom:0!important}body.kiosk main{max-width:none}</style>
 <style>.pc0{background:#e0f2fe}.pc1{background:#dcfce7}.pc2{background:#fef3c7}.pc3{background:#fce7f3}.pc4{background:#ede9fe}.pc5{background:#ccfbf1}
 .dark .pc0{background:rgba(14,165,233,.22)}.dark .pc1{background:rgba(34,197,94,.2)}.dark .pc2{background:rgba(245,158,11,.2)}.dark .pc3{background:rgba(236,72,153,.2)}.dark .pc4{background:rgba(139,92,246,.24)}.dark .pc5{background:rgba(20,184,166,.22)}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap">
+<style>
+/* Dini Köşe */
+:root{--dn-pat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='1.2'%3E%3Crect x='14' y='14' width='36' height='36'/%3E%3Crect x='14' y='14' width='36' height='36' transform='rotate(45 32 32)'/%3E%3Ccircle cx='32' cy='32' r='7'/%3E%3C/g%3E%3C/svg%3E")}
+.dn-card{position:relative;overflow:hidden;border-radius:20px;padding:22px 18px 16px;margin-bottom:14px;color:#fff;text-align:center;background-image:var(--dn-pat),linear-gradient(135deg,var(--c1),var(--c2));background-size:64px 64px,100% 100%;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.dn-card::before{content:"";position:absolute;inset:7px;border:1.5px solid rgba(232,198,117,.65);border-radius:15px;pointer-events:none}
+.dn-card::after{content:"✦";position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:18px;color:#e8c675;background:var(--c1);padding:0 8px;line-height:1}
+.dn-green{--c1:#0b3d2e;--c2:#15735a}.dn-navy{--c1:#0d1b3d;--c2:#2a4f94}.dn-plum{--c1:#3b1650;--c2:#7a34a6}.dn-teal{--c1:#0a4b55;--c2:#0e7c86}
+.dn-hd{font-size:12px;font-weight:700;letter-spacing:.22em;color:#e8c675;margin-bottom:10px}
+.dn-ar{font-family:Amiri,"Noto Naskh Arabic","Traditional Arabic","Scheherazade New",serif;direction:rtl;font-size:28px;line-height:2;font-weight:700;margin:6px 4px}
+.dn-huge{font-size:58px;line-height:1.5;margin:10px 0 0}
+.dn-nm{font-size:22px;font-weight:700;margin:4px 0}
+.dn-tr{font-family:Georgia,serif;font-style:italic;font-size:16px;line-height:1.55;opacity:.95;margin:8px 6px}
+.dn-big{font-size:20px}
+.dn-ft{font-size:13px;font-weight:700;color:#e8c675;margin-top:10px}
+.dn-tag{display:inline-block;font-size:11px;margin-top:8px;padding:2px 10px;border-radius:99px;background:rgba(255,255,255,.14)}
+.dn-draft{background:rgba(232,198,117,.25);color:#ffe9b0}
+.dn-no{position:absolute;top:14px;right:16px;width:34px;height:34px;line-height:34px;border-radius:50%;border:1.5px solid #e8c675;color:#e8c675;font-weight:700;font-size:13px;z-index:1}
+.dn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px;position:relative;z-index:1}
+.dn-btn{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:7px 14px;font-size:13px;font-weight:600}
+.dn-btn:active{transform:scale(.96)}
+.dn-gold{background:#e8c675;color:#3a2a00;border-color:#e8c675}
+.dn-edit{margin-top:12px;text-align:left;position:relative;z-index:1}
+.dn-edit textarea,.dn-edit input,.dn-sel{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.28);color:#fff;padding:8px 10px;font-size:14px;margin-top:6px}
+.dn-sel{width:auto;min-width:140px}.dn-sel option{color:#000}
+.dn-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.dn-tabs button{flex:1 1 auto;padding:9px 8px;border-radius:99px;font-weight:700;font-size:13px;background:#e2e8f0;color:#334155;white-space:nowrap}
+.dn-tabs button.on{background:#0e7c86;color:#fff}
+.dark .dn-tabs button{background:#334155;color:#e2e8f0}.dark .dn-tabs button.on{background:#0e7c86;color:#fff}
+.dn-times{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;position:relative;z-index:1}
+.dn-times div{background:rgba(255,255,255,.12);border-radius:12px;padding:8px 4px}
+.dn-times div.on{background:#e8c675;color:#3a2a00}
+.dn-times b{display:block;font-size:12px;opacity:.85}.dn-times i{font-style:normal;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.dn-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;position:relative;z-index:1}
+.dn-chip{padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.dn-chip.on{background:#e8c675;color:#3a2a00;border-color:#e8c675}
+.dn-tap{position:relative;z-index:1;width:190px;height:190px;border-radius:50%;margin:10px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;background:conic-gradient(#e8c675 calc(var(--p)*1%),rgba(255,255,255,.14) 0);-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation}
+.dn-tap::before{content:"";position:absolute;inset:12px;border-radius:50%;background:#0a4b55;box-shadow:inset 0 0 18px rgba(0,0,0,.35)}
+.dn-tap span,.dn-tap small{position:relative;z-index:1}.dn-tap span{font-size:58px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}.dn-tap small{opacity:.8;margin-top:2px}
+.dn-tap:active::before{background:#0e6571}
+.dn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px;margin-top:10px}
+.dn-grid button{position:relative;padding:14px 4px 8px;border-radius:10px;background:#f3e8ff;color:#4b1f6f;font-size:12px;font-weight:600}
+.dn-grid button.on{background:#7a34a6;color:#fff}.dn-grid small{position:absolute;top:2px;left:5px;font-size:9px;opacity:.7}
+.dark .dn-grid button{background:#3b2a52;color:#e9d5ff}
+.dn-home{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 16px;margin-bottom:12px;border-radius:18px;background:#fff;color:#1e293b;box-shadow:0 1px 4px rgba(0,0,0,.12);background-image:var(--dn-pat);background-size:64px 64px;position:relative;overflow:hidden}
+.dn-home::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.96) 35%,rgba(255,255,255,.55));pointer-events:none}
+.dn-home>*{position:relative;z-index:1}
+.dark .dn-home{background-color:#1e293b;color:#f1f5f9}.dark .dn-home::after{background:linear-gradient(90deg,rgba(30,41,59,.96) 35%,rgba(30,41,59,.6))}
+.dn-hi{font-size:40px}.dn-ht{flex:1;display:flex;flex-direction:column;min-width:0}.dn-ht b{font-size:20px}.dn-ht span{font-size:14px;color:#64748b}.dn-ht em{font-size:12px;color:#0e7c86;font-style:normal;font-weight:600}.dn-hc{font-size:28px;color:#94a3b8}
+#dnBoard{position:fixed;inset:0;z-index:300;background:#101211;color:#fff;display:none;overflow:auto;font-family:system-ui,sans-serif}
+#dnBoard .dn-bx{position:absolute;top:10px;right:14px;font-size:26px;color:#aaa;padding:8px 12px}
+#dnBoard .dn-bw{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px 14px;text-align:center;box-sizing:border-box}
+#dnBoard .dn-bt{font-size:clamp(28px,6vw,48px);font-weight:600}.dn-bs{font-size:clamp(14px,2.4vw,20px);opacity:.85}
+#dnBoard .dn-bc{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:clamp(64px,22vw,200px);line-height:1.05;font-weight:300;letter-spacing:-.02em}
+#dnBoard .dn-bc span{font-size:.38em}
+#dnBoard .dn-bd{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 36px;font-size:clamp(16px,3.4vw,28px);margin-top:6px}
+#dnBoard .dn-bv{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;width:100%;max-width:900px;margin-top:14px}
+#dnBoard .dn-bv b{display:block;font-weight:500;font-size:clamp(11px,2.2vw,20px)}#dnBoard .dn-bv i{font-style:normal;font-size:clamp(14px,3.4vw,30px);font-variant-numeric:tabular-nums}
+#dnBoard .dn-bv .on{color:#29a8e0;font-weight:700}#dnBoard .dn-bv .on b{font-weight:700}#dnBoard .dn-bl{opacity:.5;font-size:13px;margin-top:8px}
+</style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
-<header class="text-white shadow" style="background-color:#b3101e;background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2796%27%20height%3D%2796%27%20viewBox%3D%270%200%2096%2096%27%3E%3Cdefs%3E%3Cmask%20id%3D%27m1%27%3E%3Crect%20width%3D%2796%27%20height%3D%2796%27%20fill%3D%27white%27%2F%3E%3Ccircle%20cx%3D%2735%27%20cy%3D%2727%27%20r%3D%2711%27%20fill%3D%27black%27%2F%3E%3C%2Fmask%3E%3Cmask%20id%3D%27m2%27%3E%3Crect%20width%3D%2796%27%20height%3D%2796%27%20fill%3D%27white%27%2F%3E%3Ccircle%20cx%3D%2783%27%20cy%3D%2775%27%20r%3D%2711%27%20fill%3D%27black%27%2F%3E%3C%2Fmask%3E%3C%2Fdefs%3E%3Cg%20fill%3D%27white%27%20fill-opacity%3D%27.17%27%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%2727%27%20r%3D%2713%27%20mask%3D%27url%28%23m1%29%27%2F%3E%3Cpolygon%20points%3D%2749.0%2C21.4%2050.4%2C25.1%2054.3%2C25.3%2051.2%2C27.7%2052.3%2C31.5%2049.0%2C29.3%2045.7%2C31.5%2046.8%2C27.7%2043.7%2C25.3%2047.6%2C25.1%27%2F%3E%3Ccircle%20cx%3D%2778%27%20cy%3D%2775%27%20r%3D%2713%27%20mask%3D%27url%28%23m2%29%27%2F%3E%3Cpolygon%20points%3D%2797.0%2C69.4%2098.4%2C73.1%20102.3%2C73.3%2099.2%2C75.7%20100.3%2C79.5%2097.0%2C77.3%2093.7%2C79.5%2094.8%2C75.7%2091.7%2C73.3%2095.6%2C73.1%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E'),linear-gradient(135deg,#a50f1c,#d71f2f);background-size:96px 96px,auto">
+<header class="bg-indigo-700 text-white shadow">
  <div class="max-w-6xl mx-auto px-3 pb-3 pt-3 flex flex-wrap items-center justify-between gap-2" style="padding-top:max(.75rem,env(safe-area-inset-top))">
   <b class="text-lg">🕌 Sınıf Takip</b>
-  <div class="flex items-center gap-2 text-sm md:text-xs bg-black/25 rounded-lg px-3 py-2.5 md:px-2 md:py-1 relative w-full md:w-auto">
+  <div class="flex items-center gap-2 text-sm md:text-xs bg-indigo-800 rounded-lg px-3 py-2.5 md:px-2 md:py-1 relative w-full md:w-auto">
    <span id="dot" class="w-3 h-3 md:w-2.5 md:h-2.5 rounded-full bg-red-500"></span><span id="stx" class="font-semibold">Çevrimdışı</span>
    <button id="rc" class="font-mono font-bold text-yellow-300 ml-auto md:ml-0 text-base md:text-xs" title="Dokunun: 5 sn göster">-----</button>
-   <button id="mnB" class="md:hidden px-2 text-2xl font-bold leading-none" title="Menü" aria-label="Menü">⋮</button><div id="mn" class="hidden md:flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-2 absolute md:static right-0 top-full mt-2 md:mt-0 z-50 min-w-[12rem] md:min-w-0 p-2 md:p-0 rounded-xl md:rounded-none shadow-lg md:shadow-none bg-red-900"><button id="pf" class="md:max-w-[8rem] truncate font-semibold text-left py-1.5 md:py-0" title="Profilim">👤 Profil</button><button id="rcB" title="Oda kodunu değiştir" class="text-left py-1.5 md:py-0"><span>🔑</span><span class="md:hidden"> Oda kodunu değiştir</span></button><button data-go="ayar" title="Ayarlar" class="hidden md:inline">⚙️</button><button id="th" class="text-left py-1.5 md:py-0">🌙</button><button data-act="tchout" id="lo" title="Çıkış yap" class="text-left py-1.5 md:py-0">🚪<span class="md:hidden"> Çıkış yap</span></button></div>
+   <button id="mnB" class="md:hidden px-2 text-2xl font-bold leading-none" title="Menü" aria-label="Menü">⋮</button><div id="mn" class="hidden md:flex flex-col md:flex-row items-stretch md:items-center gap-1 md:gap-2 absolute md:static right-0 top-full mt-2 md:mt-0 z-50 min-w-[12rem] md:min-w-0 p-2 md:p-0 rounded-xl md:rounded-none shadow-lg md:shadow-none bg-indigo-800"><button id="pf" class="md:max-w-[8rem] truncate font-semibold text-left py-1.5 md:py-0" title="Profilim">👤 Profil</button><button id="rcB" title="Oda kodunu değiştir" class="text-left py-1.5 md:py-0"><span>🔑</span><span class="md:hidden"> Oda kodunu değiştir</span></button><button data-go="ayar" title="Ayarlar" class="hidden md:inline">⚙️</button><button id="th" class="text-left py-1.5 md:py-0">🌙</button><button data-act="tchout" id="lo" title="Çıkış yap" class="text-left py-1.5 md:py-0">🚪<span class="md:hidden"> Çıkış yap</span></button></div>
   </div>
  </div>
 </header>
@@ -217,7 +275,7 @@ function hqCard(){return '<div class="card"><input id="hq" type="search" class="
 function hqRun(v){
   const box=$('hqr');if(!box)return;const q=hqN(v);if(!q){box.innerHTML='';return;}
   const W=q.split(' ');const hit=txt=>{const n=hqN(txt);return W.every(w=>n.includes(w));};
-  const KW={dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
+  const KW={ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
   const res=[];
   Object.keys(P).forEach(k=>{if(k==='home'||!pageOn(k))return;const p=P[k];if(hit(p.title+' '+(KW[k]||'')))res.push(['<button data-go="'+k+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+p.icon+'</span><b class="flex-1">'+esc(p.title)+'</b><span class="text-[11px] text-slate-400">Sayfa</span></button>',hqN(p.title).startsWith(W[0])?0:1]);});
   [['🗓️','Haftalık ders programım','hprog','haftalik ders programi program saat gun bugunku dersler'],['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükle','vlxl','veli bilgi iletisim telefon anne baba excel yukle e okul'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
@@ -237,9 +295,9 @@ reg('home','🏠','Ana Sayfa',()=>{
     return '<div class="rounded-lg ring-2 ring-indigo-300 p-1">'+b.replace('data-go="'+k+'"','data-noop="1"')+'<div class="flex gap-1 mt-1"><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="-1" class="'+bt+(i?'':' opacity-30')+'" aria-label="Sola">◀</button><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="1" class="'+bt+(i<ks.length-1?'':' opacity-30')+'" aria-label="Sağa">▶</button></div></div>';}).join('')+'</div>':'';}).join('')
    +'<div class="text-center mt-4 flex justify-center gap-4"><button data-act="hedit" class="text-sm font-semibold text-indigo-600">'+(HEDIT?'✔ Düzenlemeyi bitir':'✏️ Kısayolları sırala')+'</button>'+(HEDIT&&lsg('home_ord')?'<button data-act="hrs" class="text-xs text-slate-500 underline">Varsayılana dön</button>':'')+'</div>';
   const sm=[A.length+' öğrenci',classes().length+' sınıf'].concat(featOn('ders')?[S.lessons.length+' ders']:[],featOn('ezber')?[S.ezberItems.length+' ezber konusu']:[]).join(' · ');
-  return hqCard()+todayCard()
+  return dnHomeCard()+hqCard()+todayCard()
    +(A.length?classChips(A):'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
-   +quick+diniBtn()+prHomeCard()+ypHomeCard()+(pageOn('yplan')?exCard():'')+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
+   +quick+prHomeCard()+ypHomeCard()+(pageOn('yplan')?exSafe():'')+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
 },null,'Ana Sayfa');
 
 /* ========== 6. SAYFA: ÖĞRENCİLER ========== */
@@ -929,7 +987,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d14',NEWS=[['🕌','Dini bölümü','Ana sayfadaki Dini butonuyla zikirmatik (hedefli sayaç, tur ve günlük toplam), Esmaü’l-Hüsna (99 isim, günün ismi, arama) ve namaz vakitleri (sıradaki vakte geri sayım). Başlığa ay-yıldız desenli arka plan eklendi.'],['🗓️','Ders programım: Gün ve Hafta','Ana sayfadaki ders programı kartında iki sekme var. Gün: bugünün kartı açılır, sağa-sola kaydırarak diğer günlere geçersiniz; ders numarası, saat, o haftanın konusu ve Yoklama düğmesi görünür. Hafta: tüm haftanın tablosu, şu anki ders vurgulu. Zil saatlerini ⏱️ düğmesinden değiştirebilirsiniz.'],['📆','Ana sayfada haftalık plan kartları','Seçili sınıfın yıllık planı hızlı kısayolların altında, bu haftanın kartıyla açılır. Bir sınıfta iki ders varsa yan yana sekmelerle geçersiniz; sağa-sola kaydırarak ya da ◀ ▶ ile önceki ve sonraki haftalara bakarsınız.'],['📥','Ders programını dosyadan yükleme','Bugün sayfasındaki ders programı bölümünden .json dosyası seçin ya da metin yapıştırın; tüm haftalık program tek seferde eklenir.'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d13',NEWS=[['🗓️','Ders programım: Gün ve Hafta','Ana sayfadaki ders programı kartında iki sekme var. Gün: bugünün kartı açılır, sağa-sola kaydırarak diğer günlere geçersiniz; ders numarası, saat, o haftanın konusu ve Yoklama düğmesi görünür. Hafta: tüm haftanın tablosu, şu anki ders vurgulu. Zil saatlerini ⏱️ düğmesinden değiştirebilirsiniz.'],['📆','Ana sayfada haftalık plan kartları','Seçili sınıfın yıllık planı hızlı kısayolların altında, bu haftanın kartıyla açılır. Bir sınıfta iki ders varsa yan yana sekmelerle geçersiniz; sağa-sola kaydırarak ya da ◀ ▶ ile önceki ve sonraki haftalara bakarsınız.'],['📥','Ders programını dosyadan yükleme','Bugün sayfasındaki ders programı bölümünden .json dosyası seçin ya da metin yapıştırın; tüm haftalık program tek seferde eklenir.'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1298,7 +1356,8 @@ var FEAT=[
   ['soz','🎲','Söz Hakkı','Rastgele öğrenci seçimi',['soz']],
   ['akvaryum','🐠','Sınıf Akvaryumu','Balıklı motivasyon: yem, şanslı balık, gürültü sensörü, odak sayacı, haftalık karne',['akv']],
   ['rapor','📊','İstatistik ve Uyarılar','Tablolar, grafikler ve uyarılar',['stat','uyari','donem']],
-  ['karne','📝','Dönem Karnesi','Karne, PDF ve veli bağlantısı',['karne']]
+  ['karne','📝','Dönem Karnesi','Karne, PDF ve veli bağlantısı',['karne']],
+  ['dini','🕌','Dini Köşe','Namaz vakitleri, Hicri tarih, günün ayeti ve hadisi, zikirmatik, Esmâü’l-Hüsnâ',['dini']]
 ];
 var PF={};FEAT.forEach(f=>f[4].forEach(p=>{PF[p]=f[0];}));
 var PS=null;
@@ -2013,6 +2072,7 @@ function ypAuto(g,sk){
   return keys[0];
 }
 /* ===== Sınav tarihleri: S.yplan içinde {t:'e',sinav:1,tarih,sinif,ders,ad,konu} olarak tutulur; yıllık plan kartlarında ilgili haftada görünür ===== */
+const exToday=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);};
 const exNz=t=>hqN(t).replace(/\s/g,'');
 const exDm=(a,b)=>{const x=exNz(a),y=exNz(b);return !x||!y||x.includes(y)||y.includes(x);};
 const exAll=()=>S.yplan.filter(y=>y.t==='e'&&y.sinav&&y.tarih);
@@ -2020,27 +2080,35 @@ function ypExFor(it,gk){
   const g=String(gk||'').split('|'),gs=g[0]||'ALL',gd=g[1]||'';
   return exAll().filter(e=>e.tarih>=it.from&&e.tarih<ypEnd(it)&&(e.sinif==='ALL'||gs==='ALL'||String(e.sinif)===gs)&&exDm(e.ders,gd)).sort((a,b)=>a.tarih.localeCompare(b.tarih));
 }
+const EX_TUR=['Yazılı','Sözlü','Proje','Performans','Uygulama','Kısa sınav'];
+const exLab=e=>e.tur?e.tur+(e.ad?' · '+e.ad:''):(e.ad||'Sınav');
+function exLessons(sn){
+  const ok=v=>sn==='ALL'||v==='ALL'||String(v)===String(sn);
+  let l=[...new Set((S.prog||[]).filter(x=>ok(x.sinif)).map(x=>T(x.ders)).filter(Boolean))];
+  if(!l.length)l=[...new Set(S.lessons.map(x=>T(x.name)).concat(S.yplan.filter(y=>y.t!=='e'&&y.ders&&ok(y.sinif)).map(y=>T(y.ders))).filter(Boolean))];
+  return l.sort((a,b)=>a.localeCompare(b,'tr'));
+}
+const exOpts=sn=>'<option value="">Tüm dersler</option>'+exLessons(sn).map(n=>'<option>'+esc(n)+'</option>').join('');
 const exDay=d=>GUNL[new Date(d+'T12:00:00').getDay()];
-function ypExH(l){return l.length?'<div class="mb-2 space-y-1">'+l.map(e=>'<div class="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 text-sm font-semibold">📝 '+(e.ders?esc(e.ders)+' · ':'')+esc(e.ad||'Sınav')+' · '+fdt(e.tarih)+' '+exDay(e.tarih)+'</div>').join('')+'</div>':'';}
+function ypExH(l){return l.length?'<div class="mb-2 space-y-1">'+l.map(e=>'<div class="px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 text-sm font-semibold">📝 '+(e.ders?esc(e.ders)+' · ':'')+esc(exLab(e))+' · '+fdt(e.tarih)+' '+exDay(e.tarih)+'</div>').join('')+'</div>':'';}
 function exWeek(e){
   const y=S.yplan.find(r=>r.t!=='e'&&r.tarih&&r.tarih<=e.tarih&&e.tarih<ypAdd(r.tarih,7)&&(r.sinif==='ALL'||e.sinif==='ALL'||String(r.sinif)===String(e.sinif))&&exDm(r.ders,e.ders));
   return y?(y.hafta?y.hafta+'. hafta':'planda'):'';
 }
+function exSafe(){try{return exCard();}catch(e){return '';}}
 function exCard(){
-  const td=bdNow(),l=exAll().sort((a,b)=>a.tarih.localeCompare(b.tarih));
-  const names=[...new Set(S.lessons.map(x=>x.name).concat((S.prog||[]).map(x=>x.ders),S.yplan.filter(y=>y.t!=='e'&&y.ders).map(y=>y.ders)).filter(Boolean))];
+  const td=exToday(),l=exAll().sort((a,b)=>a.tarih.localeCompare(b.tarih));
   const rows=l.map(e=>{const w=exWeek(e),past=e.tarih<td,n=Math.round((new Date(e.tarih+'T12:00:00')-new Date(td+'T12:00:00'))/864e5);
-    return '<div class="flex items-center gap-2 text-sm py-1.5 border-b border-slate-200 dark:border-slate-700'+(past?' opacity-50':'')+'"><div class="flex-1 min-w-0"><b>'+fdt(e.tarih)+'</b> '+exDay(e.tarih)+' · '+(e.sinif==='ALL'?'Tüm sınıflar':esc(e.sinif)+'. sınıf')+(e.ders?' · '+esc(e.ders):'')+' · '+esc(e.ad||'Sınav')+'<div class="text-[11px] '+(w?'text-slate-500':'text-amber-700')+'">'+(w?(w==='planda'?'Yıllık planda bir haftaya denk geliyor':'Yıllık planda: '+esc(w)):'Yıllık planda bu tarihe denk gelen hafta yok')+(past?'':' · '+(n?n+' gün kaldı':'bugün'))+'</div></div><button data-act="ypevx" data-id="'+esc(e.id)+'" class="px-1" aria-label="Sil">✖</button></div>';}).join('');
+    return '<div class="flex items-center gap-2 text-sm py-1.5 border-b border-slate-200 dark:border-slate-700'+(past?' opacity-50':'')+'"><div class="flex-1 min-w-0"><b>'+fdt(e.tarih)+'</b> '+exDay(e.tarih)+' · '+(e.sinif==='ALL'?'Tüm sınıflar':esc(e.sinif)+'. sınıf')+(e.ders?' · '+esc(e.ders):'')+' · '+esc(exLab(e))+'<div class="text-[11px] '+(w?'text-slate-500':'text-amber-700')+'">'+(w?(w==='planda'?'Yıllık planda bir haftaya denk geliyor':'Yıllık planda: '+esc(w)):'Yıllık planda bu tarihe denk gelen hafta yok')+(past?'':' · '+(n?n+' gün kaldı':'bugün'))+'</div></div><button data-act="ypevx" data-id="'+esc(e.id)+'" class="px-1" aria-label="Sil">✖</button></div>';}).join('');
   const up=l.filter(e=>e.tarih>=td).length;
   return '<details class="card" data-keep="exOpen"'+(S.exOpen?' open':'')+'><summary class="cursor-pointer font-bold">📝 Sınav tarihleri'+(up?' <span class="ml-1 text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200 rounded-full px-2 py-0.5">'+up+' yaklaşan</span>':'')+'</summary><p class="text-xs text-slate-500 my-1">Girdiğiniz tarih, yıllık plan kartlarında ve etkinlik takviminde ilgili haftada görünür. Ders adı boş bırakılırsa o sınıfın tüm derslerine uygulanır.</p>'
-   +'<div class="flex flex-wrap items-center gap-2 mt-2">'+ysel('id="exS"',G.sinif)+'<input id="exD" class="inp flex-1 min-w-[140px]" placeholder="Ders" list="exDL"><input id="exN" class="inp flex-1 min-w-[140px]" placeholder="Sınav adı (örn. 1. Yazılı)"><input type="date" id="exT" class="inp"><button data-act="exadd" class="btn bg-rose-600">Ekle</button></div>'
-   +'<datalist id="exDL">'+names.map(n=>'<option value="'+esc(n)+'">').join('')+'</datalist>'
+   +'<div class="flex flex-wrap items-center gap-2 mt-2">'+ysel('id="exS"',G.sinif)+'<select id="exD" class="inp flex-1 min-w-[140px]">'+exOpts(G.sinif)+'</select><select id="exK" class="inp">'+EX_TUR.map(k=>'<option>'+k+'</option>').join('')+'</select><input id="exN" class="inp flex-1 min-w-[140px]" placeholder="Ad (örn. 1. sınav) - isteğe bağlı"><input type="date" id="exT" class="inp"><button data-act="exadd" class="btn bg-rose-600">Ekle</button></div>'
    +(rows?'<div class="mt-2">'+rows+'</div>':'<div class="text-xs text-slate-400 mt-2">Henüz sınav tarihi girilmedi.</div>')+'</details>';
 }
 ACT.exadd=()=>{
-  const sn=$('exS').value,d=T($('exD').value),n=T($('exN').value),t=$('exT').value;
-  if(!t)return alert('Sınav tarihini seçin.');if(!d&&!n)return alert('Ders adını ya da sınav adını yazın.');
-  S.yplan.push({t:'e',sinav:1,tarih:t,sinif:sn,ders:d,ad:n,konu:'📝 '+(d?d+' · ':'')+(n||'Sınav')});
+  const sn=$('exS').value,d=T($('exD').value),k=$('exK').value,n=T($('exN').value),t=$('exT').value;
+  if(!t)return alert('Sınav tarihini seçin.');
+  S.yplan.push({t:'e',sinav:1,tarih:t,sinif:sn,ders:d,tur:k,ad:n,konu:'📝 '+(d?d+' · ':'')+k+(n?' · '+n:'')});
   save();render(true);toast('Sınav tarihi eklendi');
 };
 function ypRng(a,b){const x=new Date(a+'T12:00:00'),y=new Date(b+'T12:00:00');return x.getMonth()===y.getMonth()?x.getDate()+'/'+y.getDate()+' '+AYN[x.getMonth()]:x.getDate()+' '+AYN[x.getMonth()]+' / '+y.getDate()+' '+AYN[y.getMonth()];}
@@ -2140,7 +2208,7 @@ function pdDayCard(d,D,z,m){
   const body=bl.length?bl.map(b=>{
     const p1=prPer(b.e[0],z),p2=prPer(b.e[b.e.length-1],z),lab=p1<0?'':(p1+1)+(p2!==p1&&p2>=0?'.–'+(p2+1):'')+'. ders';
     const ce=today?b.e.find(x=>bgT(x.bas)<=m&&m<bgT(x.bit)):null;
-    return '<div class="mt-2 p-2 rounded-lg '+(ce?'bg-indigo-600 text-white':'bg-slate-50 dark:bg-slate-700/50')+'"><div class="flex flex-wrap items-center gap-x-2 gap-y-1">'+(lab?'<span class="px-2 py-0.5 rounded-full text-xs font-bold '+(ce?'bg-white/25 text-white':'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200')+'">'+lab+'</span>':'')+'<span class="px-2 py-0.5 rounded-full text-xs font-semibold '+(ce?'bg-white/25 text-white':'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200')+'">'+esc(b.bas)+'–'+esc(b.bit)+'</span>'+(ce?'<span class="ml-auto text-xs font-semibold">▶ '+(bgT(ce.bit)-m)+' dk kaldı</span>':'')+'</div><div class="font-semibold">'+bgLab(b)+'</div>'+exAll().filter(e=>e.tarih===date&&(e.sinif==='ALL'||String(e.sinif)===String(b.sinif))&&exDm(e.ders,b.ders)).map(e=>'<div class="mt-1.5 px-2 py-1 rounded-md text-xs font-semibold '+(ce?'bg-white/90 text-rose-700':'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200')+'">📝 '+esc(e.ad||'Sınav')+(today?' · bugün':'')+'</div>').join('')
+    return '<div class="mt-2 p-2 rounded-lg '+(ce?'bg-indigo-600 text-white':'bg-slate-50 dark:bg-slate-700/50')+'"><div class="flex flex-wrap items-center gap-x-2 gap-y-1">'+(lab?'<span class="px-2 py-0.5 rounded-full text-xs font-bold '+(ce?'bg-white/25 text-white':'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200')+'">'+lab+'</span>':'')+'<span class="px-2 py-0.5 rounded-full text-xs font-semibold '+(ce?'bg-white/25 text-white':'bg-amber-100 text-amber-900 dark:bg-amber-900/50 dark:text-amber-200')+'">'+esc(b.bas)+'–'+esc(b.bit)+'</span>'+(ce?'<span class="ml-auto text-xs font-semibold">▶ '+(bgT(ce.bit)-m)+' dk kaldı</span>':'')+'</div><div class="font-semibold">'+bgLab(b)+'</div>'+exAll().filter(e=>e.tarih===date&&(e.sinif==='ALL'||String(e.sinif)===String(b.sinif))&&exDm(e.ders,b.ders)).map(e=>'<div class="mt-1.5 px-2 py-1 rounded-md text-xs font-semibold '+(ce?'bg-white/90 text-rose-700':'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-200')+'">📝 '+esc(exLab(e))+(today?' · bugün':'')+'</div>').join('')
      
      +(today&&b.e[0].id?'<button data-act="bgyok" data-id="'+esc(b.e[0].id)+'" class="btn '+(ce?'bg-white !text-indigo-700':'bg-slate-600')+' !py-1 mt-2 text-xs">Yoklama</button>':'')+'</div>';}).join(''):'<div class="text-sm text-slate-500 mt-3">Bu gün ders yok.</div>';
   return '<div class="card !mb-0" style="flex:0 0 92%;scroll-snap-align:center;overflow:hidden;'+(today?'border:2px solid #4338ca;':'')+'"><div class="relative -mx-4 -mt-4 mb-1 px-4 py-2.5 text-white font-semibold flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center" style="background:'+(today?'#4338ca':'#0e6b78')+'"><span>'+GUNL[d]+' · '+fdt(date)+'</span>'+(today?'<span class="px-2 py-0.5 rounded-full bg-white/25 text-white text-xs font-semibold sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2">Bugün</span>':(tot?'<span class="px-2 py-0.5 rounded-full bg-white/25 text-white text-xs font-semibold sm:absolute sm:right-3 sm:top-1/2 sm:-translate-y-1/2">'+tot+' ders saati</span>':''))+'</div>'+body+'</div>';
@@ -2205,110 +2273,249 @@ Object.assign(ACT,{
   }
 });
 
-const ESMA=[["Er-Rahmân", "الرَّحْمٰنُ", "Dünyada bütün canlılara merhamet eden."], ["Er-Rahîm", "الرَّحِيمُ", "Âhirette müminlere çok merhamet eden."], ["El-Melik", "الْمَلِكُ", "Bütün varlığın gerçek sahibi ve hükümdarı."], ["El-Kuddûs", "الْقُدُّوسُ", "Her türlü eksiklikten uzak, tertemiz."], ["Es-Selâm", "السَّلَامُ", "Her türlü ayıp ve tehlikeden uzak, selâmet veren."], ["El-Mü’min", "الْمُؤْمِنُ", "Güven veren, emniyet bahşeden."], ["El-Müheymin", "الْمُهَيْمِنُ", "Her şeyi görüp gözeten, koruyan."], ["El-Azîz", "الْعَزِيزُ", "Mağlup edilemeyen, her şeye galip."], ["El-Cebbâr", "الْجَبَّارُ", "Dilediğini yaptıran, kırılanı onaran."], ["El-Mütekebbir", "الْمُتَكَبِّرُ", "Büyüklükte eşi olmayan, yücelik sahibi."], ["El-Hâlık", "الْخَالِقُ", "Yaratan, yoktan var eden."], ["El-Bâri’", "الْبَارِئُ", "Eksiksiz ve uyumlu yaratan."], ["El-Musavvir", "الْمُصَوِّرُ", "Her varlığa şekil ve suret veren."], ["El-Gaffâr", "الْغَفَّارُ", "Günahları çokça bağışlayan."], ["El-Kahhâr", "الْقَهَّارُ", "Her şeye üstün gelen, hâkim olan."], ["El-Vehhâb", "الْوَهَّابُ", "Karşılıksız ve çokça bağışta bulunan."], ["Er-Rezzâk", "الرَّزَّاقُ", "Bütün canlıların rızkını veren."], ["El-Fettâh", "الْفَتَّاحُ", "Hayır kapılarını açan, hüküm veren."], ["El-Alîm", "الْعَلِيمُ", "Gizli açık her şeyi bilen."], ["El-Kâbıd", "الْقَابِضُ", "Dilediğinin rızkını daraltan, ruhları alan."], ["El-Bâsıt", "الْبَاسِطُ", "Rızkı genişleten, ikram eden."], ["El-Hâfıd", "الْخَافِضُ", "Dilediğini alçaltan."], ["Er-Râfi’", "الرَّافِعُ", "Dilediğini yücelten."], ["El-Muizz", "الْمُعِزُّ", "Dilediğine izzet ve şeref veren."], ["El-Müzill", "الْمُذِلُّ", "Dilediğini zelil kılan."], ["Es-Semî’", "السَّمِيعُ", "Her şeyi işiten."], ["El-Basîr", "الْبَصِيرُ", "Her şeyi gören."], ["El-Hakem", "الْحَكَمُ", "Hükmü kesin ve adil olan."], ["El-Adl", "الْعَدْلُ", "Çok adil, hiç zulmetmeyen."], ["El-Latîf", "اللَّطِيفُ", "Lütuf sahibi, en ince işleri bilen."], ["El-Habîr", "الْخَبِيرُ", "Her şeyin iç yüzünden haberdar."], ["El-Halîm", "الْحَلِيمُ", "Çok yumuşak davranan, cezada acele etmeyen."], ["El-Azîm", "الْعَظِيمُ", "Pek büyük, azamet sahibi."], ["El-Gafûr", "الْغَفُورُ", "Çok bağışlayan, kusurları örten."], ["Eş-Şekûr", "الشَّكُورُ", "Az amele çok karşılık veren."], ["El-Aliyy", "الْعَلِيُّ", "Çok yüce, en yüksek."], ["El-Kebîr", "الْكَبِيرُ", "Büyüklükte sınırsız olan."], ["El-Hafîz", "الْحَفِيظُ", "Her şeyi koruyan, muhafaza eden."], ["El-Mukît", "الْمُقِيتُ", "Her varlığın gıdasını yaratan ve veren."], ["El-Hasîb", "الْحَسِيبُ", "Kulların hesabını gören, yeterli olan."], ["El-Celîl", "الْجَلِيلُ", "Azamet ve celâl sahibi."], ["El-Kerîm", "الْكَرِيمُ", "Çok cömert, ikramı bol."], ["Er-Rakîb", "الرَّقِيبُ", "Her şeyi gözeten, kontrol eden."], ["El-Mucîb", "الْمُجِيبُ", "Dualara karşılık veren."], ["El-Vâsi’", "الْوَاسِعُ", "İlmi ve rahmeti geniş olan."], ["El-Hakîm", "الْحَكِيمُ", "Her işi hikmetle yapan."], ["El-Vedûd", "الْوَدُودُ", "Kullarını seven ve sevilmeye layık olan."], ["El-Mecîd", "الْمَجِيدُ", "Şanı ve şerefi çok yüce olan."], ["El-Bâis", "الْبَاعِثُ", "Ölüleri dirilten, peygamber gönderen."], ["Eş-Şehîd", "الشَّهِيدُ", "Her şeye şahit olan, hazır ve nâzır."], ["El-Hakk", "الْحَقُّ", "Varlığı gerçek ve değişmez olan."], ["El-Vekîl", "الْوَكِيلُ", "Kendisine güvenilen, işleri üstlenen."], ["El-Kaviyy", "الْقَوِيُّ", "Gücü sınırsız, her şeye gücü yeten."], ["El-Metîn", "الْمَتِينُ", "Kudreti sarsılmaz, pek sağlam."], ["El-Veliyy", "الْوَلِيُّ", "Müminlerin dostu ve yardımcısı."], ["El-Hamîd", "الْحَمِيدُ", "Her türlü övgüye layık olan."], ["El-Muhsî", "الْمُحْصِي", "Her şeyi sayıp hesaplayan."], ["El-Mübdi’", "الْمُبْدِئُ", "Yaratmayı ilk defa başlatan."], ["El-Muîd", "الْمُعِيدُ", "Öldürdükten sonra yeniden yaratan."], ["El-Muhyî", "الْمُحْيِي", "Hayat veren."], ["El-Mümît", "الْمُمِيتُ", "Ölümü yaratan."], ["El-Hayy", "الْحَيُّ", "Diri, hayatı ezelî ve ebedî olan."], ["El-Kayyûm", "الْقَيُّومُ", "Varlığı kendinden olan, her şeyi ayakta tutan."], ["El-Vâcid", "الْوَاجِدُ", "Dilediğini bulan, hiçbir şeye muhtaç olmayan."], ["El-Mâcid", "الْمَاجِدُ", "Şanı yüce, ikramı bol."], ["El-Vâhid", "الْوَاحِدُ", "Zâtında ve sıfatlarında bir olan."], ["El-Ahad", "الْأَحَدُ", "Tek, eşi ve benzeri olmayan."], ["Es-Samed", "الصَّمَدُ", "Her şey O’na muhtaç, O hiçbir şeye muhtaç değil."], ["El-Kâdir", "الْقَادِرُ", "Her şeye gücü yeten."], ["El-Muktedir", "الْمُقْتَدِرُ", "Kudretini dilediği gibi kullanan."], ["El-Mukaddim", "الْمُقَدِّمُ", "Dilediğini öne alan."], ["El-Muahhir", "الْمُؤَخِّرُ", "Dilediğini geriye bırakan."], ["El-Evvel", "الْأَوَّلُ", "Başlangıcı olmayan, her şeyden önce var olan."], ["El-Âhir", "الْآخِرُ", "Sonu olmayan, her şeyden sonra baki kalan."], ["Ez-Zâhir", "الظَّاهِرُ", "Varlığı delilleriyle açık olan."], ["El-Bâtın", "الْبَاطِنُ", "Zâtının hakikati kavranamayan."], ["El-Vâlî", "الْوَالِي", "Bütün varlığı yöneten."], ["El-Müteâlî", "الْمُتَعَالِي", "Yüceliği her şeyin üstünde olan."], ["El-Berr", "الْبَرُّ", "İyilik ve ihsanı bol olan."], ["Et-Tevvâb", "التَّوَّابُ", "Tevbeleri kabul eden."], ["El-Müntakım", "الْمُنْتَقِمُ", "Zalimlere hak ettikleri cezayı veren."], ["El-Afüvv", "الْعَفُوُّ", "Affı çok, günahları silen."], ["Er-Raûf", "الرَّءُوفُ", "Çok şefkatli."], ["Mâlikü’l-Mülk", "مَالِكُ الْمُلْكِ", "Mülkün gerçek sahibi."], ["Zü’l-Celâli ve’l-İkrâm", "ذُو الْجَلَالِ وَالْإِكْرَامِ", "Celâl ve ikram sahibi."], ["El-Muksit", "الْمُقْسِطُ", "Adaletle hükmeden."], ["El-Câmi’", "الْجَامِعُ", "Her şeyi bir araya getiren."], ["El-Ganiyy", "الْغَنِيُّ", "Hiçbir şeye ihtiyacı olmayan."], ["El-Mugnî", "الْمُغْنِي", "Dilediğini zengin eden."], ["El-Mâni’", "الْمَانِعُ", "Dilediğine engel olan, koruyan."], ["Ed-Dârr", "الضَّارُّ", "Zararı yaratan."], ["En-Nâfi’", "النَّافِعُ", "Faydayı yaratan."], ["En-Nûr", "النُّورُ", "Nurlandıran, hidayet ışığı veren."], ["El-Hâdî", "الْهَادِي", "Hidayet veren, doğru yolu gösteren."], ["El-Bedî’", "الْبَدِيعُ", "Eşsiz ve örneksiz yaratan."], ["El-Bâkî", "الْبَاقِي", "Varlığı sonsuz olan."], ["El-Vâris", "الْوَارِثُ", "Her şeyin sonunda gerçek varisi olan."], ["Er-Reşîd", "الرَّشِيدُ", "Doğru yolu gösteren, işleri isabetli."], ["Es-Sabûr", "الصَّبُورُ", "Çok sabırlı, cezada acele etmeyen."]];
-/* ===== Dini: zikirmatik, Esmaü’l-Hüsna, namaz vakitleri ===== */
-(function(){const st=document.createElement('style');st.textContent='.ar{direction:rtl;font-family:"Noto Naskh Arabic","Amiri","Scheherazade New","Traditional Arabic",serif;line-height:1.9}';document.head.appendChild(st);})();
-const DN={tab:lsg('dn_tab')||'zk'},NV={err:'',busy:false,t:0};
-const NV_N=[['Fajr','İmsak'],['Sunrise','Güneş'],['Dhuhr','Öğle'],['Asr','İkindi'],['Maghrib','Akşam'],['Isha','Yatsı']];
-const ZK=[['Sübhânallah','سُبْحَانَ اللهِ',33],['Elhamdülillah','الْحَمْدُ لِلَّهِ',33],['Allâhü Ekber','اللهُ أَكْبَرُ',33],['Lâ ilâhe illallah','لَا إِلٰهَ إِلَّا اللهُ',100],['Estağfirullah','أَسْتَغْفِرُ اللهَ',100],['Salavat','اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ',100],['Serbest sayaç','',0]];
-function dnToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-/* ---- Zikirmatik ---- */
-function zkGet(){let s={};try{s=JSON.parse(lsg('zk_v1')||'{}')||{};}catch(e){}
-  s=Object.assign({n:0,t:33,r:0,i:0,tot:0,h:1,d:''},s);if(s.d!==dnToday()){s.d=dnToday();s.tot=0;}if(!ZK[s.i])s.i=0;return s;}
-const zkSave=s=>lss('zk_v1',JSON.stringify(s));
-function zkPaint(s,done){
-  const n=$('zkN');if(!n)return;n.textContent=s.n;
-  const p=s.t>0?Math.round(s.n/s.t*100):0,rg=$('zkRing');if(rg)rg.style.background='conic-gradient(#4f46e5 '+p+'%,#cbd5e1 0)';
-  const a=$('zkR');if(a)a.textContent=s.r;const b=$('zkTot');if(b)b.textContent=s.tot;
-  const m=$('zkMsg');if(m){m.textContent=done?'✓ '+s.t+' tamamlandı':'';if(done)setTimeout(()=>{const x=$('zkMsg');if(x)x.textContent='';},1800);}
+/* ========== DİNİ KÖŞE: veri ========== */
+const DN_CITIES=[['Adana',37.00,35.32],['Adıyaman',37.76,38.28],['Afyonkarahisar',38.76,30.54],['Ağrı',39.72,43.05],['Aksaray',38.37,34.03],['Amasya',40.65,35.83],['Ankara',39.93,32.86],['Antalya',36.90,30.70],['Ardahan',41.11,42.70],['Artvin',41.18,41.82],['Aydın',37.85,27.85],['Balıkesir',39.65,27.89],['Bartın',41.64,32.34],['Batman',37.89,41.13],['Bayburt',40.26,40.23],['Bilecik',40.14,29.98],['Bingöl',38.88,40.50],['Bitlis',38.40,42.11],['Bolu',40.74,31.61],['Burdur',37.72,30.29],['Bursa',40.19,29.06],['Çanakkale',40.15,26.41],['Çankırı',40.60,33.62],['Çorum',40.55,34.95],['Denizli',37.78,29.09],['Diyarbakır',37.91,40.24],['Düzce',40.84,31.16],['Edirne',41.68,26.56],['Elazığ',38.67,39.22],['Erzincan',39.75,39.49],['Erzurum',39.90,41.27],['Eskişehir',39.78,30.52],['Gaziantep',37.07,37.38],['Giresun',40.91,38.39],['Gümüşhane',40.46,39.48],['Hakkâri',37.58,43.74],['Hatay',36.40,36.35],['Iğdır',39.92,44.05],['Isparta',37.76,30.55],['İstanbul',41.01,28.98],['İzmir',38.42,27.14],['Kahramanmaraş',37.58,36.94],['Karabük',41.20,32.62],['Karaman',37.18,33.23],['Kars',40.60,43.10],['Kastamonu',41.38,33.78],['Kayseri',38.73,35.49],['Kırıkkale',39.85,33.51],['Kırklareli',41.74,27.22],['Kırşehir',39.15,34.17],['Kilis',36.72,37.12],['Kocaeli',40.77,29.94],['Konya',37.87,32.48],['Kütahya',39.42,29.98],['Malatya',38.35,38.31],['Manisa',38.61,27.43],['Mardin',37.31,40.74],['Mersin',36.80,34.64],['Muğla',37.22,28.36],['Muş',38.74,41.51],['Nevşehir',38.62,34.71],['Niğde',37.97,34.68],['Ordu',40.98,37.88],['Osmaniye',37.07,36.25],['Rize',41.02,40.52],['Sakarya',40.69,30.44],['Samsun',41.29,36.33],['Siirt',37.93,41.94],['Sinop',42.03,35.15],['Sivas',39.75,37.02],['Şanlıurfa',37.16,38.79],['Şırnak',37.52,42.46],['Tekirdağ',40.98,27.51],['Tokat',40.31,36.55],['Trabzon',41.00,39.72],['Tunceli',39.11,39.55],['Uşak',38.68,29.41],['Van',38.49,43.38],['Yalova',40.65,29.27],['Yozgat',39.82,34.80],['Zonguldak',41.46,31.80]];
+const DN_VK=['İmsak','Güneş','Öğle','İkindi','Akşam','Yatsı'];
+const DN_HM=['Muharrem','Safer','Rebiülevvel','Rebiülahir','Cemaziyelevvel','Cemaziyelahir','Recep','Şaban','Ramazan','Şevval','Zilkade','Zilhicce'];
+const DN_AYS=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+/* Ayet: Arapça metin ve sure:ayet numarası hazır. Anlam satırı "taslak"tır; TDV mealini kartın "Meali düzenle" bölümünden yapıştırınca taslak yerine o gösterilir. */
+const DN_AYET=[
+ {id:'a1',s:'İnşirah',n:'94:5-6',ar:'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا',t:'Demek ki zorluğun yanında bir kolaylık vardır; gerçekten zorlukla birlikte bir kolaylık daha vardır.'},
+ {id:'a2',s:'Bakara',n:'2:286',ar:'لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا',t:'Allah kimseye gücünün yetmediği bir yükü yüklemez.'},
+ {id:'a3',s:'Talâk',n:'65:3',ar:'وَمَنْ يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ',t:'Kim Allah’a güvenip dayanırsa, O ona yeter.'},
+ {id:'a4',s:'Ra‘d',n:'13:28',ar:'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',t:'Biliniz ki kalpler ancak Allah’ı anmakla huzur bulur.'},
+ {id:'a5',s:'Bakara',n:'2:152',ar:'فَاذْكُرُونِي أَذْكُرْكُمْ',t:'Öyleyse beni anın ki ben de sizi anayım.'},
+ {id:'a6',s:'İbrâhîm',n:'14:7',ar:'لَئِنْ شَكَرْتُمْ لَأَزِيدَنَّكُمْ',t:'Eğer şükrederseniz, elbette size nimetimi artırırım.'},
+ {id:'a7',s:'Zümer',n:'39:53',ar:'لَا تَقْنَطُوا مِنْ رَحْمَةِ اللَّهِ',t:'Allah’ın rahmetinden ümidinizi kesmeyin.'},
+ {id:'a8',s:'Bakara',n:'2:153',ar:'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ',t:'Şüphesiz Allah sabredenlerle beraberdir.'},
+ {id:'a9',s:'Tâhâ',n:'20:114',ar:'وَقُلْ رَبِّ زِدْنِي عِلْمًا',t:'De ki: “Rabbim, ilmimi artır.”'},
+ {id:'a10',s:'Zümer',n:'39:9',ar:'هَلْ يَسْتَوِي الَّذِينَ يَعْلَمُونَ وَالَّذِينَ لَا يَعْلَمُونَ',t:'De ki: “Hiç bilenlerle bilmeyenler bir olur mu?”'},
+ {id:'a11',s:'Mücâdele',n:'58:11',ar:'يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنْكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ',t:'Allah, içinizden iman edenleri ve kendilerine ilim verilenleri derece derece yükseltir.'},
+ {id:'a12',s:'Hucurât',n:'49:13',ar:'إِنَّ أَكْرَمَكُمْ عِنْدَ اللَّهِ أَتْقَاكُمْ',t:'Allah katında en değerliniz, en çok takvâ sahibi olanınızdır.'},
+ {id:'a13',s:'Tevbe',n:'9:51',ar:'قُلْ لَنْ يُصِيبَنَا إِلَّا مَا كَتَبَ اللَّهُ لَنَا',t:'De ki: “Bize ancak Allah’ın bizim için yazdığı şey isabet eder.”'},
+ {id:'a14',s:'Âl-i İmrân',n:'3:159',ar:'فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ',t:'Karar verdiğin zaman artık Allah’a dayanıp güven.'}
+];
+/* Hadis: Arapça yok. Anlam satırı "taslak"tır; kaynak adı/bölümü yazılıdır, hadis numarasını ve TDV metnini "Düzenle" bölümüne siz girersiniz. */
+const DN_HADIS=[
+ {id:'h1',k:'Buhârî, Bed’ü’l-vahy 1',t:'Ameller niyetlere göredir.'},
+ {id:'h2',k:'Buhârî, Fezâilü’l-Kur’ân',t:'Sizin en hayırlınız Kur’an’ı öğrenen ve öğretendir.'},
+ {id:'h3',k:'Buhârî, İlim',t:'Kolaylaştırın, zorlaştırmayın; müjdeleyin, nefret ettirmeyin.'},
+ {id:'h4',k:'Buhârî, Îmân',t:'Müslüman, dilinden ve elinden diğer müslümanların güvende olduğu kimsedir.'},
+ {id:'h5',k:'Buhârî, Îmân',t:'Sizden biri, kendisi için istediğini kardeşi için de istemedikçe gerçek anlamda iman etmiş olmaz.'},
+ {id:'h6',k:'Müslim, Tahâret',t:'Temizlik imanın yarısıdır.'},
+ {id:'h7',k:'Müslim, Îmân',t:'Din samimiyettir (nasihattir).'},
+ {id:'h8',k:'Müslim, Birr',t:'Allah sizin görünüşlerinize ve mallarınıza değil, kalplerinize ve amellerinize bakar.'},
+ {id:'h9',k:'Tirmizî, Birr',t:'Kardeşine tebessüm etmen bir sadakadır.'},
+ {id:'h10',k:'Müslim, Vasiyyet',t:'İnsan ölünce ameli kesilir; ancak üçü hariç: sürekli sadaka, faydalanılan ilim ve kendisine dua eden hayırlı evlat.'},
+ {id:'h11',k:'Buhârî, Edeb',t:'Güzel söz sadakadır.'},
+ {id:'h12',k:'Müslim, İmâre',t:'Kim bir hayra vesile olursa, o hayrı yapan kişi gibi sevap kazanır.'}
+];
+const DN_ZIKIR=[
+ {id:'p1',ad:'Sübhânallah',ar:'سُبْحَانَ اللَّهِ',h:33},
+ {id:'p2',ad:'Elhamdülillâh',ar:'الْحَمْدُ لِلَّهِ',h:33},
+ {id:'p3',ad:'Allâhü Ekber',ar:'اللَّهُ أَكْبَرُ',h:33},
+ {id:'p4',ad:'Lâ ilâhe illallah',ar:'لَا إِلَٰهَ إِلَّا اللَّهُ',h:100},
+ {id:'p5',ad:'Salavat',ar:'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ',h:100},
+ {id:'p6',ad:'Estağfirullah',ar:'أَسْتَغْفِرُ اللَّهَ',h:100},
+ {id:'p7',ad:'Hasbünallâhü ve ni‘mel vekîl',ar:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',h:100}
+];
+/* Esmâü’l-Hüsnâ: [Arapça, okunuş, kısa anlam] */
+const DN_ESMA=[
+['اللَّهُ','Allah','Her türlü güzel ismi kendinde toplayan yüce yaratıcı'],['الرَّحْمَنُ','Er-Rahmân','Dünyada bütün yaratılmışlara merhamet eden'],['الرَّحِيمُ','Er-Rahîm','Ahirette müminlere özel merhamet eden'],['الْمَلِكُ','El-Melik','Mülkün gerçek sahibi'],['الْقُدُّوسُ','El-Kuddûs','Her türlü eksiklikten uzak, tertemiz'],['السَّلَامُ','Es-Selâm','Selamet veren, kusurdan uzak olan'],['الْمُؤْمِنُ','El-Mü’min','Güven veren, emniyet bahşeden'],['الْمُهَيْمِنُ','El-Müheymin','Her şeyi gözetip koruyan'],['الْعَزِيزُ','El-Azîz','Güçlü ve üstün, yenilmeyen'],['الْجَبَّارُ','El-Cebbâr','Dilediğini yapan, kırılanı onaran'],
+['الْمُتَكَبِّرُ','El-Mütekebbir','Büyüklükte eşsiz olan'],['الْخَالِقُ','El-Hâlık','Yoktan var eden'],['الْبَارِئُ','El-Bâri’','Eksiksiz ve uyumlu yaratan'],['الْمُصَوِّرُ','El-Musavvir','Her şeye şekil ve suret veren'],['الْغَفَّارُ','El-Gaffâr','Günahları çokça bağışlayan'],['الْقَهَّارُ','El-Kahhâr','Her şeye galip gelen'],['الْوَهَّابُ','El-Vehhâb','Karşılıksız ve bol bağış yapan'],['الرَّزَّاقُ','Er-Rezzâk','Rızık veren'],['الْفَتَّاحُ','El-Fettâh','Hayır kapılarını açan'],['الْعَلِيمُ','El-Alîm','Her şeyi bilen'],
+['الْقَابِضُ','El-Kâbıd','Dilediğine darlık veren'],['الْبَاسِطُ','El-Bâsıt','Dilediğine genişlik veren'],['الْخَافِضُ','El-Hâfıd','Alçaltan'],['الرَّافِعُ','Er-Râfi’','Yücelten'],['الْمُعِزُّ','El-Mu’ızz','İzzet ve şeref veren'],['الْمُذِلُّ','El-Müzill','Zillete düşüren'],['السَّمِيعُ','Es-Semî’','Her şeyi işiten'],['الْبَصِيرُ','El-Basîr','Her şeyi gören'],['الْحَكَمُ','El-Hakem','Hükmeden, hakkı yerine getiren'],['الْعَدْلُ','El-Adl','Mutlak adalet sahibi'],
+['اللَّطِيفُ','El-Latîf','Lütfeden, en ince işleri bilen'],['الْخَبِيرُ','El-Habîr','Her şeyden haberdar olan'],['الْحَلِيمُ','El-Halîm','Cezada acele etmeyen'],['الْعَظِيمُ','El-Azîm','Pek büyük, azamet sahibi'],['الْغَفُورُ','El-Gafûr','Çok bağışlayan'],['الشَّكُورُ','Eş-Şekûr','Az amele bol karşılık veren'],['الْعَلِيُّ','El-Aliyy','Yüce, her şeyden üstün'],['الْكَبِيرُ','El-Kebîr','Pek büyük'],['الْحَفِيظُ','El-Hafîz','Her şeyi koruyan'],['الْمُقِيتُ','El-Mukît','Her canlının azığını veren'],
+['الْحَسِيبُ','El-Hasîb','Hesaba çeken, yeten'],['الْجَلِيلُ','El-Celîl','Celal ve ululuk sahibi'],['الْكَرِيمُ','El-Kerîm','Çok cömert, kerem sahibi'],['الرَّقِيبُ','Er-Rakîb','Her şeyi gözetleyen'],['الْمُجِيبُ','El-Mucîb','Duaları kabul eden'],['الْوَاسِعُ','El-Vâsi’','Rahmeti ve ilmi geniş'],['الْحَكِيمُ','El-Hakîm','Her işi hikmetli'],['الْوَدُودُ','El-Vedûd','Seven ve sevilen'],['الْمَجِيدُ','El-Mecîd','Şanı ve şerefi yüce'],['الْبَاعِثُ','El-Bâis','Ölüleri dirilten'],
+['الشَّهِيدُ','Eş-Şehîd','Her şeye şahit olan'],['الْحَقُّ','El-Hakk','Varlığı kesin ve gerçek olan'],['الْوَكِيلُ','El-Vekîl','Güvenilip dayanılan'],['الْقَوِيُّ','El-Kaviyy','Pek güçlü'],['الْمَتِينُ','El-Metîn','Gücü sarsılmaz'],['الْوَلِيُّ','El-Veliyy','Dost ve yardımcı'],['الْحَمِيدُ','El-Hamîd','Her türlü övgüye layık'],['الْمُحْصِي','El-Muhsî','Her şeyi sayıp bilen'],['الْمُبْدِئُ','El-Mübdi’','Yoktan ilk yaratan'],['الْمُعِيدُ','El-Mu’îd','Yeniden yaratan'],
+['الْمُحْيِي','El-Muhyî','Hayat veren'],['الْمُمِيتُ','El-Mümît','Ölümü yaratan'],['الْحَيُّ','El-Hayy','Ezelî ve ebedî diri'],['الْقَيُّومُ','El-Kayyûm','Her şeyi ayakta tutan'],['الْوَاجِدُ','El-Vâcid','Dilediğini bulan, hiçbir şeyi eksik olmayan'],['الْمَاجِدُ','El-Mâcid','Şanı yüce, cömert'],['الْوَاحِدُ','El-Vâhid','Bir olan'],['الصَّمَدُ','Es-Samed','Hiçbir şeye muhtaç olmayan, herkesin muhtaç olduğu'],['الْقَادِرُ','El-Kâdir','Her şeye gücü yeten'],['الْمُقْتَدِرُ','El-Muktedir','Kudret sahibi'],
+['الْمُقَدِّمُ','El-Mukaddim','Dilediğini öne alan'],['الْمُؤَخِّرُ','El-Muahhir','Dilediğini geri bırakan'],['الْأَوَّلُ','El-Evvel','Başlangıcı olmayan ilk'],['الْآخِرُ','El-Âhir','Sonu olmayan son'],['الظَّاهِرُ','Ez-Zâhir','Varlığı apaçık olan'],['الْبَاطِنُ','El-Bâtın','Zatının hakikati gizli olan'],['الْوَالِي','El-Vâlî','Her şeyi yöneten'],['الْمُتَعَالِي','El-Müteâlî','Her şeyden yüce'],['الْبَرُّ','El-Berr','İyilik ve ihsanı bol'],['التَّوَّابُ','Et-Tevvâb','Tövbeleri kabul eden'],
+['الْمُنْتَقِمُ','El-Müntekim','Zalimlerden hakkını alan'],['الْعَفُوُّ','El-Afüvv','Affı çok olan'],['الرَّءُوفُ','Er-Raûf','Çok şefkatli'],['مَالِكُ الْمُلْكِ','Mâlikü’l-Mülk','Mülkün sahibi'],['ذُو الْجَلَالِ وَالْإِكْرَامِ','Zü’l-Celâli ve’l-İkrâm','Celal ve ikram sahibi'],['الْمُقْسِطُ','El-Muksit','Adaletle hükmeden'],['الْجَامِعُ','El-Câmi’','Toplayan, bir araya getiren'],['الْغَنِيُّ','El-Ganiyy','Hiçbir şeye ihtiyacı olmayan'],['الْمُغْنِي','El-Muğnî','Zengin kılan'],['الْمَانِعُ','El-Mâni’','Dilediğini engelleyen'],
+['الضَّارُّ','Ed-Dârr','Zarar verenin yaratıcısı'],['النَّافِعُ','En-Nâfi’','Fayda veren'],['النُّورُ','En-Nûr','Nur veren, aydınlatan'],['الْهَادِي','El-Hâdî','Hidayet veren'],['الْبَدِيعُ','El-Bedî’','Eşsiz yaratan'],['الْبَاقِي','El-Bâkî','Varlığı sonsuz olan'],['الْوَارِثُ','El-Vârîs','Her şeyin asıl varisi'],['الرَّشِيدُ','Er-Reşîd','Doğru yolu gösteren'],['الصَّبُورُ','Es-Sabûr','Çok sabırlı']
+];
+/* ========== DİNİ KÖŞE: mantık ========== */
+const dnCfg=()=>{const r=S.ayar.find(x=>x.kim==='_dini');let o={};try{o=JSON.parse((r&&r.rb)||'{}')||{};}catch(e){}return o;};
+const dnPut=o=>{let r=S.ayar.find(x=>x.kim==='_dini');if(!r){r={kim:'_dini'};S.ayar.push(r);}r.rb=JSON.stringify(o);save();};
+const dnCity=()=>{const c=dnCfg(),n=c.city||lsg('dn_city')||'İstanbul';return DN_CITIES.find(x=>x[0]===n)||DN_CITIES.find(x=>x[0]==='İstanbul');};
+const dnPad=n=>String(n).padStart(2,'0');
+const dnHM=m=>{m=((Math.round(m)%1440)+1440)%1440;return dnPad(Math.floor(m/60))+':'+dnPad(m%60);};
+const dnRad=Math.PI/180;
+function dnSun(y,m,d){
+  const jd=Date.UTC(y,m-1,d,12)/864e5+2440587.5,n=jd-2451545.0;
+  const L=(280.460+0.9856474*n)%360,g=((357.528+0.9856003*n)%360)*dnRad;
+  const lam=(L+1.915*Math.sin(g)+0.020*Math.sin(2*g))*dnRad,eps=(23.439-0.0000004*n)*dnRad;
+  const decl=Math.asin(Math.sin(eps)*Math.sin(lam))/dnRad;
+  let ra=Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam))/dnRad;ra=(ra+360)%360;
+  let eq=L-ra;eq=((eq+180)%360+360)%360-180;
+  return {decl,eqt:eq*4};
 }
-function zkBody(){
-  const s=zkGet(),z=ZK[s.i],p=s.t>0?Math.round(s.n/s.t*100):0;
-  return '<div class="card"><div class="flex gap-1.5 overflow-x-auto pb-2">'+ZK.map((x,i)=>'<button data-act="zkpre" data-i="'+i+'" class="shrink-0 px-3 py-1.5 rounded-full border text-xs font-semibold '+(i===s.i?'bg-indigo-600 text-white border-indigo-600':'border-slate-300 dark:border-slate-600')+'">'+esc(x[0])+'</button>').join('')+'</div>'
-   +'<div class="text-center mt-2">'+(z[1]?'<div class="ar text-3xl">'+z[1]+'</div>':'')+'<div class="text-sm font-semibold">'+esc(z[0])+'</div></div>'
-   +'<div id="zkRing" style="width:236px;height:236px;border-radius:50%;margin:14px auto;background:conic-gradient(#4f46e5 '+p+'%,#cbd5e1 0);display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-user-select:none;user-select:none"><button data-act="zkt" class="bg-white dark:bg-slate-800" style="width:208px;height:208px;border-radius:50%;border:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent" aria-label="Say"><div id="zkN" class="text-6xl font-bold text-indigo-700 dark:text-indigo-300">'+s.n+'</div><div class="text-xs text-slate-500">'+(s.t>0?'hedef '+s.t:'serbest')+'</div></button></div>'
-   +'<div id="zkMsg" class="text-center text-emerald-600 font-semibold h-5 text-sm"></div>'
-   +'<div class="flex justify-center gap-6 text-sm mt-1"><div>Tur: <b id="zkR">'+s.r+'</b></div><div>Bugün toplam: <b id="zkTot">'+s.tot+'</b></div></div>'
-   +'<div class="flex gap-2 mt-3"><button data-act="zkrs" class="btn bg-slate-600 flex-1">Sıfırla</button><button data-act="zktg" class="btn bg-slate-600 flex-1">Hedef</button><button data-act="zkhap" class="btn bg-slate-600 flex-1">Titreşim: '+(s.h?'Açık':'Kapalı')+'</button></div></div>';
+/* Güneş hesabıyla vakitler (dakika cinsinden, günün başından). İmsak 18°, yatsı 17°, ikindi gölge 1 (Diyanet yöntemi); sonuç yaklaşıktır, dakika düzeltmesiyle ayarlanır. */
+function dnTimes(date,city){
+  const y=date.getFullYear(),m=date.getMonth()+1,d=date.getDate(),lat=city[1],lon=city[2],tz=-new Date(y,m-1,d,12).getTimezoneOffset()/60;
+  const s=dnSun(y,m,d),noon=12+tz-lon/15-s.eqt/60;
+  const ha=a=>{const c=(Math.sin(a*dnRad)-Math.sin(lat*dnRad)*Math.sin(s.decl*dnRad))/(Math.cos(lat*dnRad)*Math.cos(s.decl*dnRad));return Math.acos(Math.max(-1,Math.min(1,c)))/dnRad/15;};
+  const asr=Math.atan(1/(1+Math.tan(Math.abs(lat-s.decl)*dnRad)))/dnRad;
+  const off=(dnCfg().off||[]),o=i=>+off[i]||0;
+  return [noon-ha(-18),noon-ha(-0.833),noon,noon+ha(asr),noon+ha(-0.833),noon+ha(-17)].map((h,i)=>Math.round(h*60)+o(i));
 }
-/* ---- Esmaü’l-Hüsna ---- */
-function esDay(){const d=new Date(),n=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);return n%99;}
-function esCard(i){const e=ESMA[i];return '<div class="card !mb-0 text-center"><div class="text-[11px] text-slate-400">'+(i+1)+'</div><div class="ar text-2xl">'+e[1]+'</div><div class="font-bold text-sm">'+esc(e[0])+'</div><div class="text-xs text-slate-500 mt-1">'+esc(e[2])+'</div></div>';}
-function esList(q){const n=hqN(q||'');return ESMA.map((e,i)=>i).filter(i=>!n||hqN(ESMA[i][0]+' '+ESMA[i][2]).indexOf(n)>=0||String(i+1)===n).map(esCard).join('')||'<div class="text-xs text-slate-400 col-span-2 text-center">Sonuç yok.</div>';}
-function esBody(){
-  const t=ESMA[esDay()];
-  return '<div class="card text-center"><div class="text-xs text-slate-500">Günün ismi · '+(esDay()+1)+'</div><div class="ar text-4xl mt-1">'+t[1]+'</div><div class="font-bold">'+esc(t[0])+'</div><div class="text-sm text-slate-600 dark:text-slate-300 mt-1">'+esc(t[2])+'</div></div>'
-   +'<div class="card text-center"><div class="text-xs text-slate-500">Lafza-i Celâl</div><div class="ar text-4xl">اللهُ</div><div class="font-bold">Allah</div><div class="text-xs text-slate-500 mt-1">Bütün kemâl sıfatlarını kendinde toplayan yüce zâtın özel ismi.</div></div>'
-   +'<input id="esQ" type="search" class="inp w-full mb-2" placeholder="🔎 İsim ya da anlam ara…" autocomplete="off"><div id="esL" class="grid grid-cols-2 gap-2">'+esList('')+'</div>'
-   +'<div class="text-xs text-slate-400 mt-3">Sıralama kaynaklara göre değişebilir. Anlamlar kısa açıklamadır.</div>';
+function dnHijri(date){
+  try{
+    const adj=+dnCfg().hadj||0,x=new Date(date.getFullYear(),date.getMonth(),date.getDate()+adj,12);
+    const p=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(x),g=t=>+(p.find(q=>q.type===t)||{}).value;
+    if(!g('day')||!g('month'))return '';
+    return g('day')+' '+DN_HM[g('month')-1]+' '+parseInt(g('year'));
+  }catch(e){return '';}
 }
-/* ---- Namaz vakitleri (Aladhan, Diyanet yöntemi) ---- */
-const nvCity=()=>T(lsg('nv_city')||'Karaman')||'Karaman';
-const nvKey=(c,y,m)=>'nv_'+hqN(c).replace(/\s/g,'')+'_'+y+'-'+String(m).padStart(2,'0');
-function nvDay(iso){let c=null;try{c=JSON.parse(lsg(nvKey(nvCity(),+iso.slice(0,4),+iso.slice(5,7)))||'null');}catch(e){}return c&&c[iso]||null;}
-function nvParse(j){const out={};((j&&j.data)||[]).forEach(it=>{try{const g=it.date.gregorian.date.split('-'),iso=g[2]+'-'+g[1]+'-'+g[0],t={};NV_N.forEach(n=>{const m=/(\d{1,2}):(\d{2})/.exec(String(it.timings[n[0]]||''));if(m)t[n[0]]=String(m[1]).padStart(2,'0')+':'+m[2];});if(t.Fajr&&t.Dhuhr)out[iso]=t;}catch(e){}});return out;}
-async function nvLoad(force){
-  if(NV.busy||(!force&&Date.now()-NV.t<30000))return;
-  const city=nvCity(),d=new Date(),ms=[[d.getFullYear(),d.getMonth()+1]];
-  if(d.getDate()>=26){const n=new Date(d.getFullYear(),d.getMonth()+1,1);ms.push([n.getFullYear(),n.getMonth()+1]);}
-  NV.busy=true;NV.t=Date.now();NV.err='';
-  for(const ym of ms){const k=nvKey(city,ym[0],ym[1]);if(!force&&lsg(k))continue;
-    try{const r=await fetch('https://api.aladhan.com/v1/calendarByCity?city='+encodeURIComponent(city)+'&country=Turkey&method=13&month='+ym[1]+'&year='+ym[0]);const o=nvParse(await r.json());if(!Object.keys(o).length)throw new Error('boş');lss(k,JSON.stringify(o));}
-    catch(e){NV.err='Vakitler alınamadı. İnternet bağlantısını ve şehir adını kontrol edin.';}}
-  NV.busy=false;if(S.page==='dini'&&DN.tab==='nv')nvPaint();dnSubPaint();
+const dnGreg=d=>d.getDate()+' '+DN_AYS[d.getMonth()]+' '+d.getFullYear();
+function dnNow(){
+  const now=new Date(),city=dnCity(),t=dnTimes(now,city),m=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+  let nx=t.findIndex(v=>v>m),cur,secs;
+  if(nx<0){const tm=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1),t2=dnTimes(tm,city);cur=5;nx=0;secs=Math.round((1440+t2[0]-m)*60);return {t,cur,nx,secs,at:t2[0],now,city};}
+  cur=nx===0?5:nx-1;secs=Math.round((t[nx]-m)*60);
+  return {t,cur,nx,secs,at:t[nx],now,city};
 }
-const nvMin=v=>+v.slice(0,2)*60+ +v.slice(3);
-const nvFmt=m=>(m>=60?Math.floor(m/60)+' sa ':'')+(m%60)+' dk';
-function nvNext(){
-  const now=new Date(),t=nvDay(dnToday());if(!t)return null;const nm=now.getHours()*60+now.getMinutes();let cur=-1,nx=-1;
-  NV_N.forEach((n,i)=>{const v=t[n[0]];if(!v)return;if(nvMin(v)<=nm)cur=i;else if(nx<0)nx=i;});
-  if(nx>=0)return{cur:cur,idx:nx,min:nvMin(t[NV_N[nx][0]])-nm,t:t,tm:t[NV_N[nx][0]],tomorrow:false};
-  const tt=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1),iso=tt.getFullYear()+'-'+String(tt.getMonth()+1).padStart(2,'0')+'-'+String(tt.getDate()).padStart(2,'0'),t2=nvDay(iso);
-  if(t2&&t2.Fajr)return{cur:cur,idx:0,min:nvMin(t2.Fajr)+1440-nm,t:t,tm:t2.Fajr,tomorrow:true};
-  return{cur:cur,idx:-1,min:0,t:t,tm:'',tomorrow:false};
+function dnLeft(secs){const h=Math.floor(secs/3600),mm=Math.floor(secs%3600/60);return h>0?h+' sa '+mm+' dk':Math.max(mm,1)+' dk';}
+const dnNextText=()=>{const n=dnNow();return DN_VK[n.nx]+' vaktine '+dnLeft(n.secs)+' ('+dnHM(n.at)+')';};
+
+/* ---- Günün ayeti / hadisi / ismi ---- */
+const dnDay=()=>{const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);};
+const dnPick=(list,key)=>{const o=(S[key]||0),n=list.length;return ((dnDay()+o)%n+n)%n;};
+
+/* ---- Paylaşım: kartı PNG olarak çizer ---- */
+const DN_TH={green:['#0b3d2e','#15735a'],navy:['#0d1b3d','#2a4f94'],plum:['#3b1650','#7a34a6']};
+function dnWrap(x,text,maxW){const w=String(text).split(/\s+/),l=[];let c='';w.forEach(k=>{const t=c?c+' '+k:k;if(x.measureText(t).width>maxW&&c){l.push(c);c=k;}else c=t;});if(c)l.push(c);return l;}
+function dnStarPath(x,cx,cy,r){x.beginPath();for(let i=0;i<16;i++){const a=Math.PI*i/8-Math.PI/2,rr=i%2?r*0.72:r;x[i?'lineTo':'moveTo'](cx+rr*Math.cos(a),cy+rr*Math.sin(a));}x.closePath();}
+function dnCanvas(o){
+  const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),th=DN_TH[o.theme]||DN_TH.green,gold='#e8c675';
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,th[0]);g.addColorStop(1,th[1]);x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(255,255,255,.10)';x.lineWidth=2;
+  for(let i=0;i<=W/120+1;i++)for(let j=0;j<=H/120+1;j++){dnStarPath(x,i*120,j*120,46);x.stroke();dnStarPath(x,i*120+60,j*120+60,28);x.stroke();}
+  x.strokeStyle=gold;x.lineWidth=5;x.strokeRect(50,50,W-100,H-100);x.lineWidth=2;x.strokeRect(70,70,W-140,H-140);
+  x.fillStyle=gold;dnStarPath(x,W/2,135,38);x.fill();x.fillStyle=th[0];dnStarPath(x,W/2,135,20);x.fill();
+  x.textAlign='center';x.fillStyle=gold;x.font='600 40px sans-serif';x.fillText(o.head||'',W/2,235);
+  let y=330;
+  if(o.big){x.fillStyle='#fff';x.font='bold 170px Amiri,"Noto Naskh Arabic","Traditional Arabic",serif';x.direction='rtl';x.fillText(o.big,W/2,y+120);x.direction='ltr';y+=210;}
+  if(o.arab){x.fillStyle='#fff';x.font='bold 58px Amiri,"Noto Naskh Arabic","Traditional Arabic",serif';x.direction='rtl';dnWrap(x,o.arab,W-260).forEach(l=>{x.fillText(l,W/2,y);y+=100;});x.direction='ltr';y+=20;}
+  x.fillStyle='#fff';x.font=(o.titleBig?'bold 76px':'italic 46px')+' Georgia,serif';
+  if(o.title){dnWrap(x,o.title,W-260).forEach(l=>{x.fillText(l,W/2,y);y+=(o.titleBig?92:68);});y+=14;}
+  if(o.body){x.fillStyle='rgba(255,255,255,.92)';x.font='italic 44px Georgia,serif';dnWrap(x,o.body,W-260).forEach(l=>{x.fillText(l,W/2,y);y+=64;});}
+  x.fillStyle=gold;x.font='600 38px sans-serif';x.fillText(o.foot||'',W/2,H-150);
+  return c;
 }
-function dnSub(){const n=nvNext();if(!n||n.idx<0)return 'Zikirmatik · Esmaü’l-Hüsna · Namaz vakitleri';return (n.tomorrow?'Yarın ':'')+NV_N[n.idx][1]+' vaktine '+nvFmt(n.min)+' ('+n.tm+')';}
-function dnSubPaint(){const e=$('dnSub');if(e)e.textContent=dnSub();}
-function nvBody(){
-  const n=nvNext(),city=nvCity();
-  let h='<div class="card">'+(n&&n.idx>=0?'<div class="text-center"><div class="text-xs text-slate-500">Sıradaki vakit</div><div class="text-2xl font-bold text-indigo-700 dark:text-indigo-300">'+(n.tomorrow?'Yarın ':'')+NV_N[n.idx][1]+' · '+n.tm+'</div><div class="text-sm">'+nvFmt(n.min)+' kaldı</div></div>':'<div class="text-sm text-slate-500 text-center">'+(NV.busy?'Vakitler yükleniyor…':(n&&n.t?'Bugünün vakitleri bitti.':(NV.err||'Vakitler henüz alınmadı.')))+'</div>')+'</div>';
-  if(n&&n.t)h+='<div class="card">'+NV_N.map((x,i)=>'<div class="flex items-center py-2 px-2 rounded-lg '+(n.idx===i?'bg-indigo-600 text-white font-bold':(n.cur===i?'bg-indigo-50 dark:bg-slate-700 font-semibold':''))+'"><span class="flex-1">'+x[1]+(n.cur===i?' <span class="text-[10px] opacity-70">şu an</span>':'')+'</span><span>'+esc(n.t[x[0]]||'--:--')+'</span></div>').join('')+'</div>';
-  h+='<div class="card"><div class="text-xs font-semibold text-slate-500 mb-1">Şehir</div><div class="flex gap-2"><input id="nvCity" class="inp flex-1" value="'+esc(city)+'" placeholder="Şehir (örn. Karaman)"><button data-act="nvcity" class="btn bg-slate-600">Kaydet</button><button data-act="nvref" class="btn bg-slate-600" aria-label="Yenile">↻</button></div>'
-   +(NV.err&&n&&n.t?'<div class="text-xs text-amber-700 mt-1">'+esc(NV.err)+'</div>':'')+'<div class="text-xs text-slate-400 mt-2">Vakitler Aladhan servisinden Diyanet yöntemiyle hesaplanarak alınır. Resmî vakit için Diyanet’i esas alın. İlk kullanımda internet gerekir; bir ay boyunca cihazda saklanır.</div></div>';
-  return h;
+async function dnShare(o,text){
+  try{
+    const c=dnCanvas(o),blob=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([blob],'dini-kart.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:o.head||'',text:text||''});return;}
+    if(navigator.share){await navigator.share({title:o.head||'',text:text||''});return;}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dini-kart.png';document.body.appendChild(a);a.click();a.remove();toast('Kart görsel olarak indirildi');
+  }catch(e){if(e&&e.name==='AbortError')return;try{await navigator.clipboard.writeText(text||'');toast('Metin kopyalandı');}catch(x){toast('Paylaşılamadı',true);}}
 }
-function nvPaint(){const e=$('nvBody');if(e)e.innerHTML=nvBody();}
-/* ---- Sayfa ve ana sayfa butonu ---- */
-function diniBtn(){return '<button data-go="dini" class="card w-full text-left flex items-center gap-3"><span class="text-3xl">🕌</span><div class="flex-1 min-w-0"><b>Dini</b><div id="dnSub" class="text-xs text-slate-500 truncate">'+esc(dnSub())+'</div></div><span class="text-slate-400 text-xl">›</span></button>';}
-reg('dini','🕌','Dini',()=>{
-  const tabs=[['zk','📿 Zikirmatik'],['es','✨ Esmaü’l-Hüsna'],['nv','🕋 Namaz vakitleri']];
-  if(!tabs.some(x=>x[0]===DN.tab))DN.tab='zk';
-  setTimeout(()=>{if(DN.tab==='nv'||!nvDay(dnToday()))nvLoad(false);},0);
-  return '<div class="flex gap-1.5 overflow-x-auto pb-2 mb-2">'+tabs.map(x=>'<button data-act="dntab" data-t="'+x[0]+'" class="shrink-0 px-3 py-2 rounded-lg border text-sm font-semibold '+(DN.tab===x[0]?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600')+'">'+x[1]+'</button>').join('')+'</div>'
-   +(DN.tab==='zk'?zkBody():DN.tab==='es'?esBody():'<div id="nvBody">'+nvBody()+'</div>');
-});
-document.addEventListener('input',e=>{if(e.target.id==='esQ'){const l=$('esL');if(l)l.innerHTML=esList(e.target.value);}});
-setInterval(()=>{if(S.page==='dini'&&DN.tab==='nv')nvPaint();dnSubPaint();},30000);
-setTimeout(()=>nvLoad(false),2500);
+let DN_SH={};
+
+/* ---- Vakit panosu (koyu tam ekran) ---- */
+let dnBoardT=null;
+function dnBoardDraw(){
+  const b=$('dnBoard');if(!b||b.style.display==='none')return;
+  const n=dnNow(),h=Math.floor(n.secs/3600),m=Math.floor(n.secs%3600/60),s=n.secs%60;
+  b.innerHTML='<button data-act="dnboardx" class="dn-bx" aria-label="Kapat">✕</button><div class="dn-bw"><div class="dn-bt">'+esc(DN_VK[n.cur])+'</div><div class="dn-bs">Vaktin Çıkmasına</div>'
+   +'<div class="dn-bc">'+dnPad(h)+':'+dnPad(m)+'<span>:'+dnPad(s)+'</span></div>'
+   +'<div class="dn-bd"><span>'+esc(dnGreg(n.now))+'</span><span>'+esc(dnHijri(n.now))+'</span></div>'
+   +'<div class="dn-bv">'+n.t.map((v,i)=>'<div'+(i===n.cur?' class="on"':'')+'><b>'+DN_VK[i]+'</b><i>'+dnHM(v)+'</i></div>').join('')+'</div><div class="dn-bl">'+esc(n.city[0])+'</div></div>';
+}
+ACT.dnboard=()=>{let b=$('dnBoard');if(!b){b=document.createElement('div');b.id='dnBoard';document.body.appendChild(b);}b.style.display='block';dnBoardDraw();clearInterval(dnBoardT);dnBoardT=setInterval(dnBoardDraw,1000);try{if(b.requestFullscreen)b.requestFullscreen().catch(()=>{});}catch(e){}};
+ACT.dnboardx=()=>{const b=$('dnBoard');if(b)b.style.display='none';clearInterval(dnBoardT);try{if(document.fullscreenElement)document.exitFullscreen();}catch(e){}};
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){const b=$('dnBoard');if(b&&b.style.display!=='none'&&window.__dnFs)ACT.dnboardx();}window.__dnFs=!!document.fullscreenElement;});
+
+/* ---- Ana sayfa kartı ---- */
+function dnHomeCard(){
+  if(!pageOn('dini'))return '';
+  try{return '<button data-go="dini" class="dn-home"><span class="dn-hi">🕌</span><span class="dn-ht"><b>Dini</b><span id="dnHomeTx">'+esc(dnNextText())+'</span><em>'+esc(dnHijri(new Date()))+'</em></span><span class="dn-hc">›</span></button>';}catch(e){return '';}
+}
+setInterval(()=>{try{const e=$('dnHomeTx');if(e)e.textContent=dnNextText();const f=$('dnPgNx');if(f)f.textContent=dnNextText();}catch(x){}},15000);
+
+/* ---- Kartlar ---- */
+const dnMotif=(cls,inner)=>'<div class="dn-card '+cls+'">'+inner+'</div>';
+function dnShBtn(key,label){return '<button data-act="dnshare" data-k="'+key+'" class="dn-btn">📤 '+label+'</button>';}
+function dnAyetCard(){
+  const i=dnPick(DN_AYET,'dnA'),a=DN_AYET[i],c=dnCfg(),mk=(c.meal||{})[a.id],edit=S.dnEdit==='a';
+  const body=mk&&mk.t?esc(mk.t):esc(a.t),src=mk&&mk.t?(mk.k||'Meal'):'Taslak anlam · TDV mealiyle değiştirin';
+  DN_SH.a={o:{theme:'green',head:'GÜNÜN AYETİ',arab:a.ar,body:mk&&mk.t?mk.t:a.t,foot:a.s+' · '+a.n},txt:a.ar+'\n'+(mk&&mk.t?mk.t:a.t)+'\n— '+a.s+' Suresi, '+a.n};
+  return dnMotif('dn-green','<div class="dn-hd">GÜNÜN AYETİ</div><div class="dn-ar">'+esc(a.ar)+'</div><div class="dn-tr">'+body+'</div><div class="dn-ft">'+esc(a.s)+' Suresi · '+esc(a.n)+'</div><div class="dn-tag'+(mk&&mk.t?'':' dn-draft')+'">'+esc(src)+'</div>'
+   +'<div class="dn-row"><button data-act="dnnext" data-k="dnA" data-d="-1" class="dn-btn">◀</button><button data-act="dnnext" data-k="dnA" data-d="1" class="dn-btn">▶</button>'+dnShBtn('a','Paylaş')+'<button data-act="dnedit" data-k="a" class="dn-btn">✏️ Meali düzenle</button></div>'
+   +(edit?'<div class="dn-edit"><textarea id="dnMt" rows="4" placeholder="TDV mealini buraya yapıştırın">'+esc(mk&&mk.t||'')+'</textarea><input id="dnMk" placeholder="Kaynak (örn. TDV Meali, Bakara 286)" value="'+esc(mk&&mk.k||'')+'"><div class="dn-row"><button data-act="dnmsave" data-k="a" data-id="'+a.id+'" class="dn-btn dn-gold">Kaydet</button><button data-act="dnmdel" data-k="a" data-id="'+a.id+'" class="dn-btn">Taslağa dön</button></div></div>':''));
+}
+function dnHadisCard(){
+  const i=dnPick(DN_HADIS,'dnH'),h=DN_HADIS[i],c=dnCfg(),mk=(c.hmeal||{})[h.id],edit=S.dnEdit==='h';
+  const body=mk&&mk.t?esc(mk.t):esc(h.t),kay=mk&&mk.k?mk.k:h.k;
+  DN_SH.h={o:{theme:'navy',head:'GÜNÜN HADİSİ',body:mk&&mk.t?mk.t:h.t,foot:kay},txt:(mk&&mk.t?mk.t:h.t)+'\n— '+kay};
+  return dnMotif('dn-navy','<div class="dn-hd">GÜNÜN HADİSİ</div><div class="dn-tr dn-big">“'+body+'”</div><div class="dn-ft">'+esc(kay)+'</div><div class="dn-tag'+(mk&&mk.t?'':' dn-draft')+'">'+(mk&&mk.t?'Kaynak metni':'Taslak anlam · kaynak metniyle değiştirin')+'</div>'
+   +'<div class="dn-row"><button data-act="dnnext" data-k="dnH" data-d="-1" class="dn-btn">◀</button><button data-act="dnnext" data-k="dnH" data-d="1" class="dn-btn">▶</button>'+dnShBtn('h','Paylaş')+'<button data-act="dnedit" data-k="h" class="dn-btn">✏️ Düzenle</button></div>'
+   +(edit?'<div class="dn-edit"><textarea id="dnMt" rows="4" placeholder="Hadis metnini (TDV vb.) buraya yapıştırın">'+esc(mk&&mk.t||'')+'</textarea><input id="dnMk" placeholder="Kaynak ve numara (örn. Buhârî, Îmân 7, No: 13)" value="'+esc(mk&&mk.k||'')+'"><div class="dn-row"><button data-act="dnmsave" data-k="h" data-id="'+h.id+'" class="dn-btn dn-gold">Kaydet</button><button data-act="dnmdel" data-k="h" data-id="'+h.id+'" class="dn-btn">Taslağa dön</button></div></div>':''));
+}
+function dnEsmaCard(i){
+  const e=DN_ESMA[i];
+  DN_SH.e={o:{theme:'plum',head:'ESMÂÜ’L-HÜSNÂ · '+(i+1)+'/99',big:e[0],title:e[1],titleBig:true,body:e[2],foot:'Allah’ın güzel isimlerinden'},txt:e[0]+' — '+e[1]+'\n'+e[2]+' (Esmâü’l-Hüsnâ '+(i+1)+'/99)'};
+  return dnMotif('dn-plum','<div class="dn-hd">ESMÂÜ’L-HÜSNÂ</div><div class="dn-no">'+(i+1)+'</div><div class="dn-ar dn-huge">'+esc(e[0])+'</div><div class="dn-nm">'+esc(e[1])+'</div><div class="dn-tr">'+esc(e[2])+'</div>'
+   +'<div class="dn-row"><button data-act="dnen" data-d="-1" class="dn-btn">◀</button><button data-act="dnen" data-d="1" class="dn-btn">▶</button>'+dnShBtn('e','Paylaş')+'<button data-act="dnen" data-d="0" class="dn-btn">🎲 Günün ismi</button></div>');
+}
+const dnEi=()=>{const n=S.dnE;return typeof n==='number'?((n%99)+99)%99:dnPick(DN_ESMA,'dnEo');};
+function dnZList(){return DN_ZIKIR.concat((dnCfg().zk||[]).map(z=>({id:z.id,ad:z.ad,ar:z.ar||'',h:+z.h||33,own:1})));}
+const dnZKey=id=>'dn_zk_'+activeId()+'_'+id;
+const dnZSel=()=>{const l=dnZList(),k=lsg('dn_zsel_'+activeId());return l.find(z=>z.id===k)||l[0];};
+function dnZikir(){
+  const l=dnZList(),z=dnZSel(),n=+lsg(dnZKey(z.id))||0,pct=Math.min(100,Math.round(n%z.h/z.h*100)||(n&&n%z.h===0?100:0)),tur=Math.floor(n/z.h);
+  return '<div class="dn-card dn-teal"><div class="dn-hd">ZİKİRMATİK</div><div class="dn-chips">'+l.map(q=>'<button data-act="dnzsel" data-id="'+esc(q.id)+'" class="dn-chip'+(q.id===z.id?' on':'')+'">'+esc(q.ad)+'</button>').join('')+'</div>'
+   +(z.ar?'<div class="dn-ar">'+esc(z.ar)+'</div>':'')+'<div class="dn-nm">'+esc(z.ad)+'</div>'
+   +'<button data-act="dntap" class="dn-tap" style="--p:'+pct+'"><span id="dnCnt">'+(n%z.h===0&&n?z.h:n%z.h)+'</span><small>/ '+z.h+'</small></button>'
+   +'<div class="dn-tr" id="dnTur">'+(tur?tur+' tur tamamlandı · ':'')+'Toplam '+n+'</div><div class="dn-row"><button data-act="dnzreset" class="dn-btn">↺ Sıfırla</button>'+(z.own?'<button data-act="dnzdel" data-id="'+esc(z.id)+'" class="dn-btn">🗑 Zikri sil</button>':'')+'</div></div>'
+   +'<div class="card"><b>➕ Kendi zikrinizi ekleyin</b><div class="grid grid-cols-2 gap-2 mt-2"><input id="zkA" class="inp col-span-2" placeholder="Zikir adı / okunuşu"><input id="zkR" class="inp" placeholder="Arapçası (isteğe bağlı)" dir="rtl"><input id="zkH" class="inp" type="number" min="1" placeholder="Hedef (örn. 100)"></div><button data-act="dnzadd" class="btn bg-teal-600 mt-2">Ekle</button><div class="text-xs text-slate-500 mt-1">Eklediğiniz zikirler hesabınıza kaydolur, tüm cihazlarda görünür. Sayaç değeri bu cihazda tutulur.</div></div>';
+}
+function dnVakit(){
+  const n=dnNow(),c=dnCfg(),off=c.off||[0,0,0,0,0,0];
+  return '<div class="dn-card dn-teal"><div class="dn-hd">NAMAZ VAKİTLERİ</div><div class="dn-nm" id="dnPgNx">'+esc(dnNextText())+'</div><div class="dn-tr">'+esc(dnGreg(n.now))+' · '+esc(dnHijri(n.now))+'</div>'
+   +'<div class="dn-times">'+n.t.map((v,i)=>'<div'+(i===n.cur?' class="on"':'')+'><b>'+DN_VK[i]+'</b><i>'+dnHM(v)+'</i></div>').join('')+'</div>'
+   +'<div class="dn-row"><select id="dnCity" class="dn-sel">'+DN_CITIES.map(x=>'<option'+(x[0]===n.city[0]?' selected':'')+'>'+esc(x[0])+'</option>').join('')+'</select><button data-act="dnboard" class="dn-btn dn-gold">🖥️ Vakit panosu</button></div></div>'
+   +'<details class="card" data-keep="dnOpen"'+(S.dnOpen?' open':'')+'><summary class="cursor-pointer font-bold">⚙️ Vakit ayarı</summary><p class="text-xs text-slate-500 my-2">Vakitler güneşin konumuna göre hesaplanır, İl Müftülüğü / Diyanet takvimiyle birkaç dakika fark edebilir. Farkı aşağıya dakika olarak yazarak kendi şehrinize göre ayarlayın (örn. +3 ya da -2).</p><div class="grid grid-cols-3 gap-2">'
+   +DN_VK.map((v,i)=>'<label class="text-xs">'+v+'<input data-dnoff="'+i+'" type="number" class="inp w-full" value="'+(+off[i]||0)+'"></label>').join('')+'</div>'
+   +'<label class="text-xs block mt-3">Hicri tarih düzeltmesi (gün)<select id="dnHadj" class="inp w-full"><option value="-1"'+((+c.hadj||0)===-1?' selected':'')+'>−1</option><option value="0"'+((+c.hadj||0)===0?' selected':'')+'>0</option><option value="1"'+((+c.hadj||0)===1?' selected':'')+'>+1</option></select></label></details>';
+}
+function dnPage(){
+  const t=S.dnTab||'vakit',tabs=[['vakit','🕌 Vakit'],['ayet','📜 Ayet & Hadis'],['zikir','📿 Zikir'],['esma','✨ Esmâ']];
+  const head='<div class="dn-tabs">'+tabs.map(x=>'<button data-act="dntab" data-t="'+x[0]+'" class="'+(t===x[0]?'on':'')+'">'+x[1]+'</button>').join('')+'</div>';
+  if(t==='ayet')return head+dnAyetCard()+dnHadisCard();
+  if(t==='zikir')return head+dnZikir();
+  if(t==='esma'){const i=dnEi();return head+dnEsmaCard(i)+'<details class="card"><summary class="cursor-pointer font-bold">Tüm isimler</summary><div class="dn-grid">'+DN_ESMA.map((e,j)=>'<button data-act="dnen" data-i="'+j+'" class="'+(j===i?'on':'')+'"><small>'+(j+1)+'</small>'+esc(e[1])+'</button>').join('')+'</div></details>';}
+  return head+dnVakit();
+}
+reg('dini','🕌','Dini Köşe',dnPage,null);
+
+/* ---- İşlemler ---- */
 Object.assign(ACT,{
-  dntab(a){DN.tab=a.dataset.t;lss('dn_tab',DN.tab);render(true);},
-  zkt(){const s=zkGet();s.n++;s.tot++;let done=false;if(s.t>0&&s.n>=s.t){s.r++;s.n=0;done=true;}zkSave(s);zkPaint(s,done);if(s.h&&navigator.vibrate)try{navigator.vibrate(done?[70,50,70]:12);}catch(e){}},
-  zkpre(a){const s=zkGet();s.i=+a.dataset.i;s.t=ZK[s.i][2];s.n=0;s.r=0;zkSave(s);render(true);},
-  zkrs(){const s=zkGet();if(s.n===0&&s.r===0)return;if(!confirm('Sayaç sıfırlansın mı?'))return;s.n=0;s.r=0;zkSave(s);zkPaint(s,false);},
-  zktg(){const s=zkGet(),v=prompt('Hedef sayısı (0 = sınırsız):',s.t);if(v===null)return;const n=parseInt(v,10);if(!isFinite(n)||n<0||n>100000)return alert('0 ile 100000 arasında bir sayı yazın.');s.t=n;s.n=0;zkSave(s);render(true);},
-  zkhap(){const s=zkGet();s.h=s.h?0:1;zkSave(s);render(true);},
-  nvcity(){const v=T($('nvCity').value);if(!v)return;lss('nv_city',v);NV.err='';nvLoad(true);render(true);},
-  nvref(){nvLoad(true);render(true);}
+  dntab(a){S.dnTab=a.dataset.t;S.dnEdit='';render(true);},
+  dnnext(a){const k=a.dataset.k;S[k]=(S[k]||0)+(+a.dataset.d);S.dnEdit='';render(true);},
+  dnen(a){if(a.dataset.i!=null)S.dnE=+a.dataset.i;else if(a.dataset.d==='0')S.dnE=undefined;else S.dnE=dnEi()+(+a.dataset.d);render(true);},
+  dnshare(a){const x=DN_SH[a.dataset.k];if(x)dnShare(x.o,x.txt);},
+  dnedit(a){S.dnEdit=S.dnEdit===a.dataset.k?'':a.dataset.k;render(true);},
+  dnmsave(a){const t=T($('dnMt').value),k=T($('dnMk').value),c=dnCfg(),f=a.dataset.k==='a'?'meal':'hmeal';c[f]=c[f]||{};if(t)c[f][a.dataset.id]={t,k};else delete c[f][a.dataset.id];dnPut(c);S.dnEdit='';render(true);toast(t?'Kaydedildi':'Taslağa dönüldü');},
+  dnmdel(a){const c=dnCfg(),f=a.dataset.k==='a'?'meal':'hmeal';if(c[f])delete c[f][a.dataset.id];dnPut(c);S.dnEdit='';render(true);},
+  dnzsel(a){lss('dn_zsel_'+activeId(),a.dataset.id);render(true);},
+  dntap(){const z=dnZSel(),n=(+lsg(dnZKey(z.id))||0)+1;lss(dnZKey(z.id),String(n));const r=n%z.h,e=$('dnCnt');if(e)e.textContent=r===0?z.h:r;const b=document.querySelector('.dn-tap');if(b)b.style.setProperty('--p',Math.round((r===0?z.h:r)/z.h*100));const t=$('dnTur');if(t){const tur=Math.floor(n/z.h);t.textContent=(tur?tur+' tur tamamlandı · ':'')+'Toplam '+n;}try{if(navigator.vibrate)navigator.vibrate(r===0?[60,40,60]:12);}catch(x){}if(r===0)toast('🎉 '+z.ad+' hedefi tamamlandı ('+z.h+')');},
+  dnzreset(){const z=dnZSel();if(!confirm(z.ad+' sayacı sıfırlansın mı?'))return;lss(dnZKey(z.id),'0');render(true);},
+  dnzadd(){const ad=T($('zkA').value),ar=T($('zkR').value),h=Math.max(1,parseInt($('zkH').value)||33);if(!ad)return alert('Zikir adını yazın.');const c=dnCfg();c.zk=c.zk||[];const id='z'+Date.now().toString(36);c.zk.push({id,ad,ar,h});dnPut(c);lss('dn_zsel_'+activeId(),id);render(true);toast('Zikir eklendi');},
+  dnzdel(a){if(!confirm('Bu zikir silinsin mi?'))return;const c=dnCfg();c.zk=(c.zk||[]).filter(z=>z.id!==a.dataset.id);dnPut(c);lss('dn_zsel_'+activeId(),'');render(true);}
+});
+$('view').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='exS'){const d=$('exD');if(d)d.innerHTML=exOpts(t.value);}
+  else if(t.id==='dnCity'){const c=dnCfg();c.city=t.value;dnPut(c);lss('dn_city',t.value);render(true);}
+  else if(t.id==='dnHadj'){const c=dnCfg();c.hadj=+t.value;dnPut(c);render(true);}
+  else if(t.dataset&&t.dataset.dnoff!=null){const c=dnCfg(),o=(c.off||[0,0,0,0,0,0]).slice();o[+t.dataset.dnoff]=Math.max(-90,Math.min(90,parseInt(t.value)||0));c.off=o;dnPut(c);render(true);}
 });
 
 /* Başlangıç: profil ve oda */
-/* Başlangıç, betiğin tamamı (tüm const yardımcılar: bdNow, ypAdd, bgT vb.) tanımlandıktan sonra çalışır; aksi halde ilk çizimde 'before initialization' hatası oluşur. */
-setTimeout(()=>{
 if(!new URLSearchParams(location.search).get('k')){
   if(!PS.list.length)pfShow('edit','');
   else{if(PS.list.length>1&&!sessGet('who_ok')&&!kioskOn())pfShow('pick');applyProfile();}
 }
-},0);
 
 /* ========== AKVARYUM: balıklarla katılım ve erdem takibi ========== */
 /* Puan öğrencinin kaydında: s.ak = {p: toplam, w: {haftaBaşıTarihi: haftalık}} */
