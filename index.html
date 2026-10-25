@@ -99,6 +99,31 @@ html.dark body.dx-home::before{opacity:.3}
 .dx-dt{position:relative;display:block}.dx-dt>span{position:absolute;left:1px;top:1px;bottom:1px;right:36px;background:#fff;border-radius:7px 0 0 7px;display:flex;align-items:center;padding:0 10px;color:#64748b;font-weight:400;font-size:15px;pointer-events:none}
 .dark .dx-dt>span{background:#0f172a}.dx-dt input:required:valid+span{display:none}
 .dx-add{background:linear-gradient(135deg,#0284c7,#16a34a)!important}
+.dx-cir{display:flex;justify-content:space-around;gap:6px;margin:4px 0 14px}.dx-cir button{display:flex;flex-direction:column;align-items:center;gap:6px;width:24%;background:none;border:0;padding:0}
+.dx-cir span{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:linear-gradient(135deg,#dff3fb,#dcf5e6);box-shadow:0 0 0 3px #e8c675,0 4px 10px rgba(2,132,199,.28)}
+.dx-cir button:active span{transform:scale(.94)}.dx-cir small{font-size:11px;font-weight:700;color:#0b6a8f;text-align:center;line-height:1.15}.dark .dx-cir small{color:#7dd3fc}
+.dx-v{position:fixed;inset:0;z-index:250;background:rgba(8,40,52,.9);display:none;align-items:center;justify-content:center;padding:16px;overflow:auto}
+.dx-vw{position:relative;width:100%;max-width:440px}.dx-vw .dn-card{margin-bottom:12px}
+.dx-vx{position:absolute;top:-8px;right:-4px;z-index:3;width:36px;height:36px;border-radius:50%;background:#fff;color:#0b4a5e;font-size:18px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.dx-vb{width:52px;height:42px;font-size:18px}
+.dx-yr{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}.dx-yr b{font-size:18px;color:#0b6a8f}.dark .dx-yr b{color:#7dd3fc}
+.dx-b2{background:#0284c7!important;border-color:#0284c7!important;padding:6px 14px!important}
+.dx-mh{font-size:20px;font-weight:700;color:#0b6a8f;margin:16px 4px 6px}.dark .dx-mh{color:#7dd3fc}
+.dx-gl{background:#fff;border-radius:16px;box-shadow:0 1px 4px rgba(2,132,199,.12);border:1px solid #cde6ef;overflow:hidden}.dark .dx-gl{background:#1e293b;border-color:#334155}
+.dx-g{display:flex;gap:12px;padding:12px 14px;border-top:1px solid #e0eef3}.dx-g:first-child{border-top:0}
+.dx-gd{width:78px;flex:none;text-align:center;border-right:2px dotted #b5d8e6;padding-right:10px;display:flex;flex-direction:column}
+.dx-gd b{font-size:26px;color:#0b4a5e;line-height:1.1}.dark .dx-gd b{color:#e2e8f0}.dx-gd span,.dx-gd small{font-size:12px;color:#64748b}
+.dx-gt{display:flex;flex-direction:column;justify-content:center;min-width:0}.dx-gt b{color:#0e7c86;font-size:17px}.dx-gt span{font-size:13px;color:#64748b}.dx-gt em{font-style:normal;font-size:12px;font-weight:700;color:#b8860b}
+.dx-past{opacity:.5}.dx-today{background:#ecfdf5}.dark .dx-today{background:#12332c}
+.dx-big{font-size:30px;font-weight:700;line-height:1.2;margin:8px 0 2px}.dx-tkh{padding-bottom:20px}
+.dx-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}.dx-cal i{font-style:normal;font-size:11px;font-weight:700;color:#0b6a8f;padding:4px 0}
+.dx-cal button{padding:6px 0;border-radius:12px;background:#f1f9fc;color:#0b4a5e;display:flex;flex-direction:column;align-items:center}.dx-cal button b{font-size:16px}.dx-cal button small{font-size:10px;color:#0e7c86}
+.dx-cal button.tod{box-shadow:inset 0 0 0 2px #e8c675}.dx-cal button.on{background:linear-gradient(135deg,#0284c7,#16a34a);color:#fff}.dx-cal button.on small{color:#fff}
+.dark .dx-cal button{background:#1e293b;color:#e2e8f0}
+.dx-lst{background:#fff;border-radius:16px;border:1px solid #cde6ef;overflow:hidden}.dx-lst button{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:14px 16px;border-top:1px solid #e0eef3;font-size:16px;color:#0b4a5e}.dx-lst button:first-child{border-top:0}.dx-lst small{color:#64748b}.dx-lst i{font-style:normal;color:#94a3b8;font-size:22px}
+.dark .dx-lst{background:#1e293b;border-color:#334155}.dark .dx-lst button{color:#e2e8f0;border-color:#334155}
+.dn-es{padding:30px 18px 24px;margin-bottom:12px}.dn-es .dn-huge{font-size:72px;line-height:1.4}
+.dn-ico{position:absolute;right:14px;bottom:12px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:20px;border:1px solid rgba(255,255,255,.35);z-index:1}
 </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
@@ -301,7 +326,7 @@ reg('home','🏠','Ana Sayfa',()=>{
     return '<div class="rounded-lg ring-2 ring-indigo-300 p-1">'+b.replace('data-go="'+k+'"','data-noop="1"')+'<div class="flex gap-1 mt-1"><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="-1" class="'+bt+(i?'':' opacity-30')+'" aria-label="Sola">◀</button><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="1" class="'+bt+(i<ks.length-1?'':' opacity-30')+'" aria-label="Sağa">▶</button></div></div>';}).join('')+'</div>':'';}).join('')
    +'<div class="text-center mt-4 flex justify-center gap-4"><button data-act="hedit" class="text-sm font-semibold text-indigo-600">'+(HEDIT?'✔ Düzenlemeyi bitir':'✏️ Kısayolları sırala')+'</button>'+(HEDIT&&lsg('home_ord')?'<button data-act="hrs" class="text-xs text-slate-500 underline">Varsayılana dön</button>':'')+'</div>';
   const sm=[A.length+' öğrenci',classes().length+' sınıf'].concat(featOn('ders')?[S.lessons.length+' ders']:[],featOn('ezber')?[S.ezberItems.length+' ezber konusu']:[]).join(' · ');
-  return hqCard()+diniBtn()+todayCard()
+  return hqCard()+diniBtn()+dxCircles()+todayCard()
    +(A.length?classChips(A):'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
    +quick+prHomeCard()+ypHomeCard()+(pageOn('yplan')?exCard():'')+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
 },null,'Ana Sayfa');
@@ -993,7 +1018,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const VER='2026-10-d15',NEWS=[['📜','Dini bölümüne yenilikler','Günün ayeti ve hadisi (tek kartta, paylaşılabilir), ezber kartları, Hicri tarih, tam ekran vakit panosu, kendi zikrinizi ekleme ve paylaşılabilir motifli Esmaü’l-Hüsna kartları. Sınav tarihlerinde ders seçimi ve sınav türü (yazılı, sözlü, proje…) eklendi.'],['🕌','Dini bölümü','Ana sayfadaki Dini butonuyla zikirmatik (hedefli sayaç, tur ve günlük toplam), Esmaü’l-Hüsna (99 isim, günün ismi, arama) ve namaz vakitleri (sıradaki vakte geri sayım). Başlığa ay-yıldız desenli arka plan eklendi.'],['🗓️','Ders programım: Gün ve Hafta','Ana sayfadaki ders programı kartında iki sekme var. Gün: bugünün kartı açılır, sağa-sola kaydırarak diğer günlere geçersiniz; ders numarası, saat, o haftanın konusu ve Yoklama düğmesi görünür. Hafta: tüm haftanın tablosu, şu anki ders vurgulu. Zil saatlerini ⏱️ düğmesinden değiştirebilirsiniz.'],['📆','Ana sayfada haftalık plan kartları','Seçili sınıfın yıllık planı hızlı kısayolların altında, bu haftanın kartıyla açılır. Bir sınıfta iki ders varsa yan yana sekmelerle geçersiniz; sağa-sola kaydırarak ya da ◀ ▶ ile önceki ve sonraki haftalara bakarsınız.'],['📥','Ders programını dosyadan yükleme','Bugün sayfasındaki ders programı bölümünden .json dosyası seçin ya da metin yapıştırın; tüm haftalık program tek seferde eklenir.'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
+const VER='2026-10-d15',NEWS=[['📜','Dini bölümüne yenilikler','Günün ayeti ve hadisi (tek kartta, paylaşılabilir), ezber kartları, Hicri tarih, dini günler (yıla göre otomatik), Hicri takvim çevirici, Aşr-ı şerifler, günün duası, günlük daire kısayollar, tam ekran vakit panosu, kendi zikrinizi ekleme ve paylaşılabilir motifli Esmaü’l-Hüsna kartları. Sınav tarihlerinde ders seçimi ve sınav türü (yazılı, sözlü, proje…) eklendi.'],['🕌','Dini bölümü','Ana sayfadaki Dini butonuyla zikirmatik (hedefli sayaç, tur ve günlük toplam), Esmaü’l-Hüsna (99 isim, günün ismi, arama) ve namaz vakitleri (sıradaki vakte geri sayım). Başlığa ay-yıldız desenli arka plan eklendi.'],['🗓️','Ders programım: Gün ve Hafta','Ana sayfadaki ders programı kartında iki sekme var. Gün: bugünün kartı açılır, sağa-sola kaydırarak diğer günlere geçersiniz; ders numarası, saat, o haftanın konusu ve Yoklama düğmesi görünür. Hafta: tüm haftanın tablosu, şu anki ders vurgulu. Zil saatlerini ⏱️ düğmesinden değiştirebilirsiniz.'],['📆','Ana sayfada haftalık plan kartları','Seçili sınıfın yıllık planı hızlı kısayolların altında, bu haftanın kartıyla açılır. Bir sınıfta iki ders varsa yan yana sekmelerle geçersiniz; sağa-sola kaydırarak ya da ◀ ▶ ile önceki ve sonraki haftalara bakarsınız.'],['📥','Ders programını dosyadan yükleme','Bugün sayfasındaki ders programı bölümünden .json dosyası seçin ya da metin yapıştırın; tüm haftalık program tek seferde eklenir.'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükleme','Öğrenciler sayfasından veli iletişim bilgileri Excel dosyasını seçin; baba/anne adı, telefon, meslek ve işyeri öğrenci kartında görünür, telefondan ara ve WhatsApp düğmeleriyle.'],['📥','MEB yıllık planını yükleme','Yıllık Plan sayfasından MEB çerçeve planı Excel dosyasını seçin; hafta, konu ve kazanımlar tatil haftaları dikkate alınarak tarihleriyle eklenir.'],['🔎','Ana sayfada arama','Sayfa, özellik ya da öğrenci adı yazın; sonuca dokunup doğrudan açın.'],['📷','Toplu fotoğraf ve izin','Öğrenciler sayfasından birden çok fotoğrafı tek seferde ekleyin. Öğrenci kartında veli fotoğraf izni işareti var; fotoğrafa dokununca büyür.'],['↕️','Sıralama ve gizleme','İstatistik kutularını ▲ ▼ ✕ ile düzenleyin. Ana sayfada ✏️ Kısayolları sırala ile kısayolların sırasını değiştirin.'],['🔔','Görülen uyarılar kaybolur','Uyarılar sayfasını açınca ana sayfadaki uyarı satırı gider; yeni bir uyarı çıkınca yeniden görünür.'],['👤','Öğretmen girişi','E-posta veya Google ile giriş yapın; oda kodunuz hesabınıza bağlanır, yeni cihazda tekrar girmeniz gerekmez. Çıkış: Ayarlar → Güvenlik ve ekran. Tahta cihazı giriş istemez.'],['📷','Öğrenci fotoğrafı','Öğrenci kartı, Veli sekmesi: fotoğraf çekin ya da seçin.'],['🔍','Fotoğraftan telefon','Liste ya da not fotoğrafından veli telefonunu okutun.'],['📎','Belgeyle paylaş','Mesajlara belge ekleyip telefonun paylaşım menüsüyle gönderin.'],['📅','Ödev hatırlatması','Ödev kontrol gününden bir gün önce ana sayfada ve bildirimde uyarı.'],['⚙️','Ayarlar sayfası','Tanımlar, profil, PIN, ekran ve yedek tek yerde.'],['🏫','Sınıf bazlı ana sayfa','Sınıfa dokunun: liste, yoklama, dönem çizelgesi.'],['🪑','Yeni oturma planı','Boş yere dokunup öğrenci seçin; kapı, tahta, pencere, dolap ekleyin; düzgün çıktı alın.'],['🕓','Gelişim geçmişi','Öğrenci kartında tarihlere göre geçmiş.'],['🗓️','Haftalık ve aylık çizelgeler','Yoklama sayfasından yazdırın ya da Excel alın.'],['🪑','Oturma planı','Öğrencileri sürükleyip yerleştirin, sıraya dokunup yoklama ve puan verin.'],['📜','Hafızlık çizelgesi','30 cüz için cüz cüz ilerleme.'],['📝','Dönem karnesi','Yazdır veya PDF olarak kaydedin.'],['👤','Öğrenci kartı','Listelerde bir öğrencinin adına dokunun: bugünkü işaretler, profil ve grafikler, veli iletişimi.'],['🔒','PIN kilidi','Tanımlar sayfasından kurun.'],['🎂','Doğum günü ve rozetler','Öğrenci kartından doğum tarihi girin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -2085,7 +2110,7 @@ function ypExFor(it,gk){
   return exAll().filter(e=>e.tarih>=it.from&&e.tarih<ypEnd(it)&&(e.sinif==='ALL'||gs==='ALL'||String(e.sinif)===gs)&&exDm(e.ders,gd)&&!exSkip(gs,gd)).sort((a,b)=>a.tarih.localeCompare(b.tarih));
 }
 const EX_TUR=['Yazılı','Sözlü','Proje','Performans','Uygulama','Kısa sınav'];
-const exSkip=(sn,d)=>String(sn).trim()==='5'&&/rehber/i.test(d||'');
+const exSkip=(sn,d)=>/rehber/i.test(d||'');
 function exNo(e){const g=exAll().filter(x=>String(x.sinif)===String(e.sinif)&&T(x.ders)===T(e.ders)).sort((a,b)=>a.tarih.localeCompare(b.tarih)||String(a.id).localeCompare(String(b.id)));return Math.max(1,g.findIndex(x=>x===e||(x.id&&x.id===e.id))+1);}
 const exLab=e=>exNo(e)+'. Sınav'+(e.tur?' · '+e.tur:'')+(e.ad&&!/^\d+\.\s*s[ıi]nav/i.test(e.ad)?' · '+e.ad:'');
 function exLessons(sn){
@@ -2283,7 +2308,7 @@ Object.assign(ACT,{
 const ESMA=[["Er-Rahmân", "الرَّحْمٰنُ", "Dünyada bütün canlılara merhamet eden."], ["Er-Rahîm", "الرَّحِيمُ", "Âhirette müminlere çok merhamet eden."], ["El-Melik", "الْمَلِكُ", "Bütün varlığın gerçek sahibi ve hükümdarı."], ["El-Kuddûs", "الْقُدُّوسُ", "Her türlü eksiklikten uzak, tertemiz."], ["Es-Selâm", "السَّلَامُ", "Her türlü ayıp ve tehlikeden uzak, selâmet veren."], ["El-Mü’min", "الْمُؤْمِنُ", "Güven veren, emniyet bahşeden."], ["El-Müheymin", "الْمُهَيْمِنُ", "Her şeyi görüp gözeten, koruyan."], ["El-Azîz", "الْعَزِيزُ", "Mağlup edilemeyen, her şeye galip."], ["El-Cebbâr", "الْجَبَّارُ", "Dilediğini yaptıran, kırılanı onaran."], ["El-Mütekebbir", "الْمُتَكَبِّرُ", "Büyüklükte eşi olmayan, yücelik sahibi."], ["El-Hâlık", "الْخَالِقُ", "Yaratan, yoktan var eden."], ["El-Bâri’", "الْبَارِئُ", "Eksiksiz ve uyumlu yaratan."], ["El-Musavvir", "الْمُصَوِّرُ", "Her varlığa şekil ve suret veren."], ["El-Gaffâr", "الْغَفَّارُ", "Günahları çokça bağışlayan."], ["El-Kahhâr", "الْقَهَّارُ", "Her şeye üstün gelen, hâkim olan."], ["El-Vehhâb", "الْوَهَّابُ", "Karşılıksız ve çokça bağışta bulunan."], ["Er-Rezzâk", "الرَّزَّاقُ", "Bütün canlıların rızkını veren."], ["El-Fettâh", "الْفَتَّاحُ", "Hayır kapılarını açan, hüküm veren."], ["El-Alîm", "الْعَلِيمُ", "Gizli açık her şeyi bilen."], ["El-Kâbıd", "الْقَابِضُ", "Dilediğinin rızkını daraltan, ruhları alan."], ["El-Bâsıt", "الْبَاسِطُ", "Rızkı genişleten, ikram eden."], ["El-Hâfıd", "الْخَافِضُ", "Dilediğini alçaltan."], ["Er-Râfi’", "الرَّافِعُ", "Dilediğini yücelten."], ["El-Muizz", "الْمُعِزُّ", "Dilediğine izzet ve şeref veren."], ["El-Müzill", "الْمُذِلُّ", "Dilediğini zelil kılan."], ["Es-Semî’", "السَّمِيعُ", "Her şeyi işiten."], ["El-Basîr", "الْبَصِيرُ", "Her şeyi gören."], ["El-Hakem", "الْحَكَمُ", "Hükmü kesin ve adil olan."], ["El-Adl", "الْعَدْلُ", "Çok adil, hiç zulmetmeyen."], ["El-Latîf", "اللَّطِيفُ", "Lütuf sahibi, en ince işleri bilen."], ["El-Habîr", "الْخَبِيرُ", "Her şeyin iç yüzünden haberdar."], ["El-Halîm", "الْحَلِيمُ", "Çok yumuşak davranan, cezada acele etmeyen."], ["El-Azîm", "الْعَظِيمُ", "Pek büyük, azamet sahibi."], ["El-Gafûr", "الْغَفُورُ", "Çok bağışlayan, kusurları örten."], ["Eş-Şekûr", "الشَّكُورُ", "Az amele çok karşılık veren."], ["El-Aliyy", "الْعَلِيُّ", "Çok yüce, en yüksek."], ["El-Kebîr", "الْكَبِيرُ", "Büyüklükte sınırsız olan."], ["El-Hafîz", "الْحَفِيظُ", "Her şeyi koruyan, muhafaza eden."], ["El-Mukît", "الْمُقِيتُ", "Her varlığın gıdasını yaratan ve veren."], ["El-Hasîb", "الْحَسِيبُ", "Kulların hesabını gören, yeterli olan."], ["El-Celîl", "الْجَلِيلُ", "Azamet ve celâl sahibi."], ["El-Kerîm", "الْكَرِيمُ", "Çok cömert, ikramı bol."], ["Er-Rakîb", "الرَّقِيبُ", "Her şeyi gözeten, kontrol eden."], ["El-Mucîb", "الْمُجِيبُ", "Dualara karşılık veren."], ["El-Vâsi’", "الْوَاسِعُ", "İlmi ve rahmeti geniş olan."], ["El-Hakîm", "الْحَكِيمُ", "Her işi hikmetle yapan."], ["El-Vedûd", "الْوَدُودُ", "Kullarını seven ve sevilmeye layık olan."], ["El-Mecîd", "الْمَجِيدُ", "Şanı ve şerefi çok yüce olan."], ["El-Bâis", "الْبَاعِثُ", "Ölüleri dirilten, peygamber gönderen."], ["Eş-Şehîd", "الشَّهِيدُ", "Her şeye şahit olan, hazır ve nâzır."], ["El-Hakk", "الْحَقُّ", "Varlığı gerçek ve değişmez olan."], ["El-Vekîl", "الْوَكِيلُ", "Kendisine güvenilen, işleri üstlenen."], ["El-Kaviyy", "الْقَوِيُّ", "Gücü sınırsız, her şeye gücü yeten."], ["El-Metîn", "الْمَتِينُ", "Kudreti sarsılmaz, pek sağlam."], ["El-Veliyy", "الْوَلِيُّ", "Müminlerin dostu ve yardımcısı."], ["El-Hamîd", "الْحَمِيدُ", "Her türlü övgüye layık olan."], ["El-Muhsî", "الْمُحْصِي", "Her şeyi sayıp hesaplayan."], ["El-Mübdi’", "الْمُبْدِئُ", "Yaratmayı ilk defa başlatan."], ["El-Muîd", "الْمُعِيدُ", "Öldürdükten sonra yeniden yaratan."], ["El-Muhyî", "الْمُحْيِي", "Hayat veren."], ["El-Mümît", "الْمُمِيتُ", "Ölümü yaratan."], ["El-Hayy", "الْحَيُّ", "Diri, hayatı ezelî ve ebedî olan."], ["El-Kayyûm", "الْقَيُّومُ", "Varlığı kendinden olan, her şeyi ayakta tutan."], ["El-Vâcid", "الْوَاجِدُ", "Dilediğini bulan, hiçbir şeye muhtaç olmayan."], ["El-Mâcid", "الْمَاجِدُ", "Şanı yüce, ikramı bol."], ["El-Vâhid", "الْوَاحِدُ", "Zâtında ve sıfatlarında bir olan."], ["El-Ahad", "الْأَحَدُ", "Tek, eşi ve benzeri olmayan."], ["Es-Samed", "الصَّمَدُ", "Her şey O’na muhtaç, O hiçbir şeye muhtaç değil."], ["El-Kâdir", "الْقَادِرُ", "Her şeye gücü yeten."], ["El-Muktedir", "الْمُقْتَدِرُ", "Kudretini dilediği gibi kullanan."], ["El-Mukaddim", "الْمُقَدِّمُ", "Dilediğini öne alan."], ["El-Muahhir", "الْمُؤَخِّرُ", "Dilediğini geriye bırakan."], ["El-Evvel", "الْأَوَّلُ", "Başlangıcı olmayan, her şeyden önce var olan."], ["El-Âhir", "الْآخِرُ", "Sonu olmayan, her şeyden sonra baki kalan."], ["Ez-Zâhir", "الظَّاهِرُ", "Varlığı delilleriyle açık olan."], ["El-Bâtın", "الْبَاطِنُ", "Zâtının hakikati kavranamayan."], ["El-Vâlî", "الْوَالِي", "Bütün varlığı yöneten."], ["El-Müteâlî", "الْمُتَعَالِي", "Yüceliği her şeyin üstünde olan."], ["El-Berr", "الْبَرُّ", "İyilik ve ihsanı bol olan."], ["Et-Tevvâb", "التَّوَّابُ", "Tevbeleri kabul eden."], ["El-Müntakım", "الْمُنْتَقِمُ", "Zalimlere hak ettikleri cezayı veren."], ["El-Afüvv", "الْعَفُوُّ", "Affı çok, günahları silen."], ["Er-Raûf", "الرَّءُوفُ", "Çok şefkatli."], ["Mâlikü’l-Mülk", "مَالِكُ الْمُلْكِ", "Mülkün gerçek sahibi."], ["Zü’l-Celâli ve’l-İkrâm", "ذُو الْجَلَالِ وَالْإِكْرَامِ", "Celâl ve ikram sahibi."], ["El-Muksit", "الْمُقْسِطُ", "Adaletle hükmeden."], ["El-Câmi’", "الْجَامِعُ", "Her şeyi bir araya getiren."], ["El-Ganiyy", "الْغَنِيُّ", "Hiçbir şeye ihtiyacı olmayan."], ["El-Mugnî", "الْمُغْنِي", "Dilediğini zengin eden."], ["El-Mâni’", "الْمَانِعُ", "Dilediğine engel olan, koruyan."], ["Ed-Dârr", "الضَّارُّ", "Zararı yaratan."], ["En-Nâfi’", "النَّافِعُ", "Faydayı yaratan."], ["En-Nûr", "النُّورُ", "Nurlandıran, hidayet ışığı veren."], ["El-Hâdî", "الْهَادِي", "Hidayet veren, doğru yolu gösteren."], ["El-Bedî’", "الْبَدِيعُ", "Eşsiz ve örneksiz yaratan."], ["El-Bâkî", "الْبَاقِي", "Varlığı sonsuz olan."], ["El-Vâris", "الْوَارِثُ", "Her şeyin sonunda gerçek varisi olan."], ["Er-Reşîd", "الرَّشِيدُ", "Doğru yolu gösteren, işleri isabetli."], ["Es-Sabûr", "الصَّبُورُ", "Çok sabırlı, cezada acele etmeyen."]];
 /* ===== Dini: zikirmatik, Esmaü’l-Hüsna, namaz vakitleri ===== */
 (function(){const st=document.createElement('style');st.textContent='.ar{direction:rtl;font-family:"Noto Naskh Arabic","Amiri","Scheherazade New","Traditional Arabic",serif;line-height:1.9}';document.head.appendChild(st);})();
-const DN={tab:lsg('dn_tab')||'zk'},NV={err:'',busy:false,t:0};
+const DN={tab:lsg('dn_tab')||'nv'},NV={err:'',busy:false,t:0};
 const NV_N=[['Fajr','İmsak'],['Sunrise','Güneş'],['Dhuhr','Öğle'],['Asr','İkindi'],['Maghrib','Akşam'],['Isha','Yatsı']];
 const ZK=[['Sübhânallah','سُبْحَانَ اللهِ',33],['Elhamdülillah','الْحَمْدُ لِلَّهِ',33],['Allâhü Ekber','اللهُ أَكْبَرُ',33],['Lâ ilâhe illallah','لَا إِلٰهَ إِلَّا اللهُ',100],['Estağfirullah','أَسْتَغْفِرُ اللهَ',100],['Salavat','اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ',100],['Serbest sayaç','',0]];
 function dnToday(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -2349,11 +2374,11 @@ function nvPaint(){const e=$('nvBody');if(e)e.innerHTML=nvBody();}
 /* ---- Sayfa ve ana sayfa butonu ---- */
 function diniBtn(){return '<button data-go="dini" class="card dx-nv w-full text-left flex items-center gap-3"><span class="text-3xl">🕌</span><div class="flex-1 min-w-0"><b>Namaz vakti</b><div id="dnSub" class="text-xs truncate" style="opacity:.92">'+esc(dnSub())+'</div><div class="text-[11px] font-semibold" style="color:#f0d98c">'+esc(dnHijri(new Date()))+'</div></div><span class="text-xl" style="opacity:.85">›</span></button>';}
 reg('dini','🕌','Dini',()=>{
-  const tabs=[['nv','🕋 Namaz vakitleri'],['ay','📜 Ayet & Hadis'],['ez','🧠 Ezber kartları'],['zk','📿 Zikirmatik'],['es','✨ Esmaü’l-Hüsna']];
+  const tabs=[['nv','🕋 Namaz vakitleri'],['gn','🗓️ Dini günler'],['ay','📜 Ayet & Hadis'],['es','✨ Esmaü’l-Hüsna'],['zk','📿 Zikirmatik'],['ez','🧠 Ezber kartları'],['as','📖 Aşr-ı Şerifler'],['tk','🌙 Hicri takvim']];
   if(!tabs.some(x=>x[0]===DN.tab))DN.tab='zk';
   setTimeout(()=>{if(DN.tab==='nv'||!nvDay(dnToday()))nvLoad(false);},0);
-  return '<div class="flex gap-1.5 overflow-x-auto pb-2 mb-2">'+tabs.map(x=>'<button data-act="dntab" data-t="'+x[0]+'" class="shrink-0 px-3 py-2 rounded-lg border text-sm font-semibold '+(DN.tab===x[0]?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600')+'">'+x[1]+'</button>').join('')+'</div>'
-   +(DN.tab==='zk'?zkBody():DN.tab==='es'?esBody():DN.tab==='ay'?dxAyBody():DN.tab==='ez'?dxEzBody():'<div id="nvBody">'+nvBody()+'</div>');
+  return dxCircles()+'<div class="flex flex-wrap gap-1.5 pb-2 mb-2">'+tabs.map(x=>'<button data-act="dntab" data-t="'+x[0]+'" class="shrink-0 px-3 py-2 rounded-lg border text-sm font-semibold '+(DN.tab===x[0]?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600')+'">'+x[1]+'</button>').join('')+'</div>'
+   +(DN.tab==='zk'?zkBody():DN.tab==='es'?esBody():DN.tab==='ay'?dxAyBody():DN.tab==='ez'?dxEzBody():DN.tab==='gn'?dxGnBody():DN.tab==='tk'?dxTkBody():DN.tab==='as'?dxAsBody():'<div id="nvBody">'+nvBody()+'</div>');
 });
 document.addEventListener('change',e=>{if(e.target.id==='exS'){const d=$('exD');if(d)d.innerHTML=exOpts(e.target.value);}});
 document.addEventListener('input',e=>{if(e.target.id==='esQ'){const l=$('esL');if(l)l.innerHTML=esList(e.target.value);}});
@@ -2417,7 +2442,7 @@ function dnHijri(date){
 const dnGreg=d=>d.getDate()+' '+DN_AYS[d.getMonth()]+' '+d.getFullYear();
 
 /* ---- Paylaşım: kartı PNG olarak çizer ---- */
-const DN_TH={green:['#0b3d2e','#15735a'],navy:['#0d1b3d','#2a4f94'],plum:['#3b1650','#7a34a6']};
+const DN_TH={teal:['#0a4b55','#0e7c86'],green:['#0b3d2e','#15735a'],navy:['#0d1b3d','#2a4f94'],plum:['#3b1650','#7a34a6']};
 function dnWrap(x,text,maxW){const w=String(text).split(/\s+/),l=[];let c='';w.forEach(k=>{const t=c?c+' '+k:k;if(x.measureText(t).width>maxW&&c){l.push(c);c=k;}else c=t;});if(c)l.push(c);return l;}
 function dnStarPath(x,cx,cy,r){x.beginPath();for(let i=0;i<16;i++){const a=Math.PI*i/8-Math.PI/2,rr=i%2?r*0.72:r;x[i?'lineTo':'moveTo'](cx+rr*Math.cos(a),cy+rr*Math.sin(a));}x.closePath();}
 function dnCanvas(o){
@@ -2502,14 +2527,6 @@ function dxEsmaShare(i){
   const e=i==='L'?['Allah','اللهُ','Bütün kemâl sıfatlarını kendinde toplayan yüce zâtın özel ismi.']:ESMA[+i],no=i==='L'?'':' · '+(+i+1)+'/99';
   dnShare({theme:'plum',head:'ESMÂÜ’L-HÜSNÂ'+no,big:e[1],title:e[0],titleBig:true,body:e[2],foot:'Allah’ın güzel isimlerinden'},e[1]+' — '+e[0]+'\n'+e[2]);
 }
-function esCard(i){const e=ESMA[i];return '<div class="dn-card dn-plum dn-mini"><div class="dn-no">'+(i+1)+'</div><div class="dn-ar">'+e[1]+'</div><div class="dn-nm">'+esc(e[0])+'</div><div class="dn-tr">'+esc(e[2])+'</div><div class="dn-row"><button data-act="dxesh" data-i="'+i+'" class="dn-btn">📤 Paylaş</button></div></div>';}
-function esBody(){
-  const i=esDay(),t=ESMA[i];
-  return '<div class="dn-card dn-plum"><div class="dn-hd">GÜNÜN İSMİ</div><div class="dn-no">'+(i+1)+'</div><div class="dn-ar dn-huge">'+t[1]+'</div><div class="dn-nm">'+esc(t[0])+'</div><div class="dn-tr">'+esc(t[2])+'</div><div class="dn-row"><button data-act="dxesh" data-i="'+i+'" class="dn-btn dn-gold">📤 Paylaş</button></div></div>'
-   +'<div class="dn-card dn-green"><div class="dn-hd">LAFZA-İ CELÂL</div><div class="dn-ar dn-huge">اللهُ</div><div class="dn-nm">Allah</div><div class="dn-tr">Bütün kemâl sıfatlarını kendinde toplayan yüce zâtın özel ismi.</div><div class="dn-row"><button data-act="dxesh" data-i="L" class="dn-btn dn-gold">📤 Paylaş</button></div></div>'
-   +'<input id="esQ" type="search" class="inp w-full mb-2" placeholder="🔎 İsim ya da anlam ara…" autocomplete="off"><div id="esL" class="grid grid-cols-2 gap-2">'+esList('')+'</div>'
-   +'<div class="text-xs text-slate-400 mt-3">Sıralama kaynaklara göre değişebilir. Anlamlar kısa açıklamadır.</div>';
-}
 /* ---- İşlemler ---- */
 Object.assign(ACT,{
   dxboard(){let b=$('dxBoard');if(!b){b=document.createElement('div');b.id='dxBoard';document.body.appendChild(b);}b.style.display='block';dxBoardDraw();clearInterval(dxBT);dxBT=setInterval(dxBoardDraw,1000);try{if(b.requestFullscreen)b.requestFullscreen().catch(()=>{});}catch(e){}},
@@ -2570,6 +2587,160 @@ Object.assign(ACT,{
   dxeza(){const ad=T($('dxEzA').value),ar=String($('dxEzR').value).split('\n').map(T).filter(Boolean),ok=String($('dxEzO').value).split('\n').map(T).filter(Boolean);if(!ad||!ar.length)return alert('Kartın adını ve Arapça metni yazın.');const c=dnCfg();c.ez=c.ez||[];c.ez.push({id:'ez'+Date.now().toString(36),ad,ar,ok});dnPut(c);render(true);toast('Ezber kartı eklendi');},
   dxezd(a){if(!confirm('Bu ezber kartı silinsin mi?'))return;const c=dnCfg();c.ez=(c.ez||[]).filter(z=>z.id!==a.dataset.id);dnPut(c);S.dxEz='';render(true);}
 });
+
+/* ===== Dini günler, Hicri takvim, Aşr-ı şerifler, günün duası, daire kısayollar ===== */
+let DX_HF=null;
+function dxHj(d){
+  try{
+    if(!DX_HF)DX_HF=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'});
+    const adj=+dnCfg().hadj||0,x=new Date(d.getFullYear(),d.getMonth(),d.getDate()+adj,12),p=DX_HF.formatToParts(x),g=t=>parseInt((p.find(q=>q.type===t)||{}).value,10);
+    const r={d:g('day'),m:g('month'),y:g('year')};return r.d&&r.m?r:null;
+  }catch(e){return null;}
+}
+const dxHt=h=>h?h.d+' '+DN_HM[h.m-1]+' '+h.y:'';
+const dxIso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const dxD0=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate(),12);
+const dxDays=(a,b)=>Math.round((dxD0(b)-dxD0(a))/864e5);
+/* ---- Dini günler: Hicri takvimden her yıl otomatik hesaplanır ---- */
+function dxGunler(Y){
+  const out=[],seen={};
+  const add=(d,n)=>{if(d.getFullYear()!==Y)return;const k=n+dxIso(d);if(seen[k])return;seen[k]=1;out.push({d:dxD0(d),n,h:dxHj(d)});};
+  for(let i=-3;i<369;i++){
+    const d=new Date(Y,0,1+i,12),h=dxHj(d);if(!h)continue;const pv=new Date(Y,0,i,12);
+    if(h.m===1&&h.d===1)add(d,'Hicri Yılbaşı');
+    if(h.m===1&&h.d===10)add(d,'Aşure Günü');
+    if(h.m===3&&h.d===11)add(d,'Mevlid Kandili');
+    if(h.m===7&&h.d===1)add(d,'Üç Ayların Başlangıcı');
+    if(d.getDay()===5&&h.m===7&&h.d<=7)add(pv,'Regaip Kandili');
+    if(h.m===7&&h.d===26)add(d,'Miraç Kandili');
+    if(h.m===8&&h.d===14)add(d,'Berat Kandili');
+    if(h.m===9&&h.d===1)add(d,'Ramazan’ın İlk Günü');
+    if(h.m===9&&h.d===26)add(d,'Kadir Gecesi');
+    if(h.m===10&&h.d===1)add(pv,'Ramazan Bayramı Arefesi');
+    if(h.m===10&&h.d<=3)add(d,'Ramazan Bayramı '+h.d+'. Gün');
+    if(h.m===12&&h.d===9)add(d,'Kurban Bayramı Arefesi');
+    if(h.m===12&&h.d>=10&&h.d<=13)add(d,'Kurban Bayramı '+(h.d-9)+'. Gün');
+  }
+  /* Diyanet'in ilan ettiği tarihlerle hesabın ayrıldığı yıllar (kaynak: Diyanet takvimi). */
+  const OV={2026:{'Ramazan’ın İlk Günü':['2026-02-19',{d:1,m:9,y:1447}],'Kadir Gecesi':['2026-03-16',{d:26,m:9,y:1447}]}}[Y];
+  if(OV)out.forEach(e=>{const o=OV[e.n];if(o){e.d=new Date(o[0]+'T12:00:00');e.h=o[1];}});
+  return out.sort((a,b)=>a.d-b.d);
+}
+function dxGnBody(){
+  const Y=S.dxY||new Date().getFullYear(),l=dxGunler(Y),now=dxD0(new Date());
+  let last=-1,h='<div class="dx-yr"><button data-act="dxyr" data-d="-1" class="dn-btn dx-b2" aria-label="Önceki yıl">◀</button><b>Dini Günler '+Y+'</b><button data-act="dxyr" data-d="1" class="dn-btn dx-b2" aria-label="Sonraki yıl">▶</button></div>';
+  if(!l.length)return h+'<div class="text-sm text-slate-500">Bu tarayıcı Hicri takvimi desteklemiyor.</div>';
+  l.forEach(e=>{
+    const m=e.d.getMonth(),n=dxDays(now,e.d);
+    if(m!==last){if(last>=0)h+='</div>';h+='<div class="dx-mh">'+DN_AYS[m]+'</div><div class="dx-gl">';last=m;}
+    h+='<div class="dx-g'+(n<0?' dx-past':'')+(n===0?' dx-today':'')+'"><div class="dx-gd"><b>'+String(e.d.getDate()).padStart(2,'0')+'</b><span>'+DN_AYS[m]+'</span><small>'+esc(exDay(dxIso(e.d)))+'</small></div><div class="dx-gt"><b>'+esc(e.n)+'</b><span>'+esc(dxHt(e.h))+'</span>'+(n>=0&&n<=60?'<em>'+(n===0?'Bugün':n+' gün kaldı')+'</em>':'')+'</div></div>';
+  });
+  return h+'</div><div class="text-xs text-slate-500 mt-3">Tarihler Hicri takvimden hesaplanır ve her yıl kendiliğinden yenilenir. Diyanet takvimiyle bir gün fark çıkarsa Hicri Takvim sekmesindeki düzeltmeyi kullanın. Kandil geceleri, tarihin akşamında başlar.</div>';
+}
+/* ---- Miladi - Hicri takvim ---- */
+function dxTkBody(){
+  const td=dxD0(new Date()),cm=S.dxCm||{y:td.getFullYear(),m:td.getMonth()},sel=S.dxSel?new Date(S.dxSel+'T12:00:00'):td,hs=dxHj(sel);
+  const first=new Date(cm.y,cm.m,1,12),off=(first.getDay()+6)%7,nd=new Date(cm.y,cm.m+1,0).getDate(),cadj=+dnCfg().hadj||0;
+  let h='<div class="dn-card dn-teal dx-tkh"><div class="dn-hd">'+esc(dnGreg(sel))+' · '+esc(exDay(dxIso(sel)))+'</div><div class="dx-big">'+(hs?esc(hs.d+' '+DN_HM[hs.m-1]+' '+hs.y):'Hicri takvim desteklenmiyor')+'</div></div>';
+  h+='<div class="card"><div class="dx-yr"><button data-act="dxcm" data-d="-1" class="dn-btn dx-b2" aria-label="Önceki ay">◀</button><b>'+DN_AYS[cm.m]+' '+cm.y+'</b><button data-act="dxcm" data-d="1" class="dn-btn dx-b2" aria-label="Sonraki ay">▶</button><button data-act="dxtoday" class="dn-btn dx-b2" style="margin-left:6px">Bugün</button></div><div class="dx-cal">';
+  ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'].forEach(x=>h+='<i>'+x+'</i>');
+  for(let i=0;i<off;i++)h+='<span></span>';
+  for(let d=1;d<=nd;d++){const x=new Date(cm.y,cm.m,d,12),hh=dxHj(x),iso=dxIso(x);
+    h+='<button data-act="dxsel" data-d="'+iso+'" class="'+(iso===dxIso(sel)?'on ':'')+(iso===dxIso(td)?'tod':'')+'"><b>'+d+'</b><small>'+(hh?(hh.d===1?DN_HM[hh.m-1].slice(0,4):hh.d):'')+'</small></button>';}
+  h+='</div></div>';
+  const yy=hs?hs.y:1448;
+  h+='<div class="card"><b>🔁 Hicri tarihi Miladiye çevir</b><div class="grid grid-cols-3 gap-2 mt-2"><label class="text-xs font-semibold">Gün<select id="dxHd" class="inp w-full">'+Array.from({length:30},(_,i)=>'<option>'+(i+1)+'</option>').join('')+'</select></label><label class="text-xs font-semibold">Ay<select id="dxHm" class="inp w-full">'+DN_HM.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('')+'</select></label><label class="text-xs font-semibold">Yıl<input id="dxHy" type="number" class="inp w-full" value="'+yy+'"></label></div><button data-act="dxh2m" class="btn dx-add mt-2 w-full">Çevir</button><div id="dxH2M" class="text-sm font-semibold mt-2">'+esc(S.dxH2M||'')+'</div></div>';
+  h+='<div class="card"><label class="text-xs font-semibold">Hicri tarih düzeltmesi<select id="dxHadj" class="inp w-full mt-1"><option value="-1"'+(cadj===-1?' selected':'')+'>−1 gün</option><option value="0"'+(cadj===0?' selected':'')+'>Düzeltme yok</option><option value="1"'+(cadj===1?' selected':'')+'>+1 gün</option></select></label><div class="text-xs text-slate-500 mt-1">Hesap Ümmü’l-Kurâ takvimine göredir. Diyanet’in ilan ettiği tarihle bir gün fark çıkarsa buradan ayarlayın; Ana sayfa, Dini Günler ve takvim birlikte güncellenir.</div></div>';
+  return h;
+}
+/* ---- Aşr-ı şerifler ---- */
+const DX_ASR=[
+ {id:'s1',ad:'Layestevi',ref:'Haşr 20-24',ay:[[20,'لَا يَسْتَوِي أَصْحَابُ النَّارِ وَأَصْحَابُ الْجَنَّةِ ۚ أَصْحَابُ الْجَنَّةِ هُمُ الْفَائِزُونَ'],[21,'لَوْ أَنزَلْنَا هَٰذَا الْقُرْآنَ عَلَىٰ جَبَلٍ لَّرَأَيْتَهُ خَاشِعًا مُّتَصَدِّعًا مِّنْ خَشْيَةِ اللَّهِ ۚ وَتِلْكَ الْأَمْثَالُ نَضْرِبُهَا لِلنَّاسِ لَعَلَّهُمْ يَتَفَكَّرُونَ'],[22,'هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ ۖ عَالِمُ الْغَيْبِ وَالشَّهَادَةِ ۖ هُوَ الرَّحْمَٰنُ الرَّحِيمُ'],[23,'هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ ۚ سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ'],[24,'هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ ۖ لَهُ الْأَسْمَاءُ الْحُسْنَىٰ ۚ يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ ۖ وَهُوَ الْعَزِيزُ الْحَكِيمُ']]},
+ {id:'s2',ad:'Lekad Sadakallahu',ref:'Fetih 27-28',ay:[[27,'لَقَدْ صَدَقَ اللَّهُ رَسُولَهُ الرُّؤْيَا بِالْحَقِّ ۖ لَتَدْخُلُنَّ الْمَسْجِدَ الْحَرَامَ إِن شَاءَ اللَّهُ آمِنِينَ مُحَلِّقِينَ رُءُوسَكُمْ وَمُقَصِّرِينَ لَا تَخَافُونَ ۖ فَعَلِمَ مَا لَمْ تَعْلَمُوا فَجَعَلَ مِن دُونِ ذَٰلِكَ فَتْحًا قَرِيبًا'],[28,'هُوَ الَّذِي أَرْسَلَ رَسُولَهُ بِالْهُدَىٰ وَدِينِ الْحَقِّ لِيُظْهِرَهُ عَلَى الدِّينِ كُلِّهِ ۚ وَكَفَىٰ بِاللَّهِ شَهِيدًا']]},
+ {id:'s3',ad:'Levenzelna',ref:'Haşr 21-24',ay:[]},
+ {id:'s4',ad:'Âyetü’l-Kürsî',ref:'Bakara 255',ay:[[255,'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ']]},
+ {id:'s5',ad:'Âmenerrasûlü',ref:'Bakara 285-286',ay:[[285,'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ ۚ كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ ۚ وَقَالُوا سَمِعْنَا وَأَطَعْنَا ۖ غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ'],[286,'لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا ۚ لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ ۗ رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا ۚ رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا ۚ رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ ۖ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا ۚ أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ']]},
+ {id:'s6',ad:'Yâsîn',ref:'Yâsîn Sûresi',ay:[]},
+ {id:'s7',ad:'İsrâ',ref:'İsrâ 1-7',ay:[]},
+ {id:'s8',ad:'Bakara',ref:'Bakara 183-186',ay:[]},
+ {id:'s9',ad:'Âl-i İmrân',ref:'Âl-i İmrân 190-194',ay:[]},
+ {id:'s10',ad:'Hucurât',ref:'Hucurât 13-18',ay:[]}
+];
+DX_ASR[2].ay=DX_ASR[0].ay.slice(1);
+const dxAsrAll=()=>{const o=(dnCfg().asr||{});return DX_ASR.map(z=>o[z.id]&&o[z.id].length?Object.assign({},z,{ay:o[z.id].map((t,i)=>[i+1,t]),own:1}):z);};
+function dxAsBody(){
+  const all=dxAsrAll(),cur=all.find(z=>z.id===S.dxAs);
+  if(!cur)return '<div class="dx-lst">'+all.map(z=>'<button data-act="dxaso" data-id="'+z.id+'"><span>'+esc(z.ad)+' <small>('+esc(z.ref)+')</small></span><i>›</i></button>').join('')+'</div><div class="text-xs text-slate-500 mt-2">Metni bulunmayan bölümlerde Arapça metni kendiniz ekleyebilirsiniz.</div>';
+  DN_SH.s={o:{theme:'navy',head:cur.ad.toUpperCase(),arab:cur.ay.map(a=>a[1]).join(' ✦ '),foot:cur.ref},txt:cur.ad+' ('+cur.ref+')\n'+cur.ay.map(a=>a[1]).join('\n')};
+  let h='<div class="dx-yr"><button data-act="dxasb" class="dn-btn dx-b2">◀ Liste</button><b>'+esc(cur.ad)+'</b><span></span></div>';
+  if(cur.ay.length)h+='<div class="dn-card dn-navy"><div class="dn-hd">'+esc(cur.ref.toUpperCase())+'</div>'+cur.ay.map(a=>'<div class="dx-ln" style="cursor:default"><div class="dn-no2">'+a[0]+'</div><div class="dn-ar">'+esc(a[1])+'</div></div>').join('')+'<div class="dn-row"><button data-act="dxshare" data-k="s" class="dn-btn dn-gold">📤 Paylaş</button>'+(cur.own?'<button data-act="dxasd" data-id="'+cur.id+'" class="dn-btn">Eklediğim metni sil</button>':'')+'</div></div>';
+  else h+='<div class="card"><b>'+esc(cur.ref)+'</b><div class="text-sm text-slate-500 my-2">Bu bölümün Arapça metni henüz eklenmedi. Mushaftan her ayeti ayrı satıra yapıştırın.</div><textarea id="dxAsT" class="inp w-full ar" rows="6" placeholder="Arapça metin (her satır bir ayet)"></textarea><button data-act="dxass" data-id="'+cur.id+'" class="btn dx-add mt-2 w-full">Kaydet</button></div>';
+  return h;
+}
+/* ---- Günün duası ---- */
+const DX_DUA=[
+ {id:'d1',ar:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',ok:'Rabbenâ âtinâ fiddünyâ haseneten ve fil âhırati haseneten ve kınâ azâben nâr.',t:'Rabbimiz, bize dünyada da iyilik ver, âhirette de iyilik ver ve bizi ateş azabından koru.',k:'Bakara 201'},
+ {id:'d2',ar:'رَبِّ زِدْنِي عِلْمًا',ok:'Rabbi zidnî ilmâ.',t:'Rabbim, ilmimi artır.',k:'Tâhâ 114'},
+ {id:'d3',ar:'رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي',ok:'Rabbişrah lî sadrî ve yessir lî emrî.',t:'Rabbim, göğsümü aç ve işimi kolaylaştır.',k:'Tâhâ 25-26'},
+ {id:'d4',ar:'رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ',ok:'Rabbenağfir lî ve li vâlideyye ve lil mü’minîne yevme yekûmül hısâb.',t:'Rabbimiz, hesabın görüleceği gün beni, anne babamı ve müminleri bağışla.',k:'İbrâhîm 41'},
+ {id:'d5',ar:'رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ',ok:'Rabbi innî limâ enzelte ileyye min hayrin fakîr.',t:'Rabbim, bana indireceğin her hayra muhtacım.',k:'Kasas 24'},
+ {id:'d6',ar:'رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ الْوَهَّابُ',ok:'Rabbenâ lâ tüziğ kulûbenâ ba’de iz hedeytenâ ve heb lenâ min ledünke rahmeh, inneke entel vehhâb.',t:'Rabbimiz, bizi doğru yola ilettikten sonra kalplerimizi eğriltme ve bize katından bir rahmet bağışla.',k:'Âl-i İmrân 8'},
+ {id:'d7',ar:'رَبَّنَا ظَلَمْنَا أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ',ok:'Rabbenâ zalemnâ enfüsenâ ve in lem tağfir lenâ ve terhamnâ le nekûnenne minel hâsirîn.',t:'Rabbimiz, biz kendimize zulmettik; bizi bağışlamaz ve bize acımazsan kaybedenlerden oluruz.',k:'A‘râf 23'},
+ {id:'d8',ar:'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا',ok:'Rabbenâ heb lenâ min ezvâcinâ ve zürriyyâtinâ kurrete a’yünin vec’alnâ lilmüttekîne imâmâ.',t:'Rabbimiz, eşlerimizden ve çocuklarımızdan bize göz aydınlığı ver ve bizi takvâ sahiplerine önder kıl.',k:'Furkân 74'},
+ {id:'d9',ar:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',ok:'Hasbünallâhü ve ni’mel vekîl.',t:'Allah bize yeter, O ne güzel vekildir.',k:'Âl-i İmrân 173'}
+];
+/* ---- Daire kısayollar ve görüntüleyici ---- */
+const DX_CIR=[['dua','🤲','Günün Duası'],['hadis','📜','Günün Hadisi'],['esma','✨','Günün Esması'],['ayet','📖','Günün Ayeti']];
+function dxCircles(){
+  return '<div class="dx-cir">'+DX_CIR.map(c=>'<button data-act="dxopen" data-k="'+c[0]+'"><span>'+c[1]+'</span><small>'+c[2]+'</small></button>').join('')+'</div>';
+}
+function dxViewCard(k){
+  const c=dnCfg();
+  if(k==='ayet'){const a=DN_AYET[dxPick(DN_AYET,'dxA')],m=(c.meal||{})[a.id],t=m&&m.t?m.t:a.t;DN_SH.v={o:{theme:'green',head:'GÜNÜN AYETİ',arab:a.ar,body:t,foot:a.s+' Suresi · '+a.n},txt:a.ar+'\n'+t+'\n— '+a.s+' Suresi, '+a.n};
+    return '<div class="dn-card dn-green"><div class="dn-hd">GÜNÜN AYETİ</div><div class="dn-ar">'+esc(a.ar)+'</div><div class="dn-tr">'+esc(t)+'</div><div class="dn-ft">'+esc(a.s)+' Suresi · '+esc(a.n)+'</div>'+(m&&m.t?'':'<div class="dn-tag dn-draft">Taslak anlam</div>')+'</div>';}
+  if(k==='hadis'){const h=DN_HADIS[dxPick(DN_HADIS,'dxH')],m=(c.hmeal||{})[h.id],t=m&&m.t?m.t:h.t,kk=m&&m.t&&m.k?m.k:h.k;DN_SH.v={o:{theme:'navy',head:'GÜNÜN HADİSİ',body:'“'+t+'”',foot:kk},txt:'“'+t+'”\n— '+kk};
+    return '<div class="dn-card dn-navy"><div class="dn-hd">GÜNÜN HADİSİ</div><div class="dn-tr dn-big">“'+esc(t)+'”</div><div class="dn-ft">'+esc(kk)+'</div>'+(m&&m.t?'':'<div class="dn-tag dn-draft">Taslak anlam</div>')+'</div>';}
+  if(k==='esma'){const i=((esDay()+(S.dxVe||0))%99+99)%99,e=ESMA[i];DN_SH.v={o:{theme:'plum',head:'ESMÂÜ’L-HÜSNÂ · '+(i+1)+'/99',big:e[1],title:e[0],titleBig:true,body:e[2],foot:'Allah’ın güzel isimlerinden'},txt:e[1]+' — '+e[0]+'\n'+e[2]};
+    return '<div class="dn-card dn-plum"><div class="dn-hd">GÜNÜN İSMİ</div><div class="dn-no">'+(i+1)+'</div><div class="dn-ar dn-huge">'+esc(e[1])+'</div><div class="dn-nm">'+esc(e[0])+'</div><div class="dn-tr">'+esc(e[2])+'</div></div>';}
+  const n=DX_DUA.length,d=DX_DUA[(((dxDay()+(S.dxD||0))%n)+n)%n];DN_SH.v={o:{theme:'teal',head:'GÜNÜN DUASI',arab:d.ar,body:d.t,foot:d.k},txt:d.ar+'\n'+d.ok+'\n'+d.t+'\n— '+d.k};
+  return '<div class="dn-card dn-teal"><div class="dn-hd">GÜNÜN DUASI</div><div class="dn-ar">'+esc(d.ar)+'</div><div class="dn-tr">'+esc(d.ok)+'</div><div class="dn-tr" style="opacity:.8">'+esc(d.t)+'</div><div class="dn-ft">'+esc(d.k)+'</div><div class="dn-tag dn-draft">Taslak anlam</div></div>';
+}
+function dxViewDraw(){
+  const v=$('dxV');if(!v||v.style.display==='none')return;
+  v.innerHTML='<div class="dx-vw"><button data-act="dxvx" class="dx-vx" aria-label="Kapat">✕</button>'+dxViewCard(S.dxVk)+'<div class="dn-row" style="margin-top:0"><button data-act="dxvn" data-d="-1" class="dn-btn dx-vb" aria-label="Önceki">◀</button><button data-act="dxshare" data-k="v" class="dn-btn dn-gold">📤 Paylaş</button><button data-act="dxvn" data-d="1" class="dn-btn dx-vb" aria-label="Sonraki">▶</button></div></div>';
+}
+Object.assign(ACT,{
+  dxopen(a){S.dxVk=a.dataset.k;let v=$('dxV');if(!v){v=document.createElement('div');v.id='dxV';v.className='dx-v';document.body.appendChild(v);}v.style.display='flex';dxViewDraw();},
+  dxvx(){const v=$('dxV');if(v)v.style.display='none';},
+  dxvn(a){const d=+a.dataset.d,k=S.dxVk;if(k==='ayet')S.dxA=(S.dxA||0)+d;else if(k==='hadis')S.dxH=(S.dxH||0)+d;else if(k==='esma')S.dxVe=(S.dxVe||0)+d;else S.dxD=(S.dxD||0)+d;dxViewDraw();},
+  dxyr(a){S.dxY=(S.dxY||new Date().getFullYear())+(+a.dataset.d);render(true);},
+  dxcm(a){const td=new Date(),c=S.dxCm||{y:td.getFullYear(),m:td.getMonth()},x=new Date(c.y,c.m+(+a.dataset.d),1);S.dxCm={y:x.getFullYear(),m:x.getMonth()};render(true);},
+  dxtoday(){S.dxCm=null;S.dxSel='';render(true);},
+  dxsel(a){S.dxSel=a.dataset.d;render(true);},
+  dxh2m(){
+    const d=+$('dxHd').value,m=+$('dxHm').value,y=parseInt($('dxHy').value,10);if(!y||y<1300||y>1600){S.dxH2M='Yıl 1300 ile 1600 arasında olmalı.';render(true);return;}
+    const g0=Math.round(y*0.970229+621.5);let f=null;
+    for(let i=-60;i<460&&!f;i++){const x=new Date(g0,0,1+i,12),h=dxHj(x);if(h&&h.y===y&&h.m===m&&h.d===d)f=x;}
+    S.dxH2M=f?d+' '+DN_HM[m-1]+' '+y+' = '+dnGreg(f)+', '+exDay(dxIso(f)):'Bu Hicri tarih bulunamadı (ayın 30. günü olmayabilir).';
+    if(f){S.dxSel=dxIso(f);S.dxCm={y:f.getFullYear(),m:f.getMonth()};}render(true);
+  },
+  dxaso(a){S.dxAs=a.dataset.id;render(true);scrollTo({top:0});},
+  dxasb(){S.dxAs='';render(true);},
+  dxass(a){const ln=String($('dxAsT').value).split('\n').map(T).filter(Boolean);if(!ln.length)return alert('Arapça metni yapıştırın.');const c=dnCfg();c.asr=c.asr||{};c.asr[a.dataset.id]=ln;dnPut(c);render(true);toast('Kaydedildi');},
+  dxasd(a){if(!confirm('Eklediğiniz metin silinsin mi?'))return;const c=dnCfg();if(c.asr)delete c.asr[a.dataset.id];dnPut(c);render(true);}
+});
+document.addEventListener('change',e=>{if(e.target.id==='dxHadj'){const c=dnCfg();c.hadj=+e.target.value;dnPut(c);render(true);}});
+/* ---- Esmâ: büyük kartlar ---- */
+function esCard(i){
+  const L=i==='L',e=L?['Allah c.c.','اللهُ','O’nun zât ve özel ismidir. Diğer isimler fiilleri, sıfatları ve tecellileri ile ilgilidir.']:ESMA[i];
+  return '<div class="dn-card dn-es '+(L?'dn-green':'dn-plum')+'"><div class="dn-no">'+(L?'✦':i+1)+'</div><div class="dn-ar dn-huge">'+esc(e[1])+'</div><div class="dn-nm">'+esc(e[0])+'</div><div class="dn-tr">'+esc(e[2])+'</div><button data-act="dxesh" data-i="'+(L?'L':i)+'" class="dn-ico" aria-label="Paylaş">⇪</button></div>';
+}
+function esBody(){
+  const i=esDay();
+  return '<div class="dx-mh" style="margin-top:0">Günün ismi</div>'+esCard(i)
+   +'<input id="esQ" type="search" class="inp w-full mb-3" placeholder="🔎 İsim ya da anlam ara…" autocomplete="off"><div id="esL">'+esCard('L')+esList('')+'</div>'
+   +'<div class="text-xs text-slate-400 mt-3">Sıralama kaynaklara göre değişebilir. Anlamlar kısa açıklamadır.</div>';
+}
 
 /* Başlangıç: profil ve oda */
 /* Başlangıç, betiğin tamamı (tüm const yardımcılar: bdNow, ypAdd, bgT vb.) tanımlandıktan sonra çalışır; aksi halde ilk çizimde 'before initialization' hatası oluşur. */
