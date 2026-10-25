@@ -2690,7 +2690,7 @@ const DX_DUA=[
  {id:'d9',ar:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',ok:'Hasbünallâhü ve ni’mel vekîl.',t:'Allah bize yeter, O ne güzel vekildir.',k:'Âl-i İmrân 173'}
 ];
 /* ---- Daire kısayollar ve görüntüleyici ---- */
-const DX_CIR=[['dua','🤲','Günün Duası'],['hadis','📜','Günün Hadisi'],['esma','✨','Günün Esması'],['ayet','📖','Günün Ayeti']];
+const DX_CIR=[['ayet','📖','Günün Ayeti'],['hadis','📜','Günün Hadisi'],['esma','✨','Günün Esması'],['dua','🤲','Günün Duası']];
 function dxCircles(){
   return '<div class="dx-cir">'+DX_CIR.map(c=>'<button data-act="dxopen" data-k="'+c[0]+'"><span>'+c[1]+'</span><small>'+c[2]+'</small></button>').join('')+'</div>';
 }
