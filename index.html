@@ -20,9 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<!-- App Check şimdilik kapalı. Açmak için: bu satırın yorumunu kaldırın ve aşağıda AC_ON=true yapın.
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check-compat.js"></script>
--->
 <style type="text/tailwindcss">
  .card{@apply bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-3}
  .inp{@apply border border-slate-300 dark:border-slate-600 rounded-lg px-2 py-2 text-base bg-white dark:bg-slate-900 outline-none}
@@ -193,7 +191,7 @@ firebase.initializeApp(firebaseConfig);
 /* App Check (Dolandırıcılık Savunması / reCAPTCHA Enterprise). Site anahtarı gizli değildir.
    Anahtarı konsoldan KOPYALAYIP yapıştırın: I/l ve 0/O karışabilir. */
 const AC_KEY='6Ldb4fstAAAAALCKPD9LkXvl5GuMqpv2KnET_f2B';
-const AC_ON=false; /* true yapmadan önce firebase-app-check-compat.js satırını (üstte) geri açın. Konsolda Enforce açılacaksa gerekli. */
+const AC_ON=true; /* true yapmadan önce firebase-app-check-compat.js satırını (üstte) geri açın. Konsolda Enforce açılacaksa gerekli. */
 try{
   if(AC_ON&&firebase.appCheck){
     if(location.hostname==='localhost'||location.hostname==='127.0.0.1')self.FIREBASE_APPCHECK_DEBUG_TOKEN=true; /* yalnızca yerel deneme */
