@@ -2091,11 +2091,20 @@ function ypItems(rows){
 const ypEnd=it=>it.t==='g'?ypAdd(it.to,3):ypAdd(it.from,7);
 function ypCur(items,ref){let c=items.findIndex(it=>it.from<=ref&&ref<ypEnd(it));if(c<0){c=items.findIndex(it=>it.from>ref);if(c<0)c=items.length-1;}return c;}
 function ypRef(){const d=new Date().getDay(),t=bdNow();return d===6?ypAdd(t,2):d===0?ypAdd(t,1):t;}
+/* Ders programındaki sıradaki ders: şu an süren, yoksa sıradaki, yoksa günün son dersi */
+function bgPick(){
+  try{const l=bgToday(),m=bgMin();return l.find(z=>bgT(z.bas)<=m&&m<bgT(z.bit))||l.find(z=>bgT(z.bas)>m)||l[l.length-1]||null;}catch(e){return null;}
+}
+function ypSched(g){
+  const x=bgPick();if(!x)return null;
+  const k=Object.keys(g).sort().find(k=>{const p=k.split('|'),d=(p[1]||'').toLowerCase(),xd=String(x.ders||'').toLowerCase();return(p[0]==='ALL'||p[0]===String(x.sinif))&&(!d||!xd||xd.includes(d)||d.includes(xd));});
+  return k?{k:k,id:String(x.id||x.sinif)+'|'+bdNow()}:null;
+}
 function ypAuto(g,sk){
   const keys=Object.keys(g).sort();if(!keys.length)return '';
+  const sc=ypSched(g);
+  if(sc){if(S.ypMan&&S.ypMan.id===sc.id&&g[S.ypMan.k])return S.ypMan.k;return sc.k;}
   const st=lsg(sk||'yp_home_g');if(st&&g[st])return st;
-  try{const l=bgToday(),m=bgMin(),x=l.find(z=>bgT(z.bas)<=m&&m<bgT(z.bit))||l.find(z=>bgT(z.bas)>m)||l[l.length-1];
-    if(x){const k=keys.find(k=>{const p=k.split('|'),d=(p[1]||'').toLowerCase(),xd=String(x.ders||'').toLowerCase();return(p[0]==='ALL'||p[0]===String(x.sinif))&&(!d||!xd||xd.includes(d)||d.includes(xd));});if(k)return k;}}catch(e){}
   return keys[0];
 }
 /* ===== Sınav tarihleri: S.yplan içinde {t:'e',sinav:1,tarih,sinif,ders,ad,konu} olarak tutulur; yıllık plan kartlarında ilgili haftada görünür ===== */
@@ -2156,7 +2165,7 @@ function ypItemH(it,i,cur,today,gk){
 function ypHomeCard(){
   if(!pageOn('yplan'))return '';
   const all=ypGroups(),ak=Object.keys(all);if(!ak.length)return '';
-  const sn=String(G.sinif),one=sn&&sn!=='ALL';
+  const sc0=ypSched(all),sn=sc0?sc0.k.split('|')[0]:String(G.sinif),one=sn&&sn!=='ALL';
   const keys=ak.filter(k=>!one||k.split('|')[0]===sn||k.split('|')[0]==='ALL').sort();
   if(!keys.length)return '<div class="card"><b>📆 Yıllık plan</b><div class="text-sm text-slate-500 mt-1">'+esc(sn)+'. sınıf için yıllık plan eklenmemiş.</div><button data-go="yplan" class="btn bg-indigo-600 mt-2">Plan ekle</button></div>';
   const g={};keys.forEach(k=>{g[k]=all[k];});
@@ -2165,7 +2174,7 @@ function ypHomeCard(){
   setTimeout(ypHomeSync,0);
   const ab='px-1.5 py-8 rounded-lg bg-slate-200 dark:bg-slate-700 text-sm shrink-0';
   const tab=x=>{const p=x.split('|'),lab=one?(p[1]||'Tüm dersler'):ypGL(x);return '<button data-act="ypg" data-k="'+esc(x)+'" data-sk="'+sk+'" class="px-3 py-1.5 rounded-lg border text-xs font-semibold '+(x===k?'bg-indigo-600 text-white border-indigo-600':'border-slate-300 dark:border-slate-600')+'" style="flex:1 0 auto">'+esc(lab)+'</button>';};
-  return '<div class="card"><div class="flex items-center gap-2 mb-2"><b>📆 Yıllık plan'+(one?' · '+esc(sn)+'. sınıf':'')+'</b><button data-act="ypcur" class="ml-auto text-xs text-indigo-600 font-semibold">Bu haftaya dön</button></div>'
+  return '<div class="card"><div class="flex items-center gap-2 mb-2"><b>📆 Yıllık plan'+(one?' · '+esc(sn)+'. sınıf':'')+'</b>'+(sc0?'<span class="text-[11px] text-indigo-600">📍 ders programına göre</span>':'')+'<button data-act="ypcur" class="ml-auto text-xs text-indigo-600 font-semibold">Bu haftaya dön</button></div>'
    +(keys.length>1?'<div class="flex gap-1.5 overflow-x-auto pb-2 mb-1">'+keys.map(tab).join('')+'</div>':'<div class="text-xs text-slate-500 mb-2">'+esc(ypGL(k))+'</div>')
    +'<div class="flex items-center gap-1"><button data-act="ypp" class="'+ab+'" aria-label="Önceki hafta">◀</button><div id="ypc" style="display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;flex:1;min-width:0;align-items:flex-start">'+items.map((it,i)=>ypItemH(it,i,cur,today,k)).join('')+'</div><button data-act="ypn" class="'+ab+'" aria-label="Sonraki hafta">▶</button></div>'
    +'<div id="ypi" class="text-xs text-slate-500 text-center mt-1">'+(HYS.i+1)+' / '+items.length+'</div></div>';
@@ -2177,7 +2186,7 @@ function ypHomeSync(){
 }
 function ypMove(i){HYS.i=Math.max(0,Math.min(HYS.n-1,i));ypScrollTo(HYS.i,true);const e=$('ypi');if(e)e.textContent=(HYS.i+1)+' / '+HYS.n;}
 Object.assign(ACT,{
-  ypg(a){lss(a.dataset.sk||'yp_home_g',a.dataset.k);HYS.k='';render(true);},
+  ypg(a){lss(a.dataset.sk||'yp_home_g',a.dataset.k);const sc=ypSched(ypGroups());S.ypMan=sc?{id:sc.id,k:a.dataset.k}:null;HYS.k='';render(true);},
   ypp(){ypMove(HYS.i-1);},
   ypn(){ypMove(HYS.i+1);},
   ypcur(){ypMove(HYS.cur);}
@@ -3204,11 +3213,11 @@ function bgAuto(){
 }
 /* Yıllık Plan sayfası: kendi sınıf filtresi (YP.sinif) var; açılırken şu anki dersin sınıfına ayarlanır ve o haftaya kaydırır. */
 function bgAutoYp(){
-  const c=bgCur();if(!c||S.autoYp===c.id)return;
+  const c=bgPick();if(!c)return;
   const sn=String(c.sinif||'');if(!sn||sn==='ALL')return;
   if(!S.yplan.some(y=>y.t!=='e'&&(y.sinif===sn||y.sinif==='ALL')))return;
-  S.autoYp=c.id;YP.sinif=sn;YP.sc=true;
-  toast('📍 Ders programına göre '+sn+'. sınıfın yıllık planı seçildi');
+  YP.sinif=sn;YP.sc=true;
+  toast('📍 Ders programına göre '+sn+'. sınıfın yıllık planı açıldı');
 }
 document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'){const c=bgCur();if(c)S.autoId=c.id;}if(d.yf==='sinif'){const c=bgCur();if(c)S.autoYp=c.id;}});
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgCur();if(c)S.autoId=c.id;}});
