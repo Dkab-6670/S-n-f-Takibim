@@ -313,7 +313,7 @@ function render(force){
   document.documentElement.style.setProperty('--th',($('ptitle').offsetHeight+8)+'px');
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===S.page));
 }
-function go(id){try{if(id==='ders'||id==='ezber')bgAuto();else if(id==='yplan')bgAutoYp();}catch(e){}S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
+function go(id){try{if(['ders','ezber','sinif','yok','odevhiz','dav','grupmsj'].includes(id))bgAuto();else if(id==='yplan')bgAutoYp();}catch(e){}S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
 $('view').addEventListener('focusout',()=>{if(pending){pending=false;setTimeout(render,0);}});
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return;}
@@ -458,7 +458,11 @@ const perO=s=>{s.periods=s.periods||{};return s.periods[G.donem]=s.periods[G.don
 const ap=(h,s)=>(h.sinif==='ALL'||T(s.sinif)===h.sinif)&&(!h.sube||h.sube==='ALL'||T(s.sube).toLowerCase()===h.sube);
 const grp=()=>sorted(S.students.filter(s=>!s.absent&&(G.sinif==='ALL'||T(s.sinif)===G.sinif)&&(G.sube==='ALL'||T(s.sube).toLowerCase()===G.sube)&&(!G.q||(s.name+' '+s.no).toLowerCase().includes(G.q.toLowerCase()))));
 const lsOf=s=>S.lessons.filter(l=>l.sinif==='ALL'||T(l.sinif)===T(s.sinif));
-const ezOf=s=>[...new Set(S.ezberItems.filter(e=>ap(e,s)).map(e=>e.name))];
+/* Ezber sırası = atama sırası: bir ezber konusu, ilk atandığı yerdeki sırasını tüm sınıflarda korur
+   (sınıf değiştirilip yeni kayıt açılsa da sıra karışmaz). */
+const ezRk=()=>{const m={};S.ezberItems.forEach((e,i)=>{if(!(e.name in m))m[e.name]=i;});return m;};
+const ezSrt=a=>{const rk=ezRk();return a.slice().sort((x,y)=>(rk[x]??1e9)-(rk[y]??1e9));};
+const ezOf=s=>ezSrt([...new Set(S.ezberItems.filter(e=>ap(e,s)).map(e=>e.name))]);
 const hwOf=s=>S.homeworks.filter(h=>!h.rb&&h.start<=G.date&&G.date<=h.end&&ap(h,s));
 const GR='bg-emerald-600 text-white border-emerald-600',RD='bg-red-600 text-white border-red-600',AM='bg-amber-500 text-white border-amber-500',KUR=/kur|yüzüne/i;
 const BAD=/[.#$\/\[\]]/;
@@ -1236,7 +1240,7 @@ const y0=P.yok.html;P.yok.html=()=>y0()+printBtns();
 ACT.prn=a=>{
   const t=a.dataset.v,l=grp();if(!l.length)return alert('Öğrenci yok.');
   const ti=({y:'Yoklama',e:'Ezber Takip',i:'İmza'})[t]+' Çizelgesi · '+(G.sinif==='ALL'?'Tüm sınıflar':G.sinif+(G.sube==='ALL'?'':'/'+G.sube.toUpperCase()));
-  const ez=[...new Set(l.flatMap(ezOf))],nm=s=>'<td>'+esc(s.no)+'</td><td class="n">'+esc(s.name)+'</td>';
+  const ez=ezSrt([...new Set(l.flatMap(ezOf))]),nm=s=>'<td>'+esc(s.no)+'</td><td class="n">'+esc(s.name)+'</td>';
   const th=t==='y'?'<th>No</th><th>Ad Soyad</th>'+'<th></th>'.repeat(16):t==='e'?'<th>No</th><th>Ad Soyad</th>'+ez.map(n=>'<th>'+esc(n)+'</th>').join('')+'<th>Not</th>':'<th>No</th><th>Ad Soyad</th><th style="width:35%">İmza</th>';
   const row=s=>t==='y'?nm(s)+'<td></td>'.repeat(16):t==='e'?nm(s)+ez.map(n=>'<td>'+(ezOf(s).includes(n)?'':'—')+'</td>').join('')+'<td></td>':nm(s)+'<td></td>';
   const h='<!doctype html><meta charset="utf-8"><title>'+esc(ti)+'</title><style>@page{size:'+(t==='i'?'portrait':'landscape')+';margin:10mm}body{font-family:Arial;margin:8px}table{border-collapse:collapse;width:100%;font-size:12px}td,th{border:1px solid #444;padding:6px 3px;height:26px}td.n{white-space:nowrap;padding:6px}th{background:#eee}</style><h3>'+esc(ti)+'</h3><table><tr>'+th+'</tr>'+l.map(s=>'<tr>'+row(s)+'</tr>').join('')+'</table><script>onload=function(){setTimeout(print,300)}<\/script>';
@@ -1292,7 +1296,7 @@ Object.assign(ACT,{
     const g=grp();if(!g.length)return alert('Seçili sınıfta öğrenci yok.');
     try{await xl();}catch(e){return alert(e.message);}
     const dn=G.donem,days=s=>Object.entries(((s.periods||{})[dn]||{}).days||{}).sort((a,b)=>a[0]<b[0]?-1:1);
-    const ez=[...new Set(g.flatMap(ezOf))],cols=S.homeworks.filter(h=>g.some(s=>ap(h,s))&&(!h.rb||(h.donem||'1')===dn));
+    const ez=ezSrt([...new Set(g.flatMap(ezOf))]),cols=S.homeworks.filter(h=>g.some(s=>ap(h,s))&&(!h.rb||(h.donem||'1')===dn));
     const O=[['Sınıf','Şube','No','Ad Soyad','Var','Yok','İzinli','Kısmen','Devamsız gün','Devam %','Abdestli gün','Ders puanı','Davranış puanı','Net','Kitabı yok','Uyudu','Ezber tamam','Ezber atanan']];
     const GN=[['Tarih','Sınıf','Şube','No','Ad Soyad','Devam','Abdest','Kitap','Uyudu','Ders puanı','Davranış puanı','Davranış notu','Not']];
     g.forEach(s=>{let v=0,y=0,iz=0,ks=0,ab=0,p=0,bp=0,bk=0,sl=0;
