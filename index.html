@@ -337,7 +337,7 @@ function hOrd(i){const d=HGRP[i][1];let m={};try{m=JSON.parse(lsg('home_ord')||'
 ACT.hedit=()=>{HEDIT=!HEDIT;render(true);};
 ACT.hmv=a=>{const i=+a.dataset.g,vis=hOrd(i).filter(k=>P[k]&&pageOn(k)),o=hOrd(i),k=a.dataset.k,j=vis.indexOf(k),t=vis[j+(+a.dataset.d)];if(j<0||!t)return;const x=o.indexOf(k),y=o.indexOf(t);o[x]=t;o[y]=k;let m={};try{m=JSON.parse(lsg('home_ord')||'{}')||{};}catch(e){}m[i]=o;lss('home_ord',JSON.stringify(m));render(true);};
 ACT.hrs=()=>{lss('home_ord','');render(true);};
-const HGRP=[['📅 Günlük işler',['bugun','odevhiz','dav','reh','yplan']],['🏫 Sınıf',['sinif','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne','cikti']],['🧰 Diğer',['dini','ayar']]];
+const HGRP=[['📅 Günlük işler',['bugun','odevhiz','dav','reh','yplan']],['🏫 Sınıf',['sinif','grupmsj','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne','cikti']],['🧰 Diğer',['dini','ayar']]];
 const todayCard=()=>{
   const it=[alertItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
   if(!it.length)return '';
@@ -355,7 +355,7 @@ function hqCard(){return '<div class="card dx-search"><input id="hq" type="searc
 function hqRun(v){
   const box=$('hqr');if(!box)return;const q=hqN(v);if(!q){box.innerHTML='';return;}
   const W=q.split(' ');const hit=txt=>{const n=hqN(txt);return W.every(w=>n.includes(w));};
-  const KW={dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
+  const KW={grupmsj:'grup mesaj whatsapp toplu duyuru tebrik kitap getirmeyenler gelmeyenler sinif grubu',dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
   const res=[];
   Object.keys(P).forEach(k=>{if(k==='home'||!pageOn(k))return;const p=P[k];if(hit(p.title+' '+(KW[k]||'')))res.push(['<button data-go="'+k+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+p.icon+'</span><b class="flex-1">'+esc(p.title)+'</b><span class="text-[11px] text-slate-400">Sayfa</span></button>',hqN(p.title).startsWith(W[0])?0:1]);});
   [['🗓️','Haftalık ders programım','hprog','haftalik ders programi program saat gun bugunku dersler'],['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükle','vlxl','veli bilgi iletisim telefon anne baba excel yukle e okul'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
@@ -529,7 +529,7 @@ gpage('yok','✅','Hızlı Yoklama','Yoklama',()=>'<div class="mb-3 flex flex-wr
 ACT.allvar=()=>{const l=grp().filter(s=>(rd(s).status||'None')==='None');if(!l.length)return toast('İşaretsiz öğrenci yok');del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='Var';});},l.length+' öğrenci "Var" yapıldı');};
 
 /* ===== Derse Giriş: seçili sınıf için tek ekran (profil kurallarına uyar) ===== */
-const SK_LINKS=['ders','ezber','odevhiz','dav','reh','tahta','oturma','soz','donem','stat'];
+const SK_LINKS=['grupmsj','ders','ezber','odevhiz','dav','reh','tahta','oturma','soz','donem','stat'];
 const skLabel=()=>G.sinif==='ALL'?'Sınıf seçilmedi':G.sinif+(G.sube==='ALL'?'. sınıf':'/'+G.sube.toUpperCase());
 gpage('sinif','🚪','Derse Giriş','Derse Giriş',()=>{
   if(G.sinif==='ALL')return '<div class="card text-sm"><b>Önce sınıfı seçin.</b> Yukarıdaki çubuktan sınıf ve şubeyi seçince yoklama, puan ve kısayollar bu ekranda toplanır.</div>';
@@ -550,6 +550,111 @@ gpage('sinif','🚪','Derse Giriş','Derse Giriş',()=>{
     return '<div class="card mb-0'+(v==='Yok'?' !bg-red-50 dark:!bg-red-950':'')+'">'+hd(s).replace('</div><div class="text-[11px]',pt+'</div><div class="text-[11px]')+(featOn('yoklama')?stBtns(s):'')+(ex.length?'<div class="flex gap-1.5 mt-1.5">'+ex.join('')+'</div>':'')+'</div>';
   }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>';
   return (featOn('yoklama')?'<div class="col-span-full text-sm font-bold">Var '+c.Var+' · Yok '+c.Yok+' · İzinli '+c.Izinli+(c.Kismen?' · Kısmen '+c.Kismen:'')+' · İşaretsiz '+c.None+'</div>':'')+rows;
+});
+
+/* ===== Sınıf grubuna mesaj (WhatsApp): kitap getirmeyenler, gelmeyenler, ödev, tebrik ===== */
+const GM={tip:'kitap',ders:'',fmt:'tam',range:'bugun',hw:'',off:{},extra:[],text:'',dirty:false,lastTip:''};
+const GM_TIPS=[
+  ['kitap','📕 Kitap getirmeyenler','ders'],['yok','🔴 Derse gelmeyenler','yoklama'],['kismen','🟣 Geç kalan / kısmen katılanlar','yoklama'],
+  ['odevy','✍️ Ödevini yapmayanlar','ders'],['odeve','🟡 Ödevi eksik olanlar','ders'],['odevt','🌟 Ödevini yapanlar (tebrik)','ders'],
+  ['tebrik','👏 Malzeme getirip devamlı katılanlar (tebrik)','ders'],['puan','🏅 En çok puan alanlar (tebrik)','ders'],['serbest','📝 Serbest (öğrenci seçerek)','']
+];
+const gmTips=()=>GM_TIPS.filter(t=>!t[2]||featOn(t[2]));
+const GM_RANGES=[['bugun','Seçili gün'],['7','Son 7 gün'],['30','Son 30 gün'],['donem','Tüm dönem']];
+function gmName(s){
+  const p=T(s.name).split(/\s+/).filter(Boolean);if(GM.fmt==='tam'||p.length<2)return T(s.name);
+  if(GM.fmt==='ad')return p.slice(0,-1).join(' ');
+  return p.slice(0,-1).join(' ')+' '+p[p.length-1][0].toLocaleUpperCase('tr')+'.';
+}
+function gmRecs(s){
+  const days=((((s.periods||{})[G.donem]||{}).days)||{});let ks=Object.keys(days);
+  if(GM.range==='bugun')ks=[G.date];
+  else if(GM.range!=='donem'){const f=addD(G.date,-(+GM.range-1));ks=ks.filter(d=>d>=f&&d<=G.date);}
+  return ks.map(d=>[d,days[d]||{}]);
+}
+function gmCand(){
+  const l=grp(),t=GM.tip,rg=GM.range!=='bugun',out=[];
+  l.forEach(s=>{
+    const R=gmRecs(s),cnt=f=>R.filter(([d,r])=>f(r)).length;let n=0,x='';
+    if(t==='kitap')n=cnt(r=>r.book==='Yok');
+    else if(t==='yok')n=cnt(r=>r.status==='Yok');
+    else if(t==='kismen'){n=cnt(r=>r.status==='Kismen');if(n&&!rg){const r=R[0][1];x=r.part?' ('+kpLab(r)+')':'';}}
+    else if(t==='odevy'||t==='odeve'||t==='odevt'){const st={odevy:'Yapmadi',odeve:'Eksik',odevt:'Yapti'}[t];n=GM.hw&&(s.hwStatus||{})[GM.hw]===st&&ap(S.homeworks.find(h=>h.id===GM.hw)||{},s)?1:0;}
+    else if(t==='tebrik'){const v=cnt(r=>r.status==='Var');n=v&&!cnt(r=>r.status==='Yok'||r.status==='Kismen')&&!cnt(r=>r.book==='Yok')?1:0;}
+    else if(t==='puan'){const p=R.reduce((a,[d,r])=>a+(r.points||0),0);n=p>0?p:0;x=p;}
+    if(n)out.push({s:s,n:n,x:x});
+  });
+  if(t==='puan'){out.sort((a,b)=>b.x-a.x);return out.slice(0,5).map(o=>({s:o.s,n:o.n,x:''}));}
+  if((t==='kitap'||t==='yok'||t==='kismen')&&rg)out.forEach(o=>{o.x=' ('+o.n+' kez)';});
+  return out;
+}
+function gmList(){
+  const c=gmCand(),ids=new Set(c.map(o=>o.s.id));
+  GM.extra.forEach(id=>{const s=S.students.find(x=>x.id===id);if(s&&!ids.has(id)){c.push({s:s,n:1,x:''});ids.add(id);}});
+  return sorted(c.map(o=>o.s)).map(s=>c.find(o=>o.s.id===s.id)).filter(o=>!GM.off[o.s.id]);
+}
+const gmJoin=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' ve '+a[a.length-1];
+function gmGen(){
+  const L=gmList(),t=GM.tip,dn=T(GM.ders),d1=dn?dn+' dersinde':'derste',d2=dn?dn+' dersine':'derse';
+  const rl=GM.range==='bugun'?(G.date!==today?' ('+fdt(G.date)+')':''):' ('+GM_RANGES.find(r=>r[0]===GM.range)[1].toLocaleLowerCase('tr')+')';
+  const hn=(S.homeworks.find(h=>h.id===GM.hw)||{}).name||'',nm=L.map(o=>gmName(o.s)+(o.x||''));
+  const items=nm.map((x,i)=>(i+1)+'-'+x).join('\n');
+  if(!L.length)return '';
+  const many=L.length>1,ev=many?'evlatlarımızı':'evladımızı';
+  if(t==='kitap')return d1.charAt(0).toLocaleUpperCase('tr')+d1.slice(1)+' kitap getirmeyenler'+rl+'\n'+items;
+  if(t==='yok')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' gelmeyenler'+rl+'\n'+items;
+  if(t==='kismen')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' geç kalan / kısmen katılanlar'+rl+'\n'+items;
+  if(t==='odevy')return (hn||'Ödev')+' ödevini yapmayanlar\n'+items;
+  if(t==='odeve')return (hn||'Ödev')+' ödevi eksik olanlar\n'+items;
+  if(t==='odevt')return gmJoin(nm)+' '+ev+(hn?' '+hn:'')+' ödevini eksiksiz yaptı'+(many?'kları':'ğı')+' için tebrik ediyorum.';
+  if(t==='tebrik')return gmJoin(nm)+' '+ev+' tebrik ediyorum'+(rl?rl:'')+'. Malzeme getirip devamlı '+(dn?dn+' dersine':'derse')+' katıldı'+(many?'kları':'ğı')+' için teşekkür ediyorum.';
+  if(t==='puan')return gmJoin(nm)+' '+ev+' '+(dn?dn+' dersindeki ':'')+'gayretlerinden dolayı tebrik ediyorum.';
+  return items;
+}
+function gmBody(){
+  const tips=gmTips();if(!tips.find(t=>t[0]===GM.tip))GM.tip=tips[0]?tips[0][0]:'serbest';
+  if(!GM.ders){const f=grp()[0],ls=f?lsOf(f):[];if(ls.length===1)GM.ders=ls[0].name;}
+  const need=['odevy','odeve','odevt'].includes(GM.tip);
+  const hws=S.homeworks.filter(h=>!h.rb&&grp().some(s=>ap(h,s)));
+  if(need&&!hws.find(h=>h.id===GM.hw))GM.hw=hws.length?hws[hws.length-1].id:'';
+  const key=[GM.tip,GM.range,GM.fmt,GM.hw,G.sinif,G.sube,G.date,G.donem,GM.ders].join('|');
+  if(!GM.dirty||GM.lastTip!==key){GM.text=gmGen();GM.dirty=false;}GM.lastTip=key;
+  const L=gmList(),cand=gmCand(),ids=new Set(L.map(o=>o.s.id));
+  const sel=(id,opts,v)=>'<select data-gm="'+id+'" class="inp w-full">'+opts.map(o=>'<option value="'+esc(o[0])+'"'+(o[0]===v?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select>';
+  const rest=grp().filter(s=>!ids.has(s.id)&&!(GM.off[s.id]===true&&false));
+  const chk=[...cand.map(o=>o.s),...GM.extra.map(id=>S.students.find(x=>x.id===id)).filter(Boolean)];
+  const seen=new Set(),all=sorted(chk.filter(s=>!seen.has(s.id)&&seen.add(s.id)));
+  const rows=all.map(s=>'<label class="flex items-center gap-2 py-1 text-sm"><input type="checkbox" data-gmc="'+esc(s.id)+'" class="w-5 h-5"'+(GM.off[s.id]?'':' checked')+'><span>'+esc(gmName(s))+'</span></label>').join('')||'<div class="text-xs text-slate-500 italic py-1">Bu ölçüte uyan öğrenci yok. Aşağıdan öğrenci ekleyebilirsiniz.</div>';
+  const add=grp().filter(s=>!seen.has(s.id));
+  return '<div class="card"><label class="text-xs font-bold">Mesaj türü</label>'+sel('tip',tips.map(t=>[t[0],t[1]]),GM.tip)
+   +(need?'<label class="text-xs font-bold mt-2 block">Ödev</label>'+(hws.length?sel('hw',hws.map(h=>[h.id,h.name]),GM.hw):'<div class="text-xs text-slate-500">Bu sınıfa atanmış ödev yok.</div>'):'')
+   +(['kitap','yok','kismen','tebrik','puan','odevt'].includes(GM.tip)?'<label class="text-xs font-bold mt-2 block">Ders adı (mesajda geçer, boş bırakılabilir)</label><input data-gm="ders" list="gmDl" class="inp w-full" value="'+esc(GM.ders)+'" placeholder="Örn. Siyer"><datalist id="gmDl">'+S.lessons.map(l=>'<option value="'+esc(l.name)+'">').join('')+'</datalist>':'')
+   +(['kitap','yok','kismen','tebrik','puan'].includes(GM.tip)?'<label class="text-xs font-bold mt-2 block">Dönem aralığı</label>'+sel('range',GM_RANGES,GM.range):'')
+   +'<label class="text-xs font-bold mt-2 block">İsim yazımı</label>'+sel('fmt',[['tam','Tam ad (Mustafa Demirci)'],['kisa','Ad + soyad baş harfi (Mustafa D.)'],['ad','Yalnız ad (Mustafa)']],GM.fmt)+'</div>'
+   +'<div class="card"><div class="font-bold text-sm mb-1">👥 Listedeki öğrenciler ('+L.length+')</div>'+rows
+   +(add.length?'<select data-gm="add" class="inp w-full mt-2"><option value="">➕ Listeye öğrenci ekle…</option>'+add.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join('')+'</select>':'')+'</div>'
+   +'<div class="card"><div class="font-bold text-sm mb-1">✉️ Mesaj</div><textarea id="gmT" rows="9" class="inp w-full text-sm" placeholder="Önce yukarıdan öğrenci seçin">'+esc(GM.text)+'</textarea>'
+   +'<div class="text-[11px] text-slate-500 mb-2">Metni dilediğiniz gibi değiştirebilirsiniz. Üstteki seçimleri değiştirirseniz metin yeniden oluşturulur.'+(GM.dirty?' <b>(Metni elle değiştirdiniz.)</b> <button data-act="gmreset" class="underline text-indigo-600">Yeniden oluştur</button>':'')+'</div>'
+   +'<div class="flex flex-wrap gap-2"><button data-act="gmwa" class="btn bg-green-600">💬 WhatsApp’ta aç (grubu siz seçersiniz)</button><button data-act="gmshare" class="btn bg-indigo-600">📤 Paylaş</button><button data-act="gmcopy" class="btn bg-slate-600">📋 Kopyala</button></div>'
+   +'<div class="text-[11px] text-slate-500 mt-2">WhatsApp açılınca grubu seçip Gönder’e siz basarsınız. İsimlerin sınıf grubunda yazılması okulunuzun ve velilerin kabul ettiği uygulamaya uygun olmalıdır; isterseniz “Ad + soyad baş harfi” yazımını seçin.</div></div>';
+}
+reg('grupmsj','📣','Sınıf Grubuna Mesaj',()=>gbar()+'<div id="gmB">'+gmBody()+'</div>',null,null);
+const gmDraw=()=>{const b=$('gmB');if(b&&S.page==='grupmsj')b.innerHTML=gmBody();};
+$('view').addEventListener('change',e=>{
+  const g=e.target.dataset&&e.target.dataset.gm,c=e.target.dataset&&e.target.dataset.gmc;
+  if(g){const v=e.target.value;
+    if(g==='add'){if(v){GM.extra.push(v);delete GM.off[v];}}
+    else{GM[g]=v;if(g==='tip')GM.extra=[];}
+    GM.dirty=false;gmDraw();}
+  else if(c){if(e.target.checked)delete GM.off[c];else GM.off[c]=true;GM.dirty=false;gmDraw();}
+});
+$('view').addEventListener('input',e=>{if(e.target.id==='gmT'){GM.text=e.target.value;GM.dirty=true;}});
+const gmTxt=()=>{const t=$('gmT');return T(t?t.value:GM.text);};
+Object.assign(ACT,{
+  gmreset(){GM.dirty=false;gmDraw();},
+  gmwa(){const t=gmTxt();if(!t)return toast('Önce mesaj oluşturun',true);open('https://wa.me/?text='+encodeURIComponent(t),'_blank');},
+  gmshare(){const t=gmTxt();if(!t)return toast('Önce mesaj oluşturun',true);if(navigator.share)navigator.share({text:t}).catch(()=>{});else ACT.gmcopy();},
+  gmcopy(){const t=gmTxt();if(!t)return toast('Önce mesaj oluşturun',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı ✓')).catch(()=>{const a=$('gmT');if(a){a.select();try{document.execCommand('copy');toast('Kopyalandı ✓');}catch(e){toast('Kopyalanamadı',true);}}});}
 });
 
 /* Günlük Ders & Ödev */
