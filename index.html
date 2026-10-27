@@ -2645,27 +2645,37 @@ const dnGreg=d=>d.getDate()+' '+DN_AYS[d.getMonth()]+' '+d.getFullYear();
 const DN_TH={teal:['#0a4b55','#0e7c86'],green:['#0b3d2e','#15735a'],navy:['#0d1b3d','#2a4f94'],plum:['#3b1650','#7a34a6']};
 function dnWrap(x,text,maxW){const w=String(text).split(/\s+/),l=[];let c='';w.forEach(k=>{const t=c?c+' '+k:k;if(x.measureText(t).width>maxW&&c){l.push(c);c=k;}else c=t;});if(c)l.push(c);return l;}
 function dnStarPath(x,cx,cy,r){x.beginPath();for(let i=0;i<16;i++){const a=Math.PI*i/8-Math.PI/2,rr=i%2?r*0.72:r;x[i?'lineTo':'moveTo'](cx+rr*Math.cos(a),cy+rr*Math.sin(a));}x.closePath();}
+/* Paylaşım biçimi: r = Reels/Hikâye 9:16 (varsayılan), p = Gönderi 4:5, k = Kare 1:1 */
+const DN_FM={r:{n:'Reels / Hikâye 9:16',w:1080,h:1920},p:{n:'Gönderi 4:5',w:1080,h:1350},k:{n:'Kare 1:1',w:1080,h:1080}};
+const dnFmt=()=>{const k=lsg('dn_fmt');return DN_FM[k]?k:'r';};
 function dnCanvas(o){
-  const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),th=DN_TH[o.theme]||DN_TH.green,gold='#e8c675';
+  const fk=dnFmt(),W=DN_FM[fk].w,H=DN_FM[fk].h,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),th=DN_TH[o.theme]||DN_TH.green,gold='#e8c675';
+  const rl=fk==='r';/* Reels: üst ve alttaki uygulama arayüzü kartı kapatmasın diye içerik güvenli alana alınır */
   const AF='Amiri,"Noto Naskh Arabic","Traditional Arabic",serif',SF='Georgia,serif';
   const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,th[0]);g.addColorStop(1,th[1]);x.fillStyle=g;x.fillRect(0,0,W,H);
-  x.strokeStyle=gold;x.lineWidth=5;x.strokeRect(50,50,W-100,H-100);x.lineWidth=2;x.strokeRect(70,70,W-140,H-140);
-  x.fillStyle=gold;dnStarPath(x,W/2,135,38);x.fill();x.fillStyle=th[0];dnStarPath(x,W/2,135,20);x.fill();
-  x.textAlign='center';x.fillStyle=gold;x.font='600 40px sans-serif';x.fillText(o.head||'',W/2,235);
-  const bl=[];
-  if(o.big)bl.push({k:'big',t:o.big});if(o.arab)bl.push({k:'arab',t:o.arab});
-  if(o.title)bl.push({k:o.titleBig?'titleBig':'title',t:o.title});if(o.body)bl.push({k:'body',t:o.body});
-  if(o.part2){if(o.foot)bl.push({k:'foot',t:o.foot});bl.push({k:'orn'});bl.push({k:'head2',t:o.part2.head});if(o.part2.body)bl.push({k:'body',t:o.part2.body});if(o.part2.foot)bl.push({k:'foot',t:o.part2.foot});}
-  const sp=(k,f)=>({big:{font:'bold '+Math.round(170*f)+'px '+AF,lh:210*f,rtl:1,fill:'#fff'},arab:{font:'bold '+Math.round(58*f)+'px '+AF,lh:98*f,rtl:1,fill:'#fff'},titleBig:{font:'bold '+Math.round(76*f)+'px '+SF,lh:92*f,fill:'#fff'},title:{font:'italic '+Math.round(46*f)+'px '+SF,lh:68*f,fill:'#fff'},body:{font:'italic '+Math.round(44*f)+'px '+SF,lh:64*f,fill:'rgba(255,255,255,.93)'},foot:{font:'600 '+Math.round(36*f)+'px sans-serif',lh:60*f,fill:gold},head2:{font:'600 '+Math.round(38*f)+'px sans-serif',lh:64*f,fill:gold},orn:{font:'600 '+Math.round(34*f)+'px sans-serif',lh:80*f,fill:gold}})[k];
-  const top=300,bottom=(o.part2||!o.foot)?H-130:H-230;let f=1,L;
-  for(;f>=0.35;f-=0.05){
-    L=bl.map(b=>{const s=sp(b.k,f);x.font=s.font||'20px sans-serif';x.direction=s.rtl?'rtl':'ltr';return {b,s,lines:b.k==='orn'?['✦  ✦  ✦']:dnWrap(x,b.t,W-260)};});
-    x.direction='ltr';if(L.reduce((a,q)=>a+q.lines.length*q.s.lh,0)<=bottom-top)break;
-  }
-  const tot=L.reduce((a,q)=>a+q.lines.length*q.s.lh,0);let y=top+Math.max(0,Math.min(120,(bottom-top-tot)/2));
+  const fm=rl?60:50;x.strokeStyle=gold;x.lineWidth=5;x.strokeRect(fm,fm+(rl?100:0),W-2*fm,H-2*fm-(rl?200:0));x.lineWidth=2;x.strokeRect(fm+20,fm+20+(rl?100:0),W-2*fm-40,H-2*fm-40-(rl?200:0));
+  const sy=rl?290:135,hy=rl?385:235;
+  x.fillStyle=gold;dnStarPath(x,W/2,sy,38);x.fill();x.fillStyle=th[0];dnStarPath(x,W/2,sy,20);x.fill();
+  x.textAlign='center';x.fillStyle=gold;x.font='600 '+(o.parts?36:40)+'px sans-serif';x.fillText(o.head||'',W/2,hy);
+  const build=useOk=>{
+    const bl=[];
+    if(o.parts){o.parts.forEach((p,i)=>{if(i)bl.push({k:'orn'});bl.push({k:'head2',t:p.head});if(p.arab)bl.push({k:'arab',t:p.arab});if(p.ok&&useOk)bl.push({k:'okun',t:p.ok});if(p.body)bl.push({k:'body',t:p.body});if(p.foot)bl.push({k:'foot',t:p.foot});});return bl;}
+    if(o.big)bl.push({k:'big',t:o.big});if(o.arab)bl.push({k:'arab',t:o.arab});
+    if(o.title)bl.push({k:o.titleBig?'titleBig':'title',t:o.title});if(o.body)bl.push({k:'body',t:o.body});
+    if(o.part2){if(o.foot)bl.push({k:'foot',t:o.foot});bl.push({k:'orn'});bl.push({k:'head2',t:o.part2.head});if(o.part2.body)bl.push({k:'body',t:o.part2.body});if(o.part2.foot)bl.push({k:'foot',t:o.part2.foot});}
+    return bl;};
+  const sp=(k,f)=>({big:{font:'bold '+Math.round(170*f)+'px '+AF,lh:210*f,rtl:1,fill:'#fff'},arab:{font:'bold '+Math.round(58*f)+'px '+AF,lh:98*f,rtl:1,fill:'#fff'},titleBig:{font:'bold '+Math.round(76*f)+'px '+SF,lh:92*f,fill:'#fff'},title:{font:'italic '+Math.round(46*f)+'px '+SF,lh:68*f,fill:'#fff'},body:{font:'italic '+Math.round(44*f)+'px '+SF,lh:64*f,fill:'rgba(255,255,255,.93)'},okun:{font:'italic '+Math.round(38*f)+'px '+SF,lh:56*f,fill:'rgba(255,255,255,.8)'},foot:{font:'600 '+Math.round(36*f)+'px sans-serif',lh:60*f,fill:gold},head2:{font:'600 '+Math.round(38*f)+'px sans-serif',lh:64*f,fill:gold},orn:{font:'600 '+Math.round(34*f)+'px sans-serif',lh:80*f,fill:gold}})[k];
+  const sideM=rl?150:130,top=rl?(o.parts?440:470):300,bottom=rl?H-360:((o.part2||o.parts||!o.foot)?H-130:H-230);
+  const fit=(bl,min)=>{let f=1,L=null;for(;f>=min;f-=0.05){
+    L=bl.map(b=>{const s=sp(b.k,f);x.font=s.font||'20px sans-serif';x.direction=s.rtl?'rtl':'ltr';return {b,s,lines:b.k==='orn'?['✦  ✦  ✦']:dnWrap(x,b.t,W-2*sideM)};});
+    x.direction='ltr';if(L.reduce((a,q)=>a+q.lines.length*q.s.lh,0)<=bottom-top)break;}
+    return {L,f};};
+  let r=fit(build(true),o.parts?0.62:0.35);
+  if(o.parts&&r.f<0.62)r=fit(build(false),0.35);/* sığmazsa okunuş satırı çıkarılır, yazı küçülmez */
+  const L=r.L,tot=L.reduce((a,q)=>a+q.lines.length*q.s.lh,0);let y=top+Math.max(0,Math.min(120,(bottom-top-tot)/2));
   L.forEach(q=>{x.font=q.s.font||'20px sans-serif';x.fillStyle=q.s.fill;x.direction=q.s.rtl?'rtl':'ltr';q.lines.forEach(l=>{y+=q.s.lh;x.fillText(l,W/2,y-q.s.lh*0.28);});});
   x.direction='ltr';
-  if(!o.part2&&o.foot){x.fillStyle=gold;x.font='600 38px sans-serif';x.fillText(o.foot,W/2,H-150);}
+  if(!o.part2&&!o.parts&&o.foot){x.fillStyle=gold;x.font='600 38px sans-serif';x.fillText(o.foot,W/2,rl?H-390:H-150);}
   return c;
 }
 async function dnShare(o,text){
@@ -2699,17 +2709,35 @@ function dxBoardDraw(){
 const dxDay=()=>{const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5);};
 const dxPick=(list,key)=>{const n=list.length;return (((dxDay()+(S[key]||0))%n)+n)%n;};
 /* ---- Günün ayeti ve hadisi: tek kartta ---- */
-function dxDuo(){
-  const a=DN_AYET[dxPick(DN_AYET,'dxA')],h=DN_HADIS[dxPick(DN_HADIS,'dxH')],c=dnCfg(),ma=(c.meal||{})[a.id],mh=(c.hmeal||{})[h.id],ha=!!(ma&&ma.t),hh=!!(mh&&mh.t);
-  const at=ha?ma.t:a.t,ht=hh?mh.t:h.t,hk=hh&&mh.k?mh.k:h.k,ed=S.dxEdit;
-  DN_SH.d={o:{theme:'green',head:'GÜNÜN AYETİ',arab:a.ar,body:at,foot:a.s+' Suresi · '+a.n,part2:{head:'GÜNÜN HADİSİ',body:'“'+ht+'”',foot:hk}},txt:a.ar+'\n'+at+'\n— '+a.s+' Suresi, '+a.n+'\n\n“'+ht+'”\n— '+hk};
-  const panel=ed==='a'?{t:ha?ma.t:'',k:ha&&ma.k||'',id:a.id,ph:'TDV mealini buraya yapıştırın',kp:'Kaynak (örn. TDV Meali)'}:ed==='h'?{t:hh?mh.t:'',k:hh&&mh.k||'',id:h.id,ph:'Hadis metnini buraya yapıştırın',kp:'Kaynak ve numara (örn. Buhârî, Îmân 7, No: 13)'}:null;
-  return '<div class="dn-card dn-green"><div class="dn-hd">GÜNÜN AYETİ</div><div class="dn-ar">'+esc(a.ar)+'</div><div class="dn-tr">'+esc(at)+'</div><div class="dn-ft">'+esc(a.s)+' Suresi · '+esc(a.n)+'</div>'
-   +'<div class="dn-tag'+(ha?'':' dn-draft')+'">'+esc(ha?(ma.k||'Meal'):'Taslak anlam · TDV mealiyle değiştirin')+'</div>'
+function dxDuaPick(){const n=DX_DUA.length;return DX_DUA[(((dxDay()+(S.dxD||0))%n)+n)%n];}
+function dxTrioData(){
+  const a=DN_AYET[dxPick(DN_AYET,'dxA')],h=DN_HADIS[dxPick(DN_HADIS,'dxH')],d=dxDuaPick(),c=dnCfg(),ma=(c.meal||{})[a.id],mh=(c.hmeal||{})[h.id],ha=!!(ma&&ma.t),hh=!!(mh&&mh.t);
+  return {a,h,d,ha,hh,ma,mh,at:ha?ma.t:a.t,ht:hh?mh.t:h.t,hk:hh&&mh.k?mh.k:h.k};
+}
+function dxTrioShare(T3){
+  return {o:{theme:'green',head:'GÜNÜN AYETİ · HADİSİ · DUASI',parts:[
+    {head:'GÜNÜN AYETİ',arab:T3.a.ar,body:T3.at,foot:T3.a.s+' Suresi · '+T3.a.n},
+    {head:'GÜNÜN HADİSİ',body:'“'+T3.ht+'”',foot:T3.hk},
+    {head:'GÜNÜN DUASI',arab:T3.d.ar,ok:T3.d.ok,body:T3.d.t,foot:T3.d.k}]},
+   txt:'GÜNÜN AYETİ\n'+T3.a.ar+'\n'+T3.at+'\n— '+T3.a.s+' Suresi, '+T3.a.n+'\n\nGÜNÜN HADİSİ\n“'+T3.ht+'”\n— '+T3.hk+'\n\nGÜNÜN DUASI\n'+T3.d.ar+'\n'+T3.d.ok+'\n'+T3.d.t+'\n— '+T3.d.k};
+}
+function dxTrioHtml(T3,keep){
+  return '<div class="dn-card dn-green"><div class="dn-hd">GÜNÜN AYETİ</div><div class="dn-ar">'+esc(T3.a.ar)+'</div><div class="dn-tr">'+esc(T3.at)+'</div><div class="dn-ft">'+esc(T3.a.s)+' Suresi · '+esc(T3.a.n)+'</div>'
+   +'<div class="dn-tag'+(T3.ha?'':' dn-draft')+'">'+esc(T3.ha?(T3.ma.k||'Meal'):'Taslak anlam · TDV mealiyle değiştirin')+'</div>'
    +'<div class="dn-sep">✦ ✦ ✦</div>'
-   +'<div class="dn-hd">GÜNÜN HADİSİ</div><div class="dn-tr dn-big">“'+esc(ht)+'”</div><div class="dn-ft">'+esc(hk)+'</div>'
-   +'<div class="dn-tag'+(hh?'':' dn-draft')+'">'+(hh?'Kaynak metni':'Taslak anlam · kaynak metniyle değiştirin')+'</div>'
+   +'<div class="dn-hd">GÜNÜN HADİSİ</div><div class="dn-tr dn-big">“'+esc(T3.ht)+'”</div><div class="dn-ft">'+esc(T3.hk)+'</div>'
+   +'<div class="dn-tag'+(T3.hh?'':' dn-draft')+'">'+(T3.hh?'Kaynak metni':'Taslak anlam · kaynak metniyle değiştirin')+'</div>'
+   +'<div class="dn-sep">✦ ✦ ✦</div>'
+   +'<div class="dn-hd">GÜNÜN DUASI</div><div class="dn-ar">'+esc(T3.d.ar)+'</div><div class="dn-tr">'+esc(T3.d.ok)+'</div><div class="dn-tr" style="opacity:.8">'+esc(T3.d.t)+'</div><div class="dn-ft">'+esc(T3.d.k)+'</div>'+(keep?'':'</div>');
+}
+const dnFmtRow=()=>'<div class="dn-row" style="margin-top:0"><span class="text-xs" style="color:#e8c675;align-self:center">Paylaşım boyutu:</span>'+Object.keys(DN_FM).map(k=>'<button data-act="dxfmt" data-v="'+k+'" class="dn-btn'+(dnFmt()===k?' dn-gold':'')+'">'+esc(DN_FM[k].n)+'</button>').join('')+'</div>';
+function dxDuo(){
+  const T3=dxTrioData(),ed=S.dxEdit,a=T3.a,h=T3.h,ma=T3.ma,mh=T3.mh,ha=T3.ha,hh=T3.hh;
+  DN_SH.d=dxTrioShare(T3);
+  const panel=ed==='a'?{t:ha?ma.t:'',k:ha&&ma.k||'',id:a.id,ph:'TDV mealini buraya yapıştırın',kp:'Kaynak (örn. TDV Meali)'}:ed==='h'?{t:hh?mh.t:'',k:hh&&mh.k||'',id:h.id,ph:'Hadis metnini buraya yapıştırın',kp:'Kaynak ve numara (örn. Buhârî, Îmân 7, No: 13)'}:null;
+  return dxTrioHtml(T3,true)
    +'<div class="dn-row"><button data-act="dxduo" data-d="-1" class="dn-btn" aria-label="Önceki">◀</button><button data-act="dxduo" data-d="1" class="dn-btn" aria-label="Sonraki">▶</button><button data-act="dxshare" data-k="d" class="dn-btn dn-gold">📤 Paylaş</button></div>'
+   +dnFmtRow()
    +'<div class="dn-row"><button data-act="dxedit" data-k="a" class="dn-btn">✏️ Meali düzenle</button><button data-act="dxedit" data-k="h" class="dn-btn">✏️ Hadisi düzenle</button></div>'
    +(panel?'<div class="dn-edit"><textarea id="dxMt" rows="4" placeholder="'+esc(panel.ph)+'">'+esc(panel.t)+'</textarea><input id="dxMk" placeholder="'+esc(panel.kp)+'" value="'+esc(panel.k)+'"><div class="dn-row"><button data-act="dxmsave" data-k="'+ed+'" data-id="'+panel.id+'" class="dn-btn dn-gold">Kaydet</button><button data-act="dxmdel" data-k="'+ed+'" data-id="'+panel.id+'" class="dn-btn">Taslağa dön</button></div></div>':'')+'</div>';
 }
@@ -2778,7 +2806,8 @@ function dxEzBody(){
    +'<div class="dn-row"><button data-act="dxezk" data-id="'+esc(cur.id)+'" class="dn-btn dn-gold">'+(mm[cur.id]?'✓ Ezberlendi (kaldır)':'✓ Ezberledim')+'</button><button data-act="dxshare" data-k="z" class="dn-btn">📤 Paylaş</button>'+(cur.own?'<button data-act="dxezd" data-id="'+esc(cur.id)+'" class="dn-btn">🗑 Sil</button>':'')+'</div></div>';
 }
 Object.assign(ACT,{
-  dxduo(a){const d=+a.dataset.d;S.dxA=(S.dxA||0)+d;S.dxH=(S.dxH||0)+d;S.dxEdit='';render(true);},
+  dxfmt(a){lss('dn_fmt',a.dataset.v);toast('Paylaşım boyutu: '+DN_FM[a.dataset.v].n);if($('dxV')&&$('dxV').style.display!=='none')dxViewDraw();render(true);},
+  dxduo(a){const d=+a.dataset.d;S.dxA=(S.dxA||0)+d;S.dxH=(S.dxH||0)+d;S.dxD=(S.dxD||0)+d;S.dxEdit='';render(true);},
   dxezo(a){S.dxEz=a.dataset.id;S.dxRev={};render(true);scrollTo({top:0});},
   dxezb(){S.dxEz='';S.dxRev={};render(true);},
   dxrev(a){S.dxRev=S.dxRev||{};S.dxRev[a.dataset.i]=!S.dxRev[a.dataset.i];render(true);},
@@ -2891,12 +2920,13 @@ const DX_DUA=[
  {id:'d9',ar:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',ok:'Hasbünallâhü ve ni’mel vekîl.',t:'Allah bize yeter, O ne güzel vekildir.',k:'Âl-i İmrân 173'}
 ];
 /* ---- Daire kısayollar ve görüntüleyici ---- */
-const DX_CIR=[['ayet','📖','Günün Ayeti'],['hadis','📜','Günün Hadisi'],['esma','✨','Günün Esması'],['dua','🤲','Günün Duası']];
+const DX_CIR=[['gun','📖','Ayet · Hadis · Dua'],['esma','✨','Günün Esması']];
 function dxCircles(){
   return '<div class="dx-cir">'+DX_CIR.map(c=>'<button data-act="dxopen" data-k="'+c[0]+'"><span>'+c[1]+'</span><small>'+c[2]+'</small></button>').join('')+'</div>';
 }
 function dxViewCard(k){
   const c=dnCfg();
+  if(k==='gun'){const T3=dxTrioData();DN_SH.v=dxTrioShare(T3);return dxTrioHtml(T3);}
   if(k==='ayet'){const a=DN_AYET[dxPick(DN_AYET,'dxA')],m=(c.meal||{})[a.id],t=m&&m.t?m.t:a.t;DN_SH.v={o:{theme:'green',head:'GÜNÜN AYETİ',arab:a.ar,body:t,foot:a.s+' Suresi · '+a.n},txt:a.ar+'\n'+t+'\n— '+a.s+' Suresi, '+a.n};
     return '<div class="dn-card dn-green"><div class="dn-hd">GÜNÜN AYETİ</div><div class="dn-ar">'+esc(a.ar)+'</div><div class="dn-tr">'+esc(t)+'</div><div class="dn-ft">'+esc(a.s)+' Suresi · '+esc(a.n)+'</div>'+(m&&m.t?'':'<div class="dn-tag dn-draft">Taslak anlam</div>')+'</div>';}
   if(k==='hadis'){const h=DN_HADIS[dxPick(DN_HADIS,'dxH')],m=(c.hmeal||{})[h.id],t=m&&m.t?m.t:h.t,kk=m&&m.t&&m.k?m.k:h.k;DN_SH.v={o:{theme:'navy',head:'GÜNÜN HADİSİ',body:'“'+t+'”',foot:kk},txt:'“'+t+'”\n— '+kk};
@@ -2908,12 +2938,12 @@ function dxViewCard(k){
 }
 function dxViewDraw(){
   const v=$('dxV');if(!v||v.style.display==='none')return;
-  v.innerHTML='<div class="dx-vw"><button data-act="dxvx" class="dx-vx" aria-label="Kapat">✕</button>'+dxViewCard(S.dxVk)+'<div class="dn-row" style="margin-top:0"><button data-act="dxvn" data-d="-1" class="dn-btn dx-vb" aria-label="Önceki">◀</button><button data-act="dxshare" data-k="v" class="dn-btn dn-gold">📤 Paylaş</button><button data-act="dxvn" data-d="1" class="dn-btn dx-vb" aria-label="Sonraki">▶</button></div></div>';
+  v.innerHTML='<div class="dx-vw"><button data-act="dxvx" class="dx-vx" aria-label="Kapat">✕</button>'+dxViewCard(S.dxVk)+'<div class="dn-row" style="margin-top:0"><button data-act="dxvn" data-d="-1" class="dn-btn dx-vb" aria-label="Önceki">◀</button><button data-act="dxshare" data-k="v" class="dn-btn dn-gold">📤 Paylaş</button><button data-act="dxvn" data-d="1" class="dn-btn dx-vb" aria-label="Sonraki">▶</button></div>'+dnFmtRow()+'</div>';
 }
 Object.assign(ACT,{
   dxopen(a){S.dxVk=a.dataset.k;let v=$('dxV');if(!v){v=document.createElement('div');v.id='dxV';v.className='dx-v';document.body.appendChild(v);}v.style.display='flex';dxViewDraw();},
   dxvx(){const v=$('dxV');if(v)v.style.display='none';},
-  dxvn(a){const d=+a.dataset.d,k=S.dxVk;if(k==='ayet')S.dxA=(S.dxA||0)+d;else if(k==='hadis')S.dxH=(S.dxH||0)+d;else if(k==='esma')S.dxVe=(S.dxVe||0)+d;else S.dxD=(S.dxD||0)+d;dxViewDraw();},
+  dxvn(a){const d=+a.dataset.d,k=S.dxVk;if(k==='gun'){S.dxA=(S.dxA||0)+d;S.dxH=(S.dxH||0)+d;S.dxD=(S.dxD||0)+d;}else if(k==='ayet')S.dxA=(S.dxA||0)+d;else if(k==='hadis')S.dxH=(S.dxH||0)+d;else if(k==='esma')S.dxVe=(S.dxVe||0)+d;else S.dxD=(S.dxD||0)+d;dxViewDraw();},
   dxyr(a){S.dxY=(S.dxY||new Date().getFullYear())+(+a.dataset.d);render(true);},
   dxcm(a){const td=new Date(),c=S.dxCm||{y:td.getFullYear(),m:td.getMonth()},x=new Date(c.y,c.m+(+a.dataset.d),1);S.dxCm={y:x.getFullYear(),m:x.getMonth()};render(true);},
   dxtoday(){S.dxCm=null;S.dxSel='';render(true);},
