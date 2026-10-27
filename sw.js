@@ -1,9 +1,9 @@
-const CACHE = 'sinif-takip-v3';
+const CACHE = 'sinif-takip-v4';
 const CDN = ['cdn.tailwindcss.com', 'cdnjs.cloudflare.com', 'www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', 'icon-192.png'])).catch(() => {}));
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all(['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'].map(u => c.add(u).catch(() => {})))));
 });
 
 self.addEventListener('activate', e => {
@@ -25,7 +25,7 @@ self.addEventListener('fetch', e => {
     // Sayfanın kendisi: önce internet (yeni sürüm hemen gelsin), olmazsa önbellek
     e.respondWith(
       fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put(req, c)); return r; })
-        .catch(() => caches.match(req).then(r => r || caches.match('./')))
+        .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match('./') || caches.match('index.html')))
     );
   } else {
     // Tasarım ve simge kütüphaneleri: önbellekten hemen ver, arkada yenile

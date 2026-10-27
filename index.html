@@ -204,17 +204,66 @@ const genCode=()=>{const al='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='SNF-';cryp
 const mask=c=>c.length>6?c.slice(0,4)+'•'.repeat(c.length-4):c;
 function status(c,t){$('dot').className='w-3 h-3 md:w-2.5 md:h-2.5 rounded-full bg-'+c+'-500';$('stx').textContent=t;}
 let tt;function toast(m,err){const t=$('toast');t.textContent=m;t.className=t.className.replace(/ bg-\S+/g,'')+(err?' bg-red-600':' bg-emerald-600')+' opacity-100';clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('opacity-100'),err?5000:1800);}
+/* ===== Çevrimdışı çalışma: cihazda veri kopyası + kalıcı bekleyen değişiklik kuyruğu =====
+   Veri kopyası IndexedDB'de tutulur; internet yokken uygulama son bilinen veriyle açılır.
+   Çevrimdışı yapılan değişiklikler de cihazda saklanır (uygulama kapansa bile) ve bağlantı gelince gönderilir. */
+const OFFDB={p:null};
+function idb(){return OFFDB.p||(OFFDB.p=new Promise((ok,no)=>{try{const q=indexedDB.open('sinif_offline',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error);}catch(e){no(e);}}));}
+const idbGet=k=>idb().then(d=>new Promise((ok,no)=>{const r=d.transaction('kv').objectStore('kv').get(k);r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error);})).catch(()=>undefined);
+const idbSet=(k,v)=>idb().then(d=>new Promise((ok,no)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>ok();t.onerror=()=>no(t.error);})).catch(()=>{});
+let PEND={},ctm;
+const pcount=()=>Object.keys(PEND).length;
+const pendSave=()=>{if(S.room)idbSet('p_'+S.room,JSON.parse(JSON.stringify(PEND)));};
+const cacheNow=()=>{clearTimeout(ctm);ctm=setTimeout(cacheFlush,250);};
+function cacheFlush(){clearTimeout(ctm);if(S.room&&lastRoom===S.room)idbSet('c_'+S.room,last);}
+addEventListener('pagehide',cacheFlush);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')cacheFlush();});
+function addPend(u){
+  Object.keys(u).forEach(p=>{
+    if(/\/lastUpdated$/.test(p))return;
+    const v=u[p]===undefined?null:u[p];
+    Object.keys(PEND).forEach(k=>{if(k.startsWith(p+'/'))delete PEND[k];});
+    const a=Object.keys(PEND).find(k=>p.startsWith(k+'/'));
+    if(a){
+      let o=PEND[a];if(o===null||typeof o!=='object')o=PEND[a]={};
+      const pr=p.slice(a.length+1).split('/');let c=o;
+      for(let i=0;i<pr.length-1;i++){if(c[pr[i]]===null||typeof c[pr[i]]!=='object')c[pr[i]]={};c=c[pr[i]];}
+      if(v===null)delete c[pr[pr.length-1]];else c[pr[pr.length-1]]=v;
+    }else PEND[p]=v;
+  });
+  pendSave();
+}
+function ackPend(u){Object.keys(u).forEach(k=>{if(k in PEND&&JSON.stringify(PEND[k]??null)===JSON.stringify(u[k]??null))delete PEND[k];});pendSave();if(pcount())flushPend();}
+function flushPend(){
+  const ks=Object.keys(PEND);if(!ks.length||!S.room)return Promise.resolve();
+  const u={},sent={};ks.forEach(k=>{u[k]=PEND[k];sent[k]=JSON.stringify(PEND[k]??null);});
+  u['rooms/'+S.room+'/lastUpdated']=firebase.database.ServerValue.TIMESTAMP;
+  return auth().then(()=>db.ref().update(u)).then(()=>{ks.forEach(k=>{if(k in PEND&&JSON.stringify(PEND[k]??null)===sent[k])delete PEND[k];});pendSave();}).catch(()=>{});
+}
+async function offLoad(code){
+  const p=await idbGet('p_'+code);if(p&&typeof p==='object')Object.keys(p).forEach(k=>{if(!(k in PEND))PEND[k]=p[k];});
+  return await idbGet('c_'+code);
+}
 function listen(code){
   S.room=code;lss('sync_room_code',code);$('rc').textContent=mask(code);status('amber','Yükleniyor...');
   if(ref){ref.off();ref=null;}
-  auth().then(()=>{
+  let live=false;
+  const loaded=offLoad(code);
+  loaded.then(c=>{
+    if(live||S.room!==code||!c||typeof c!=='object')return;
+    KEYS.forEach(k=>{S[k]=toList(c[k],PRE[k]);});last=snap();lastRoom=code;
+    status('amber',navigator.onLine?'Yükleniyor...':'Çevrimdışı · kayıtlı veri');render();
+  });
+  loaded.then(()=>auth()).then(()=>{
+    if(S.room!==code)return;
+    flushPend();
     ref=db.ref('rooms/'+code);
     ref.on('value',sn=>{
-      const d=sn.val();
-      if(d){KEYS.forEach(k=>{S[k]=toList(d[k],PRE[k]);});last=snap();lastRoom=code;if(KEYS.some(k=>Array.isArray(d[k])))sn.ref.update(last);}
+      const d=sn.val();live=true;
+      if(d){KEYS.forEach(k=>{S[k]=toList(d[k],PRE[k]);});last=snap();lastRoom=code;cacheNow();if(KEYS.some(k=>Array.isArray(d[k])))sn.ref.update(last);}
       status('emerald','Canlı');render();
     },err=>{status('red','Bağlantı hatası');if(kioskOn()){if(lsg('kiosk_v1')==='1'&&lsg('kiosk_h'))bdEnd();return;}alert('Firebase hatası: '+err.message);});
-  }).catch(()=>status('red','Giriş hatası'));
+  }).catch(()=>status('red',navigator.onLine?'Giriş hatası':'Çevrimdışı · kayıtlı veri'));
 }
 function save(){
   if(!S.room)return;
@@ -222,19 +271,22 @@ function save(){
   const now=snap(),u={},root='rooms/'+S.room;
   diff(u,root,lastRoom===S.room?last:{},now);u[root+'/lastUpdated']=firebase.database.ServerValue.TIMESTAMP;
   last=now;lastRoom=S.room;
+  addPend(u);cacheNow();
   if(!online){queued++;offBar();}
-  toast('Kaydediliyor…');
-  auth().then(()=>db.ref().update(u)).then(()=>toast('Kaydedildi ✓')).catch(e=>toast('Kaydedilemedi: '+e.message,true));
+  toast(online?'Kaydediliyor…':'Cihaza kaydedildi · internet gelince gönderilecek');
+  auth().then(()=>db.ref().update(u)).then(()=>{ackPend(u);toast('Kaydedildi ✓');}).catch(e=>toast(online?'Kaydedilemedi: '+e.message:'Cihaza kaydedildi · internet gelince gönderilecek',online));
 }
-function offBar(){const b=$('off');b.className=b.className.replace(/ bg-\S+/g,'')+' bg-red-600 block';b.classList.remove('hidden');b.textContent='📴 Çevrimdışı'+(queued?' · '+queued+' değişiklik bekliyor':'');}
+function offBar(){const b=$('off');b.className=b.className.replace(/ bg-\S+/g,'')+' bg-red-600 block';b.classList.remove('hidden');b.textContent='📴 Çevrimdışı · veriler cihazda'+(queued?' · '+queued+' değişiklik bekliyor':pcount()?' · gönderilmemiş değişiklik var':'');}
 firebase.database().ref('.info/connected').on('value',s=>{
   const was=online;online=!!s.val();clearTimeout(t2);
-  if(!online){t2=setTimeout(()=>{if(!online)offBar();},3000);return;}
+  if(!online){t2=setTimeout(()=>{if(!online){offBar();status('amber','Çevrimdışı · kayıtlı veri');}},3000);return;}
+  if(S.room&&lastRoom===S.room)status('emerald','Canlı');
+  if(pcount())flushPend().then(()=>{if(!pcount()&&!queued)toast('Çevrimdışı değişiklikler gönderildi ✓');});
   const b=$('off');
   if(!was&&queued){b.className=b.className.replace(/ bg-\S+/g,'')+' bg-emerald-600 block';b.textContent='✅ '+queued+' değişiklik gönderildi';queued=0;setTimeout(()=>{if(online)b.classList.add('hidden');},2500);}
   else b.classList.add('hidden');
 });
-addEventListener('beforeunload',e=>{if(!online&&queued){e.preventDefault();e.returnValue='';}});
+/* Çevrimdışı değişiklikler cihazda kalıcı saklandığı için kapatma uyarısı gerekmez. */
 
 /* Geri al */
 let U=null,ut;
