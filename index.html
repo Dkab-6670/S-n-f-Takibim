@@ -597,11 +597,11 @@ function gmGen(){
   const items=nm.map((x,i)=>(i+1)+'-'+x).join('\n');
   if(!L.length)return '';
   const many=L.length>1,ev=many?'evlatlarımızı':'evladımızı';
-  if(t==='kitap')return d1.charAt(0).toLocaleUpperCase('tr')+d1.slice(1)+' kitap getirmeyenler'+rl+'\n'+items;
-  if(t==='yok')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' gelmeyenler'+rl+'\n'+items;
-  if(t==='kismen')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' geç kalan / kısmen katılanlar'+rl+'\n'+items;
-  if(t==='odevy')return (hn||'Ödev')+' ödevini yapmayanlar\n'+items;
-  if(t==='odeve')return (hn||'Ödev')+' ödevi eksik olanlar\n'+items;
+  if(t==='kitap')return d1.charAt(0).toLocaleUpperCase('tr')+d1.slice(1)+' kitap getirmeyenler'+rl+':\n'+items;
+  if(t==='yok')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' gelmeyenler'+rl+':\n'+items;
+  if(t==='kismen')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' geç kalan / kısmen katılanlar'+rl+':\n'+items;
+  if(t==='odevy')return (hn||'Ödev')+' ödevini yapmayanlar:\n'+items;
+  if(t==='odeve')return (hn||'Ödev')+' ödevi eksik olanlar:\n'+items;
   if(t==='odevt')return gmJoin(nm)+' '+ev+(hn?' '+hn:'')+' ödevini eksiksiz yaptı'+(many?'kları':'ğı')+' için tebrik ediyorum.';
   if(t==='tebrik')return gmJoin(nm)+' '+ev+' tebrik ediyorum'+(rl?rl:'')+'. Malzeme getirip devamlı '+(dn?dn+' dersine':'derse')+' katıldı'+(many?'kları':'ğı')+' için teşekkür ediyorum.';
   if(t==='puan')return gmJoin(nm)+' '+ev+' '+(dn?dn+' dersindeki ':'')+'gayretlerinden dolayı tebrik ediyorum.';
@@ -1840,13 +1840,14 @@ function chData(kind,fill){
   const dl=d=>GUN[new Date(d+'T12:00:00').getDay()];
   if(kind==='w'){
     const D=wkDays(G.date,5),head=[['No',''],['Ad Soyad','']],we=[false,false];
-    D.forEach(d=>{const t=dl(d)+' '+d.slice(8)+'.'+d.slice(5,7);head.push([t,'Yoklama'],[t,'Puan']);we.push(false,false);});
-    head.push(['Ezber',''],['Ödev',''],['Not','']);we.push(false,false,false);
-    return {title:'Haftalık Çizelge · '+dLab()+' · '+fdt(D[0])+' – '+fdt(D[4]),head:head,we:we,rows:g.map(s=>[s.no,s.name].concat(D.flatMap(d=>[mk(s,d),pt(s,d)]),['','','']))};
+    const fp=featOn('ders'),fe=featOn('ezber');
+    D.forEach(d=>{const t=dl(d)+' '+d.slice(8)+'.'+d.slice(5,7);head.push([t,'Yoklama']);we.push(false);if(fp){head.push([t,'Puan']);we.push(false);}});
+    const tail=[].concat(fe?[['Ezber','']]:[],fp?[['Ödev','']]:[],[['Not','']]);tail.forEach(x=>{head.push(x);we.push(false);});
+    return {title:'Haftalık Çizelge · '+dLab()+' · '+fdt(D[0])+' – '+fdt(D[4]),head:head,we:we,rows:g.map(s=>[s.no,s.name].concat(D.flatMap(d=>fp?[mk(s,d),pt(s,d)]:[mk(s,d)]),tail.map(()=>'')))};
   }
-  const D=mDays(G.date),head=[['No',''],['Ad Soyad','']].concat(D.map(d=>[String(+d.slice(8)),dl(d)]),[['Var',''],['Yok',''],['İzn',''],['Kıs','']]);
-  const we=[false,false].concat(D.map(d=>[0,6].includes(new Date(d+'T12:00:00').getDay())),[false,false,false,false]);
-  return {title:'Aylık Çizelge · '+dLab()+' · '+AYN[+G.date.slice(5,7)-1]+' '+G.date.slice(0,4),head:head,we:we,rows:g.map(s=>{const ms=D.map(d=>mk(s,d)),c=x=>fill?ms.filter(m=>m===x).length:'';return [s.no,s.name].concat(ms,[c('V'),c('Y'),c('İ'),c('K')]);})};
+  const D=mDays(G.date),head=[['No',''],['Ad Soyad','']].concat(D.map(d=>[String(+d.slice(8)),dl(d)]),[['Var',''],['Yok',''],['İzn',''],['Kıs',''],['Dvmsz','gün']]);
+  const we=[false,false].concat(D.map(d=>[0,6].includes(new Date(d+'T12:00:00').getDay())),[false,false,false,false,false]);
+  return {title:'Aylık Çizelge · '+dLab()+' · '+AYN[+G.date.slice(5,7)-1]+' '+G.date.slice(0,4),head:head,we:we,rows:g.map(s=>{const ms=D.map(d=>mk(s,d)),c=x=>fill?ms.filter(m=>m===x).length:'';return [s.no,s.name].concat(ms,[c('V'),c('Y'),c('İ'),c('K'),fill?dgun(ms.filter(m=>m==='Y').length+ms.filter(m=>m==='K').length/2):'']);})};
 }
 Object.assign(ACT,{
   cfill(){S.cf=!S.cf;render(true);},
@@ -1855,7 +1856,9 @@ Object.assign(ACT,{
     const o=chData(a.dataset.v,S.cf),m=a.dataset.v==='m';
     const th=o.head.map((h,i)=>'<th'+(o.we[i]?' class="we"':'')+'>'+esc(h[0])+(h[1]?'<br><small>'+esc(h[1])+'</small>':'')+'</th>').join('');
     const tr=o.rows.map(r=>'<tr>'+r.map((c,i)=>{const cl=[i===1?'n':'',o.we[i]?'we':''].filter(Boolean).join(' ');return '<td'+(cl?' class="'+cl+'"':'')+'>'+esc(c)+'</td>';}).join('')+'</tr>').join('');
-    const h='<!doctype html><meta charset="utf-8"><title>'+esc(o.title)+'</title><style>@page{size:landscape;margin:8mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font-family:Arial;margin:6px}table{border-collapse:collapse;width:100%;font-size:'+(m?'10':'11')+'px}td,th{border:1px solid #444;padding:'+(m?'2px 1px':'3px')+';height:'+(m?'22':'26')+'px;text-align:center}td.n{text-align:left;white-space:nowrap;padding-left:4px}th{background:#eee}.we{background:#e5e7eb}small{font-weight:400}</style><h3>'+esc(o.title)+'</h3><table><tr>'+th+'</tr>'+tr+'</table><p style="font-size:11px;margin-top:8px">V: var · Y: yok · İ: izinli'+(tname()?' &nbsp;|&nbsp; '+esc(tname())+' · '+esc(bransTitle()):'')+'</p><script>onload=function(){setTimeout(print,300)}<\/script>';
+    const n=o.rows.length,avail=m?600:600,rh=Math.max(15,Math.min(m?24:28,Math.floor(avail/(n+2)))),fs=rh<19?9:rh<23?10:11;
+    const ok=prof().okul||'',tn=(typeof tname==='function'&&tname())||'';
+    const h='<!doctype html><meta charset="utf-8"><title>'+esc(o.title)+'</title><style>@page{size:A4 landscape;margin:8mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font-family:Arial;margin:6px}h3{margin:0 0 2px;font-size:15px;text-align:center}.s{font-size:11px;text-align:center;margin-bottom:6px;color:#333}table{border-collapse:collapse;width:100%;font-size:'+fs+'px}thead{display:table-header-group}tr{page-break-inside:avoid}td,th{border:1px solid #444;padding:0 2px;height:'+rh+'px;line-height:1.05;text-align:center}td.n{text-align:left;white-space:nowrap;padding-left:4px}th{background:#eee}.we{background:#e5e7eb}small{font-weight:400}.f{display:flex;justify-content:space-between;align-items:flex-end;font-size:10px;margin-top:8px}.g{width:200px;border-top:1px solid #444;text-align:center;padding-top:2px}</style><h3>'+esc(o.title)+'</h3><div class="s">'+esc(ok)+(ok?' · ':'')+'Yazdırma: '+fdt(today)+'</div><table><thead><tr>'+th+'</tr></thead><tbody>'+tr+'</tbody></table><div class="f"><div>V: var · Y: yok · İ: izinli · K: kısmen (2 K = 1 gün devamsızlık)'+(m?' · Dvmsz: devamsız gün':'')+'</div><div class="g">'+esc(tn||'Öğretmen')+(tn&&typeof bransTitle==='function'&&bransTitle()?' · '+esc(bransTitle()):'')+'<br>İmza</div></div><script>onload=function(){setTimeout(print,300)}<\/script>';
     open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');
   },
   async chx(a){
