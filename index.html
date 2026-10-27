@@ -3404,11 +3404,11 @@ function bgCur(){
 }
 /* Her ders için yalnızca bir kez uygulanır: öğretmen sınıfı elle değiştirirse o ders boyunca elle seçim korunur. */
 function bgAuto(){
-  const c=bgCur();if(!c||S.autoId===c.id)return;
+  const strict=bgCur(),c=strict||bgPick();if(!c||S.autoId===c.id)return;
   const sn=String(c.sinif||'');if(!sn||sn==='ALL'||!classes().includes(sn))return;
   S.autoId=c.id;
   G.sinif=sn;G.sube=c.sube&&c.sube!=='ALL'?String(c.sube).toLowerCase():'ALL';G.date=bdNow();gsave();
-  toast('📍 Ders programına göre '+sn+(G.sube==='ALL'?'':'/'+G.sube.toUpperCase())+' seçildi');
+  toast('📍 Ders programına göre '+sn+(G.sube==='ALL'?'':'/'+G.sube.toUpperCase())+' seçildi'+(strict?'':' (ders dışı: sıradaki/son ders)'));
 }
 /* Yıllık Plan sayfası: kendi sınıf filtresi (YP.sinif) var; açılırken şu anki dersin sınıfına ayarlanır ve o haftaya kaydırır. */
 function bgAutoYp(){
@@ -3418,8 +3418,8 @@ function bgAutoYp(){
   YP.sinif=sn;YP.sc=true;
   toast('📍 Ders programına göre '+sn+'. sınıfın yıllık planı açıldı');
 }
-document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'){const c=bgCur();if(c)S.autoId=c.id;}if(d.yf==='sinif'){const c=bgCur();if(c)S.autoYp=c.id;}});
-document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgCur();if(c)S.autoId=c.id;}});
+document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'){const c=bgCur()||bgPick();if(c)S.autoId=c.id;}if(d.yf==='sinif'){const c=bgCur();if(c)S.autoYp=c.id;}});
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgCur()||bgPick();if(c)S.autoId=c.id;}});
 
 
 /* ========== KALDIĞIMIZ YER: sınıf ve derse göre konu / sayfa notu, bir sonraki derste hatırlatma ========== */
