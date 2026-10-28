@@ -3462,9 +3462,49 @@ function gpPlan(d,b){
 function gpPrev(d,b,f){
   return (S.gplan||[]).filter(r=>r.ders===b.ders&&r.tarih<d&&T(r[f])).sort((a,c)=>a.tarih<c.tarih?1:-1)[0]||null;
 }
+
+/* ===== Giriş / gelişme / sonuç / ödev için hazır öneriler (konu, kazanım, yöntem ve ders türüne göre) ===== */
+const GP_SC=(t,n)=>{t=T(t);if(!t)return '';const m=/^(.{20,}?[.!?])(\s|$)/.exec(t);const s=m?m[1]:t;return s.length>n?s.slice(0,n).replace(/\s+\S*$/,'')+'…':s;};
+function gpGen(f,d,b){
+  const r=gpRec(d,b),pl=gpPlan(d,b),vr=((r&&r.vr)||0)+((pl&&pl.hafta)||0),v=n=>vr%n;
+  const kn=T(gpVal(d,b,'konu')),kz=GP_SC(gpVal(d,b,'kaz'),180),ym=T(gpVal(d,b,'yontem'))||'anlatım ve soru-cevap',dg=T(gpVal(d,b,'deger'))||'sözlü soru-cevap';
+  const q=kn?'“'+kn+'”':'bu ders konusu',kur=/kur.?an|kuran/i.test(b.ders||'');
+  const kzT=kz?' Kazanım öğrencilerle paylaşılır: '+kz:'';
+  if(kur){
+    if(f==='giris')return [
+      'Selamlaşma, yoklama ve besmele ile derse başlanır. Geçen derste okunan bölüm kısaca tekrar edilir. Bugünkü konu '+q+' duyurulur.'+kzT,
+      'Öğrenciler ayakta kısa bir dua/besmele ile derse hazırlanır. Önceki dersin ezberi birkaç öğrenciyle hatırlanır, ardından '+q+' konusuna geçileceği söylenir.'+kzT,
+      'Yoklama alınır, kitaplar ve materyaller kontrol edilir. Önceki dersten bir bölüm hep birlikte okunarak ısınılır; bugün '+q+' çalışılacağı belirtilir.'+kzT][v(3)];
+    if(f==='gelisme')return [
+      'Öğretmen '+q+' bölümünü örnek okuyuşla sunar. Öğrenciler önce topluca, sonra sıralı gruplar hâlinde, en son tek tek tekrar eder. Tecvid kuralları ve kelimelerin anlamı tahtada gösterilir. Yöntem: '+ym+'. Zorlanan öğrenciler birebir desteklenir.',
+      'Okunacak bölüm tahtaya yazılır/gösterilir, öğretmen cümle cümle okur, öğrenciler tekrar eder. Anlamlar ve ezber ipuçları üzerinde konuşulur. Eşli çalışmayla öğrenciler birbirini dinler ('+ym+').',
+      'Bölüm önce dinletilir, ardından parça parça öğretilir. Öğrenciler çiftler hâlinde birbirine okur, öğretmen sınıfı dolaşıp telaffuz ve tecvid hatalarını düzeltir. Kullanılan yöntem: '+ym+'.'][v(3)];
+    if(f==='sonuc')return [
+      'Çalışılan bölüm topluca bir kez daha okunur. Ezber ve okuma durumları kısa sözlü yoklamayla kontrol edilir ('+dg+'). Eve çalışma ödevi verilir ve ders bitirilir.',
+      'Gönüllü öğrenciler bölümü sınıfa okur, yanlışlar birlikte düzeltilir. Dersin özeti yapılır, ödev bildirilir ve dua ile ders kapatılır.',
+      'Konu '+q+' kısaca özetlenir, birkaç öğrenciden ezber dinlenir ('+dg+'). Bir sonraki derse hazırlık ve ödev söylenir.'][v(3)];
+    if(f==='odev')return ['“'+(kn||'Bu derste çalışılan bölüm')+'” bölümünü evde sesli ve düzenli tekrar etme, ezber çalışmasını yapma.','Öğrenilen bölümü ailesine okuyarak ezberini pekiştirme.','Bölümü günde üç kez sesli okuma, ezbere hazırlanma.'][v(3)];
+    return '';
+  }
+  if(f==='giris')return [
+    'Selamlaşma ve yoklama ile derse başlanır. Önceki dersin konusu kısaca hatırlatılır. '+q+' ile ilgili ilgi çekici bir soru sorulur veya görsel gösterilir.'+kzT,
+    'Öğrencilerin dikkati, konuyla ilgili kısa bir hikâye/örnek olay ya da soru ile çekilir. Hazırlık sorularıyla ön bilgiler yoklanır ve '+q+' konusuna geçilir.'+kzT,
+    'Yoklama alınır, ders materyalleri kontrol edilir. Bir önceki dersin kazanımı birkaç soruyla hatırlanır; öğrencilere bugünkü konunun '+q+' olduğu duyurulur.'+kzT][v(3)];
+  if(f==='gelisme')return [
+    'Konu '+ym+' yöntemleriyle işlenir. Ders kitabındaki ilgili bölüm sınıfça okunur, temel kavramlar tahtaya yazılır. Öğrenciler küçük gruplarda etkinliği yapar, sonuçlarını sınıfla paylaşır. Öğretmen örneklerle tartışmayı yönlendirir.',
+    'Öğretmen konuyu örneklerle anlatır, öğrenciler ders kitabındaki etkinlik ve soruları çözer. '+ym+' yöntemleri kullanılır; grup çalışmalarında öğrenciler görüşlerini gerekçeleriyle paylaşır.',
+    'Kavramlar tartışılarak ortaya çıkarılır, öğrenciler eşli çalışmayla kısa görevleri tamamlar. Öğretmen sınıfı dolaşarak rehberlik eder; işlenişte '+ym+' yöntemleri kullanılır.'][v(3)];
+  if(f==='sonuc')return [
+    'Konunun özeti öğrencilerle birlikte çıkarılır. Kazanıma ulaşılıp ulaşılmadığı kısa sorularla yoklanır ('+dg+'). Ödev ve bir sonraki derse hazırlık bildirilerek ders kapatılır.',
+    'Ana fikirler tahtada özetlenir, birkaç öğrenci öğrendiklerini kendi cümleleriyle söyler. Değerlendirme: '+dg+'. Ödev verilir ve ders sonlandırılır.',
+    'Öğrenciler “bugün ne öğrendim?” sorusuna kısa cevaplar verir. Konu '+q+' özetlenir, '+dg+' ile değerlendirme yapılır, ödev bildirilir.'][v(3)];
+  if(f==='odev')return ['Ders kitabındaki ilgili soruları ve etkinlikleri tamamlama; '+q+' konusuyla ilgili kısa bir özet yazma.','Konuyla ilgili günlük hayattan bir örnek bulup deftere yazma.','Öğrenilenleri bir paragrafla özetleme ve bir sonraki derse hazırlık.'][v(3)];
+  return '';
+}
 function gpVal(d,b,f){
   const r=gpRec(d,b);if(r&&r[f]!=null)return r[f];
   if(f==='konu'||f==='kaz'){const p=gpPlan(d,b);return p?(p[f]||''):'';}
+  if(['giris','gelisme','sonuc','odev'].includes(f))return gpGen(f,d,b);
   if(['yontem','arac','deger'].includes(f)){const p=gpPlan(d,b),pv=p?T(p[{yontem:'yon',arac:'arac',deger:'deg'}[f]]):'';if(pv)return pv;const q=gpPrev(d,b,f);return q?q[f]:'';}
   return '';
 }
@@ -3476,7 +3516,7 @@ reg('gplan','📝','Günlük Plan',()=>{
     const pl=gpPlan(d,b);
     return '<div class="card"><div class="flex flex-wrap items-center gap-2"><b>'+esc(gpTit(b))+'</b>'+(b.bas?'<span class="text-xs text-slate-500">'+esc(b.bas)+'–'+esc(b.bit)+' · '+b.n+' ders saati</span>':'')+(pl?'<span class="text-xs font-bold bg-indigo-100 text-indigo-800 rounded-full px-2 py-0.5">'+(pl.hafta||'?')+'. hafta</span>':'<span class="text-xs text-amber-600">Yıllık planda bu hafta satırı yok</span>')+'</div>'
      +GP_F.map(f=>'<label class="text-xs font-bold mt-2 block">'+f[1]+'</label><textarea data-gpi="'+i+'" data-gpf="'+f[0]+'" rows="'+f[2]+'" class="inp w-full text-sm">'+esc(gpVal(d,b,f[0]))+'</textarea>').join('')
-     +'<div class="flex flex-wrap gap-2 mt-3"><button data-act="gpfill" data-i="'+i+'" class="btn bg-slate-600">↺ Yıllık plandan doldur</button><button data-act="gpprint" data-i="'+i+'" class="btn bg-emerald-600">🖨️ Bu dersi yazdır</button></div></div>';
+     +'<div class="flex flex-wrap gap-2 mt-3"><button data-act="gpfill" data-i="'+i+'" class="btn bg-slate-600">↺ Yıllık plandan doldur</button><button data-act="gpvar" data-i="'+i+'" class="btn bg-violet-600">🔀 Farklı öneri</button><button data-act="gpprint" data-i="'+i+'" class="btn bg-emerald-600">🖨️ Bu dersi yazdır</button></div></div>';
   }).join('')||'<div class="card text-sm text-slate-500">Bu güne ait ders programı yok. Ders programını girin ya da aşağıdan ders ekleyin.</div>';
   const add='<div class="card"><b class="text-sm">➕ Programda olmayan ders ekle</b><div class="flex flex-wrap gap-2 mt-2"><select id="gpS" class="inp">'+classes().map(c=>'<option value="'+esc(c)+'"'+(c===G.sinif?' selected':'')+'>'+esc(c)+'. sınıf</option>').join('')+'</select><input id="gpB" class="inp w-20" placeholder="Şube" value="'+esc(gpSb(G.sube).toUpperCase())+'"><input id="gpD" list="gpDl" class="inp flex-1 min-w-[140px]" placeholder="Ders adı"><datalist id="gpDl">'+S.lessons.map(l=>'<option value="'+esc(l.name)+'">').join('')+'</datalist><button data-act="gpadd" class="btn bg-indigo-600">Ekle</button></div></div>';
   const out='<div class="card"><b class="text-sm">🖨️ Çıktı (A4, her ders ayrı sayfa)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpday" class="btn bg-emerald-600">Günün planı</button><button data-act="gpweek" class="btn bg-emerald-700">Haftanın planı (Pzt–Cum)</button></div><b class="text-sm block mt-3">🗜️ Arkalı önlü 1 kâğıt (en çok 2 sayfa, yazı otomatik küçülür)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdayfit" class="btn bg-indigo-600">Günün planı</button><button data-act="gpweekfit" class="btn bg-indigo-700">Haftanın planı</button></div><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdaypdf" class="btn bg-rose-600">📄 Günün planı PDF (indir / paylaş)</button><button data-act="gpweekpdf" class="btn bg-rose-700">📄 Haftanın planı PDF</button></div><div class="text-[11px] text-slate-500 mt-2">Konu ve kazanım yıllık plandan, yöntem/araç/değerlendirme o dersin son planından otomatik gelir; dilediğiniz gibi değiştirin. Boş bıraktığınız bölümler çıktıda elle doldurmanız için boş kutu olarak kalır.</div></div>';
@@ -3521,6 +3561,7 @@ function gpPrint(items){
 Object.assign(ACT,{
   gpd(a){GPL.date=ypAdd(GPL.date||bdNow(),+a.dataset.v);render(true);},
   gptoday(){GPL.date=bdNow();render(true);},
+  gpvar(a){const b=GPL.bl[+a.dataset.i];if(!b)return;const r=gpRec(GPL.date,b,true);r.vr=(r.vr||0)+1;['giris','gelisme','sonuc','odev'].forEach(k=>{delete r[k];});save();render(true);toast('Yeni öneri hazırlandı');},
   gpfill(a){const b=GPL.bl[+a.dataset.i];if(!b)return;const p=gpPlan(GPL.date,b);if(!p)return toast('Bu hafta için yıllık plan satırı yok',true);const r=gpRec(GPL.date,b,true);r.konu=p.konu||'';r.kaz=p.kaz||'';if(T(p.yon))r.yontem=p.yon;if(T(p.arac))r.arac=p.arac;if(T(p.deg))r.deger=p.deg;save();render(true);toast('Yıllık plandan dolduruldu');},
   gpprint(a){const b=GPL.bl[+a.dataset.i];if(b)gpPrint([[GPL.date,b]]);},
   gpdaypdf(){gpPdfFit(GPL.bl.map(b=>[GPL.date,b]));},
