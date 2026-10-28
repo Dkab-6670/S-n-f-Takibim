@@ -549,7 +549,7 @@ gpage('yok','✅','Yoklama','Yoklama',()=>{
 ACT.allvar=()=>{const l=grp().filter(s=>(rd(s).status||'None')==='None');if(!l.length)return toast('İşaretsiz öğrenci yok');del(()=>{l.forEach(s=>{dayRec(s,G.donem,G.date).status='Var';});},l.length+' öğrenci "Var" yapıldı');};
 
 /* ===== Sınıf grubuna mesaj (WhatsApp): kitap getirmeyenler, gelmeyenler, ödev, tebrik ===== */
-const GM={tip:'kitap',ders:'',fmt:'tam',range:'bugun',hw:'',off:{},extra:[],text:'',dirty:false,lastTip:''};
+const GM={tip:'kitap',ders:'',fmt:'tam',no:'1',range:'bugun',hw:'',off:{},extra:[],text:'',dirty:false,lastTip:''};
 const GM_TIPS=[
   ['kitap','📕 Kitap getirmeyenler','ders'],['yok','🔴 Derse gelmeyenler','yoklama'],['kismen','🟣 Geç kalan / kısmen katılanlar','yoklama'],
   ['odevy','✍️ Ödevini yapmayanlar','ders'],['odeve','🟡 Ödevi eksik olanlar','ders'],['odevt','🌟 Ödevini yapanlar (tebrik)','ders'],
@@ -574,7 +574,7 @@ function gmCand(){
     const R=gmRecs(s),cnt=f=>R.filter(([d,r])=>f(r)).length;let n=0,x='';
     if(t==='kitap')n=cnt(r=>r.book==='Yok');
     else if(t==='yok')n=cnt(r=>r.status==='Yok');
-    else if(t==='kismen'){n=cnt(r=>r.status==='Kismen');if(n&&!rg){const r=R[0][1];x=r.part?' ('+kpLab(r)+')':'';}}
+    else if(t==='kismen'){n=cnt(r=>r.status==='Kismen');if(n&&!rg){const r=R[0][1];x=r.part?' – '+kpLab(r):'';}}
     else if(t==='odevy'||t==='odeve'||t==='odevt'){const st={odevy:'Yapmadi',odeve:'Eksik',odevt:'Yapti'}[t];n=GM.hw&&(s.hwStatus||{})[GM.hw]===st&&ap(S.homeworks.find(h=>h.id===GM.hw)||{},s)?1:0;}
     else if(t==='tebrik'){const v=cnt(r=>r.status==='Var');n=v&&!cnt(r=>r.status==='Yok'||r.status==='Kismen')&&!cnt(r=>r.book==='Yok')?1:0;}
     else if(t==='puan'){const p=R.reduce((a,[d,r])=>a+(r.points||0),0);n=p>0?p:0;x=p;}
@@ -594,14 +594,14 @@ function gmGen(){
   const L=gmList(),t=GM.tip,dn=T(GM.ders),d1=dn?dn+' dersinde':'derste',d2=dn?dn+' dersine':'derse';
   const rl=GM.range==='bugun'?(G.date!==today?' ('+fdt(G.date)+')':''):' ('+GM_RANGES.find(r=>r[0]===GM.range)[1].toLocaleLowerCase('tr')+')';
   const hn=(S.homeworks.find(h=>h.id===GM.hw)||{}).name||'',nm=L.map(o=>gmName(o.s)+(o.x||''));
-  const items=nm.map((x,i)=>(i+1)+'-'+x).join('\n');
+  const items=L.map((o,i)=>(i+1)+'-'+(GM.no==='1'&&T(o.s.no)?' ('+T(o.s.no)+') ':'')+gmName(o.s)+(o.x||'')).join('\n'),bd=t=>'*'+t+'*';
   if(!L.length)return '';
   const many=L.length>1,ev=many?'evlatlarımızı':'evladımızı';
-  if(t==='kitap')return d1.charAt(0).toLocaleUpperCase('tr')+d1.slice(1)+' kitap getirmeyenler'+rl+':\n'+items;
-  if(t==='yok')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' gelmeyenler'+rl+':\n'+items;
-  if(t==='kismen')return d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' geç kalan / kısmen katılanlar'+rl+':\n'+items;
-  if(t==='odevy')return (hn||'Ödev')+' ödevini yapmayanlar:\n'+items;
-  if(t==='odeve')return (hn||'Ödev')+' ödevi eksik olanlar:\n'+items;
+  if(t==='kitap')return bd(d1.charAt(0).toLocaleUpperCase('tr')+d1.slice(1)+' kitap getirmeyenler'+rl+':')+'\n'+items;
+  if(t==='yok')return bd(d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' gelmeyenler'+rl+':')+'\n'+items;
+  if(t==='kismen')return bd(d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' geç kalan / kısmen katılanlar'+rl+':')+'\n'+items;
+  if(t==='odevy')return bd((hn||'Ödev')+' ödevini yapmayanlar:')+'\n'+items;
+  if(t==='odeve')return bd((hn||'Ödev')+' ödevi eksik olanlar:')+'\n'+items;
   if(t==='odevt')return gmJoin(nm)+' '+ev+(hn?' '+hn:'')+' ödevini eksiksiz yaptı'+(many?'kları':'ğı')+' için tebrik ediyorum.';
   if(t==='tebrik')return gmJoin(nm)+' '+ev+' tebrik ediyorum'+(rl?rl:'')+'. Malzeme getirip devamlı '+(dn?dn+' dersine':'derse')+' katıldı'+(many?'kları':'ğı')+' için teşekkür ediyorum.';
   if(t==='puan')return gmJoin(nm)+' '+ev+' '+(dn?dn+' dersindeki ':'')+'gayretlerinden dolayı tebrik ediyorum.';
@@ -613,7 +613,7 @@ function gmBody(){
   const need=['odevy','odeve','odevt'].includes(GM.tip);
   const hws=S.homeworks.filter(h=>!h.rb&&grp().some(s=>ap(h,s)));
   if(need&&!hws.find(h=>h.id===GM.hw))GM.hw=hws.length?hws[hws.length-1].id:'';
-  const key=[GM.tip,GM.range,GM.fmt,GM.hw,G.sinif,G.sube,G.date,G.donem,GM.ders].join('|');
+  const key=[GM.tip,GM.range,GM.fmt,GM.no,GM.hw,G.sinif,G.sube,G.date,G.donem,GM.ders].join('|');
   if(!GM.dirty||GM.lastTip!==key){GM.text=gmGen();GM.dirty=false;}GM.lastTip=key;
   const L=gmList(),cand=gmCand(),ids=new Set(L.map(o=>o.s.id));
   const sel=(id,opts,v)=>'<select data-gm="'+id+'" class="inp w-full">'+opts.map(o=>'<option value="'+esc(o[0])+'"'+(o[0]===v?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select>';
@@ -626,11 +626,11 @@ function gmBody(){
    +(need?'<label class="text-xs font-bold mt-2 block">Ödev</label>'+(hws.length?sel('hw',hws.map(h=>[h.id,h.name]),GM.hw):'<div class="text-xs text-slate-500">Bu sınıfa atanmış ödev yok.</div>'):'')
    +(['kitap','yok','kismen','tebrik','puan','odevt'].includes(GM.tip)?'<label class="text-xs font-bold mt-2 block">Ders adı (mesajda geçer, boş bırakılabilir)</label><input data-gm="ders" list="gmDl" class="inp w-full" value="'+esc(GM.ders)+'" placeholder="Örn. Siyer"><datalist id="gmDl">'+S.lessons.map(l=>'<option value="'+esc(l.name)+'">').join('')+'</datalist>':'')
    +(['kitap','yok','kismen','tebrik','puan'].includes(GM.tip)?'<label class="text-xs font-bold mt-2 block">Dönem aralığı</label>'+sel('range',GM_RANGES,GM.range):'')
-   +'<label class="text-xs font-bold mt-2 block">İsim yazımı</label>'+sel('fmt',[['tam','Tam ad (Mustafa Demirci)'],['kisa','Ad + soyad baş harfi (Mustafa D.)'],['ad','Yalnız ad (Mustafa)']],GM.fmt)+'</div>'
+   +'<label class="text-xs font-bold mt-2 block">Öğrenci numarası listede yazılsın mı?</label>'+sel('no',[['1','Evet (1- (45) Mustafa Demirci)'],['0','Hayır']],GM.no)+'<label class="text-xs font-bold mt-2 block">İsim yazımı</label>'+sel('fmt',[['tam','Tam ad (Mustafa Demirci)'],['kisa','Ad + soyad baş harfi (Mustafa D.)'],['ad','Yalnız ad (Mustafa)']],GM.fmt)+'</div>'
    +'<div class="card"><div class="font-bold text-sm mb-1">👥 Listedeki öğrenciler ('+L.length+')</div>'+rows
    +(add.length?'<select data-gm="add" class="inp w-full mt-2"><option value="">➕ Listeye öğrenci ekle…</option>'+add.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join('')+'</select>':'')+'</div>'
    +'<div class="card"><div class="font-bold text-sm mb-1">✉️ Mesaj</div><textarea id="gmT" rows="9" class="inp w-full text-sm" placeholder="Önce yukarıdan öğrenci seçin">'+esc(GM.text)+'</textarea>'
-   +'<div class="text-[11px] text-slate-500 mb-2">Metni dilediğiniz gibi değiştirebilirsiniz. Üstteki seçimleri değiştirirseniz metin yeniden oluşturulur.'+(GM.dirty?' <b>(Metni elle değiştirdiniz.)</b> <button data-act="gmreset" class="underline text-indigo-600">Yeniden oluştur</button>':'')+'</div>'
+   +'<div class="text-[11px] text-slate-500 mb-2">Başlıktaki *yıldızlar* WhatsApp’ta kalın yazı olur. Metni dilediğiniz gibi değiştirebilirsiniz. Üstteki seçimleri değiştirirseniz metin yeniden oluşturulur.'+(GM.dirty?' <b>(Metni elle değiştirdiniz.)</b> <button data-act="gmreset" class="underline text-indigo-600">Yeniden oluştur</button>':'')+'</div>'
    +'<div class="flex flex-wrap gap-2"><button data-act="gmwa" class="btn bg-green-600">💬 WhatsApp’ta aç (grubu siz seçersiniz)</button><button data-act="gmshare" class="btn bg-indigo-600">📤 Paylaş</button><button data-act="gmcopy" class="btn bg-slate-600">📋 Kopyala</button></div>'
    +'<div class="text-[11px] text-slate-500 mt-2">WhatsApp açılınca grubu seçip Gönder’e siz basarsınız. İsimlerin sınıf grubunda yazılması okulunuzun ve velilerin kabul ettiği uygulamaya uygun olmalıdır; isterseniz “Ad + soyad baş harfi” yazımını seçin.</div></div>';
 }
