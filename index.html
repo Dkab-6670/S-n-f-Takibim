@@ -3479,7 +3479,7 @@ reg('gplan','📝','Günlük Plan',()=>{
      +'<div class="flex flex-wrap gap-2 mt-3"><button data-act="gpfill" data-i="'+i+'" class="btn bg-slate-600">↺ Yıllık plandan doldur</button><button data-act="gpprint" data-i="'+i+'" class="btn bg-emerald-600">🖨️ Bu dersi yazdır</button></div></div>';
   }).join('')||'<div class="card text-sm text-slate-500">Bu güne ait ders programı yok. Ders programını girin ya da aşağıdan ders ekleyin.</div>';
   const add='<div class="card"><b class="text-sm">➕ Programda olmayan ders ekle</b><div class="flex flex-wrap gap-2 mt-2"><select id="gpS" class="inp">'+classes().map(c=>'<option value="'+esc(c)+'"'+(c===G.sinif?' selected':'')+'>'+esc(c)+'. sınıf</option>').join('')+'</select><input id="gpB" class="inp w-20" placeholder="Şube" value="'+esc(gpSb(G.sube).toUpperCase())+'"><input id="gpD" list="gpDl" class="inp flex-1 min-w-[140px]" placeholder="Ders adı"><datalist id="gpDl">'+S.lessons.map(l=>'<option value="'+esc(l.name)+'">').join('')+'</datalist><button data-act="gpadd" class="btn bg-indigo-600">Ekle</button></div></div>';
-  const out='<div class="card"><b class="text-sm">🖨️ Çıktı (A4, her ders ayrı sayfa)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpday" class="btn bg-emerald-600">Günün planı</button><button data-act="gpweek" class="btn bg-emerald-700">Haftanın planı (Pzt–Cum)</button></div><b class="text-sm block mt-3">🗜️ Arkalı önlü 1 kâğıt (en çok 2 sayfa, yazı otomatik küçülür)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdayfit" class="btn bg-indigo-600">Günün planı</button><button data-act="gpweekfit" class="btn bg-indigo-700">Haftanın planı</button></div><div class="text-[11px] text-slate-500 mt-2">Konu ve kazanım yıllık plandan, yöntem/araç/değerlendirme o dersin son planından otomatik gelir; dilediğiniz gibi değiştirin. Boş bıraktığınız bölümler çıktıda elle doldurmanız için boş kutu olarak kalır.</div></div>';
+  const out='<div class="card"><b class="text-sm">🖨️ Çıktı (A4, her ders ayrı sayfa)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpday" class="btn bg-emerald-600">Günün planı</button><button data-act="gpweek" class="btn bg-emerald-700">Haftanın planı (Pzt–Cum)</button></div><b class="text-sm block mt-3">🗜️ Arkalı önlü 1 kâğıt (en çok 2 sayfa, yazı otomatik küçülür)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdayfit" class="btn bg-indigo-600">Günün planı</button><button data-act="gpweekfit" class="btn bg-indigo-700">Haftanın planı</button></div><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdaypdf" class="btn bg-rose-600">📄 Günün planı PDF (indir / paylaş)</button><button data-act="gpweekpdf" class="btn bg-rose-700">📄 Haftanın planı PDF</button></div><div class="text-[11px] text-slate-500 mt-2">Konu ve kazanım yıllık plandan, yöntem/araç/değerlendirme o dersin son planından otomatik gelir; dilediğiniz gibi değiştirin. Boş bıraktığınız bölümler çıktıda elle doldurmanız için boş kutu olarak kalır.</div></div>';
   return nav+cards+add+out;
 });
 $('view').addEventListener('change',e=>{
@@ -3488,17 +3488,19 @@ $('view').addEventListener('change',e=>{
   if(d.gpf){const b=GPL.bl[+d.gpi];if(!b)return;const r=gpRec(GPL.date,b,true);r[d.gpf]=String(e.target.value).trim();save();}
 });
 /* Sıkıştırılmış çıktı: tüm dersler tek tabloda; yazı boyutu, içerik en çok 2 A4 sayfaya (1 kâğıt, arkalı önlü) sığana kadar otomatik küçülür. */
-function gpPrintFit(items){
-  if(!items.length)return alert('Yazdırılacak ders yok.');
+function gpFitDoc(items){
+  if(!items.length){alert('Yazdırılacak ders yok.');return '';}
   const pr=prof(),y0=+items[0][0].slice(0,4),m0=+items[0][0].slice(5,7),yr=m0>=8?y0+'-'+(y0+1):(y0-1)+'-'+y0;
   const c=(a,b)=>a?'<div>'+a+'</div>':'',lab=(k,v)=>v?'<div><b>'+k+':</b> '+v+'</div>':'';
   const rows=items.map(([d,b])=>{const v=f=>esc(gpVal(d,b,f)),pl=gpPlan(d,b);
     return '<tr><td><b>'+esc(fdt(d).slice(0,5))+'</b><br>'+GP_GUN[new Date(d+'T12:00:00').getDay()]+'</td><td><b>'+esc(b.sinif)+(b.sube?'/'+esc(b.sube.toUpperCase()):'')+'</b><br>'+esc(b.ders)+(b.bas?'<br>'+esc(b.bas)+'–'+esc(b.bit):'')+(pl&&pl.hafta?'<br>'+pl.hafta+'. hf':'')+'</td><td>'+lab('Konu',v('konu'))+lab('Kazanım',v('kaz'))+'</td><td>'+lab('Yöntem',v('yontem'))+lab('Araç',v('arac'))+'</td><td>'+lab('Giriş',v('giris'))+lab('Gelişme',v('gelisme'))+lab('Sonuç',v('sonuc'))+'</td><td>'+lab('Değerlendirme',v('deger'))+lab('Ödev',v('odev'))+lab('Not',v('not'))+'</td></tr>';}).join('');
   const css='@page{size:A4;margin:12mm}html,body{margin:0}body{font-family:Arial,sans-serif;color:#000}#w{width:186mm;font-size:11px}h1{text-align:center;font-size:1.5em;margin:0}.s{text-align:center;margin:2px 0 6px}table{width:100%;border-collapse:collapse;table-layout:fixed}td,th{border:1px solid #000;padding:2px 3px;vertical-align:top;text-align:left;white-space:pre-wrap;word-wrap:break-word}th{background:#eee;text-align:center}thead{display:table-header-group}tr{page-break-inside:avoid}.sg{display:flex;justify-content:space-between;margin-top:1.4em;text-align:center}.sg div{width:42%}#pg{position:absolute;visibility:hidden;height:273mm;width:1px}.b{padding:8px;text-align:center;font-size:13px}@media print{.b{display:none}}';
-  const js="function fit(){var t=document.getElementById('w'),mx=document.getElementById('pg').offsetHeight*2*0.97,f=12;t.style.fontSize=f+'px';while(t.scrollHeight>mx&&f>5){f-=.5;t.style.fontSize=f+'px';}var ok=t.scrollHeight<=mx;document.getElementById('i').textContent=ok?'Yazı boyutu '+f+' punto · en çok 2 sayfa (1 kâğıt, arkalı önlü). Yazdırırken “iki taraflı” seçin.':'⚠️ Bu kadar ders tek kâğıda sığmadı; daha az ders seçin (örneğin günü ayrı ayrı yazdırın).';document.getElementById('i').style.color=ok?'#065f46':'#b91c1c';}onload=fit;onbeforeprint=fit;";
+  const js="function fit(){var t=document.getElementById('w'),mx=document.getElementById('pg').offsetHeight*2*0.9,f=12;t.style.fontSize=f+'px';while(t.scrollHeight>mx&&f>5){f-=.5;t.style.fontSize=f+'px';}var ok=t.scrollHeight<=mx;document.getElementById('i').textContent=ok?'Yazı boyutu '+f+' punto · en çok 2 sayfa (1 kâğıt, arkalı önlü). Yazdırırken “iki taraflı” seçin.':'⚠️ Bu kadar ders tek kâğıda sığmadı; daha az ders seçin (örneğin günü ayrı ayrı yazdırın).';document.getElementById('i').style.color=ok?'#065f46':'#b91c1c';}onload=fit;onbeforeprint=fit;";
   const doc='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Günlük Plan</title><style>'+css+'</style><div id="pg"></div><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır / PDF olarak kaydet</button><div id="i" style="margin-top:6px"></div></div><div id="w"><h1>GÜNLÜK DERS PLANI</h1><div class="s">'+(pr.okul?esc(pr.okul)+' · ':'')+yr+' Eğitim Öğretim Yılı · '+esc(fdt(items[0][0]))+(items[items.length-1][0]!==items[0][0]?' – '+esc(fdt(items[items.length-1][0])):'')+'</div><table><thead><tr><th style="width:9%">Tarih</th><th style="width:12%">Sınıf / Ders</th><th style="width:19%">Konu ve kazanım</th><th style="width:13%">Yöntem, araç</th><th style="width:27%">İşleniş</th><th style="width:20%">Değerlendirme, ödev</th></tr></thead><tbody>'+rows+'</tbody></table><div class="sg"><div>Ders Öğretmeni<br><br><b>'+esc(pr.name||'')+'</b></div><div>Uygundur<br>…/…/'+items[0][0].slice(0,4)+'<br><b>Okul Müdürü</b></div></div></div><script>'+js+'<\/script>';
-  open(URL.createObjectURL(new Blob([doc],{type:'text/html'})),'_blank');
+  return doc;
 }
+function gpPrintFit(items){const d=gpFitDoc(items);if(d)open(URL.createObjectURL(new Blob([d],{type:'text/html'})),'_blank');}
+function gpPdfFit(items){const d=gpFitDoc(items);if(d)pdfFromDoc(d,'Gunluk_Plan_'+items[0][0]+'.pdf','Günlük plan');}
 function gpPrint(items){
   if(!items.length)return alert('Yazdırılacak ders yok.');
   const pr=prof(),y0=+items[0][0].slice(0,4),m0=+items[0][0].slice(5,7),yr=m0>=8?y0+'-'+(y0+1):(y0-1)+'-'+y0;
@@ -3521,6 +3523,8 @@ Object.assign(ACT,{
   gptoday(){GPL.date=bdNow();render(true);},
   gpfill(a){const b=GPL.bl[+a.dataset.i];if(!b)return;const p=gpPlan(GPL.date,b);if(!p)return toast('Bu hafta için yıllık plan satırı yok',true);const r=gpRec(GPL.date,b,true);r.konu=p.konu||'';r.kaz=p.kaz||'';if(T(p.yon))r.yontem=p.yon;if(T(p.arac))r.arac=p.arac;if(T(p.deg))r.deger=p.deg;save();render(true);toast('Yıllık plandan dolduruldu');},
   gpprint(a){const b=GPL.bl[+a.dataset.i];if(b)gpPrint([[GPL.date,b]]);},
+  gpdaypdf(){gpPdfFit(GPL.bl.map(b=>[GPL.date,b]));},
+  gpweekpdf(){const d=GPL.date||bdNow(),dt=new Date(d+'T12:00:00'),mon=ypAdd(d,-((dt.getDay()+6)%7)),it=[];for(let i=0;i<5;i++){const x=ypAdd(mon,i);gpBlocks(x).forEach(b=>it.push([x,b]));}gpPdfFit(it);},
   gpdayfit(){gpPrintFit(GPL.bl.map(b=>[GPL.date,b]));},
   gpweekfit(){const d=GPL.date||bdNow(),dt=new Date(d+'T12:00:00'),mon=ypAdd(d,-((dt.getDay()+6)%7)),it=[];for(let i=0;i<5;i++){const x=ypAdd(mon,i);gpBlocks(x).forEach(b=>it.push([x,b]));}gpPrintFit(it);},
   gpday(){gpPrint(GPL.bl.map(b=>[GPL.date,b]));},
@@ -3528,40 +3532,75 @@ Object.assign(ACT,{
   gpadd(){const s=$('gpS').value,b=gpSb($('gpB').value),dn=T($('gpD').value);if(!s||!dn)return alert('Sınıf ve ders adı girin.');gpRec(GPL.date,{sinif:s,sube:b,ders:dn,n:1,man:1},true);save();render(true);}
 });
 
-/* ===== Sınıf nöbetçileri: her gün 2 öğrenci, adil sırayla dağıtım. Kayıt: S.nobet = [{tarih,sinif,sube,ids:[öğrenci id,…]}] ===== */
-const NB={mon:'',n:2,ym:''};
+/* ===== Belgeyi (tam HTML) PDF'e çevirip paylaş / indir ===== */
+const ldJs=(url,ok)=>ok()?Promise.resolve():new Promise((res,no)=>{const e=document.createElement('script');e.src=url;e.onload=res;e.onerror=()=>no(new Error('PDF kütüphanesi yüklenemedi (internet?)'));document.head.appendChild(e);});
+const pdfLibs=()=>Promise.all([ldJs('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',()=>window.html2canvas),ldJs('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',()=>window.jspdf)]);
+let PDFB=null;
+const pdfm=document.createElement('div');pdfm.className='fixed inset-0 z-[180] hidden items-center justify-center bg-black/60 p-4';
+pdfm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-sm w-full p-4"><b class="text-lg">📄 PDF hazır</b><div id="pdfN" class="text-xs text-slate-500 my-2 break-all"></div><div class="flex flex-wrap gap-2"><button data-act="pdfshare" class="btn bg-emerald-600 flex-1">📤 Paylaş (WhatsApp, e-posta…)</button><button data-act="pdfdl" class="btn bg-indigo-600 flex-1">⬇ İndir</button></div><button data-act="pdfx" class="btn bg-slate-500 w-full mt-2">Kapat</button></div>';
+document.body.appendChild(pdfm);
+Object.assign(ACT,{
+  pdfx(){pdfm.classList.add('hidden');pdfm.classList.remove('flex');},
+  async pdfshare(){if(!PDFB)return;const f=new File([PDFB.blob],PDFB.fn,{type:'application/pdf'});
+    try{if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:PDFB.title||PDFB.fn});else{ACT.pdfdl();toast('Paylaşma bu cihazda desteklenmiyor, PDF indirildi');}}catch(e){if(!e||e.name!=='AbortError')alert('Paylaşılamadı: '+(e.message||e));}},
+  pdfdl(){if(!PDFB)return;const a=document.createElement('a');a.href=URL.createObjectURL(PDFB.blob);a.download=PDFB.fn;document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),500);}
+});
+async function pdfFromDoc(doc,fn,title){
+  let fr=null;
+  try{
+    toast('PDF hazırlanıyor…');await pdfLibs();
+    fr=document.createElement('iframe');fr.style.cssText='position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;background:#fff';document.body.appendChild(fr);
+    const d=fr.contentDocument;d.open();d.write(doc.replace('<style>','<style>.b{display:none!important}body{width:186mm;margin:0!important;padding:0!important}'));d.close();
+    await new Promise(r=>setTimeout(r,600));
+    const body=d.body,top=body.getBoundingClientRect().top,W=body.getBoundingClientRect().width,H=body.scrollHeight,pageH=W*273/186;
+    const bps=[...d.querySelectorAll('tr,.sg')].map(el=>el.getBoundingClientRect().bottom-top).filter(v=>v>0).sort((a,b)=>a-b);
+    const cv=await html2canvas(body,{scale:2,backgroundColor:'#fff',windowWidth:794,useCORS:true}),sc=cv.width/W;
+    const cuts=[];let y=0;while(y<H-2){let end=Math.min(H,y+pageH);if(end<H){const c=bps.filter(v=>v>y+pageH*0.3&&v<=y+pageH);if(c.length)end=c[c.length-1];}cuts.push([y,end]);y=end;}
+    const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4'});
+    cuts.forEach((c,i)=>{const hh=Math.max(1,Math.round((c[1]-c[0])*sc)),sub=document.createElement('canvas');sub.width=cv.width;sub.height=hh;const cx=sub.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,sub.width,hh);cx.drawImage(cv,0,Math.round(c[0]*sc),cv.width,hh,0,0,cv.width,hh);if(i)pdf.addPage();pdf.addImage(sub.toDataURL('image/jpeg',.95),'JPEG',12,12,186,(c[1]-c[0])/W*186);});
+    PDFB={blob:pdf.output('blob'),fn:fn,title:title};fr.remove();fr=null;
+    $('pdfN').textContent=fn+' · '+cuts.length+' sayfa';pdfm.classList.remove('hidden');pdfm.classList.add('flex');
+  }catch(e){if(fr)fr.remove();alert('PDF oluşturulamadı: '+(e.message||e));}
+}
+
+/* ===== Sınıf nöbetçileri: her gün 2 öğrenci, sınıf listesi sırasıyla. Kayıt: S.nobet = [{tarih,sinif,sube,ids}] + {t:'r'} rehber/başlangıç + {t:'t'} tatil ===== */
+const NB={n:2,ym:''};
 const nbMon=d=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()-((x.getDay()+6)%7));return x.toISOString().slice(0,10);};
 const nbSb=()=>G.sube==='ALL'?'':String(G.sube).toLowerCase();
 const nbOf=()=>S.students.filter(s=>!s.absent&&(G.sinif==='ALL'||T(s.sinif)===G.sinif)&&(G.sube==='ALL'||T(s.sube).toLowerCase()===G.sube));
-const nbRecs=()=>(S.nobet||[]).filter(r=>r.t!=='r'&&r.sinif===G.sinif&&(r.sube||'')===nbSb());
+const nbRecs=()=>(S.nobet||[]).filter(r=>r.t!=='r'&&r.t!=='t'&&r.sinif===G.sinif&&(r.sube||'')===nbSb());
 const nbRehR=()=>(S.nobet||[]).find(r=>r.t==='r'&&r.sinif===G.sinif&&(r.sube||'')===nbSb())||null;
 const nbReh=()=>{const r=nbRehR();return r?T(r.ad):'';};
 const nbRehMk=()=>{let r=nbRehR();if(!r){r={t:'r',sinif:G.sinif,sube:nbSb(),ad:''};S.nobet.push(r);}return r;};
-/* Sayfa açılırken: kullanıcının rehber öğretmeni olduğu sınıf seçilir */
+const nbBas=()=>T((nbRehR()||{}).bas);
 function nbAuto(){const r=(S.nobet||[]).find(x=>x.t==='r'&&x.me);if(!r||!r.sinif||!classes().includes(r.sinif))return;G.sinif=r.sinif;G.sube=r.sube?String(r.sube).toLowerCase():'ALL';try{gsave();}catch(e){}}
-const NB_AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-const nbYm=()=>NB.ym||ypAdd(NB.mon||nbMon(bdNow()),3).slice(0,7);
-function nbGoYm(ym){NB.ym=ym;let d=ym+'-01';const g=new Date(d+'T12:00:00').getDay();if(g===6)d=ypAdd(d,2);else if(g===0)d=ypAdd(d,1);NB.mon=nbMon(d);}
 const nbRec=d=>nbRecs().find(r=>r.tarih===d)||null;
+const NB_AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const nbYm=()=>NB.ym||ypAdd(nbMon(bdNow()),3).slice(0,7);
+/* Hafta bütünlüğü: bir hafta, Perşembe gününün düştüğü aya aittir (ay sonu Pazartesi, Aralık haftasıyla birlikte Aralık'a yazılır). */
+function nbWeeks(ym){let mon=nbMon(ym+'-01');if(ypAdd(mon,3).slice(0,7)<ym)mon=ypAdd(mon,7);const out=[];while(ypAdd(mon,3).slice(0,7)===ym){out.push(mon);mon=ypAdd(mon,7);}return out;}
 function nbSet(d,ids){let r=nbRec(d);if(!r){r={tarih:d,sinif:G.sinif,sube:nbSb(),ids:[]};S.nobet.push(r);}r.ids=ids.filter(Boolean);}
-/* Başlangıç tarihinden önce (verilen aralıkta) eskiden yazılmış nöbetçiler varsa sorar ve siler; yoksa true döner. */
+const NB_RES={'01-01':'Yılbaşı','04-23':'Ulusal Egemenlik ve Çocuk Bayramı','05-01':'Emek ve Dayanışma Günü','05-19':'Atatürk’ü Anma, Gençlik ve Spor Bayramı','07-15':'Demokrasi ve Milli Birlik Günü','08-30':'Zafer Bayramı','10-29':'Cumhuriyet Bayramı'};
+const nbHols=()=>(S.nobet||[]).filter(r=>r.t==='t'&&r.bas&&r.bit);
+function nbHol(d){if(NB_RES[d.slice(5)])return NB_RES[d.slice(5)];const r=nbHols().find(x=>x.bas<=d&&d<=x.bit);return r?(T(r.ad)||'Tatil'):'';}
+const nbName=id=>{const s=S.students.find(x=>x.id===id);return s?s:null;};
+const nbGun=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma'];
+/* Başlangıç tarihinden önce eskiden yazılmış nöbetçiler varsa sorar ve siler */
 function nbPre(from){
-  const bas=T((nbRehR()||{}).bas);if(!bas)return true;
+  const bas=nbBas();if(!bas)return;
   const old=nbRecs().filter(r=>r.tarih>=from&&r.tarih<bas&&(r.ids||[]).length);
-  if(!old.length)return true;
-  if(!confirm('Başlangıç tarihinden ('+fdt(bas)+') önceki '+old.length+' gün için daha önce nöbetçi yazılmış.\n\nTamam: bu günlerdeki nöbetçileri sil, sıra başlangıçtan itibaren yeniden kurulsun\nİptal: dokunma (sıra bu günlerden devam eder)'))return true;
+  if(!old.length)return;
+  if(!confirm('Başlangıç tarihinden ('+fdt(bas)+') önceki '+old.length+' gün için daha önce nöbetçi yazılmış.\n\nTamam: bu günlerdeki nöbetçileri sil\nİptal: dokunma (sıra bu günlerden devam eder)'))return;
   const set=new Set(old.map(r=>r.tarih));S.nobet=S.nobet.filter(r=>!(r.t!=='r'&&r.t!=='t'&&r.sinif===G.sinif&&(r.sube||'')===nbSb()&&set.has(r.tarih)));
-  return true;
 }
-function nbDist(mon,over,ym){
+function nbDist(mon,over){
   const L=sorted(nbOf());if(!L.length)return 0;
   const nx=ids=>{const i=L.findIndex(s=>s.id===ids[ids.length-1]);return i>=0?(i+1)%L.length:null;};
   let ptr=0;const prev=nbRecs().filter(r=>r.tarih<mon&&(r.ids||[]).length).sort((a,b)=>a.tarih<b.tarih?1:-1)[0];
   if(prev){const q=nx(prev.ids);if(q!==null)ptr=q;}
-  let k=0;const bas=T((nbRehR()||{}).bas);
+  let k=0;const bas=nbBas();
   for(let i=0;i<5;i++){
     const d=ypAdd(mon,i),r=nbRec(d);
-    if(ym&&d.slice(0,7)!==ym)continue;
     if(nbHol(d))continue;
     if(r&&(r.ids||[]).length&&(!over||(bas&&d<bas))){const q=nx(r.ids);if(q!==null)ptr=q;continue;}
     if(bas&&d<bas)continue;
@@ -3570,72 +3609,61 @@ function nbDist(mon,over,ym){
   }
   return k;
 }
-const NB_RES={'01-01':'Yılbaşı','04-23':'Ulusal Egemenlik ve Çocuk Bayramı','05-01':'Emek ve Dayanışma Günü','05-19':'Atatürk’ü Anma, Gençlik ve Spor Bayramı','07-15':'Demokrasi ve Milli Birlik Günü','08-30':'Zafer Bayramı','10-29':'Cumhuriyet Bayramı'};
-const nbHols=()=>(S.nobet||[]).filter(r=>r.t==='t'&&r.bas&&r.bit);
-function nbHol(d){if(NB_RES[d.slice(5)])return NB_RES[d.slice(5)];const r=nbHols().find(x=>x.bas<=d&&d<=x.bit);return r?(T(r.ad)||'Tatil'):'';}
-const nbName=id=>{const s=S.students.find(x=>x.id===id);return s?s:null;};
-const nbGun=['Pazartesi','Salı','Çarşamba','Perşembe','Cuma'];
-function nbText(mon){
-  const l=[];for(let i=0;i<5;i++){const r=nbHol(ypAdd(mon,i))?null:nbRec(ypAdd(mon,i)),n=((r&&r.ids)||[]).map(nbName).filter(Boolean).map(s=>(T(s.no)?'('+T(s.no)+') ':'')+s.name);if(n.length)l.push(nbGun[i]+': '+n.join(', '));}
+const nbWho=d=>{const r=nbRec(d);return((r&&r.ids)||[]).map(nbName).filter(Boolean);};
+function nbText(ym){
+  const wk=nbWeeks(ym),l=[];
+  wk.forEach((mon,wi)=>{const t=[];for(let i=0;i<5;i++){const d=ypAdd(mon,i),n=nbHol(d)?[]:nbWho(d);if(n.length)t.push(nbGun[i]+' '+fdt(d).slice(0,5)+': '+n.map(s=>(T(s.no)?'('+T(s.no)+') ':'')+s.name).join(', '));}if(t.length)l.push('*'+(wi+1)+'. Hafta*\n'+t.join('\n'));});
   if(!l.length)return '';
-  return '*Bu haftanın sınıf nöbetçileri ('+G.sinif+(G.sube==='ALL'?'':'/'+String(G.sube).toUpperCase())+', '+fdt(mon).slice(0,5)+' – '+fdt(ypAdd(mon,4)).slice(0,5)+'):*\n'+l.join('\n')+'\n\nNöbetçi arkadaşlarımıza görevlerinde başarılar dilerim.';
+  return '*'+NB_AY[+ym.slice(5)-1]+' ayı sınıf nöbetçileri ('+G.sinif+(G.sube==='ALL'?'':'/'+String(G.sube).toUpperCase())+'):*\n\n'+l.join('\n\n')+'\n\nNöbetçi arkadaşlarımıza görevlerinde başarılar dilerim.';
+}
+function nbDoc(ym){
+  const m=+ym.slice(5)-1,pr=prof(),rh=nbReh(),wk=nbWeeks(ym);
+  const rows=wk.map((mon,wi)=>{let t='';for(let i=0;i<5;i++){const d=ypAdd(mon,i),hol=nbHol(d),n=nbWho(d);
+    t+='<tr>'+(i===0?'<td class="w" rowspan="5"><div>'+(wi+1)+'. HAFTA</div></td>':'')+'<td>'+fdt(d)+'</td><td>'+nbGun[i].toLocaleUpperCase('tr')+'</td>'+(hol?'<td colspan="2" class="t">'+esc(hol.toLocaleUpperCase('tr'))+' (TATİL)</td>':[0,1].map(k=>'<td class="n">'+(n[k]?esc(n[k].name.toLocaleUpperCase('tr')):'')+'</td>').join(''))+'</tr>';}return t;}).join('');
+  const nr=wk.length*5,fs=nr>21?'14px':'15px',pad=nr>21?'8px':'10px';
+  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nöbet Listesi</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0}body{font-family:Arial,sans-serif;color:#000}.o{text-align:center;font-size:15px;margin:0 0 6px}h1{text-align:center;font-size:20px;margin:0;color:#1e3a8a}h2{text-align:center;font-size:17px;margin:2px 0 12px}table{width:100%;border-collapse:collapse;font-size:'+fs+'}td,th{border:1.5px solid #000;padding:'+pad+' 6px;text-align:center}th{background:#e5e7eb;font-size:13px}td.n{font-weight:bold}td.t{background:#f3f4f6;font-style:italic;font-size:13px}td.w{width:5%;padding:0;background:#f3f4f6;font-weight:bold;position:relative}td.w div{position:absolute;left:50%;top:50%;width:90px;margin-left:-45px;margin-top:-8px;text-align:center;white-space:nowrap;transform:rotate(-90deg)}.f{margin-top:20px;display:flex;justify-content:flex-end;font-size:15px;text-align:center}.f div{min-width:230px}.b{padding:10px;text-align:center}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div>'
+   +(pr.okul?'<div class="o"><b>'+esc(pr.okul)+'</b></div>':'')+'<h1>( '+esc(G.sinif)+(G.sube==='ALL'?'':'/'+esc(String(G.sube).toUpperCase()))+' SINIFI )</h1><h2>'+NB_AY[m].toLocaleUpperCase('tr')+' AYI ÖĞRENCİ NÖBET LİSTESİ</h2>'
+   +'<table><tr><th rowspan="2"></th><th rowspan="2">NÖBET<br>TARİHİ</th><th rowspan="2">NÖBET<br>GÜNÜ</th><th colspan="2">NÖBETÇİ ÖĞRENCİNİN</th></tr><tr><th>ADI SOYADI</th><th>ADI SOYADI</th></tr>'+rows+'</table>'
+   +'<div class="f"><div>Sınıf Rehber Öğretmeni<br><br><b>'+(rh?esc(rh):'……………………………')+'</b></div></div>';
 }
 reg('nobet','🧹','Sınıf Nöbetçileri',()=>{
-  const mon=NB.mon||(NB.mon=nbMon(G.date||bdNow())),all=nbOf();
-  const cnt={};nbRecs().forEach(r=>(r.ids||[]).forEach(i=>{cnt[i]=(cnt[i]||0)+1;}));
-  const opt=(sel)=>'<option value="">—</option>'+all.map(s=>'<option value="'+esc(s.id)+'"'+(s.id===sel?' selected':'')+'>'+esc((T(s.no)?s.no+' · ':'')+s.name)+'</option>').join('');
-  const days=[0,1,2,3,4].map(i=>{const d=ypAdd(mon,i),r=nbRec(d),ids=(r&&r.ids)||[],hol=nbHol(d);if(hol)return '<div class="card opacity-70"><b>'+nbGun[i]+'</b> <span class="text-xs text-slate-500">'+fdt(d)+'</span><div class="text-sm mt-1">🏖️ Tatil: '+esc(hol)+' (nöbetçi yazılmaz)</div></div>';let sl='';for(let k=0;k<NB.n;k++)sl+='<select data-nbd="'+d+'" data-nbk="'+k+'" class="inp w-full mt-1 text-sm">'+opt(ids[k])+'</select>';return '<div class="card"><b>'+nbGun[i]+'</b> <span class="text-xs text-slate-500">'+fdt(d)+'</span>'+sl+'</div>';}).join('');
-  const lst=all.slice().sort((a,b)=>(cnt[b.id]||0)-(cnt[a.id]||0)).map(s=>esc(s.name)+' ('+(cnt[s.id]||0)+')').join(' · ');
-  return gbar()+'<div class="card flex flex-wrap items-center gap-2"><button data-act="nbw" data-v="-7" class="btn bg-slate-600">◀</button><b class="flex-1 text-center text-sm">'+fdt(mon)+' – '+fdt(ypAdd(mon,4))+'</b><button data-act="nbw" data-v="7" class="btn bg-slate-600">▶</button><button data-act="nbtoday" class="btn bg-indigo-600">Bu hafta</button></div>'
-   +(G.sinif==='ALL'?'<div class="card text-sm text-amber-700">Önce yukarıdan bir sınıf seçin.</div>':!all.length?'<div class="card text-sm text-slate-500">Bu sınıfta öğrenci yok.</div>'
-   :'<div class="card flex flex-wrap gap-2"><button data-act="nbdist" class="btn bg-emerald-600">🎲 Boş günleri dağıt</button><button data-act="nbredo" class="btn bg-amber-600">🔄 Haftayı yeniden dağıt</button></div>'
-   +'<div class="card"><div class="flex items-center gap-2"><button data-act="nbmo" data-v="-1" class="btn bg-slate-600">◀</button><b class="flex-1 text-center">📅 '+NB_AY[+nbYm().slice(5)-1]+' '+nbYm().slice(0,4)+' ayı</b><button data-act="nbmo" data-v="1" class="btn bg-slate-600">▶</button></div><div class="flex flex-wrap gap-2 mt-2"><button data-act="nbmon" class="btn bg-emerald-600">🎲 Ayın boş günlerini dağıt</button><button data-act="nbprm" class="btn bg-emerald-700">🖨️ Aylık çizelge (A4, 1 sayfa)</button><button data-act="nbclr" class="btn bg-red-600">🗑 Bu sınıfın tüm nöbetlerini sil</button></div><label class="text-xs font-bold mt-3 block">Nöbet hangi tarihte başlasın? <span class="text-red-600">(dağıtmadan önce seçin)</span></label><input type="date" data-nbb="1" class="inp w-full" value="'+esc(T((nbRehR()||{}).bas))+'"><div class="text-[11px] text-slate-500">Bu tarihten önceki günlere nöbetçi yazılmaz. Sıra, bir önceki aydan kalan öğrenciden devam eder; hiç nöbet yazılmadıysa sınıf listesinin başından başlar.</div><label class="text-xs font-bold mt-3 block">Sınıf rehber öğretmeni (çıktının altına yazılır)</label><input data-nbr="1" class="inp w-full" value="'+esc(nbReh())+'" placeholder="Ad Soyad"><label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" data-nbme="1" class="w-5 h-5"'+((nbRehR()||{}).me?' checked':'')+'><span>Bu sınıfın rehber öğretmeniyim <span class="text-[11px] text-slate-500">(bu sayfa her seferinde bu sınıfla açılır)</span></span></label></div>'+days
-   +'<div class="card"><b class="text-sm">🏖️ Tatil günleri (nöbetçi yazılmaz)</b><div class="text-[11px] text-slate-500 mt-1">Resmî bayram ve tatil günleri (29 Ekim, 23 Nisan, 1 Mayıs, 19 Mayıs, 15 Temmuz, 30 Ağustos, 1 Ocak) otomatik atlanır. Dini bayramları, ara tatili ve yarıyıl tatilini aşağıdan ekleyin.</div><div class="flex flex-wrap gap-2 mt-2"><input type="date" id="nbHb" class="inp"><input type="date" id="nbHe" class="inp"><input id="nbHn" class="inp flex-1 min-w-[120px]" placeholder="Adı (örn. Ramazan Bayramı)"><button data-act="nbhadd" class="btn bg-indigo-600">Ekle</button></div>'+(nbHols().length?nbHols().sort((a,b)=>a.bas<b.bas?-1:1).map(x=>'<div class="flex items-center gap-2 text-sm py-1 border-b border-slate-200 dark:border-slate-700"><span class="flex-1">'+fdt(x.bas)+(x.bit!==x.bas?' – '+fdt(x.bit):'')+' · '+esc(x.ad||'Tatil')+'</span><button data-act="nbhdel" data-id="'+esc(x.id||'')+'" class="px-2 text-red-600">🗑</button></div>').join(''):'')+'</div>'
-   +'<div class="card"><b class="text-sm">📊 Şimdiye kadar tuttukları nöbet</b><div class="text-xs text-slate-600 dark:text-slate-300 mt-1">'+(lst||'—')+'</div></div>'
-   +'<div class="card"><div class="flex flex-wrap gap-2"><button data-act="nbwa" class="btn bg-green-600">💬 Sınıf grubuna gönder</button><button data-act="nbcp" class="btn bg-slate-600">📋 Kopyala</button><button data-act="nbpr" class="btn bg-emerald-700">🖨️ Haftalık çizelge</button></div><div class="text-[11px] text-slate-500 mt-2">Dağıtım sınıf listesi sırasıyla ilerler: her gün listedeki sıradaki 2 öğrenci yazılır, liste bitince başa döner, bir sonraki ay kaldığı yerden devam eder. Sürekli devamsız işaretli öğrenciler atlanır. Her günü listeden elle de değiştirebilirsiniz.</div></div>');
+  const ym=nbYm(),all=nbOf(),wk=nbWeeks(ym);
+  const opt=sel=>'<option value="">—</option>'+all.map(s=>'<option value="'+esc(s.id)+'"'+(s.id===sel?' selected':'')+'>'+esc((T(s.no)?s.no+' · ':'')+s.name)+'</option>').join('');
+  if(G.sinif==='ALL')return gbar()+'<div class="card text-sm text-amber-700">Önce yukarıdan bir sınıf seçin.</div>';
+  if(!all.length)return gbar()+'<div class="card text-sm text-slate-500">Bu sınıfta öğrenci yok.</div>';
+  const mc='<div class="card"><div class="flex items-center gap-2"><button data-act="nbmo" data-v="-1" class="btn bg-slate-600">◀</button><b class="flex-1 text-center">📅 '+NB_AY[+ym.slice(5)-1]+' '+ym.slice(0,4)+' ayı</b><button data-act="nbmo" data-v="1" class="btn bg-slate-600">▶</button></div>'
+   +'<label class="text-xs font-bold mt-3 block">Nöbet hangi tarihte başlasın? <span class="text-red-600">(dağıtmadan önce seçin)</span></label><input type="date" data-nbb="1" class="inp w-full" value="'+esc(nbBas())+'"><div class="text-[11px] text-slate-500">Bu tarihten önceki günlere nöbetçi yazılmaz. Sıra, sınıf listesi sırasıyla gider ve bir önceki aydan kalan öğrenciden devam eder.</div>'
+   +'<label class="text-xs font-bold mt-3 block">Sınıf rehber öğretmeni (çıktının altına yazılır)</label><input data-nbr="1" class="inp w-full" value="'+esc(nbReh())+'" placeholder="Ad Soyad"><label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" data-nbme="1" class="w-5 h-5"'+((nbRehR()||{}).me?' checked':'')+'><span>Bu sınıfın rehber öğretmeniyim <span class="text-[11px] text-slate-500">(bu sayfa her seferinde bu sınıfla açılır)</span></span></label>'
+   +'<div class="flex flex-wrap gap-2 mt-3"><button data-act="nbmon" class="btn bg-emerald-600">🎲 Ayın boş günlerini dağıt</button><button data-act="nbredo" class="btn bg-amber-600">🔄 Ayı yeniden dağıt</button><button data-act="nbclr" class="btn bg-red-600">🗑 Bu sınıfın tüm nöbetlerini sil</button></div></div>';
+  const ac='<div class="card"><b class="text-sm">📤 Çıktı ve paylaşım</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="nbpdf" class="btn bg-rose-600">📄 PDF indir / paylaş (A4, 1 sayfa)</button><button data-act="nbprm" class="btn bg-emerald-700">🖨️ Yazdır</button><button data-act="nbwa" class="btn bg-green-600">💬 Sınıf grubuna gönder</button><button data-act="nbcp" class="btn bg-slate-600">📋 Kopyala</button></div><div class="text-[11px] text-slate-500 mt-2">Hafta bütünlüğü korunur: Perşembesi bu aya düşen haftalar bu ayın listesinde yer alır. Ay sonuna denk gelen Pazartesi, takip eden ayın ilk haftasıyla birlikte yazılır.</div></div>';
+  const days=wk.map((mon,wi)=>'<div class="font-bold text-sm mt-2">'+(wi+1)+'. Hafta · '+fdt(mon).slice(0,5)+' – '+fdt(ypAdd(mon,4)).slice(0,5)+'</div>'+[0,1,2,3,4].map(i=>{const d=ypAdd(mon,i),ids=((nbRec(d)||{}).ids)||[],hol=nbHol(d);
+    if(hol)return '<div class="card opacity-70"><b>'+nbGun[i]+'</b> <span class="text-xs text-slate-500">'+fdt(d)+'</span><div class="text-sm mt-1">🏖️ Tatil: '+esc(hol)+' (nöbetçi yazılmaz)</div></div>';
+    let sl='';for(let k=0;k<NB.n;k++)sl+='<select data-nbd="'+d+'" data-nbk="'+k+'" class="inp w-full mt-1 text-sm">'+opt(ids[k])+'</select>';
+    return '<div class="card"><b>'+nbGun[i]+'</b> <span class="text-xs text-slate-500">'+fdt(d)+'</span>'+sl+'</div>';}).join('')).join('');
+  const hc='<div class="card"><b class="text-sm">🏖️ Tatil günleri (nöbetçi yazılmaz)</b><div class="text-[11px] text-slate-500 mt-1">Resmî bayram günleri (29 Ekim, 23 Nisan, 1 Mayıs, 19 Mayıs, 15 Temmuz, 30 Ağustos, 1 Ocak) otomatik atlanır. Dini bayramları, ara tatili ve yarıyıl tatilini aşağıdan ekleyin.</div><div class="flex flex-wrap gap-2 mt-2"><input type="date" id="nbHb" class="inp"><input type="date" id="nbHe" class="inp"><input id="nbHn" class="inp flex-1 min-w-[120px]" placeholder="Adı (örn. Ramazan Bayramı)"><button data-act="nbhadd" class="btn bg-indigo-600">Ekle</button></div>'+nbHols().sort((a,b)=>a.bas<b.bas?-1:1).map(x=>'<div class="flex items-center gap-2 text-sm py-1 border-b border-slate-200 dark:border-slate-700"><span class="flex-1">'+fdt(x.bas)+(x.bit!==x.bas?' – '+fdt(x.bit):'')+' · '+esc(x.ad||'Tatil')+'</span><button data-act="nbhdel" data-id="'+esc(x.id||'')+'" class="px-2 text-red-600">🗑</button></div>').join('')+'</div>';
+  return gbar()+mc+ac+days+hc;
 });
 $('view').addEventListener('change',e=>{
   const d=e.target.dataset||{};
   if(d.nbr){nbRehMk().ad=T(e.target.value);save();return;}
-  if(d.nbb){nbRehMk().bas=e.target.value||'';save();if(e.target.value)nbGoYm(e.target.value.slice(0,7));render(true);return;}
+  if(d.nbb){nbRehMk().bas=e.target.value||'';save();if(e.target.value)NB.ym=e.target.value.slice(0,7);render(true);return;}
   if(d.nbme){const r=nbRehMk();if(e.target.checked){(S.nobet||[]).forEach(x=>{if(x.t==='r'&&x!==r)x.me=false;});r.me=true;if(!T(r.ad)&&T(prof().name))r.ad=T(prof().name);}else r.me=false;save();render(true);return;}
   if(d.nbd){const r=nbRec(d.nbd),ids=((r&&r.ids)||[]).slice();while(ids.length<NB.n)ids.push('');ids[+d.nbk]=e.target.value;
     const f=ids.filter(Boolean);if(new Set(f).size<f.length){toast('Aynı öğrenci aynı güne iki kez yazılamaz',true);render(true);return;}
     nbSet(d.nbd,ids);save();}
 });
+const nbNeedBas=()=>{if(nbBas())return false;alert('Önce "Nöbet hangi tarihte başlasın?" kutusundan başlangıç tarihini seçin.');return true;};
 Object.assign(ACT,{
-  nbw(a){NB.ym='';NB.mon=ypAdd(NB.mon||nbMon(bdNow()),+a.dataset.v);render(true);},
-  nbtoday(){NB.ym='';NB.mon=nbMon(bdNow());render(true);},
-  nbmo(a){const y=+nbYm().slice(0,4),m=+nbYm().slice(5)-1+(+a.dataset.v),dt=new Date(y,m,1);nbGoYm(dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0'));render(true);},
-  nbdist(){if(!T((nbRehR()||{}).bas))return alert('Önce "Nöbet hangi tarihte başlasın?" kutusundan başlangıç tarihini seçin.');nbPre(NB.mon||nbMon(bdNow()));const k=nbDist(NB.mon||nbMon(bdNow()),false);save();render(true);toast(k?'Boş günler dağıtıldı':'Boş gün yok');},
-  nbredo(){if(!T((nbRehR()||{}).bas))return alert('Önce "Nöbet hangi tarihte başlasın?" kutusundan başlangıç tarihini seçin.');if(!confirm('Bu haftanın tüm nöbetçileri yeniden dağıtılsın mı?'))return;nbPre(NB.mon||nbMon(bdNow()));nbDist(NB.mon||nbMon(bdNow()),true);save();render(true);},
-  nbmon(){if(!T((nbRehR()||{}).bas))return alert('Önce "Nöbet hangi tarihte başlasın?" kutusundan başlangıç tarihini seçin.');const ym=nbYm(),y=+ym.slice(0,4),m=+ym.slice(5)-1;nbPre(ym+'-01');let mon=nbMon(ym+'-01'),k=0;const end=new Date(y,m+1,0).getDate();const last=ym+'-'+String(end).padStart(2,'0');
-    while(mon<=last){k+=nbDist(mon,false,ym);mon=ypAdd(mon,7);}save();render(true);toast(k?'Ayın boş günleri dağıtıldı':'Ayda boş gün yok');},
-  nbprm(){
-    const ym=nbYm(),y=+ym.slice(0,4),m=+ym.slice(5)-1,end=new Date(y,m+1,0).getDate(),pr=prof(),wk=[];
-    for(let i=1;i<=end;i++){const d=ym+'-'+String(i).padStart(2,'0'),g=new Date(d+'T12:00:00').getDay();if(g===0||g===6)continue;
-      const mo=nbMon(d);let w=wk.find(x=>x.mon===mo);if(!w){w={mon:mo,r:[]};wk.push(w);}
-      const r=nbRec(d),n=((r&&r.ids)||[]).map(nbName).filter(Boolean),hol=nbHol(d);
-      w.r.push('<td>'+fdt(d)+'</td><td>'+nbGun[g-1].toLocaleUpperCase('tr')+'</td>'+(hol?'<td colspan="2" class="t">'+esc(hol.toLocaleUpperCase('tr'))+' (TATİL)</td>':[0,1].map(k=>'<td class="n">'+(n[k]?esc(n[k].name.toLocaleUpperCase('tr')):'')+'</td>').join('')));}
-    const rows=wk.map((w,wi)=>w.r.map((c,ri)=>'<tr>'+(ri===0?'<td class="w" rowspan="'+w.r.length+'"><div>'+(wi+1)+'. HAFTA</div></td>':'')+c+'</tr>').join('')).join('');
-    const nr=wk.reduce((a,w)=>a+w.r.length,0),fs=nr>21?'14px':'15px',pad=nr>21?'8px':'10px',rh=nbReh();
-    const h='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nöbet Listesi</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0}body{font-family:Arial,sans-serif;color:#000}.o{text-align:center;font-size:15px;margin:0 0 6px}h1{text-align:center;font-size:20px;margin:0;color:#1e3a8a}h2{text-align:center;font-size:17px;margin:2px 0 12px}table{width:100%;border-collapse:collapse;font-size:'+fs+'}td,th{border:1.5px solid #000;padding:'+pad+' 6px;text-align:center}th{background:#e5e7eb;font-size:13px}td.n{font-weight:bold}td.t{background:#f3f4f6;font-style:italic;font-size:13px}td.w{width:5%;padding:0;background:#f3f4f6;font-weight:bold}td.w div{writing-mode:vertical-rl;transform:rotate(180deg);margin:auto;white-space:nowrap}.f{margin-top:20px;display:flex;justify-content:flex-end;font-size:15px;text-align:center}.f div{min-width:230px}.b{padding:10px;text-align:center}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır / PDF olarak kaydet</button></div>'
-     +(pr.okul?'<div class="o"><b>'+esc(pr.okul)+'</b></div>':'')+'<h1>( '+esc(G.sinif)+(G.sube==='ALL'?'':'/'+esc(String(G.sube).toUpperCase()))+' SINIFI )</h1><h2>'+NB_AY[m].toLocaleUpperCase('tr')+' AYI ÖĞRENCİ NÖBET LİSTESİ</h2>'
-     +'<table><tr><th rowspan="2"></th><th rowspan="2">NÖBET<br>TARİHİ</th><th rowspan="2">NÖBET<br>GÜNÜ</th><th colspan="2">NÖBETÇİ ÖĞRENCİNİN</th></tr><tr><th>ADI SOYADI</th><th>ADI SOYADI</th></tr>'+rows+'</table>'
-     +'<div class="f"><div>Sınıf Rehber Öğretmeni<br><br><b>'+(rh?esc(rh):'……………………………')+'</b></div></div>';
-    open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');
-  },
+  nbmo(a){const y=+nbYm().slice(0,4),m=+nbYm().slice(5)-1+(+a.dataset.v),dt=new Date(y,m,1);NB.ym=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');render(true);},
+  nbmon(){if(nbNeedBas())return;const wk=nbWeeks(nbYm());if(wk.length)nbPre(wk[0]);let k=0;wk.forEach(m=>{k+=nbDist(m,false);});save();render(true);toast(k?'Ayın boş günleri dağıtıldı':'Ayda boş gün yok');},
+  nbredo(){if(nbNeedBas())return;if(!confirm('Bu ayın tüm nöbetçileri (başlangıç tarihinden itibaren) yeniden dağıtılsın mı?'))return;const wk=nbWeeks(nbYm());if(wk.length)nbPre(wk[0]);wk.forEach(m=>nbDist(m,true));save();render(true);},
   nbclr(){const n=nbRecs().length;if(!n)return toast('Silinecek nöbet kaydı yok');if(!confirm('Bu sınıfın yazılmış tüm nöbetçileri ('+n+' gün) silinsin mi? Tatil günleri ve rehber ayarı silinmez.'))return;const ids=new Set(nbRecs());del(()=>{S.nobet=S.nobet.filter(r=>!ids.has(r));},n+' günlük nöbet silindi');},
   nbhadd(){const b=$('nbHb').value,e=$('nbHe').value||b,n=T($('nbHn').value);if(!b)return alert('Başlangıç tarihini seçin.');if(e<b)return alert('Bitiş tarihi başlangıçtan önce olamaz.');S.nobet.push({t:'t',bas:b,bit:e,ad:n||'Tatil'});save();render(true);},
   nbhdel(a){const id=a.dataset.id;del(()=>{S.nobet=S.nobet.filter(r=>!(r.t==='t'&&r.id===id));},'Tatil günü silindi');},
-  nbwa(){const t=nbText(NB.mon||nbMon(bdNow()));if(!t)return toast('Önce nöbetçileri dağıtın',true);waOpen('',t);},
-  nbcp(){const t=nbText(NB.mon||nbMon(bdNow()));if(!t)return toast('Önce nöbetçileri dağıtın',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>prompt('Metni kopyalayın:',t));},
-  nbpr(){
-    const mon=NB.mon||nbMon(bdNow()),pr=prof();
-    const rows=[0,1,2,3,4].map(i=>{const r=nbRec(ypAdd(mon,i)),n=((r&&r.ids)||[]).map(nbName).filter(Boolean);return '<tr><th>'+nbGun[i]+'<br><small>'+fdt(ypAdd(mon,i))+'</small></th>'+[0,1].map(k=>'<td>'+(n[k]?(T(n[k].no)?'<small>'+esc(n[k].no)+'</small> ':'')+'<b>'+esc(n[k].name)+'</b>':'')+'</td>').join('')+'</tr>';}).join('');
-    const h='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nöbetçi Çizelgesi</title><style>@page{size:A4;margin:15mm}body{font-family:Arial,sans-serif;color:#000}h1{text-align:center;font-size:26px;margin:0}.s{text-align:center;font-size:15px;margin:6px 0 18px}table{width:100%;border-collapse:collapse;font-size:20px}td,th{border:2px solid #000;padding:16px 12px;text-align:center}th{width:22%;background:#eee}.b{padding:10px;text-align:center}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır / PDF olarak kaydet</button></div><h1>SINIF NÖBETÇİLERİ</h1><div class="s">'+(pr.okul?esc(pr.okul)+' · ':'')+esc(G.sinif)+(G.sube==='ALL'?'':'/'+esc(String(G.sube).toUpperCase()))+' · '+fdt(mon)+' – '+fdt(ypAdd(mon,4))+'</div><table><tr><th>Gün</th><th>Nöbetçi 1</th><th>Nöbetçi 2</th></tr>'+rows+'</table><div style="margin-top:30px;text-align:right;font-size:18px">Sınıf Rehber Öğretmeni<br><br><b>'+(nbReh()?esc(nbReh()):'……………………………')+'</b></div>';
-    open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');
-  }
+  nbwa(){const t=nbText(nbYm());if(!t)return toast('Önce nöbetçileri dağıtın',true);waOpen('',t);},
+  nbcp(){const t=nbText(nbYm());if(!t)return toast('Önce nöbetçileri dağıtın',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>prompt('Metni kopyalayın:',t));},
+  nbprm(){open(URL.createObjectURL(new Blob([nbDoc(nbYm())],{type:'text/html'})),'_blank');},
+  nbpdf(){const ym=nbYm();pdfFromDoc(nbDoc(ym),'Nobet_'+G.sinif+(G.sube==='ALL'?'':G.sube.toUpperCase())+'_'+ym+'.pdf','Nöbet listesi');}
 });
 const ypBy=a=>S.yplan.find(y=>y.id===a.dataset.id);
 Object.assign(ACT,{
