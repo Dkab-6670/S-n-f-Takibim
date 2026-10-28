@@ -3529,7 +3529,7 @@ Object.assign(ACT,{
 });
 
 /* ===== Sınıf nöbetçileri: her gün 2 öğrenci, adil sırayla dağıtım. Kayıt: S.nobet = [{tarih,sinif,sube,ids:[öğrenci id,…]}] ===== */
-const NB={mon:'',n:2};
+const NB={mon:'',n:2,ym:''};
 const nbMon=d=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()-((x.getDay()+6)%7));return x.toISOString().slice(0,10);};
 const nbSb=()=>G.sube==='ALL'?'':String(G.sube).toLowerCase();
 const nbOf=()=>S.students.filter(s=>!s.absent&&(G.sinif==='ALL'||T(s.sinif)===G.sinif)&&(G.sube==='ALL'||T(s.sube).toLowerCase()===G.sube));
@@ -3540,7 +3540,8 @@ const nbRehMk=()=>{let r=nbRehR();if(!r){r={t:'r',sinif:G.sinif,sube:nbSb(),ad:'
 /* Sayfa açılırken: kullanıcının rehber öğretmeni olduğu sınıf seçilir */
 function nbAuto(){const r=(S.nobet||[]).find(x=>x.t==='r'&&x.me);if(!r||!r.sinif||!classes().includes(r.sinif))return;G.sinif=r.sinif;G.sube=r.sube?String(r.sube).toLowerCase():'ALL';try{gsave();}catch(e){}}
 const NB_AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-const nbYm=()=>ypAdd(NB.mon||nbMon(bdNow()),3).slice(0,7);
+const nbYm=()=>NB.ym||ypAdd(NB.mon||nbMon(bdNow()),3).slice(0,7);
+function nbGoYm(ym){NB.ym=ym;let d=ym+'-01';const g=new Date(d+'T12:00:00').getDay();if(g===6)d=ypAdd(d,2);else if(g===0)d=ypAdd(d,1);NB.mon=nbMon(d);}
 const nbRec=d=>nbRecs().find(r=>r.tarih===d)||null;
 function nbSet(d,ids){let r=nbRec(d);if(!r){r={tarih:d,sinif:G.sinif,sube:nbSb(),ids:[]};S.nobet.push(r);}r.ids=ids.filter(Boolean);}
 /* Başlangıç tarihinden önce (verilen aralıkta) eskiden yazılmış nöbetçiler varsa sorar ve siler; yoksa true döner. */
@@ -3588,7 +3589,7 @@ reg('nobet','🧹','Sınıf Nöbetçileri',()=>{
   return gbar()+'<div class="card flex flex-wrap items-center gap-2"><button data-act="nbw" data-v="-7" class="btn bg-slate-600">◀</button><b class="flex-1 text-center text-sm">'+fdt(mon)+' – '+fdt(ypAdd(mon,4))+'</b><button data-act="nbw" data-v="7" class="btn bg-slate-600">▶</button><button data-act="nbtoday" class="btn bg-indigo-600">Bu hafta</button></div>'
    +(G.sinif==='ALL'?'<div class="card text-sm text-amber-700">Önce yukarıdan bir sınıf seçin.</div>':!all.length?'<div class="card text-sm text-slate-500">Bu sınıfta öğrenci yok.</div>'
    :'<div class="card flex flex-wrap gap-2"><button data-act="nbdist" class="btn bg-emerald-600">🎲 Boş günleri dağıt</button><button data-act="nbredo" class="btn bg-amber-600">🔄 Haftayı yeniden dağıt</button></div>'
-   +'<div class="card"><b class="text-sm">📅 '+NB_AY[+nbYm().slice(5)-1]+' '+nbYm().slice(0,4)+' ayı</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="nbmon" class="btn bg-emerald-600">🎲 Ayın boş günlerini dağıt</button><button data-act="nbprm" class="btn bg-emerald-700">🖨️ Aylık çizelge (A4, 1 sayfa)</button><button data-act="nbclr" class="btn bg-red-600">🗑 Bu sınıfın tüm nöbetlerini sil</button></div><label class="text-xs font-bold mt-3 block">Nöbet hangi tarihte başlasın? <span class="text-red-600">(dağıtmadan önce seçin)</span></label><input type="date" data-nbb="1" class="inp w-full" value="'+esc(T((nbRehR()||{}).bas))+'"><div class="text-[11px] text-slate-500">Bu tarihten önceki günlere nöbetçi yazılmaz. Sıra, bir önceki aydan kalan öğrenciden devam eder; hiç nöbet yazılmadıysa sınıf listesinin başından başlar.</div><label class="text-xs font-bold mt-3 block">Sınıf rehber öğretmeni (çıktının altına yazılır)</label><input data-nbr="1" class="inp w-full" value="'+esc(nbReh())+'" placeholder="Ad Soyad"><label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" data-nbme="1" class="w-5 h-5"'+((nbRehR()||{}).me?' checked':'')+'><span>Bu sınıfın rehber öğretmeniyim <span class="text-[11px] text-slate-500">(bu sayfa her seferinde bu sınıfla açılır)</span></span></label></div>'+days
+   +'<div class="card"><div class="flex items-center gap-2"><button data-act="nbmo" data-v="-1" class="btn bg-slate-600">◀</button><b class="flex-1 text-center">📅 '+NB_AY[+nbYm().slice(5)-1]+' '+nbYm().slice(0,4)+' ayı</b><button data-act="nbmo" data-v="1" class="btn bg-slate-600">▶</button></div><div class="flex flex-wrap gap-2 mt-2"><button data-act="nbmon" class="btn bg-emerald-600">🎲 Ayın boş günlerini dağıt</button><button data-act="nbprm" class="btn bg-emerald-700">🖨️ Aylık çizelge (A4, 1 sayfa)</button><button data-act="nbclr" class="btn bg-red-600">🗑 Bu sınıfın tüm nöbetlerini sil</button></div><label class="text-xs font-bold mt-3 block">Nöbet hangi tarihte başlasın? <span class="text-red-600">(dağıtmadan önce seçin)</span></label><input type="date" data-nbb="1" class="inp w-full" value="'+esc(T((nbRehR()||{}).bas))+'"><div class="text-[11px] text-slate-500">Bu tarihten önceki günlere nöbetçi yazılmaz. Sıra, bir önceki aydan kalan öğrenciden devam eder; hiç nöbet yazılmadıysa sınıf listesinin başından başlar.</div><label class="text-xs font-bold mt-3 block">Sınıf rehber öğretmeni (çıktının altına yazılır)</label><input data-nbr="1" class="inp w-full" value="'+esc(nbReh())+'" placeholder="Ad Soyad"><label class="flex items-center gap-2 text-sm mt-2"><input type="checkbox" data-nbme="1" class="w-5 h-5"'+((nbRehR()||{}).me?' checked':'')+'><span>Bu sınıfın rehber öğretmeniyim <span class="text-[11px] text-slate-500">(bu sayfa her seferinde bu sınıfla açılır)</span></span></label></div>'+days
    +'<div class="card"><b class="text-sm">🏖️ Tatil günleri (nöbetçi yazılmaz)</b><div class="text-[11px] text-slate-500 mt-1">Resmî bayram ve tatil günleri (29 Ekim, 23 Nisan, 1 Mayıs, 19 Mayıs, 15 Temmuz, 30 Ağustos, 1 Ocak) otomatik atlanır. Dini bayramları, ara tatili ve yarıyıl tatilini aşağıdan ekleyin.</div><div class="flex flex-wrap gap-2 mt-2"><input type="date" id="nbHb" class="inp"><input type="date" id="nbHe" class="inp"><input id="nbHn" class="inp flex-1 min-w-[120px]" placeholder="Adı (örn. Ramazan Bayramı)"><button data-act="nbhadd" class="btn bg-indigo-600">Ekle</button></div>'+(nbHols().length?nbHols().sort((a,b)=>a.bas<b.bas?-1:1).map(x=>'<div class="flex items-center gap-2 text-sm py-1 border-b border-slate-200 dark:border-slate-700"><span class="flex-1">'+fdt(x.bas)+(x.bit!==x.bas?' – '+fdt(x.bit):'')+' · '+esc(x.ad||'Tatil')+'</span><button data-act="nbhdel" data-id="'+esc(x.id||'')+'" class="px-2 text-red-600">🗑</button></div>').join(''):'')+'</div>'
    +'<div class="card"><b class="text-sm">📊 Şimdiye kadar tuttukları nöbet</b><div class="text-xs text-slate-600 dark:text-slate-300 mt-1">'+(lst||'—')+'</div></div>'
    +'<div class="card"><div class="flex flex-wrap gap-2"><button data-act="nbwa" class="btn bg-green-600">💬 Sınıf grubuna gönder</button><button data-act="nbcp" class="btn bg-slate-600">📋 Kopyala</button><button data-act="nbpr" class="btn bg-emerald-700">🖨️ Haftalık çizelge</button></div><div class="text-[11px] text-slate-500 mt-2">Dağıtım sınıf listesi sırasıyla ilerler: her gün listedeki sıradaki 2 öğrenci yazılır, liste bitince başa döner, bir sonraki ay kaldığı yerden devam eder. Sürekli devamsız işaretli öğrenciler atlanır. Her günü listeden elle de değiştirebilirsiniz.</div></div>');
@@ -3596,15 +3597,16 @@ reg('nobet','🧹','Sınıf Nöbetçileri',()=>{
 $('view').addEventListener('change',e=>{
   const d=e.target.dataset||{};
   if(d.nbr){nbRehMk().ad=T(e.target.value);save();return;}
-  if(d.nbb){nbRehMk().bas=e.target.value||'';save();return;}
+  if(d.nbb){nbRehMk().bas=e.target.value||'';save();if(e.target.value)nbGoYm(e.target.value.slice(0,7));render(true);return;}
   if(d.nbme){const r=nbRehMk();if(e.target.checked){(S.nobet||[]).forEach(x=>{if(x.t==='r'&&x!==r)x.me=false;});r.me=true;if(!T(r.ad)&&T(prof().name))r.ad=T(prof().name);}else r.me=false;save();render(true);return;}
   if(d.nbd){const r=nbRec(d.nbd),ids=((r&&r.ids)||[]).slice();while(ids.length<NB.n)ids.push('');ids[+d.nbk]=e.target.value;
     const f=ids.filter(Boolean);if(new Set(f).size<f.length){toast('Aynı öğrenci aynı güne iki kez yazılamaz',true);render(true);return;}
     nbSet(d.nbd,ids);save();}
 });
 Object.assign(ACT,{
-  nbw(a){NB.mon=ypAdd(NB.mon||nbMon(bdNow()),+a.dataset.v);render(true);},
-  nbtoday(){NB.mon=nbMon(bdNow());render(true);},
+  nbw(a){NB.ym='';NB.mon=ypAdd(NB.mon||nbMon(bdNow()),+a.dataset.v);render(true);},
+  nbtoday(){NB.ym='';NB.mon=nbMon(bdNow());render(true);},
+  nbmo(a){const y=+nbYm().slice(0,4),m=+nbYm().slice(5)-1+(+a.dataset.v),dt=new Date(y,m,1);nbGoYm(dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0'));render(true);},
   nbdist(){if(!T((nbRehR()||{}).bas))return alert('Önce "Nöbet hangi tarihte başlasın?" kutusundan başlangıç tarihini seçin.');nbPre(NB.mon||nbMon(bdNow()));const k=nbDist(NB.mon||nbMon(bdNow()),false);save();render(true);toast(k?'Boş günler dağıtıldı':'Boş gün yok');},
   nbredo(){if(!T((nbRehR()||{}).bas))return alert('Önce "Nöbet hangi tarihte başlasın?" kutusundan başlangıç tarihini seçin.');if(!confirm('Bu haftanın tüm nöbetçileri yeniden dağıtılsın mı?'))return;nbPre(NB.mon||nbMon(bdNow()));nbDist(NB.mon||nbMon(bdNow()),true);save();render(true);},
   nbmon(){if(!T((nbRehR()||{}).bas))return alert('Önce "Nöbet hangi tarihte başlasın?" kutusundan başlangıç tarihini seçin.');const ym=nbYm(),y=+ym.slice(0,4),m=+ym.slice(5)-1;nbPre(ym+'-01');let mon=nbMon(ym+'-01'),k=0;const end=new Date(y,m+1,0).getDate();const last=ym+'-'+String(end).padStart(2,'0');
