@@ -162,8 +162,8 @@ const _d=new Date(), today=new Date(_d-_d.getTimezoneOffset()*6e4).toISOString()
 const isO=v=>v!==null&&typeof v==='object';
 
 /* ========== 2. DURUM ve VERİ BİÇİMİ ========== */
-const KEYS=['students','lessons','ezberItems','homeworks','msgs','plans','yplan','prog','kyer','ayar','gplan','nobet'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_',plans:'PL_',yplan:'YP_',prog:'PG_',kyer:'KY_',ayar:'AY_',gplan:'GP_',nobet:'NB_'};
-const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],plans:[],yplan:[],prog:[],kyer:[],ayar:[],gplan:[],nobet:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
+const KEYS=['students','lessons','ezberItems','homeworks','msgs','plans','yplan','prog','kyer','ayar','gplan','nobet','sinav'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_',plans:'PL_',yplan:'YP_',prog:'PG_',kyer:'KY_',ayar:'AY_',gplan:'GP_',nobet:'NB_',sinav:'SN_'};
+const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],plans:[],yplan:[],prog:[],kyer:[],ayar:[],gplan:[],nobet:[],sinav:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
 const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function prepare(l,p){let m=l.reduce((a,x)=>Math.max(a,typeof x._o==='number'?x._o:-1),-1);l.forEach(x=>{if(!x.id)x.id=uid(p);if(typeof x._o!=='number')x._o=++m;});}
 function toList(v,p){
@@ -337,7 +337,7 @@ function hOrd(i){const d=HGRP[i][1];let m={};try{m=JSON.parse(lsg('home_ord')||'
 ACT.hedit=()=>{HEDIT=!HEDIT;render(true);};
 ACT.hmv=a=>{const i=+a.dataset.g,vis=hOrd(i).filter(k=>P[k]&&pageOn(k)),o=hOrd(i),k=a.dataset.k,j=vis.indexOf(k),t=vis[j+(+a.dataset.d)];if(j<0||!t)return;const x=o.indexOf(k),y=o.indexOf(t);o[x]=t;o[y]=k;let m={};try{m=JSON.parse(lsg('home_ord')||'{}')||{};}catch(e){}m[i]=o;lss('home_ord',JSON.stringify(m));render(true);};
 ACT.hrs=()=>{lss('home_ord','');render(true);};
-const HGRP=[['📅 Günlük işler',['dav','reh','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['stat','uyari','donem','karne','cikti']],['🧰 Diğer',['ayar']]];
+const HGRP=[['📅 Günlük işler',['dav','reh','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['sinav','stat','uyari','donem','karne','cikti']],['🧰 Diğer',['ayar']]];
 const todayCard=()=>{
   const it=[alertItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
   if(!it.length)return '';
@@ -355,7 +355,7 @@ function hqCard(){return '<div class="card dx-search"><input id="hq" type="searc
 function hqRun(v){
   const box=$('hqr');if(!box)return;const q=hqN(v);if(!q){box.innerHTML='';return;}
   const W=q.split(' ');const hit=txt=>{const n=hqN(txt);return W.every(w=>n.includes(w));};
-  const KW={nobet:'nobetci nobet sinif nobetcisi gunluk nobet dagitim kura',gplan:'gunluk plan ders plani gunluk ders plani konu kazanim yontem arac gerec cikti yazdir',grupmsj:'grup mesaj whatsapp toplu duyuru tebrik kitap getirmeyenler gelmeyenler sinif grubu',dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
+  const KW={sinav:'sinav not analiz yazili sozlu puan ortalama kazanim basari',nobet:'nobetci nobet sinif nobetcisi gunluk nobet dagitim kura',gplan:'gunluk plan ders plani gunluk ders plani konu kazanim yontem arac gerec cikti yazdir',grupmsj:'grup mesaj whatsapp toplu duyuru tebrik kitap getirmeyenler gelmeyenler sinif grubu',dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
   const res=[];
   Object.keys(P).forEach(k=>{if(k==='home'||!pageOn(k))return;const p=P[k];if(hit(p.title+' '+(KW[k]||'')))res.push(['<button data-go="'+k+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+p.icon+'</span><b class="flex-1">'+esc(p.title)+'</b><span class="text-[11px] text-slate-400">Sayfa</span></button>',hqN(p.title).startsWith(W[0])?0:1]);});
   [['🗓️','Haftalık ders programım','hprog','haftalik ders programi program saat gun bugunku dersler'],['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükle','vlxl','veli bilgi iletisim telefon anne baba excel yukle e okul'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
@@ -3714,6 +3714,90 @@ Object.assign(ACT,{
   nbcp(){const t=nbText(nbYm());if(!t)return toast('Önce nöbetçileri dağıtın',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>prompt('Metni kopyalayın:',t));},
   nbprm(){open(URL.createObjectURL(new Blob([nbDoc(nbYm())],{type:'text/html'})),'_blank');},
   nbpdf(){const ym=nbYm();pdfFromDoc(nbDoc(ym),'Nobet_'+G.sinif+(G.sube==='ALL'?'':G.sube.toUpperCase())+'_'+ym+'.pdf','Nöbet listesi');}
+});
+
+/* ===== Sınav notları ve analizi. Kayıt: S.sinav = [{sinif,sube,ders,ad,tur,tarih,max,q:[{p,kaz}],n:{öğrenciId:{t,q:[],g}}}] ===== */
+const SN={id:'',form:false};
+const snSb=()=>G.sube==='ALL'?'':String(G.sube).toLowerCase();
+const snList=()=>(S.sinav||[]).filter(e=>e.sinif===G.sinif&&(e.sube||'')===snSb()).sort((a,b)=>a.tarih<b.tarih?1:-1);
+const snStu=()=>sorted(S.students.filter(s=>!s.absent&&(G.sinif==='ALL'||T(s.sinif)===G.sinif)&&(G.sube==='ALL'||T(s.sube).toLowerCase()===G.sube)));
+const snCur=()=>(S.sinav||[]).find(e=>e.id===SN.id)||null;
+const snNum=v=>{const x=parseFloat(String(v).replace(',','.'));return isFinite(x)?x:null;};
+function snTot(e,s){const r=(e.n||{})[s.id];if(!r||r.g)return null;
+  if(e.q&&e.q.length){const a=(r.q||[]).map(snNum).filter(x=>x!==null);return a.length?a.reduce((x,y)=>x+y,0):null;}
+  return snNum(r.t);}
+const snBand=(p,mx)=>{const y=mx?p*100/mx:p;return y>=85?5:y>=70?4:y>=55?3:y>=45?2:1;};
+const SN_BL={5:'Pekiyi (85-100)',4:'İyi (70-84)',3:'Orta (55-69)',2:'Geçer (45-54)',1:'Geçmez (0-44)'};
+const snR=x=>Math.round(x*10)/10;
+function snStats(e){
+  const L=snStu(),rows=L.map(s=>({s:s,t:snTot(e,s),g:!!((e.n||{})[s.id]||{}).g})),got=rows.filter(r=>r.t!==null),mx=+e.max||100;
+  const tot=got.map(r=>r.t),avg=tot.length?tot.reduce((a,b)=>a+b,0)/tot.length:0;
+  const bands={5:0,4:0,3:0,2:0,1:0};got.forEach(r=>{bands[snBand(r.t,mx)]++;});
+  const qs=(e.q||[]).map((q,i)=>{const v=got.map(r=>snNum((((e.n||{})[r.s.id]||{}).q||[])[i])).filter(x=>x!==null);const m=v.length?v.reduce((a,b)=>a+b,0)/v.length:0;return {i:i,p:+q.p||0,kaz:q.kaz||'',m:m,y:(+q.p?m*100/(+q.p):0),n:v.length};});
+  return {rows:rows,got:got,avg:avg,mx:mx,hi:tot.length?Math.max(...tot):0,lo:tot.length?Math.min(...tot):0,pass:got.filter(r=>snBand(r.t,mx)>=2).length,bands:bands,qs:qs,absent:rows.length-got.length};
+}
+function snAn(e){
+  const st=snStats(e);if(!st.got.length)return '<div class="text-sm text-slate-500">Henüz puan girilmedi.</div>';
+  const mx=Math.max(1,...Object.values(st.bands));
+  const bars=[5,4,3,2,1].map(k=>'<div class="flex items-center gap-2 text-xs my-1"><span class="w-32 shrink-0">'+SN_BL[k]+'</span><div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded h-4"><div class="h-4 rounded '+(k>=2?'bg-emerald-500':'bg-red-500')+'" style="width:'+(st.bands[k]*100/mx)+'%"></div></div><b class="w-6 text-right">'+st.bands[k]+'</b></div>').join('');
+  const qt=st.qs.length?'<div class="text-xs font-bold mt-3 mb-1">Soru / kazanım başarısı</div>'+st.qs.map(q=>'<div class="flex items-center gap-2 text-xs my-1"><span class="w-14 shrink-0">Soru '+(q.i+1)+'</span><div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded h-3"><div class="h-3 rounded '+(q.y<50?'bg-red-500':q.y<70?'bg-amber-500':'bg-emerald-500')+'" style="width:'+Math.min(100,q.y)+'%"></div></div><b class="w-10 text-right">%'+Math.round(q.y)+'</b></div>'+(q.kaz?'<div class="text-[11px] text-slate-500 -mt-0.5 ml-14">'+esc(q.kaz)+'</div>':'')).join(''):'';
+  const weak=st.qs.filter(q=>q.y<50);
+  return '<div class="grid grid-cols-2 gap-2 text-sm"><div>Katılan: <b>'+st.got.length+'</b>'+(st.absent?' <span class="text-xs text-slate-500">(girmeyen/boş '+st.absent+')</span>':'')+'</div><div>Ortalama: <b>'+snR(st.avg)+'</b></div><div>En yüksek: <b>'+snR(st.hi)+'</b></div><div>En düşük: <b>'+snR(st.lo)+'</b></div><div>Geçen: <b>'+st.pass+'</b> (%'+Math.round(st.pass*100/st.got.length)+')</div></div><div class="mt-3">'+bars+'</div>'+qt
+   +(weak.length?'<div class="mt-2 text-xs text-red-700 dark:text-red-300"><b>Tekrar edilmesi gerekenler (başarı %50 altı):</b> '+weak.map(q=>'Soru '+(q.i+1)+(q.kaz?' – '+esc(q.kaz):'')).join('; ')+'</div>':'');
+}
+function snDoc(e){
+  const st=snStats(e),pr=prof(),srt=st.got.slice().sort((a,b)=>b.t-a.t);
+  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sınav Analizi</title><style>@page{size:A4;margin:12mm}body{font-family:Arial,sans-serif;color:#000;font-size:12px}h1{text-align:center;font-size:18px;margin:0}.s{text-align:center;margin:3px 0 10px}table{width:100%;border-collapse:collapse;margin:6px 0}td,th{border:1px solid #000;padding:4px 6px;text-align:left}th{background:#eee}.c{text-align:center}.b{padding:10px;text-align:center}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div>'
+   +'<h1>SINAV ANALİZİ</h1><div class="s">'+(pr.okul?esc(pr.okul)+' · ':'')+esc(e.sinif)+(e.sube?'/'+esc(e.sube.toUpperCase()):'')+'. sınıf · '+esc(e.ders||'')+' · '+esc(e.ad||'')+' · '+esc(fdt(e.tarih))+'</div>'
+   +'<table><tr><th>Katılan</th><th>Ortalama</th><th>En yüksek</th><th>En düşük</th><th>Geçen</th></tr><tr class="c"><td>'+st.got.length+'</td><td>'+snR(st.avg)+'</td><td>'+snR(st.hi)+'</td><td>'+snR(st.lo)+'</td><td>'+st.pass+' (%'+(st.got.length?Math.round(st.pass*100/st.got.length):0)+')</td></tr></table>'
+   +'<table><tr><th>Başarı düzeyi</th><th class="c">Öğrenci sayısı</th></tr>'+[5,4,3,2,1].map(k=>'<tr><td>'+SN_BL[k]+'</td><td class="c">'+st.bands[k]+'</td></tr>').join('')+'</table>'
+   +(st.qs.length?'<table><tr><th>Soru</th><th>Kazanım</th><th class="c">Tam puan</th><th class="c">Ortalama</th><th class="c">Başarı</th></tr>'+st.qs.map(q=>'<tr><td>'+(q.i+1)+'</td><td>'+esc(q.kaz)+'</td><td class="c">'+q.p+'</td><td class="c">'+snR(q.m)+'</td><td class="c">%'+Math.round(q.y)+'</td></tr>').join('')+'</table>':'')
+   +'<table><tr><th class="c">Sıra</th><th class="c">No</th><th>Ad Soyad</th><th class="c">Puan</th><th class="c">Düzey</th></tr>'+srt.map((r,i)=>'<tr><td class="c">'+(i+1)+'</td><td class="c">'+esc(r.s.no)+'</td><td>'+esc(r.s.name)+'</td><td class="c">'+snR(r.t)+'</td><td class="c">'+snBand(r.t,st.mx)+'</td></tr>').join('')+'</table>'
+   +(st.absent?'<div>Girmeyen/puanı boş: '+st.rows.filter(r=>r.t===null).map(r=>esc(r.s.name)).join(', ')+'</div>':'')
+   +'<div style="margin-top:24px;text-align:right">Ders Öğretmeni: <b>'+esc(pr.name||'')+'</b></div>';
+}
+reg('sinav','🧮','Sınav Notları',()=>{
+  if(G.sinif==='ALL')return gbar()+'<div class="card text-sm text-amber-700">Önce yukarıdan bir sınıf seçin.</div>';
+  const e=snCur(),ls=snList();
+  if(!e||!ls.includes(e)){
+    const f=SN.form?'<div class="card"><b>➕ Yeni sınav</b><label class="text-xs font-bold mt-2 block">Sınav adı</label><input id="snA" class="inp w-full" placeholder="Örn. 1. Dönem 1. Yazılı"><label class="text-xs font-bold mt-2 block">Ders</label><input id="snD" list="snDl" class="inp w-full" value="'+esc(S.lessons.length===1?S.lessons[0].name:'')+'"><datalist id="snDl">'+S.lessons.map(l=>'<option value="'+esc(l.name)+'">').join('')+'</datalist><div class="flex gap-2 mt-2"><div class="flex-1"><label class="text-xs font-bold">Tarih</label><input id="snT" type="date" class="inp w-full" value="'+esc(G.date)+'"></div><div class="flex-1"><label class="text-xs font-bold">Tam puan</label><input id="snM" type="number" class="inp w-full" value="100"></div><div class="flex-1"><label class="text-xs font-bold">Soru sayısı</label><input id="snQ" type="number" class="inp w-full" value="0" min="0" max="40"></div></div><div class="text-[11px] text-slate-500 mt-1">Soru sayısı 0 ise yalnızca toplam puan girilir. Soru sayısı girerseniz her soru için puan ve kazanım yazıp kazanım bazlı analiz alırsınız.</div><div class="flex gap-2 mt-3"><button data-act="snmk" class="btn bg-emerald-600 flex-1">Oluştur</button><button data-act="snform" class="btn bg-slate-500">Vazgeç</button></div></div>':'<button data-act="snform" class="btn bg-indigo-600 w-full mb-3">➕ Yeni sınav</button>';
+    return gbar()+f+(ls.length?ls.map(x=>{const st=snStats(x);return '<button data-act="snopen" data-id="'+esc(x.id)+'" class="card w-full text-left"><b>'+esc(x.ad||'Sınav')+'</b> <span class="text-xs text-slate-500">'+esc(x.ders||'')+' · '+esc(fdt(x.tarih))+'</span><div class="text-sm mt-1">'+(st.got.length?'Katılan '+st.got.length+' · Ortalama <b>'+snR(st.avg)+'</b> · Geçen '+st.pass:'Henüz puan girilmedi')+'</div></button>';}).join(''):'<div class="card text-sm text-slate-500">Bu sınıf için sınav yok. Yukarıdan yeni sınav ekleyin.</div>');
+  }
+  const L=snStu(),hasQ=e.q&&e.q.length;
+  const head='<div class="card"><button data-act="snback" class="btn bg-slate-600 mb-2">◀ Sınav listesi</button><b class="block">'+esc(e.ad||'Sınav')+'</b><div class="text-xs text-slate-500">'+esc(e.ders||'')+' · '+esc(fdt(e.tarih))+' · Tam puan '+esc(e.max)+'</div></div>';
+  const qs=hasQ?'<div class="card"><b class="text-sm">Soru puanları ve kazanımlar</b>'+e.q.map((q,i)=>'<div class="flex gap-2 items-center mt-2"><span class="w-12 text-sm shrink-0">S'+(i+1)+'</span><input data-snqp="'+i+'" type="number" step="any" class="inp w-20" value="'+esc(q.p)+'" aria-label="Puan"><input data-snqk="'+i+'" class="inp flex-1 min-w-0" value="'+esc(q.kaz||'')+'" placeholder="Kazanım (isteğe bağlı)"></div>').join('')+'</div>':'';
+  const rows=L.map(s=>{const r=(e.n||{})[s.id]||{};
+    const inp=hasQ?'<div class="flex flex-wrap gap-1 mt-1">'+e.q.map((q,i)=>'<input data-snq="'+i+'" data-sid="'+esc(s.id)+'" inputmode="decimal" class="inp w-14 text-center !px-1" placeholder="S'+(i+1)+'" value="'+esc(((r.q||[])[i])==null?'':r.q[i])+'"'+(r.g?' disabled':'')+'>').join('')+'</div>':'';
+    return '<div class="card !p-3"><div class="flex items-center gap-2"><span class="text-xs text-slate-500 w-8 shrink-0">'+esc(s.no)+'</span><b class="flex-1 text-sm break-words">'+esc(s.name)+'</b>'+(hasQ?'':'<input data-snt="1" data-sid="'+esc(s.id)+'" inputmode="decimal" class="inp w-20 text-center" placeholder="Puan" value="'+esc(r.t==null?'':r.t)+'"'+(r.g?' disabled':'')+'>')+'<label class="text-[11px] flex items-center gap-1 shrink-0"><input type="checkbox" data-sng="1" data-sid="'+esc(s.id)+'"'+(r.g?' checked':'')+'>Girmedi</label></div>'+inp+(hasQ?'<div class="text-xs text-slate-500 mt-1" id="snS_'+esc(s.id)+'">Toplam: <b>'+(snTot(e,s)==null?'—':snR(snTot(e,s)))+'</b></div>':'')+'</div>';}).join('');
+  return gbar()+head+qs+'<div class="card"><b class="text-sm">📊 Analiz</b><div id="snAn" class="mt-2">'+snAn(e)+'</div></div><div class="card flex flex-wrap gap-2"><button data-act="snpdf" class="btn bg-rose-600">📄 PDF indir / paylaş</button><button data-act="snprn" class="btn bg-emerald-700">🖨️ Yazdır</button><button data-act="snxls" class="btn bg-green-700">📥 Excel</button><button data-act="sndel" class="btn bg-red-600">🗑 Sınavı sil</button></div>'+rows;
+});
+$('view').addEventListener('change',e=>{
+  const d=e.target.dataset||{},x=snCur();if(!x||S.page!=='sinav')return;
+  const rec=sid=>{x.n=x.n||{};return x.n[sid]=x.n[sid]||{};};
+  let ch=false;
+  if(d.snt){const v=String(e.target.value).trim();rec(d.sid).t=v===''?null:snNum(v);ch=true;}
+  else if(d.snq!==undefined&&d.sid){const r=rec(d.sid);r.q=r.q||[];r.q[+d.snq]=String(e.target.value).trim()===''?null:snNum(e.target.value);ch=true;const s=S.students.find(z=>z.id===d.sid),el=$('snS_'+d.sid);if(el&&s)el.innerHTML='Toplam: <b>'+(snTot(x,s)==null?'—':snR(snTot(x,s)))+'</b>';}
+  else if(d.sng){rec(d.sid).g=e.target.checked;save();render(true);return;}
+  else if(d.snqp!==undefined){x.q[+d.snqp].p=snNum(e.target.value)||0;x.max=x.q.reduce((a,q)=>a+(+q.p||0),0);ch=true;}
+  else if(d.snqk!==undefined){x.q[+d.snqk].kaz=T(e.target.value);ch=true;}
+  if(ch){save();const a=$('snAn');if(a)a.innerHTML=snAn(x);}
+});
+Object.assign(ACT,{
+  snform(){SN.form=!SN.form;render(true);},
+  snopen(a){SN.id=a.dataset.id;render(true);scrollTo({top:0});},
+  snback(){SN.id='';render(true);},
+  snmk(){const ad=T($('snA').value),n=Math.max(0,Math.min(40,parseInt($('snQ').value)||0)),mx=parseFloat($('snM').value)||100;if(!ad)return alert('Sınav adını yazın.');
+    const e={sinif:G.sinif,sube:snSb(),ders:T($('snD').value),ad:ad,tarih:$('snT').value||G.date,max:mx,q:n?Array.from({length:n},()=>({p:Math.round(mx/n*100)/100,kaz:''})):[],n:{}};
+    S.sinav.push(e);save();SN.id=e.id||'';SN.form=false;if(!e.id){const l=snList();SN.id=(l.find(z=>z===e)||{}).id||'';}render(true);},
+  sndel(){const e=snCur();if(!e||!confirm('Bu sınav ve tüm puanları silinsin mi?'))return;SN.id='';del(()=>{S.sinav=S.sinav.filter(z=>z!==e);},'Sınav silindi');},
+  snprn(){const e=snCur();if(e)open(URL.createObjectURL(new Blob([snDoc(e)],{type:'text/html'})),'_blank');},
+  snpdf(){const e=snCur();if(e)pdfFromDoc(snDoc(e),'Sinav_'+e.sinif+(e.sube?e.sube.toUpperCase():'')+'_'+(e.tarih||'')+'.pdf','Sınav analizi');},
+  async snxls(){const e=snCur();if(!e)return;try{await xl();}catch(x){return alert(x.message);}
+    const st=snStats(e),hasQ=e.q&&e.q.length,hd=['No','Ad Soyad'].concat(hasQ?e.q.map((q,i)=>'S'+(i+1)+' ('+q.p+')'):[]).concat(['Toplam','Düzey']);
+    const rows=st.rows.map(r=>{const q=((e.n||{})[r.s.id]||{}).q||[];return [r.s.no,r.s.name].concat(hasQ?e.q.map((z,i)=>q[i]==null?'':q[i]):[]).concat([r.t===null?(r.g?'Girmedi':''):r.t,r.t===null?'':snBand(r.t,st.mx)]);});
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([hd].concat(rows)),'Notlar');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['Katılan',st.got.length],['Ortalama',snR(st.avg)],['En yüksek',st.hi],['En düşük',st.lo],['Geçen',st.pass]].concat(hasQ?[[],['Soru','Kazanım','Tam puan','Ortalama','Başarı %']].concat(st.qs.map(q=>[q.i+1,q.kaz,q.p,snR(q.m),Math.round(q.y)])):[])),'Analiz');
+    XLSX.writeFile(wb,'Sinav_'+(e.ad||'').replace(/[^\wığüşöçİĞÜŞÖÇ]+/g,'_')+'.xlsx');}
 });
 const ypBy=a=>S.yplan.find(y=>y.id===a.dataset.id);
 Object.assign(ACT,{
