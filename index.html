@@ -2112,7 +2112,8 @@ function ypxRows(){
     const un=map.u>=0?ypxClean(row[map.u]):'',kn=map.k>=0?ypxClean(row[map.k]):'',kz=map.g>=0?ypxClean(row[map.g]):'';
     let konu=kn||un;if(!konu)continue;
     if(YPX.useU&&un&&kn&&un!==kn)konu=un+' · '+kn;
-    out.push({hafta:n,tarih:dt,konu:konu,kaz:kz});
+    const cl=k=>(map[k]>=0?ypxClean(row[map[k]]):''),ar=[cl('ar'),map.te!==map.ar?cl('te'):''].filter(Boolean).join('; ');
+    out.push({hafta:n,tarih:dt,konu:konu,kaz:kz,yon:cl('yo'),arac:ar,deg:cl('ol')});
   }
   return out;
 }
@@ -2129,7 +2130,7 @@ function ypxDraw(){
   ypxm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-lg w-full max-h-[92vh] overflow-y-auto p-4"><b class="text-lg">📥 MEB yıllık planını içe aktar</b>'
    +'<div class="text-xs text-slate-500 my-1 break-words">'+esc(YPX.fname)+(YPX.title?'<br>'+esc(YPX.title.slice(0,150)):'')+'</div>'
    +'<div class="flex flex-wrap items-center gap-2 my-2">'+ysel('id="ypxS"',YPX.sn)+'<input id="ypxD" class="inp flex-1" placeholder="Ders adı" value="'+esc(YPX.ders)+'"></div>'
-   +'<details class="mb-2"><summary class="text-xs cursor-pointer text-slate-500">Sütun eşleştirmesi (otomatik bulundu, gerekirse değiştirin)</summary><div class="mt-2">'+sl('h','Hafta')+sl('k','Konu')+sl('u','Ünite / Tema',true)+sl('g','Kazanım (öğrenme çıktıları)',true)+'</div></details>'
+   +'<details class="mb-2"><summary class="text-xs cursor-pointer text-slate-500">Sütun eşleştirmesi (otomatik bulundu, gerekirse değiştirin)</summary><div class="mt-2">'+sl('h','Hafta')+sl('k','Konu')+sl('u','Ünite / Tema',true)+sl('g','Kazanım (öğrenme çıktıları)',true)+sl('yo','Yöntem ve teknikler (günlük plana gelir)',true)+sl('ar','Araç-gereç / materyal',true)+sl('te','Eğitim teknolojileri',true)+sl('ol','Ölçme ve değerlendirme',true)+'</div></details>'
    +'<label class="flex gap-2 text-xs mb-2"><input type="checkbox" id="ypxU"'+(YPX.useU?' checked':'')+'><span>Ünite adını konunun önüne ekle</span></label>'
    +'<div id="ypxPv" class="mb-3"></div>'
    +'<div class="flex gap-2"><button data-act="ypxgo" class="btn bg-emerald-600 flex-1">İçe aktar</button><button data-act="ypxx" class="btn bg-slate-500 flex-1">Kapat</button></div></div>';
@@ -2147,7 +2148,7 @@ async function ypxLoad(f){
     let hr=-1;for(let r=0;r<Math.min(a.length,25);r++){if(a[r].some(x=>hqN(x)==='hafta')){hr=r;break;}}
     if(hr<0)return alert('Bu dosyada "HAFTA" başlıklı bir sütun bulamadım. MEB çerçeve yıllık plan dosyası mı?');
     const hd=a[hr].map(x=>ypxClean(x)),find=fn=>hd.findIndex(x=>fn(hqN(x)));
-    const map={h:find(x=>x==='hafta'),k:find(x=>x.indexOf('konu')===0),u:find(x=>x.indexOf('unite')===0||x.indexOf('tema')===0),g:find(x=>x.indexOf('ogrenme ciktilari')>=0||x.indexOf('kazanim')>=0)};
+    const map={h:find(x=>x==='hafta'),k:find(x=>x.indexOf('konu')===0),u:find(x=>x.indexOf('unite')===0||x.indexOf('tema')===0),g:find(x=>x.indexOf('ogrenme ciktilari')>=0||x.indexOf('kazanim')>=0),yo:find(x=>x.indexOf('yontem')>=0),ar:find(x=>x.indexOf('arac')>=0||x.indexOf('gerec')>=0||x.indexOf('materyal')>=0),te:find(x=>x.indexOf('teknoloji')>=0),ol:find(x=>x.indexOf('olcme')>=0||x.indexOf('degerlendirme')>=0)};
     if(map.k<0)map.k=map.u;if(map.k<0)return alert('Konu sütununu bulamadım. Dosyanın başlık satırını kontrol edin.');
     let title='';for(let r=0;r<Math.min(a.length,6)&&!title;r++){const c=a[r].map(ypxClean).find(x=>hqN(x).indexOf('yillik plan')>=0);if(c)title=c;}
     const ym=/(20\d\d)\s*-\s*(20\d\d)/.exec(title),cm=/(\d+)\s*\.?\s*SINIF\s+(.+?)\s+DERS/i.exec(title);
@@ -2174,7 +2175,8 @@ Object.assign(ACT,{
     const same=y=>y.t!=='e'&&y.sinif===sn&&String(y.ders||'')===ders,ex=S.yplan.filter(same).length;
     const rep=ex>0&&confirm('Bu sınıf ve ders için '+ex+' plan satırı zaten var.\n\nTamam: mevcutları silip MEB planını ekle\nİptal: mevcutları silmeden yanına ekle');
     ACT.ypxx();
-    del(()=>{if(rep)S.yplan=S.yplan.filter(y=>!same(y));rs.forEach(x=>S.yplan.push({hafta:x.hafta,tarih:x.tarih,sinif:sn,ders:ders,konu:x.konu,kaz:x.kaz}));},rs.length+' hafta eklendi');
+    const old=rep?S.yplan.filter(same):[];
+    del(()=>{if(rep)S.yplan=S.yplan.filter(y=>!same(y));rs.forEach(x=>{const o=old.find(q=>q.hafta===x.hafta)||{},n={hafta:x.hafta,tarih:x.tarih,sinif:sn,ders:ders,konu:x.konu,kaz:x.kaz,yon:x.yon||'',arac:x.arac||'',deg:x.deg||''};if(o.nt)n.nt=o.nt;if(o.ok)n.ok=o.ok;if(o.fav)n.fav=o.fav;S.yplan.push(n);});},rs.length+' hafta eklendi');
   }
 });
 
@@ -3463,7 +3465,7 @@ function gpPrev(d,b,f){
 function gpVal(d,b,f){
   const r=gpRec(d,b);if(r&&r[f]!=null)return r[f];
   if(f==='konu'||f==='kaz'){const p=gpPlan(d,b);return p?(p[f]||''):'';}
-  if(['yontem','arac','deger'].includes(f)){const q=gpPrev(d,b,f);return q?q[f]:'';}
+  if(['yontem','arac','deger'].includes(f)){const p=gpPlan(d,b),pv=p?T(p[{yontem:'yon',arac:'arac',deger:'deg'}[f]]):'';if(pv)return pv;const q=gpPrev(d,b,f);return q?q[f]:'';}
   return '';
 }
 const gpTit=b=>(b.sinif?b.sinif+(b.sube?'/'+b.sube.toUpperCase():'')+'. sınıf':'')+(b.ders?' · '+b.ders:'');
@@ -3517,7 +3519,7 @@ function gpPrint(items){
 Object.assign(ACT,{
   gpd(a){GPL.date=ypAdd(GPL.date||bdNow(),+a.dataset.v);render(true);},
   gptoday(){GPL.date=bdNow();render(true);},
-  gpfill(a){const b=GPL.bl[+a.dataset.i];if(!b)return;const p=gpPlan(GPL.date,b);if(!p)return toast('Bu hafta için yıllık plan satırı yok',true);const r=gpRec(GPL.date,b,true);r.konu=p.konu||'';r.kaz=p.kaz||'';save();render(true);toast('Yıllık plandan dolduruldu');},
+  gpfill(a){const b=GPL.bl[+a.dataset.i];if(!b)return;const p=gpPlan(GPL.date,b);if(!p)return toast('Bu hafta için yıllık plan satırı yok',true);const r=gpRec(GPL.date,b,true);r.konu=p.konu||'';r.kaz=p.kaz||'';if(T(p.yon))r.yontem=p.yon;if(T(p.arac))r.arac=p.arac;if(T(p.deg))r.deger=p.deg;save();render(true);toast('Yıllık plandan dolduruldu');},
   gpprint(a){const b=GPL.bl[+a.dataset.i];if(b)gpPrint([[GPL.date,b]]);},
   gpdayfit(){gpPrintFit(GPL.bl.map(b=>[GPL.date,b]));},
   gpweekfit(){const d=GPL.date||bdNow(),dt=new Date(d+'T12:00:00'),mon=ypAdd(d,-((dt.getDay()+6)%7)),it=[];for(let i=0;i<5;i++){const x=ypAdd(mon,i);gpBlocks(x).forEach(b=>it.push([x,b]));}gpPrintFit(it);},
