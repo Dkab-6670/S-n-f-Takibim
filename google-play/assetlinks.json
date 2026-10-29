@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.dkab_6670.sinif_takip",
+      "sha256_cert_fingerprints": [
+        "BURAYA_PLAY_UYGULAMA_IMZALAMA_ANAHTARI_SHA256",
+        "BURAYA_PWABUILDER_YUKLEME_ANAHTARI_SHA256"
+      ]
+    }
+  }
+]
