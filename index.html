@@ -186,7 +186,7 @@ const isO=v=>v!==null&&typeof v==='object';
 const KEYS=['students','lessons','ezberItems','homeworks','msgs','plans','yplan','prog','kyer','ayar','gplan','nobet','sinav'], PRE={students:'ST_',lessons:'L_',ezberItems:'E_',homeworks:'HW_',msgs:'M_',plans:'PL_',yplan:'YP_',prog:'PG_',kyer:'KY_',ayar:'AY_',gplan:'GP_',nobet:'NB_',sinav:'SN_'};
 const S={students:[],lessons:[],ezberItems:[],homeworks:[],msgs:[],plans:[],yplan:[],prog:[],kyer:[],ayar:[],gplan:[],nobet:[],sinav:[],room:lsg('sync_room_code')||'',page:'home',F:{sinif:'ALL',sube:'ALL',q:''},G:{sinif:'ALL',sube:'ALL',donem:'1',date:today}};
 const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-function prepare(l,p){let m=l.reduce((a,x)=>Math.max(a,typeof x._o==='number'?x._o:-1),-1);l.forEach(x=>{if(!x.id)x.id=uid(p);if(typeof x._o!=='number')x._o=++m;});}
+function prepare(l,p){if(p==='ST_')l.forEach(s=>{if(s&&isO(s.periods)){Object.keys(s.periods).forEach(k=>{const x=s.periods[k];if(!isO(x)){delete s.periods[k];return;}if(isO(x.days))Object.keys(x.days).forEach(d=>{if(!isO(x.days[d]))delete x.days[d];});});}});let m=l.reduce((a,x)=>Math.max(a,typeof x._o==='number'?x._o:-1),-1);l.forEach(x=>{if(!x.id)x.id=uid(p);if(typeof x._o!=='number')x._o=++m;});}
 function toList(v,p){
   let a=Array.isArray(v)?v.filter(x=>x!=null):isO(v)?Object.entries(v).map(([k,x])=>{if(isO(x)&&!x.id)x.id=k;return x;}):[];
   a=a.map(x=>typeof x==='string'?{name:x,sinif:'ALL'}:x);prepare(a,p);a.sort((x,y)=>x._o-y._o);if(p==='E_'){const ts=x=>{const n=parseInt(String(x.id||'').slice(2,-4),36);return isFinite(n)?n:0;};a.sort((x,y)=>ts(x)-ts(y)||x._o-y._o);}return a;
@@ -200,6 +200,7 @@ function diff(u,p,o,n){
   if(isO(n)&&isO(o)){new Set([...Object.keys(o),...Object.keys(n)]).forEach(k=>diff(u,p+'/'+k,o[k],n[k]));return;}
   if(JSON.stringify(o)!==JSON.stringify(n))u[p]=n;
 }
+const pvals=s=>Object.values(s.periods||{}).filter(x=>x&&typeof x==='object');
 const dayRec=(s,p,d)=>{s.periods=s.periods||{};const x=s.periods[p]=s.periods[p]||{hafiz:false,kuranDurum:'kuran',days:{}};x.days=x.days||{};
   const r=x.days[d]=x.days[d]||{};return r;};
 const classes=()=>[...new Set(S.students.map(s=>T(s.sinif)))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'tr',{numeric:true}));
@@ -776,13 +777,13 @@ ACT.tdel=a=>{
 };
 
 /* ========== AŞAMA C1: DAVRANIŞ, REHBERLİK, İSTATİSTİKLER ========== */
-const alld=s=>Object.values(s.periods||{}).flatMap(p=>Object.values(p.days||{}));
+const alld=s=>pvals(s).flatMap(p=>Object.values(p.days||{}).filter(Boolean));
 const chip=(s,c,x)=>'<span class="'+c+' text-xs px-2.5 py-1 rounded-full border inline-flex items-center gap-1"><b>'+esc(s.name)+'</b><span class="opacity-70">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · '+esc(s.no)+'</span>'+(x?'<span class="font-bold">'+x+'</span>':'')+'</span>';
 
 /* Davranış Takibi */
 ACT.bp=a=>{const s=find(a);if(!s)return;const r=dayRec(s,G.donem,G.date);r.bp=(r.bp||0)+(+a.dataset.v);save();relist();};
 gpage('dav','🌟','Davranış Takibi',null,()=>'<datalist id="bhN">'+['Arkadaşına yardım etti','Saygılı davrandı','Sınıf düzenine katkı','Gürültü yaptı','Arkadaşıyla tartıştı','Kurallara uymadı'].map(x=>'<option value="'+x+'">').join('')+'</datalist>',()=>grp().map(s=>{
-  const r=rd(s),v=r.bp||0,id=esc(s.id);let a=0,m=0;Object.values(per(s).days||{}).forEach(x=>{const b=x.bp||0;if(b>0)a+=b;else m+=b;});
+  const r=rd(s),v=r.bp||0,id=esc(s.id);let a=0,m=0;Object.values(per(s).days||{}).filter(Boolean).forEach(x=>{const b=x.bp||0;if(b>0)a+=b;else m+=b;});
   return '<div class="card mb-0">'+hd(s)+'<div class="flex items-center justify-center gap-3"><button data-act="bp" data-id="'+id+'" data-v="-1" class="w-14 h-14 rounded-xl bg-red-100 text-red-700 text-3xl font-bold">−</button><b class="text-2xl w-14 text-center">'+(v>0?'+':'')+v+'</b><button data-act="bp" data-id="'+id+'" data-v="1" class="w-14 h-14 rounded-xl bg-emerald-100 text-emerald-700 text-3xl font-bold">+</button></div><div class="text-center text-xs mt-1">Dönem: <b class="text-emerald-700">+'+a+'</b> <b class="text-red-600">'+m+'</b> · net <b>'+(a+m)+'</b></div><input data-chg="bn" data-id="'+id+'" list="bhN" class="inp w-full mt-2 text-sm" placeholder="Not (isteğe bağlı)" value="'+esc(r.bn||'')+'"></div>';
 }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok.</div>');
 
@@ -893,8 +894,8 @@ reg('stat','📊','İstatistikler',()=>{
     alld(s).forEach(r=>{if(r.abdest)z.ab++;const p=r.points||0;if(p>0)z.p+=p;else z.pm+=p;z.bp+=r.bp||0;if(r.book==='Yok')z.bk++;if(r.slept)z.sl++;Object.entries(r.ezberStatus||{}).forEach(([k,v])=>{if(v==='Tamamlandi')z.ez.add(k);});});
     z.ez=z.ez.size;return z;});
   const lb=(t,k,col,u,neg,c)=>{const l=m.filter(x=>neg?x[k]<0:x[k]>0).sort((a,b)=>neg?a[k]-b[k]:b[k]-a[k]);return sbox(t,l.length,l.map((x,i)=>chip(x.s,col,(i+1)+'. '+x[k]+u)).join(''),c||'bg-slate-600');};
-  const hz=A.filter(s=>Object.values(s.periods||{}).some(p=>p.hafiz));
-  const cz=A.filter(s=>{let k='kuran';Object.values(s.periods||{}).forEach(p=>{if(p.kuranDurum)k=p.kuranDurum;});return k==='cuz';});
+  const hz=A.filter(s=>pvals(s).some(p=>p.hafiz));
+  const cz=A.filter(s=>{let k='kuran';pvals(s).forEach(p=>{if(p.kuranDurum)k=p.kuranDurum;});return k==='cuz';});
   const ab=S.students.filter(s=>s.absent);
   const hwy=A.filter(s=>{const h=S.homeworks.filter(x=>!x.rb&&x.start<=today&&ap(x,s)).sort((a,b)=>a.end<b.end?1:-1).slice(0,3);return h.length>=3&&h.every(x=>['Yapmadi','Eksik'].includes((s.hwStatus||{})[x.id]))&&h.reduce((t,x)=>t+hwW((s.hwStatus||{})[x.id]),0)>=2.5;});
   const rbm=S.homeworks.filter(h=>h.rb&&rehShow(h)).map(h=>{const l=A.filter(s=>ap(h,s)&&(s.hwStatus||{})[h.id]==='Yapmadi');return l.length?'<div class="w-full text-xs font-bold mt-1">'+esc(h.name)+' ('+(h.donem||'1')+'. dönem)</div>'+l.map(s=>chip(s,'bg-red-100 text-red-800 border-red-200')).join(''):'';}).join('');
@@ -1131,7 +1132,7 @@ ACT.pprint=()=>{
 /* Hafızlık çizelgesi */
 S.hall=false;
 gpage('haf','📜','Hafızlık Çizelgesi',null,null,()=>{
-  const l=grp().filter(s=>S.hall||Object.values(s.periods||{}).some(p=>p.hafiz));
+  const l=grp().filter(s=>S.hall||pvals(s).some(p=>p.hafiz));
   const top='<div class="col-span-full flex flex-wrap items-center gap-2"><button data-act="hmode" class="btn bg-slate-600">'+(S.hall?'👳 Sadece hafızlık yapanlar':'👥 Tüm öğrenciler')+'</button><span class="text-xs text-slate-500">Cüze dokunun: boş → 🟨 çalışıyor → 🟩 tamam</span></div>';
   return top+(l.map(s=>{let d=0,w=0,h='';
     for(let n=1;n<=30;n++){const v=(s.cuz||{})['c'+n]||0;if(v===2)d++;else if(v===1)w++;
@@ -1146,7 +1147,7 @@ Object.assign(ACT,{
 
 /* ========== AŞAMA C3: ÖĞRENCİ KARTI, PROFİL, ROZET, VELİ, PIN, NELER YENİ ========== */
 const fdt=d=>d.slice(8)+'.'+d.slice(5,7)+'.'+d.slice(0,4);
-const allD=s=>Object.entries(s.periods||{}).flatMap(([p,x])=>Object.entries(x.days||{})).sort((a,b)=>a[0]<b[0]?-1:1);
+const allD=s=>Object.entries(s.periods||{}).flatMap(([p,x])=>Object.entries((x&&x.days)||{})).sort((a,b)=>a[0]<b[0]?-1:1);
 const dmin=n=>{const d=new Date(today+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
 const netR=(s,a,b)=>allD(s).reduce((t,[d,r])=>d>=a&&d<=b?t+(r.points||0)+(r.bp||0):t,0);
 const bestE=(s,n)=>{let m=0;const R={Baslamadi:0,DevamEdiyor:1,Tamamlandi:2};allD(s).forEach(([d,r])=>{const v=R[(r.ezberStatus||{})[n]];if(v>m)m=v;});return m;};
@@ -1256,7 +1257,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const BUILD='2026-10-29f';
+const BUILD='2026-10-29h';
 const VER='2026-10-d17',NEWS=[['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
@@ -1498,7 +1499,7 @@ cm.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-tx,d
 /* ========== AŞAMA C7: EZBER DURUMU TAŞINIR, YEDEK HATIRLATMASI ========== */
 function lastEz(s,n,date){
   date=date||G.date;let best=null,bd='';
-  Object.values(s.periods||{}).forEach(p=>Object.entries(p.days||{}).forEach(([d,r])=>{
+  pvals(s).forEach(p=>Object.entries(p.days||{}).forEach(([d,r])=>{
     if(d<=date&&d>=bd&&r.ezberStatus&&r.ezberStatus[n]!==undefined){bd=d;best=r.ezberStatus[n];}
   }));
   return best||'Baslamadi';
@@ -1609,7 +1610,7 @@ Object.assign(ACT,{
       if(it){used.add(it);Object.assign(it,mk(cls));}
       else{it=mk(cls);if(k==='odev'||k==='reh'){it.id=uid('HW_');copy(allId,it.id,cls);}made.push(it);}
     });
-    if(name!==oldName&&(k==='ders'||k==='ezber'))S.students.filter(s=>oldAll||oldCls.includes(T(s.sinif))).forEach(s=>Object.values(s.periods||{}).forEach(p=>Object.values(p.days||{}).forEach(d=>{
+    if(name!==oldName&&(k==='ders'||k==='ezber'))S.students.filter(s=>oldAll||oldCls.includes(T(s.sinif))).forEach(s=>pvals(s).forEach(p=>Object.values(p.days||{}).forEach(d=>{
       const o=k==='ezber'?d.ezberStatus:d.scores;if(o&&o[oldName]!==undefined){o[name]=o[oldName];delete o[oldName];}})));
     dropItems(k,old.filter(x=>!used.has(x)));made.forEach(x=>addItem(k,x));
     ACT.emx();save();render(true);toast('Atama güncellendi');
@@ -1754,7 +1755,7 @@ P.stat.html=()=>{
 
 /* ========== AŞAMA D: AYARLAR, ANA SAYFA, MESAJLAR, ÇİZELGELER, GEÇMİŞ ========== */
 const addD=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10);};
-const recOn=(s,d)=>{for(const p of Object.values(s.periods||{})){const r=(p.days||{})[d];if(r)return r;}return {};};
+const recOn=(s,d)=>{for(const p of pvals(s)){const r=(p.days||{})[d];if(r)return r;}return {};};
 const AYN=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
 const GUN=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
 S.cf=false;S.hl=30;S.hlFor='';
@@ -1896,7 +1897,7 @@ ACT.hmore=()=>{S.hl+=30;cardShow();};
 /* Dönem çizelgesi */
 function dstat(s){
   const z={v:0,y:0,i:0,k:0,ab:0,p:0,bp:0,bk:0,sl:0};
-  Object.values((((s.periods||{})[G.donem]||{}).days)||{}).forEach(r=>{
+  Object.values((((s.periods||{})[G.donem]||{}).days)||{}).filter(Boolean).forEach(r=>{
     if(r.status==='Var')z.v++;else if(r.status==='Yok')z.y++;else if(r.status==='Izinli')z.i++;else if(r.status==='Kismen')z.k++;
     if(r.abdest)z.ab++;z.p+=r.points||0;z.bp+=r.bp||0;if(r.book==='Yok')z.bk++;if(r.slept)z.sl++;});
   const el=ezOf(s);z.ez=el.filter(n=>bestE(s,n)===2).length+'/'+el.length;
@@ -3281,7 +3282,7 @@ $('rc').onclick=()=>{if(!S.room)return;$('rc').textContent=S.room;setTimeout(()=
 function room(){openRoom();}
 $('rcB').onclick=room;
 (function(){const m=$('mn'),b=$('mnB'),close=()=>{m.classList.add('hidden');m.classList.remove('flex');};
-  b.onclick=e=>{e.stopPropagation();const o=m.classList.contains('hidden');m.classList.toggle('hidden',!o);m.classList.toggle('flex',o);};
+  b.onclick=e=>{e.stopPropagation();const o=m.classList.contains('hidden');m.classList.toggle('hidden',!o);m.classList.toggle('flex',o);if(o&&innerWidth<768){const r=b.getBoundingClientRect();m.style.cssText='position:fixed;top:'+Math.round(r.bottom+8)+'px;right:12px;left:auto;z-index:200;max-width:calc(100vw - 24px)';}else if(o)m.style.cssText='';};
   m.addEventListener('click',close);document.addEventListener('click',e=>{if(!m.contains(e.target)&&e.target!==b)close();});})();
 $('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
 addEventListener('scroll',()=>$('up').classList.toggle('hidden',scrollY<300),{passive:true});
@@ -4154,7 +4155,7 @@ setTimeout(()=>ybTick(),20000);setInterval(()=>ybTick(),600000);
 
 /* ========== YIL SONU: öğrenci verilerini kalıcı olarak temizleme ========== */
 /* Öğrenciye ait her şey (yoklama, puan, notlar, ödev/ezber/rehberlik işaretleri, fotoğraf, oturma yeri) öğrenci kaydının içindedir; öğrenciler silinince hepsi gider. */
-const ysCnt=()=>{let days=0,ph=0,hw=0;S.students.forEach(s=>{if(s.photo)ph++;Object.values(s.periods||{}).forEach(p=>{days+=Object.keys((p&&p.days)||{}).length;});hw+=Object.keys(s.hwStatus||{}).length;});return {n:S.students.length,days:days,ph:ph,hw:hw};};
+const ysCnt=()=>{let days=0,ph=0,hw=0;S.students.forEach(s=>{if(s.photo)ph++;pvals(s).forEach(p=>{days+=Object.keys((p&&p.days)||{}).length;});hw+=Object.keys(s.hwStatus||{}).length;});return {n:S.students.length,days:days,ph:ph,hw:hw};};
 const ysTok=()=>{const m={};shr().forEach(x=>{m[x.t]=1;});S.ayar.filter(x=>x.kim==='_share').forEach(x=>{const t=String(x.rb||'').split('|')[0];if(t)m[t]=1;});return Object.keys(m);};
 function ysCard(){
   const c=ysCnt(),tk=ysTok();
