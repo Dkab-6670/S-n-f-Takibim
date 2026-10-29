@@ -1257,7 +1257,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const BUILD='2026-10-29h';
+const BUILD='2026-10-29i';
 const VER='2026-10-d17',NEWS=[['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
@@ -3283,7 +3283,7 @@ function room(){openRoom();}
 $('rcB').onclick=room;
 (function(){const m=$('mn'),b=$('mnB'),close=()=>{m.classList.add('hidden');m.classList.remove('flex');};
   b.onclick=e=>{e.stopPropagation();const o=m.classList.contains('hidden');m.classList.toggle('hidden',!o);m.classList.toggle('flex',o);if(o&&innerWidth<768){const r=b.getBoundingClientRect();m.style.cssText='position:fixed;top:'+Math.round(r.bottom+8)+'px;right:12px;left:auto;z-index:200;max-width:calc(100vw - 24px)';}else if(o)m.style.cssText='';};
-  m.addEventListener('click',close);document.addEventListener('click',e=>{if(!m.contains(e.target)&&e.target!==b)close();});})();
+  m.addEventListener('click',close);addEventListener('scroll',()=>{if(!m.classList.contains('hidden')&&innerWidth<768)close();},{passive:true});document.addEventListener('click',e=>{if(!m.contains(e.target)&&e.target!==b)close();});})();
 $('up').onclick=()=>scrollTo({top:0,behavior:'smooth'});
 addEventListener('scroll',()=>$('up').classList.toggle('hidden',scrollY<300),{passive:true});
 $('view').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.keep;if(!k)return;S[k]=e.target.open;if(e.target.open){['o_prof','o_tan','o_sec','o_bak','bOpen','kOpen','exOpen'].forEach(x=>{if(x!==k)S[x]=false;});document.querySelectorAll('#view details[data-keep]').forEach(d=>{if(d!==e.target&&d.open)d.open=false;});}},true);
