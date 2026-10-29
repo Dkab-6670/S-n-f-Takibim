@@ -351,7 +351,7 @@ const todayCard=()=>{
 
 /* ===== Ana sayfa araması: sayfalar, işlemler, öğrenciler ===== */
 function hqN(t){return String(t||'').toLocaleLowerCase('tr').replace(/ç/g,'c').replace(/ğ/g,'g').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ş/g,'s').replace(/ü/g,'u').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();}
-function hqCard(){return '<div class="card dx-search"><input id="hq" type="search" class="inp w-full" placeholder="🔎 Özellik, sayfa veya öğrenci ara…" autocomplete="off" enterkeyhint="search"><div id="hqr" class="mt-2"></div></div>';}
+function hqCard(){return '<div class="card dx-search !py-1.5 !px-2"><input id="hq" type="search" class="inp w-full !py-1 text-sm" placeholder="🔎 Ara…" autocomplete="off" enterkeyhint="search"><div id="hqr" class="mt-2"></div></div>';}
 function hqRun(v){
   const box=$('hqr');if(!box)return;const q=hqN(v);if(!q){box.innerHTML='';return;}
   const W=q.split(' ');const hit=txt=>{const n=hqN(txt);return W.every(w=>n.includes(w));};
@@ -375,9 +375,9 @@ reg('home','🏠','Ana Sayfa',()=>{
     return '<div class="rounded-lg ring-2 ring-indigo-300 p-1">'+b.replace('data-go="'+k+'"','data-noop="1"')+'<div class="flex gap-1 mt-1"><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="-1" class="'+bt+(i?'':' opacity-30')+'" aria-label="Sola">◀</button><button data-act="hmv" data-g="'+gi+'" data-k="'+k+'" data-d="1" class="'+bt+(i<ks.length-1?'':' opacity-30')+'" aria-label="Sağa">▶</button></div></div>';}).join('')+'</div>':'';}).join('')
    +'<div class="text-center mt-4 flex justify-center gap-4"><button data-act="hedit" class="text-sm font-semibold text-indigo-600">'+(HEDIT?'✔ Düzenlemeyi bitir':'✏️ Kısayolları sırala')+'</button>'+(HEDIT&&lsg('home_ord')?'<button data-act="hrs" class="text-xs text-slate-500 underline">Varsayılana dön</button>':'')+'</div>';
   const sm=[A.length+' öğrenci',classes().length+' sınıf'].concat(featOn('ders')?[S.lessons.length+' ders']:[],featOn('ezber')?[S.ezberItems.length+' ezber konusu']:[]).join(' · ');
-  return hqCard()+todayCard()
+  return (featOn('dini')?diniBtn()+dxCircles():'')+hqCard()+todayCard()
    +(A.length?classChips(A):'<button data-go="ogr" class="card w-full text-left font-semibold">👥 Henüz öğrenci yok. Dokunup öğrenci ekleyin.</button>')
-   +quick+prHomeCard()+(featOn('dini')?diniBtn()+dxCircles():'')+ypHomeCard()+(pageOn('yplan')?exCard():'')+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
+   +quick+prHomeCard()+ypHomeCard()+(pageOn('yplan')?exCard():'')+more+'<div class="text-xs text-slate-400 text-center mt-5">'+sm+'</div>';
 },null,'Ana Sayfa');
 
 /* ========== 6. SAYFA: ÖĞRENCİLER ========== */
