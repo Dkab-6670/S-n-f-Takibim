@@ -2509,7 +2509,8 @@ function ypItemH(it,i,cur,today,gk){
   return '<div class="card !mb-0 !bg-teal-50 dark:!bg-slate-800" style="'+st+'">'+hd((y.hafta?esc(y.hafta)+'. Hafta':'Hafta')+' - '+ypRng(it.from,it.to),'#0e6b78')+ex
    +(un?'<div class="text-[11px] uppercase tracking-wide text-teal-700 dark:text-teal-300">'+esc(un)+'</div>':'')
    +'<div class="font-bold text-base '+(un?'mt-1':'')+'">'+esc(kn)+'</div>'
-   +(y.kaz?'<div class="text-xs font-semibold text-slate-500 mt-2">Kazanım</div><div class="text-sm">'+esc(y.kaz)+'</div>':'<div class="text-xs text-slate-400 mt-2">Kazanım girilmemiş.</div>')+'</div>';
+   +(y.kaz?'<div class="text-xs font-semibold text-slate-500 mt-2">Kazanım</div><div class="text-sm">'+esc(y.kaz)+'</div>':'<div class="text-xs text-slate-400 mt-2">Kazanım girilmemiş.</div>')
+   +(y.id?'<button data-act="ypok" data-id="'+esc(y.id)+'" class="mt-3 w-full min-h-[44px] rounded-lg border text-sm font-semibold '+(y.ok?'bg-emerald-600 text-white border-emerald-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+(y.ok?'✅ İşlendi (geri almak için dokunun)':'İşlendi olarak işaretle')+'</button>':'')+'</div>';
 }
 function ypHomeCard(){
   if(!pageOn('yplan'))return '';
@@ -3523,7 +3524,7 @@ const ypCard=x=>{
   return '<div'+(now?' id="ypNow"':'')+' class="card '+(now?'!border-2 !border-indigo-500 ':'')+(x.ok&&!now?'opacity-60':'')+'"><div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-bold bg-indigo-100 text-indigo-800 rounded-full px-2 py-0.5">'+(x.hafta||'?')+'. hafta</span><span class="text-xs text-slate-500">'+(x.tarih?fdt(x.tarih)+' – '+fdt(ypAdd(x.tarih,4))+' · ':'')+(x.sinif==='ALL'?'Tüm sınıflar':esc(x.sinif)+'. sınıf')+(x.ders?' · '+esc(x.ders):'')+'</span>'+(now?'<span class="text-xs font-bold text-indigo-700 dark:text-indigo-300">📍 Bu hafta</span>':'')+'<span class="ml-auto flex gap-2"><button data-act="ypfav" data-id="'+id+'" class="text-xl">'+(x.fav?'⭐':'☆')+'</button><button data-act="ypdel" data-id="'+id+'" class="text-lg">🗑</button></span></div>'
    +'<div class="font-semibold mt-1">'+esc(x.konu)+'</div>'+(x.kaz?'<div class="text-sm text-slate-600 dark:text-slate-300">'+esc(x.kaz)+'</div>':'')
    +'<textarea data-ypn="'+id+'" class="inp w-full mt-2 text-sm" rows="2" placeholder="Not ekle…">'+esc(x.nt||'')+'</textarea>'
-   +'<button data-act="ypok" data-id="'+id+'" class="mt-2 px-3 py-1.5 rounded-lg border text-sm font-semibold '+(x.ok?'bg-emerald-600 text-white border-emerald-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+(x.ok?'✅ İşlendi':'İşlendi olarak işaretle')+'</button></div>';
+   +(x.ok?'<div class="mt-2 inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">✅ İşlendi</div>':'')+'</div>';
 };
 reg('yplan','📆','Yıllık Plan',()=>{
   const td=bdNow(),now=S.yplan.filter(x=>ypOk(x)&&ypNow(x)),ev=S.yplan.filter(x=>x.t==='e'&&x.id&&x.tarih>=td).sort((a,b)=>a.tarih.localeCompare(b.tarih));
@@ -3597,17 +3598,32 @@ function gpBlocks(d){
   const gun=new Date(d+'T12:00:00').getDay();
   const l=(S.prog||[]).filter(x=>+x.gun===gun&&bgT(x.bas)>=0&&bgT(x.bit)>bgT(x.bas)).sort((a,b)=>bgT(a.bas)-bgT(b.bas));
   const out=pdBlocks(l).map(x=>({sinif:String(x.sinif||''),sube:gpSb(x.sube),ders:T(x.ders),bas:x.bas,bit:x.bit,n:x.e.length}));
-  (S.gplan||[]).filter(r=>r.tarih===d&&r.man).forEach(r=>{if(!out.some(b=>b.sinif===r.sinif&&b.sube===gpSb(r.sube)&&b.ders===r.ders))out.push({sinif:r.sinif,sube:gpSb(r.sube),ders:r.ders,bas:r.bas||'',bit:r.bit||'',n:r.n||1,man:1});});
-  return out;
+  (S.gplan||[]).filter(r=>r.tarih===d&&r.man).forEach(r=>{if(!out.some(b=>b.sinif===r.sinif&&(b.sube===gpSb(r.sube)||!b.sube||!gpSb(r.sube))&&b.ders===r.ders))out.push({sinif:r.sinif,sube:gpSb(r.sube),ders:r.ders,bas:r.bas||'',bit:r.bit||'',n:r.n||1,man:1});});
+  /* Aynı sınıfın aynı dersi: bütün şubeler tek plan (7. sınıflar · Kur'an-ı Kerim) */
+  const mg=[];
+  out.forEach(b=>{
+    let m=mg.find(x=>x.sinif===b.sinif&&x.ders===b.ders);
+    if(!m){m={sinif:b.sinif,sube:'',ders:b.ders,bas:b.bas,bit:b.bit,n:0,sl:[],ps:{}};mg.push(m);}
+    else{if(bgT(b.bas)>=0&&(bgT(m.bas)<0||bgT(b.bas)<bgT(m.bas)))m.bas=b.bas;if(bgT(b.bit)>bgT(m.bit))m.bit=b.bit;}
+    if(b.man)m.man=1;
+    const k=b.sube||'_';m.ps[k]=(m.ps[k]||0)+(b.n||1);
+    if(b.sube&&!m.sl.includes(b.sube))m.sl.push(b.sube);
+  });
+  mg.forEach(m=>{m.n=Math.max.apply(null,Object.values(m.ps));m.sl.sort((a,c)=>a.localeCompare(c,'tr'));delete m.ps;});
+  return mg;
 }
 function gpRec(d,b,mk){
   let r=(S.gplan||[]).find(x=>x.tarih===d&&x.sinif===b.sinif&&gpSb(x.sube)===b.sube&&x.ders===b.ders);
+  if(!r&&!b.sube)r=(S.gplan||[]).find(x=>x.tarih===d&&x.sinif===b.sinif&&x.ders===b.ders);
   if(!r&&mk){r={tarih:d,sinif:b.sinif,sube:b.sube,ders:b.ders,bas:b.bas||'',bit:b.bit||'',n:b.n||1,man:b.man?1:0};S.gplan.push(r);}
   return r||null;
 }
+const gpNm=t=>String(t||'').toLocaleLowerCase('tr').replace(/[âä]/g,'a').replace(/[îı]/g,'i').replace(/û/g,'u').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c').replace(/[^a-z0-9]/g,'');
 function gpPlan(d,b){
-  const dn=String(b.ders||'').toLowerCase();
-  return S.yplan.find(y=>y.t!=='e'&&y.tarih&&y.tarih<=d&&d<ypAdd(y.tarih,7)&&(y.sinif==='ALL'||String(y.sinif).trim()===String(b.sinif).trim())&&(!y.ders||!dn||dn.includes(String(y.ders).toLowerCase())||String(y.ders).toLowerCase().includes(dn)))||null;
+  const dn=gpNm(b.ders);
+  const ok=y=>y.t!=='e'&&y.tarih&&y.tarih<=d&&d<ypAdd(y.tarih,7)&&(y.sinif==='ALL'||String(y.sinif).trim()===String(b.sinif).trim());
+  const dm=y=>{const yd=gpNm(y.ders);return !yd||!dn||dn.includes(yd)||yd.includes(dn);};
+  return S.yplan.find(y=>ok(y)&&dm(y)&&gpNm(y.ders)&&gpNm(y.ders)===dn)||S.yplan.find(y=>ok(y)&&dm(y))||null;
 }
 function gpPrev(d,b,f){
   return (S.gplan||[]).filter(r=>r.ders===b.ders&&r.tarih<d&&T(r[f])).sort((a,c)=>a.tarih<c.tarih?1:-1)[0]||null;
@@ -3658,13 +3674,14 @@ function gpVal(d,b,f){
   if(['yontem','arac','deger'].includes(f)){const p=gpPlan(d,b),pv=p?T(p[{yontem:'yon',arac:'arac',deger:'deg'}[f]]):'';if(pv)return pv;const q=gpPrev(d,b,f);return q?q[f]:'';}
   return '';
 }
-const gpTit=b=>(b.sinif?b.sinif+(b.sube?'/'+b.sube.toUpperCase():'')+'. sınıf':'')+(b.ders?' · '+b.ders:'');
+const gpCls=b=>b.sube?b.sinif+'/'+b.sube.toUpperCase():b.sinif+'. sınıflar'+(b.sl&&b.sl.length?' ('+b.sl.map(x=>String(x).toUpperCase()).join(', ')+' şubeleri)':'');
+const gpTit=b=>(b.sinif?gpCls(b):'')+(b.ders?' · '+b.ders:'');
 reg('gplan','🗒️','Günlük Plan',()=>{
   const d=GPL.date||(GPL.date=G.date||bdNow()),bl=GPL.bl=gpBlocks(d);
   const nav='<div class="card flex flex-wrap items-center gap-2"><button data-act="gpd" data-v="-1" class="btn bg-slate-600">◀</button><input type="date" data-gpdate="1" class="inp" value="'+esc(d)+'"><button data-act="gpd" data-v="1" class="btn bg-slate-600">▶</button><button data-act="gptoday" class="btn bg-indigo-600">Bugün</button><b class="ml-auto text-sm">'+GP_GUN[new Date(d+'T12:00:00').getDay()]+'</b></div>';
   const cards=bl.map((b,i)=>{
     const pl=gpPlan(d,b);
-    return '<div class="card"><div class="flex flex-wrap items-center gap-2"><b>'+esc(gpTit(b))+'</b>'+(b.bas?'<span class="text-xs text-slate-500">'+esc(b.bas)+'–'+esc(b.bit)+' · '+b.n+' ders saati</span>':'')+(pl?'<span class="text-xs font-bold bg-indigo-100 text-indigo-800 rounded-full px-2 py-0.5">'+(pl.hafta||'?')+'. hafta</span>':'<span class="text-xs text-amber-600">Yıllık planda bu hafta satırı yok</span>')+'</div>'
+    return '<div class="card"><div class="flex flex-wrap items-center gap-2"><b>'+(pl&&pl.hafta?pl.hafta+'. hafta · ':'')+esc(gpTit(b))+' günlük planı</b><span class="text-xs text-slate-500">'+(b.bas?esc(b.bas)+'–'+esc(b.bit)+' · ':'')+b.n+' ders saati</span>'+(pl?'<span class="text-xs font-bold bg-indigo-100 text-indigo-800 rounded-full px-2 py-0.5">'+(pl.hafta||'?')+'. hafta</span>':'<span class="text-xs text-amber-600">Yıllık planda '+esc(b.sinif)+'. sınıf '+esc(b.ders)+' için bu haftaya ait satır yok</span>')+'</div>'
      +GP_F.map(f=>'<label class="text-xs font-bold mt-2 block">'+f[1]+'</label><textarea data-gpi="'+i+'" data-gpf="'+f[0]+'" rows="'+f[2]+'" class="inp w-full text-sm">'+esc(gpVal(d,b,f[0]))+'</textarea>'+(GP_KAT[f[0]]?gpPick(i,f[0],gpVal(d,b,f[0])):'')).join('')
      +'<div class="flex flex-wrap gap-2 mt-3"><button data-act="gpfill" data-i="'+i+'" class="btn bg-slate-600">↺ Yıllık plandan doldur</button><button data-act="gpvar" data-i="'+i+'" class="btn bg-violet-600">🔀 Farklı öneri</button><button data-act="gpprint" data-i="'+i+'" class="btn bg-emerald-600">🖨️ Bu dersi yazdır</button></div></div>';
   }).join('')||'<div class="card text-sm text-slate-500">Bu güne ait ders programı yok. Ders programını girin ya da aşağıdan ders ekleyin.</div>';
@@ -3683,7 +3700,7 @@ function gpFitDoc(items){
   const pr=prof(),y0=+items[0][0].slice(0,4),m0=+items[0][0].slice(5,7),yr=m0>=8?y0+'-'+(y0+1):(y0-1)+'-'+y0;
   const c=(a,b)=>a?'<div>'+a+'</div>':'',lab=(k,v)=>v?'<div><b>'+k+':</b> '+v+'</div>':'';
   const rows=items.map(([d,b])=>{const v=f=>esc(gpVal(d,b,f)),pl=gpPlan(d,b);
-    return '<tr><td><b>'+esc(fdt(d).slice(0,5))+'</b><br>'+GP_GUN[new Date(d+'T12:00:00').getDay()]+'</td><td><b>'+esc(b.sinif)+(b.sube?'/'+esc(b.sube.toUpperCase()):'')+'</b><br>'+esc(b.ders)+(b.bas?'<br>'+esc(b.bas)+'–'+esc(b.bit):'')+(pl&&pl.hafta?'<br>'+pl.hafta+'. hf':'')+'</td><td>'+lab('Konu',v('konu'))+lab('Kazanım',v('kaz'))+'</td><td>'+lab('Yöntem',v('yontem'))+lab('Araç',v('arac'))+'</td><td>'+lab('Giriş',v('giris'))+lab('Gelişme',v('gelisme'))+lab('Sonuç',v('sonuc'))+'</td><td>'+lab('Değerlendirme',v('deger'))+lab('Ödev',v('odev'))+lab('Not',v('not'))+'</td></tr>';}).join('');
+    return '<tr><td><b>'+esc(fdt(d).slice(0,5))+'</b><br>'+GP_GUN[new Date(d+'T12:00:00').getDay()]+'</td><td><b>'+esc(gpCls(b))+'</b><br>'+esc(b.ders)+(b.bas?'<br>'+esc(b.bas)+'–'+esc(b.bit):'')+(pl&&pl.hafta?'<br>'+pl.hafta+'. hf':'')+'</td><td>'+lab('Konu',v('konu')+(v('konu')?' · ':'')+b.n+' ders saati')+lab('Kazanım',v('kaz'))+'</td><td>'+lab('Yöntem',v('yontem'))+lab('Araç',v('arac'))+'</td><td>'+lab('Giriş',v('giris'))+lab('Gelişme',v('gelisme'))+lab('Sonuç',v('sonuc'))+'</td><td>'+lab('Değerlendirme',v('deger'))+lab('Ödev',v('odev'))+lab('Not',v('not'))+'</td></tr>';}).join('');
   const css='@page{size:A4;margin:12mm}html,body{margin:0}body{font-family:Arial,sans-serif;color:#000}#w{width:186mm;font-size:11px}h1{text-align:center;font-size:1.5em;margin:0}.s{text-align:center;margin:2px 0 6px}table{width:100%;border-collapse:collapse;table-layout:fixed}td,th{border:1px solid #000;padding:2px 3px;vertical-align:top;text-align:left;white-space:pre-wrap;word-wrap:break-word}th{background:#eee;text-align:center}thead{display:table-header-group}tr{page-break-inside:avoid}.sg{display:flex;justify-content:space-between;margin-top:1.4em;text-align:center}.sg div{width:42%}#pg{position:absolute;visibility:hidden;height:273mm;width:1px}.b{padding:8px;text-align:center;font-size:13px}@media print{.b{display:none}}';
   const js="function fit(){var t=document.getElementById('w'),mx=document.getElementById('pg').offsetHeight*2*0.9,f=12;t.style.fontSize=f+'px';while(t.scrollHeight>mx&&f>5){f-=.5;t.style.fontSize=f+'px';}var ok=t.scrollHeight<=mx;document.getElementById('i').textContent=ok?'Yazı boyutu '+f+' punto · en çok 2 sayfa (1 kâğıt, arkalı önlü). Yazdırırken “iki taraflı” seçin.':'⚠️ Bu kadar ders tek kâğıda sığmadı; daha az ders seçin (örneğin günü ayrı ayrı yazdırın).';document.getElementById('i').style.color=ok?'#065f46':'#b91c1c';}onload=fit;onbeforeprint=fit;";
   const doc='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Günlük Plan</title><style>'+css+'</style><div id="pg"></div><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır / PDF olarak kaydet</button><div id="i" style="margin-top:6px"></div></div><div id="w"><h1>GÜNLÜK DERS PLANI</h1><div class="s">'+(pr.okul?esc(pr.okul)+' · ':'')+yr+' Eğitim Öğretim Yılı · '+esc(fdt(items[0][0]))+(items[items.length-1][0]!==items[0][0]?' – '+esc(fdt(items[items.length-1][0])):'')+'</div><table><thead><tr><th style="width:9%">Tarih</th><th style="width:12%">Sınıf / Ders</th><th style="width:19%">Konu ve kazanım</th><th style="width:13%">Yöntem, araç</th><th style="width:27%">İşleniş</th><th style="width:20%">Değerlendirme, ödev</th></tr></thead><tbody>'+rows+'</tbody></table><div class="sg"><div>Ders Öğretmeni<br><br><b>'+esc(pr.name||'')+'</b></div><div>Uygundur<br>…/…/'+items[0][0].slice(0,4)+'<br><b>Okul Müdürü</b></div></div></div><script>'+js+'<\/script>';
@@ -3698,9 +3715,9 @@ function gpPrint(items){
   const pages=items.map(([d,b])=>{
     const v=f=>esc(gpVal(d,b,f)),pl=gpPlan(d,b),row=(k,t,c)=>'<tr'+(c?' class="'+c+'"':'')+'><th>'+k+'</th><td>'+t+'</td></tr>';
     return '<div class="p"><h1>GÜNLÜK DERS PLANI</h1><div class="s">'+(pr.okul?esc(pr.okul)+' · ':'')+yr+' Eğitim Öğretim Yılı</div><table>'
-     +row('Tarih',esc(fdt(d))+' '+GP_GUN[new Date(d+'T12:00:00').getDay()])+row('Sınıf / Şube',esc(b.sinif)+(b.sube?'/'+esc(b.sube.toUpperCase()):''))+row('Ders',esc(b.ders))
+     +row('Tarih',esc(fdt(d))+' '+GP_GUN[new Date(d+'T12:00:00').getDay()])+row('Sınıf / Şube',esc(gpCls(b)))+row('Ders',esc(b.ders))
      +row('Ders saati',(b.bas?esc(b.bas)+'–'+esc(b.bit)+' · ':'')+b.n+' ders saati')+(pl&&pl.hafta?row('Hafta',pl.hafta+'. hafta'):'')
-     +row('Konu',v('konu'),'h3')+row('Kazanım(lar)',v('kaz'),'h3')+row('Yöntem ve teknikler',v('yontem'),'h1')+row('Araç-gereç',v('arac'),'h1')
+     +row('Konu',v('konu')+(v('konu')?' · ':'')+b.n+' ders saati','h3')+row('Kazanım(lar)',v('kaz'),'h3')+row('Yöntem ve teknikler',v('yontem'),'h1')+row('Araç-gereç',v('arac'),'h1')
      +row('Giriş',v('giris'),'h3')+row('Gelişme',v('gelisme'),'h2')+row('Sonuç',v('sonuc'),'h3')
      +row('Ölçme ve değerlendirme',v('deger'),'h1')+row('Ödev',v('odev'),'h1')+row('Açıklama / not',v('not'),'h1')
      +'</table><div class="sg"><div>Ders Öğretmeni<br><br><b>'+esc(pr.name||'')+'</b></div><div>Uygundur<br>…/…/'+d.slice(0,4)+'<br><b>Okul Müdürü</b></div></div></div>';
