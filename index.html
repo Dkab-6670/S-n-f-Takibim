@@ -1363,7 +1363,6 @@ function alerts(){
     if(n>=3)A.hw.push([s,'art arda yapmadı/eksik ('+Math.ceil(n)+' ödev)']);
     let a=0;for(const [d,r] of allD(s).filter(([d,r])=>r.status&&r.status!=='None').reverse()){if(r.status==='Yok')a++;else break;}
     if(a>=3)A.ab.push([s,a+' gündür devamsız']);
-    if(ezOf(s).length&&ge[kk2(s)]&&!allD(s).some(([d,r])=>d>=wk&&Object.values(r.ezberStatus||{}).includes('Tamamlandi')))A.ez.push([s,'bu hafta ezber vermedi']);
   });
   S.homeworks.filter(h=>!h.rb&&h.end>=dmin(-7)&&h.end<=dmin(2)&&h.end!==dmin(1)).forEach(h=>{const n=act.filter(s=>ap(h,s)&&!(s.hwStatus||{})[h.id]).length;
     if(n)A.due.push([h,n,h.end<today?'süresi geçti':h.end===today?'bugün bitiyor':h.end===dmin(1)?'yarın bitiyor':'2 gün sonra bitiyor']);});
@@ -1378,7 +1377,7 @@ reg('uyari','🔔','Uyarılar',()=>{
   return '<div class="card flex flex-wrap items-center justify-between gap-2"><span class="text-sm">'+(A.n?A.n+' uyarı var.':'Şu an uyarı yok. 👍')+'</span>'+('Notification' in window&&Notification.permission!=='granted'?'<button data-act="ntf" class="btn bg-amber-600">🔔 Bildirimleri aç</button>':'')+'</div>'
    +sec('📅 Yarın ödev kontrolü var',A.rem,x=>'<span class="bg-yellow-100 text-yellow-900 border-yellow-300 text-xs px-2.5 py-1 rounded-full border"><b>'+esc(x[0].name)+'</b> · '+esc(tgt(x[0]))+(x[0].sube&&x[0].sube!=='ALL'?' '+esc(String(x[0].sube).toUpperCase()):'')+' · '+x[1]+' öğrenci işaretsiz</span>')
    +sec('⏰ Ödev bitiş tarihi',A.due,x=>'<span class="bg-amber-100 text-amber-900 border-amber-300 text-xs px-2.5 py-1 rounded-full border"><b>'+esc(x[0].name)+'</b> · '+esc(x[0].end.slice(8)+'.'+x[0].end.slice(5,7))+' · '+x[2]+' · '+x[1]+' öğrenci işaretsiz</span>')
-   +sec('📕 Ödev yapmıyor',A.hw,ch('bg-red-100 text-red-800 border-red-200'))+sec('📖 Ezber vermedi',A.ez,ch('bg-orange-100 text-orange-800 border-orange-200'))+sec('🚫 Devamsızlık',A.ab,ch('bg-rose-100 text-rose-800 border-rose-200'));
+   +sec('📕 Ödev yapmıyor',A.hw,ch('bg-red-100 text-red-800 border-red-200'))+sec('🚫 Devamsızlık',A.ab,ch('bg-rose-100 text-rose-800 border-rose-200'));
 },null,null);
 ACT.ntf=()=>Notification.requestPermission().then(()=>render(true));
 const alertItem=()=>{
@@ -4011,6 +4010,20 @@ function scnParse(text,e){
   for(const i of order){const v=parseFloat(toks[i]);if(isFinite(v)&&v>=0&&v<=mx){sc=v;break;}}
   return {stu:stu,score:sc};
 }
+/* Kutulu kâğıt: kelimelerin konumuna göre en geniş boşluğun (ayırıcı çizgi) solu = numara, sağı = puan; kutulardaki ayrı rakamlar birleştirilir */
+function scnParseR(r,e){
+  const ws=((r.data&&r.data.words)||[]).filter(w=>w.bbox&&/\d/.test(w.text||'')).map(w=>({t:String(w.text).replace(/[^\d.,]/g,''),x0:w.bbox.x0,x1:w.bbox.x1})).filter(w=>w.t).sort((a,b)=>a.x0-b.x0);
+  if(ws.length>=2){
+    let gi=-1,gm=0,sw=0;ws.forEach(w=>{sw+=w.x1-w.x0;});sw/=ws.length;
+    for(let i=1;i<ws.length;i++){const g=ws[i].x0-ws[i-1].x1;if(g>gm){gm=g;gi=i;}}
+    if(gi>0&&gm>sw*1.8){
+      const L=ws.slice(0,gi).map(w=>w.t).join('').replace(/[.,]/g,''),R=ws.slice(gi).map(w=>w.t).join('').replace(',','.');
+      const stu=scnStu(L);
+      if(stu){const v=parseFloat(R),mx=+e.max||100;return {stu:stu,score:(isFinite(v)&&v>=0&&v<=mx)?v:null};}
+    }
+  }
+  return scnParse(r.data.text,e);
+}
 function scnGrab(raw){
   const v=$('scnV');if(!v||!v.videoWidth)return null;
   const cw=v.clientWidth,ch=v.clientHeight,sc=Math.max(cw/v.videoWidth,ch/v.videoHeight),ox=(v.videoWidth-cw/sc)/2,oy=(v.videoHeight-ch/sc)/2;
@@ -4072,7 +4085,7 @@ async function scnLoop(tok){
     if(SCN.hold||document.hidden){await scnSleep(300);continue;}
     const cv=scnGrab();if(!cv){await scnSleep(300);continue;}
     try{
-      const r=await w.recognize(cv),p=scnParse(r.data.text,e);
+      const r=await w.recognize(cv),p=scnParseR(r,e);
       if(!p){SCN.key='';SCN.ign='';SCN.n=0;}
       else{const k=p.stu.id+'|'+p.score;
         if(k!==SCN.ign){if(k===SCN.key){SCN.n++;if(SCN.n>=2){SCN.hold=true;scnAsk(p);}}else{SCN.key=k;SCN.n=1;}}}
@@ -4110,7 +4123,7 @@ async function scnFiles(files,band){
       const sh=band?bm.height:Math.round(bm.height*.4),k=Math.min(1,1400/bm.width),cv=document.createElement('canvas');
       cv.width=Math.round(bm.width*k);cv.height=Math.round(sh*k);cv.getContext('2d').drawImage(bm,0,0,bm.width,sh,0,0,cv.width,cv.height);
       const th=document.createElement('canvas');th.width=240;th.height=Math.max(30,Math.round(240*cv.height/cv.width));th.getContext('2d').drawImage(cv,0,0,th.width,th.height);
-      scnBin(cv);const r=await w.recognize(cv),p=scnParse(r.data.text,e);
+      scnBin(cv);const r=await w.recognize(cv),p=scnParseR(r,e);
       rows.push({img:th.toDataURL('image/jpeg',.6),stu:p?p.stu:null,score:p?p.score:null});
     }
   }catch(x){return alert('Okunamadı: '+(x.message||x));}
