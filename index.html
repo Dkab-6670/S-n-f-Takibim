@@ -3541,8 +3541,54 @@ $('view').addEventListener('change',e=>{
 
 /* ===== Günlük ders planı: ders programından o günün dersleri, yıllık plandan konu/kazanım gelir; düzenlenir ve A4 yazdırılır.
    Kayıt: S.gplan = [{tarih,sinif,sube,ders,bas,bit,n,man,konu,kaz,yontem,arac,giris,gelisme,sonuc,deger,odev,not}] ===== */
-const GPL={date:'',bl:[]};
+const GPL={date:'',bl:[],op:{}};
 const GP_F=[['konu','Konu',2],['kaz','Kazanım(lar)',3],['yontem','Yöntem ve teknikler',2],['arac','Araç-gereç',2],['giris','Giriş (dikkat çekme, hazırlık)',3],['gelisme','Gelişme (dersin işlenişi)',4],['sonuc','Sonuç (özet, değerlendirme)',3],['deger','Ölçme ve değerlendirme',2],['odev','Ödev',2],['not','Açıklama / not',2]];
+
+/* ===== Günlük plan: seçilebilir yöntem-teknik, araç-gereç, ölçme-değerlendirme ve açıklama notları =====
+   Öğretmenin eklediği maddeler S.ayar içinde {kim:'_gpkat', j:JSON} kaydında saklanır (oda ile senkronlanır). */
+const GP_KAT={
+ yontem:[
+  ["Öğretim yöntemleri",["Düz anlatım","Soru-cevap","Tartışma","Gösterip yaptırma","Gösteri (demonstrasyon)","Örnek olay incelemesi","Problem çözme","Probleme dayalı öğrenme","Proje tabanlı öğrenme","Buluş yoluyla öğrenme","Araştırma-inceleme","Gezi-gözlem","Deney","Drama","Rol oynama","Eğitsel oyun","Benzetim (simülasyon)","Hikâye anlatımı","Bireysel çalışma","Sesli okuma","Ters yüz sınıf (flipped)","5E öğrenme modeli","Sorgulama (Sokratik soru)","Okuma-yorumlama"]],
+  ["Tartışma ve düşünme teknikleri",["Beyin fırtınası","Altı şapkalı düşünme","Panel","Forum","Münazara","Açık oturum","Sempozyum","Akvaryum","Söyleşi","Balık kılçığı","Kavram haritası","Zihin haritası","Venn şeması","KWL tekniği","Dört köşe","Kavram karikatürü","Canlandırma","Hikâye haritası"]],
+  ["İşbirlikli öğrenme teknikleri",["Birlikte öğrenme","Jigsaw (uzmanlaşma grupları)","Öğrenci takımları-başarı bölümleri (STAD)","Takım-oyun-turnuva (TAT)","Grup araştırması","Düşün-eşleş-paylaş","Numaralı başlar birlikte","Kafa kafaya","Yuvarlak masa","Akran öğretimi","Eşli çalışma","Grup çalışması"]],
+  ["Diğer öğretim yöntem ve teknikleri",["Anlatım","Örnekleme","Karşılaştırma","Oyunlaştırma","Gezi (alan çalışması)","Laboratuvar yöntemi","Örnek olay (vaka) analizi","Yaratıcı drama","Eşli okuma","Rehberli keşif","Sunum yapma","Görsel destekli anlatım","Sınıf içi gösteri","Stratejik okuma","Anlam çözümleme","Bilgi yarışması","Bulmaca çözme","Mektup-günlük yazma","Hikâyeleştirme","Rol dağıtımlı okuma","Hatırlatma ve tekrar","Çözümlü örnek inceleme","Yansıtma (refleksiyon)","Model olma ve örnek davranış","Değer eğitimi etkinliği","Kısa film izleme-yorumlama","Sözlü anlatım ve dinleme"]],
+  ["Okuma ve ezber teknikleri (Kur’an, dini dersler)",["Taklit yoluyla okuma","Dinle-tekrarla","Parça parça ezber","Topluca tekrar","Sıralı okuma","Eşli dinleme (ezber ortağı)","Tecvid kuralını gösterme","Kıssa ve hadis anlatımı","Dua ve ayet ezberi","Mushaftan takip ederek okuma","Harf-kelime tanıtma","Telaffuz çalışması (mahreç)","Ezber kartları","Kasetle/ses kaydıyla dinleme","Hatim ve tekrar halkası","Meal okuma ve yorumlama","Ayet-hadis eşleştirme"]]
+ ],
+ arac:[
+  ["Basılı kaynaklar",["Ders kitabı","Öğrenci çalışma kitabı","Öğretmen kılavuz kitabı","Ek kaynak kitap","Sözlük","Atlas","Harita","Ansiklopedi","Gazete-dergi","Çalışma yaprağı","Etkinlik kartı","Sözcük kartı","Bilgi kartı","Afiş-poster","Tablo-şema-grafik","Hikâye kitabı"]],
+  ["Teknolojik araçlar",["Akıllı tahta","Bilgisayar","Projeksiyon","Tablet","EBA içerikleri","MEBİ","Etkileşimli kitap","Sunu (slayt)","Video-animasyon","Ses kaydı","Hoparlör","Belgesel","İnternet","QR kod","Kahoot","Wordwall","Quizizz","Mentimeter","Padlet","Canva","Genially","LearningApps","Liveworksheets"]],
+  ["Sınıf araç-gereçleri",["Yazı tahtası","Tebeşir-tahta kalemi","Renkli kalemler","Büyük kâğıt (flipchart)","Yapışkanlı not kâğıdı","Fon kartonu","Makas-yapıştırıcı","Cetvel","Defter","Maket-model","Küre","Pano","Zaman şeridi","Kronometre-kum saati","Zar","Bulmaca","Tasnif kartları","Eğitsel oyun kartları"]],
+  ["Diğer araç-gereçler",["Sınıf kütüphanesi","Resim-fotoğraf","Slayt gösterisi","Etkinlik zarfı","Poster","Kukla","Canlandırma kıyafet ve aksesuarları","Müzik-ilahi kaydı","Dijital sözlük","Yapay zekâ destekli içerik","Çalışma kâğıdı (dijital)","Okuma metni","Gerçek nesne ve örnekler","Haber-makale çıktısı","Kartlı oyun","Sınıf panosu","Kum saati","Etkileşimli beyaz tahta yazılımı","OBA-EBA ders içeriği","Tekerlemeli kart"]],
+  ["Dini ders araç-gereçleri",["Kur’an-ı Kerim (mushaf)","Cüz","Rahle","Tecvid renkli mushaf","Tespih","Seccade","Dua kartları","Kâbe-cami maketi","Hat levhası","Dinî-ahlakî hikâye kitapları"]]
+ ],
+ deger:[
+  ["Geleneksel ölçme araçları",["Yazılı sınav (açık uçlu)","Çoktan seçmeli test","Doğru-yanlış soruları","Eşleştirme","Boşluk doldurma","Kısa cevaplı sorular","Sözlü yoklama","Kısa sınav (quiz)","Ödev değerlendirme","Defter kontrolü","Okuma-ezber dinleme"]],
+  ["Alternatif ölçme ve değerlendirme araçları",["Gözlem formu","Kontrol listesi","Dereceleme ölçeği","Dereceli puanlama anahtarı (rubrik)","Performans görevi","Proje ödevi","Ürün dosyası (portfolyo)","Öz değerlendirme","Akran değerlendirme","Grup değerlendirme","Görüşme","Öğrenci günlüğü","Kavram haritası","Yapılandırılmış grid","Tanılayıcı dallanmış ağaç","Çıkış kartı","3-2-1 kartı","Yanlışı bul etkinliği","Dijital değerlendirme (Kahoot-Wordwall vb.)","Ders içi katılım gözlemi","Yansıtma soruları","Sözlü sunum","Ders içi etkinlik kontrolü","Tanılama testi","Gelişim dosyası","Soru-cevap karşılaştırması","Okuma-dinleme kaydı","Ürün incelemesi","Ders sonu mini test","Hızlı yoklama (el kaldırma, işaret kartı)","Kavram testi","Kısa yazı (paragraf)","Defter-etkinlik kitabı kontrolü","Ezber/okuma notu","Davranış gözlem notu","Akran dönütü (iki yıldız-bir dilek)","Eksik tamamlama","Sınıf içi yarışma","Öğrenci sunumu rubriği"]]
+ ],
+ not:[
+  ["Başlangıç ve devam",["Yoklama alınacak; devamsız öğrencilerin velileri gerekirse bilgilendirilecek.","Derse geç kalan öğrenciler dersin akışı bozulmadan sınıfa alınacak.","Önceki dersin konusu tekrar edilip öğrencilerin ön bilgileri yoklanacak, eksikler giderilecek.","Ders başında sınıf düzeni ve malzemeler kontrol edilecek."]],
+  ["Öğrenci durumları",["Kitabı ya da defteri olmayan öğrencilere arkadaşıyla ortak çalışma imkânı verilecek.","Konuyu zor kavrayan öğrencilere ders sonunda ya da teneffüste ek açıklama yapılacak.","Kaynaştırma/özel eğitim öğrencileri için etkinlikler uyarlanacak ve ek destek verilecek.","Başarılı öğrencilere zenginleştirme etkinliği verilecek.","Dikkati dağılan öğrencilere sorumluluk verilerek derse katılımları sağlanacak.","Rehberlik desteğine ihtiyaç duyan öğrenci için rehber öğretmene bilgi verilecek."]],
+  ["Zaman ve program",["Etkinlik süresi yetmezse kalan bölüm bir sonraki derse aktarılacak.","Okulda yapılacak etkinlik, tören ya da sınav nedeniyle ders kısalabilir.","Yazılı sınav öncesi olduğu için konu tekrarına ağırlık verilecek.","Hava koşulları uygunsa ders açık havada yapılabilir.","Özel gün/bayram ile konu ilişkilendirilecek."]],
+  ["Araç ve ortam",["Elektrik ya da internet kesilirse tahta ve ders kitabıyla alternatif etkinlik uygulanacak.","Telefon yalnızca öğretmen yönlendirmesiyle eğitim amacıyla kullanılacak.","Deney/uygulama öncesi güvenlik kuralları hatırlatılacak.","Sınıf düzeni gruplara uygun şekilde yeniden düzenlenecek."]],
+  ["Ders içinde yaşanan diğer durumlar",["Ders sırasında idari duyuru nedeniyle ara verilebilir.","Öğrenci rahatsızlanırsa ilgili işlemler yapılacak, veli bilgilendirilecek.","Öğrenciler arasında yaşanan anlaşmazlık dersin sonunda görüşülerek çözülecek.","Konu öğrencilerin ilgisi doğrultusunda derinleştirilecek.","Derse katılımı düşük öğrencilerin söz alması teşvik edilecek.","Öğrencilerin soruları not alınıp sonraki derste yanıtlanacak.","Yeni gelen/nakil öğrenciye uyum desteği verilecek.","Konunun güncel olaylarla bağlantısı kurulacak.","Ders sonunda öğrencilerden dönüt alınacak.","Etkinlik sınıfın düzeyine uygun değilse daha kolay ya da zor bir etkinlikle değiştirilecek."]],
+  ["Sınıf yönetimi ve değerlendirme",["Sınıf kurallarına uyum hatırlatılacak, olumlu davranışlar pekiştirilecek.","Sessiz çalışma işareti kullanılacak.","Ezber/okuma yoklaması bireysel olarak sırayla yapılacak.","Ders sonunda çıkış kartıyla öğrenme düzeyi yoklanacak.","Verilen ödev bir sonraki derste kontrol edilecek.","Ödevini yapmayan öğrencilerin durumu kaydedilecek ve tekrar fırsat verilecek.","Zamanında bitmeyen etkinlikler ödev olarak verilecek.","Ders sonunda sınıfın düzeni ve temizliği kontrol edilecek."]]
+ ]
+};
+const GP_PT={yontem:'Yöntem ve teknik',arac:'Araç-gereç',deger:'Ölçme-değerlendirme aracı',not:'Açıklama notu'};
+const gpDl=f=>f==='not'?'\n':', ';
+const gpLs=(t,f)=>String(t||'').split(f==='not'?/\n/:/[,;\n]/).map(x=>x.trim()).filter(Boolean);
+const gpCusRec=()=>(S.ayar||[]).find(x=>x.kim==='_gpkat');
+function gpCus(){let o={};try{o=JSON.parse((gpCusRec()||{}).j||'{}');}catch(e){}if(!o||typeof o!=='object')o={};['yontem','arac','deger','not'].forEach(k=>{if(!Array.isArray(o[k]))o[k]=[];});return o;}
+function gpCusSave(o){let r=gpCusRec();if(!r){r={kim:'_gpkat'};S.ayar.push(r);}r.j=JSON.stringify(o);save();}
+const GP_ON='bg-indigo-600 text-white border-indigo-600',GP_OFF='bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600';
+const gpChip=(i,f,v,on,del)=>'<span class="inline-flex"><button data-act="gpch" data-i="'+i+'" data-f="'+f+'" data-v="'+esc(v)+'" class="rounded-full border px-2.5 min-h-[34px] text-xs text-left '+(on?GP_ON:GP_OFF)+'">'+esc(v)+'</button>'+(del?'<button data-act="gpcdel" data-f="'+f+'" data-v="'+esc(v)+'" class="px-1 text-xs text-red-600" aria-label="Listeden kaldır" title="Listeden kaldır">✖</button>':'')+'</span>';
+function gpPick(i,f,cur){
+  const sel=gpLs(cur,f),cu=gpCus()[f],k=i+'|'+f;
+  const grp=(t,l,del)=>l.length?'<div class="text-[11px] font-bold mt-3 mb-1 text-slate-600 dark:text-slate-300">'+esc(t)+'</div><div class="flex flex-wrap gap-1.5">'+l.map(v=>gpChip(i,f,v,sel.includes(v),del)).join('')+'</div>':'';
+  return '<details class="mt-1" data-gpk="'+k+'"'+(GPL.op&&GPL.op[k]?' open':'')+'><summary class="cursor-pointer text-sm font-semibold inline-block rounded-lg border border-indigo-400 text-indigo-700 dark:text-indigo-300 px-3 py-1.5">📋 Listeden seç · kendi maddenizi ekleyin</summary>'
+   +GP_KAT[f].map(g=>grp(g[0],g[1],false)).join('')+grp('⭐ Eklediklerim',cu,true)
+   +'<div class="flex gap-2 mt-3"><input id="gpA'+i+'_'+f+'" class="inp flex-1 min-w-0 text-sm" placeholder="Listede yoksa yazın ('+esc(GP_PT[f].toLowerCase())+')"><button data-act="gpcadd" data-i="'+i+'" data-f="'+f+'" class="btn bg-indigo-600">Ekle</button></div></details>';
+}
 const GP_GUN=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
 const gpSb=v=>(v&&v!=='ALL')?String(v).toLowerCase():'';
 function gpBlocks(d){
@@ -3617,11 +3663,11 @@ reg('gplan','🗒️','Günlük Plan',()=>{
   const cards=bl.map((b,i)=>{
     const pl=gpPlan(d,b);
     return '<div class="card"><div class="flex flex-wrap items-center gap-2"><b>'+esc(gpTit(b))+'</b>'+(b.bas?'<span class="text-xs text-slate-500">'+esc(b.bas)+'–'+esc(b.bit)+' · '+b.n+' ders saati</span>':'')+(pl?'<span class="text-xs font-bold bg-indigo-100 text-indigo-800 rounded-full px-2 py-0.5">'+(pl.hafta||'?')+'. hafta</span>':'<span class="text-xs text-amber-600">Yıllık planda bu hafta satırı yok</span>')+'</div>'
-     +GP_F.map(f=>'<label class="text-xs font-bold mt-2 block">'+f[1]+'</label><textarea data-gpi="'+i+'" data-gpf="'+f[0]+'" rows="'+f[2]+'" class="inp w-full text-sm">'+esc(gpVal(d,b,f[0]))+'</textarea>').join('')
+     +GP_F.map(f=>'<label class="text-xs font-bold mt-2 block">'+f[1]+'</label><textarea data-gpi="'+i+'" data-gpf="'+f[0]+'" rows="'+f[2]+'" class="inp w-full text-sm">'+esc(gpVal(d,b,f[0]))+'</textarea>'+(GP_KAT[f[0]]?gpPick(i,f[0],gpVal(d,b,f[0])):'')).join('')
      +'<div class="flex flex-wrap gap-2 mt-3"><button data-act="gpfill" data-i="'+i+'" class="btn bg-slate-600">↺ Yıllık plandan doldur</button><button data-act="gpvar" data-i="'+i+'" class="btn bg-violet-600">🔀 Farklı öneri</button><button data-act="gpprint" data-i="'+i+'" class="btn bg-emerald-600">🖨️ Bu dersi yazdır</button></div></div>';
   }).join('')||'<div class="card text-sm text-slate-500">Bu güne ait ders programı yok. Ders programını girin ya da aşağıdan ders ekleyin.</div>';
   const add='<div class="card"><b class="text-sm">➕ Programda olmayan ders ekle</b><div class="flex flex-wrap gap-2 mt-2"><select id="gpS" class="inp">'+classes().map(c=>'<option value="'+esc(c)+'"'+(c===G.sinif?' selected':'')+'>'+esc(c)+'. sınıf</option>').join('')+'</select><input id="gpB" class="inp w-20" placeholder="Şube" value="'+esc(gpSb(G.sube).toUpperCase())+'"><input id="gpD" list="gpDl" class="inp flex-1 min-w-[140px]" placeholder="Ders adı"><datalist id="gpDl">'+S.lessons.map(l=>'<option value="'+esc(l.name)+'">').join('')+'</datalist><button data-act="gpadd" class="btn bg-indigo-600">Ekle</button></div></div>';
-  const out='<div class="card"><b class="text-sm">🖨️ Çıktı (A4, her ders ayrı sayfa)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpday" class="btn bg-emerald-600">Günün planı</button><button data-act="gpweek" class="btn bg-emerald-700">Haftanın planı (Pzt–Cum)</button></div><b class="text-sm block mt-3">🗜️ Arkalı önlü 1 kâğıt (en çok 2 sayfa, yazı otomatik küçülür)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdayfit" class="btn bg-indigo-600">Günün planı</button><button data-act="gpweekfit" class="btn bg-indigo-700">Haftanın planı</button></div><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdaypdf" class="btn bg-rose-600">📄 Günün planı PDF (indir / paylaş)</button><button data-act="gpweekpdf" class="btn bg-rose-700">📄 Haftanın planı PDF</button></div><div class="text-[11px] text-slate-500 mt-2">Konu ve kazanım yıllık plandan, yöntem/araç/değerlendirme o dersin son planından otomatik gelir; dilediğiniz gibi değiştirin. Boş bıraktığınız bölümler çıktıda elle doldurmanız için boş kutu olarak kalır.</div></div>';
+  const out='<div class="card"><b class="text-sm">🖨️ Çıktı (A4, her ders ayrı sayfa)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpday" class="btn bg-emerald-600">Günün planı</button><button data-act="gpweek" class="btn bg-emerald-700">Haftanın planı (Pzt–Cum)</button></div><b class="text-sm block mt-3">🗜️ Arkalı önlü 1 kâğıt (en çok 2 sayfa, yazı otomatik küçülür)</b><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdayfit" class="btn bg-indigo-600">Günün planı</button><button data-act="gpweekfit" class="btn bg-indigo-700">Haftanın planı</button></div><div class="flex flex-wrap gap-2 mt-2"><button data-act="gpdaypdf" class="btn bg-rose-600">📄 Günün planı PDF (indir / paylaş)</button><button data-act="gpweekpdf" class="btn bg-rose-700">📄 Haftanın planı PDF</button></div><div class="text-[11px] text-slate-500 mt-2">Konu ve kazanım yıllık plandan, yöntem/araç/değerlendirme o dersin son planından otomatik gelir; dilediğiniz gibi değiştirin. Yöntem-teknik, araç-gereç, ölçme-değerlendirme ve açıklama alanlarında “Listeden seç” ile hazır maddeleri işaretleyebilir, listede olmayanı kendiniz ekleyebilirsiniz (eklediklerinizi sonraki planlarda da bulursunuz). Boş bıraktığınız bölümler çıktıda elle doldurmanız için boş kutu olarak kalır.</div></div>';
   return nav+cards+add+out;
 });
 $('view').addEventListener('change',e=>{
@@ -3660,7 +3706,30 @@ function gpPrint(items){
   const h='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Günlük Plan</title><style>'+css+'</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır / PDF olarak kaydet</button></div>'+pages;
   open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');
 }
+$('view').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.gpk;if(k)GPL.op[k]=e.target.open;},true);
 Object.assign(ACT,{
+  gpch(a){
+    const i=+a.dataset.i,f=a.dataset.f,v=a.dataset.v,b=GPL.bl[i];if(!b||!GP_KAT[f])return;
+    const r=gpRec(GPL.date,b,true),l=gpLs(gpVal(GPL.date,b,f),f),x=l.indexOf(v);
+    if(x>=0)l.splice(x,1);else l.push(v);
+    r[f]=l.join(gpDl(f));save();
+    const t=document.querySelector('textarea[data-gpi="'+i+'"][data-gpf="'+f+'"]');if(t)t.value=r[f];
+    GP_ON.split(' ').forEach(c=>a.classList.toggle(c,x<0));
+    GP_OFF.split(' ').forEach(c=>a.classList.toggle(c,x>=0));
+    if(f==='yontem'||f==='deger')['giris','gelisme','sonuc','odev'].forEach(k=>{if(r[k]==null){const q=document.querySelector('textarea[data-gpi="'+i+'"][data-gpf="'+k+'"]');if(q)q.value=gpVal(GPL.date,b,k);}});
+  },
+  gpcadd(a){
+    const i=+a.dataset.i,f=a.dataset.f,b=GPL.bl[i],inp=$('gpA'+i+'_'+f);if(!b||!inp)return;
+    let v=T(inp.value);if(f!=='not')v=v.replace(/[,;]+/g,' ').replace(/\s+/g,' ').trim();
+    if(!v)return toast('Eklenecek maddeyi yazın',true);
+    const c=gpCus();if(!c[f].includes(v)&&!GP_KAT[f].some(g=>g[1].includes(v))){c[f].push(v);gpCusSave(c);}
+    const r=gpRec(GPL.date,b,true),l=gpLs(gpVal(GPL.date,b,f),f);if(!l.includes(v))l.push(v);r[f]=l.join(gpDl(f));save();
+    GPL.op[i+'|'+f]=true;render(true);toast('Eklendi ve seçildi');
+  },
+  gpcdel(a){
+    const f=a.dataset.f,v=a.dataset.v;if(!confirm('“'+v+'” kendi listenizden kaldırılsın mı? (Önceki planlardaki yazıya dokunulmaz.)'))return;
+    const c=gpCus();c[f]=c[f].filter(x=>x!==v);gpCusSave(c);render(true);
+  },
   gpd(a){GPL.date=ypAdd(GPL.date||bdNow(),+a.dataset.v);render(true);},
   gptoday(){GPL.date=bdNow();render(true);},
   gpvar(a){const b=GPL.bl[+a.dataset.i];if(!b)return;const r=gpRec(GPL.date,b,true);r.vr=(r.vr||0)+1;['giris','gelisme','sonuc','odev'].forEach(k=>{delete r[k];});save();render(true);toast('Yeni öneri hazırlandı');},
