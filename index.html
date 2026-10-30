@@ -3945,7 +3945,7 @@ reg('sinav','🧮','Sınav Notları',()=>{
     return gbar()+f+(ls.length?ls.map(x=>{const st=snStats(x);return '<button data-act="snopen" data-id="'+esc(x.id)+'" class="card w-full text-left"><b>'+esc(x.ad||'Sınav')+'</b> <span class="text-xs text-slate-500">'+esc(x.ders||'')+' · '+esc(fdt(x.tarih))+'</span><div class="text-sm mt-1">'+(st.got.length?'Katılan '+st.got.length+' · Ortalama <b>'+snR(st.avg)+'</b> · Geçen '+st.pass:'Henüz puan girilmedi')+'</div></button>';}).join(''):'<div class="card text-sm text-slate-500">Bu sınıf için sınav yok. Yukarıdan yeni sınav ekleyin.</div>');
   }
   const L=snStu(),hasQ=e.q&&e.q.length;
-  const head='<div class="card"><button data-act="snback" class="btn bg-slate-600 mb-2">◀ Sınav listesi</button><b class="block">'+esc(e.ad||'Sınav')+'</b><div class="text-xs text-slate-500">'+esc(e.ders||'')+' · '+esc(fdt(e.tarih))+' · Tam puan '+esc(e.max)+'</div></div>';
+  const head='<div class="card"><button data-act="snback" class="btn bg-slate-600 mb-2">◀ Sınav listesi</button><b class="block">'+esc(e.ad||'Sınav')+'</b><div class="text-xs text-slate-500">'+esc(e.ders||'')+' · '+esc(fdt(e.tarih))+' · Tam puan '+esc(e.max)+'</div>'+(hasQ?'<div class="text-[11px] text-slate-500 mt-2">Kamerayla/fotoğrafla okuma, soru soru puanlanan sınavlarda kullanılamaz.</div>':'<div class="flex flex-wrap gap-2 mt-3"><button data-act="snscan" class="btn bg-indigo-600 flex-1 min-h-[44px]">📷 Kamerayla not oku</button><button data-act="snphotos" class="btn bg-violet-600 flex-1 min-h-[44px]">🖼️ Fotoğraflardan oku</button></div>')+'</div>';
   const qs=hasQ?'<div class="card"><b class="text-sm">Soru puanları ve kazanımlar</b>'+e.q.map((q,i)=>'<div class="flex gap-2 items-center mt-2"><span class="w-12 text-sm shrink-0">S'+(i+1)+'</span><input data-snqp="'+i+'" type="number" step="any" class="inp w-20" value="'+esc(q.p)+'" aria-label="Puan"><input data-snqk="'+i+'" class="inp flex-1 min-w-0" value="'+esc(q.kaz||'')+'" placeholder="Kazanım (isteğe bağlı)"></div>').join('')+'</div>':'';
   const rows=L.map(s=>{const r=(e.n||{})[s.id]||{};
     const inp=hasQ?'<div class="flex flex-wrap gap-1 mt-1">'+e.q.map((q,i)=>'<input data-snq="'+i+'" data-sid="'+esc(s.id)+'" inputmode="decimal" class="inp w-14 text-center !px-1" placeholder="S'+(i+1)+'" value="'+esc(((r.q||[])[i])==null?'':r.q[i])+'"'+(r.g?' disabled':'')+'>').join('')+'</div>':'';
@@ -3980,6 +3980,158 @@ Object.assign(ACT,{
     XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['Katılan',st.got.length],['Ortalama',snR(st.avg)],['En yüksek',st.hi],['En düşük',st.lo],['Geçen',st.pass]].concat(hasQ?[[],['Soru','Kazanım','Tam puan','Ortalama','Başarı %']].concat(st.qs.map(q=>[q.i+1,q.kaz,q.p,snR(q.m),Math.round(q.y)])):[])),'Analiz');
     XLSX.writeFile(wb,'Sinav_'+(e.ad||'').replace(/[^\wığüşöçİĞÜŞÖÇ]+/g,'_')+'.xlsx');}
 });
+
+/* ===== Sınav kağıdından kamerayla / fotoğrafla not okuma (Tesseract.js, yalnızca rakam). Canlı modda foto çekmeden okur, öğretmen onaylayınca kaydeder. ===== */
+const SCN={run:false,hold:false,wk:null,stream:null,key:'',n:0,ign:'',cand:null,saved:0,tok:0,shots:[],rows:[]};
+const scnSleep=ms=>new Promise(r=>setTimeout(r,ms));
+const scnStu=no=>{no=T(no);if(!no)return null;const L=snStu();return L.find(s=>T(s.no)===no)||(/^\d+$/.test(no)?L.find(s=>/^\d+$/.test(T(s.no))&&parseInt(T(s.no),10)===parseInt(no,10)):null)||null;};
+async function scnWorker(){
+  if(SCN.wk)return SCN.wk;
+  await tessLoad();
+  const w=await Tesseract.createWorker('eng');
+  await w.setParameters({tessedit_char_whitelist:'0123456789.,',tessedit_pageseg_mode:'6'});
+  SCN.wk=w;return w;
+}
+function scnBin(cv){
+  const c=cv.getContext('2d'),im=c.getImageData(0,0,cv.width,cv.height),d=im.data,n=d.length/4,h=new Array(256).fill(0);
+  for(let i=0;i<n;i++){const g=(d[i*4]*.299+d[i*4+1]*.587+d[i*4+2]*.114)|0;d[i*4]=g;h[g]++;}
+  let sum=0;for(let i=0;i<256;i++)sum+=i*h[i];
+  let sb=0,wb=0,mx=0,th=128;
+  for(let i=0;i<256;i++){wb+=h[i];if(!wb)continue;const wf=n-wb;if(!wf)break;sb+=i*h[i];const mb=sb/wb,mf=(sum-sb)/wf,v=wb*wf*(mb-mf)*(mb-mf);if(v>mx){mx=v;th=i;}}
+  for(let i=0;i<n;i++){const v=d[i*4]>th?255:0;d[i*4]=d[i*4+1]=d[i*4+2]=v;d[i*4+3]=255;}
+  c.putImageData(im,0,0);
+}
+function scnParse(text,e){
+  const toks=String(text).replace(/,/g,'.').match(/\d+(?:\.\d+)?/g)||[];
+  let si=-1,stu=null;
+  for(let i=0;i<toks.length;i++){if(!/^\d+$/.test(toks[i]))continue;const s=scnStu(toks[i]);if(s){si=i;stu=s;break;}}
+  if(!stu)return null;
+  const mx=+e.max||100;let sc=null;
+  const order=toks.map((t,i)=>i).filter(i=>i!==si).sort((a,b)=>((a>si)?0:1)-((b>si)?0:1)||a-b);
+  for(const i of order){const v=parseFloat(toks[i]);if(isFinite(v)&&v>=0&&v<=mx){sc=v;break;}}
+  return {stu:stu,score:sc};
+}
+function scnGrab(raw){
+  const v=$('scnV');if(!v||!v.videoWidth)return null;
+  const cw=v.clientWidth,ch=v.clientHeight,sc=Math.max(cw/v.videoWidth,ch/v.videoHeight),ox=(v.videoWidth-cw/sc)/2,oy=(v.videoHeight-ch/sc)/2;
+  const bx=ox+cw*.04/sc,by=oy+ch*.35/sc,bw=cw*.92/sc,bh=ch*.30/sc,k=Math.min(1,1000/bw);
+  const cv=raw?document.createElement('canvas'):(SCN.cv||(SCN.cv=document.createElement('canvas')));
+  cv.width=Math.round(bw*k);cv.height=Math.round(bh*k);
+  cv.getContext('2d').drawImage(v,bx,by,bw,bh,0,0,cv.width,cv.height);
+  if(!raw)scnBin(cv);return cv;
+}
+function scnMsg(t,err){const m=$('scnS');if(m){m.textContent=t;m.style.color=err?'#fca5a5':'#fff';}}
+function scnCount(){const m=$('scnN');if(m)m.textContent='Kaydedilen: '+SCN.saved+(SCN.shots.length?' · Sırada foto: '+SCN.shots.length:'');}
+function scnUI(){
+  let o=$('scnO');if(o)return o;
+  o=document.createElement('div');o.id='scnO';o.className='fixed inset-0 z-[140] hidden flex-col bg-black text-white';
+  o.innerHTML='<div class="flex items-center gap-2 p-3 bg-slate-900"><b class="flex-1 text-sm">📷 Sınav kâğıdından not oku</b><span id="scnN" class="text-xs"></span><button data-sc="close" class="px-3 py-1 rounded-lg bg-red-600 font-bold">✖ Kapat</button></div>'
+   +'<div class="relative flex-1 overflow-hidden"><video id="scnV" playsinline muted autoplay class="absolute inset-0 w-full h-full" style="object-fit:cover"></video><div class="absolute rounded-xl" style="left:4%;width:92%;top:35%;height:30%;border:4px solid #34d399;box-shadow:0 0 0 9999px rgba(0,0,0,.45)"></div><div class="absolute left-0 right-0 text-center text-xs font-semibold px-3" style="top:67%">Öğrenci numarası ve notu yeşil çerçevenin içine alın (numara önce, not sonra)</div></div>'
+   +'<div id="scnS" class="text-center text-sm p-2 bg-slate-900">…</div>'
+   +'<div id="scnC" class="hidden bg-white text-slate-900 p-3"><div id="scnNm" class="mb-2"></div><div class="flex gap-2 items-center"><label class="text-xs font-bold">No <input id="scnNo" inputmode="numeric" class="inp w-20 text-center"></label><label class="text-xs font-bold">Puan <input id="scnSc" inputmode="decimal" class="inp w-24 text-center"></label><button data-sc="ok" class="btn bg-emerald-600 flex-1 min-h-[44px]">✅ Kaydet</button><button data-sc="again" class="btn bg-slate-500 min-h-[44px]">↻</button></div></div>'
+   +'<div class="flex gap-2 p-3 bg-slate-900"><button data-sc="shot" class="btn bg-indigo-600 flex-1 min-h-[44px]">📸 Fotoğraf çek (sıraya ekle)</button><button data-sc="readshots" class="btn bg-violet-600 flex-1 min-h-[44px]">Sıradakileri oku</button></div>';
+  document.body.appendChild(o);
+  const b=document.createElement('div');b.id='scnB';b.className='fixed inset-0 z-[150] hidden flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100';document.body.appendChild(b);
+  const f=document.createElement('input');f.type='file';f.id='scnF';f.accept='image/*';f.multiple=true;f.className='hidden';document.body.appendChild(f);
+  f.addEventListener('change',()=>{const l=[].slice.call(f.files);f.value='';if(l.length)scnFiles(l,false);});
+  o.addEventListener('click',ev=>{const t=ev.target.closest('[data-sc]');if(!t)return;const a=t.dataset.sc;
+    if(a==='close')scnStop();
+    else if(a==='ok')scnSave();
+    else if(a==='again'){SCN.ign=SCN.key;SCN.cand=null;SCN.hold=false;$('scnC').classList.add('hidden');}
+    else if(a==='shot'){const cv=scnGrab(true);if(!cv)return toast('Kamera hazır değil',true);cv.toBlob(bl=>{SCN.shots.push(bl);scnCount();toast('Fotoğraf eklendi ('+SCN.shots.length+')');},'image/jpeg',.9);}
+    else if(a==='readshots'){if(!SCN.shots.length)return toast('Önce 📸 ile fotoğraf çekin',true);const l=SCN.shots.slice();SCN.shots=[];scnStop();scnFiles(l,true);}});
+  o.addEventListener('input',ev=>{if(ev.target.id!=='scnNo')return;const s=scnStu(ev.target.value);if(s&&SCN.cand){SCN.cand.stu=s;scnName(s);}});
+  b.addEventListener('click',ev=>{const t=ev.target.closest('[data-sb]');if(!t)return;
+    if(t.dataset.sb==='close'){b.classList.add('hidden');b.classList.remove('flex');}
+    else if(t.dataset.sb==='save')scnBatchSave();});
+  b.addEventListener('input',ev=>{const t=ev.target;if(t.dataset.bno===undefined)return;const s=scnStu(t.value),el=$('scnBn'+t.dataset.bno);if(el)el.textContent=s?s.name:'⚠️ Numara bulunamadı';});
+  return o;
+}
+function scnName(s){const e=snCur(),old=e?snTot(e,s):null;$('scnNm').innerHTML='<b>'+esc(s.no)+' · '+esc(s.name)+'</b>'+(old!=null?'<div class="text-xs text-amber-700">Kayıtlı puan: '+snR(old)+' (kaydederseniz değişir)</div>':'');}
+function scnAsk(p){
+  $('scnC').classList.remove('hidden');SCN.cand=p;scnName(p.stu);
+  $('scnNo').value=p.stu.no;$('scnSc').value=p.score==null?'':p.score;
+  try{navigator.vibrate&&navigator.vibrate(60);}catch(x){}
+  if(p.score==null)scnMsg('Puan okunamadı, yazın ve kaydedin');else scnMsg('Doğruysa ✅ Kaydet\'e dokunun');
+}
+function scnPut(e,stu,v){e.n=e.n||{};const r=e.n[stu.id]=e.n[stu.id]||{};r.t=v;r.g=false;}
+function scnSave(){
+  const e=snCur(),p=SCN.cand;if(!e||!p)return;
+  const stu=scnStu($('scnNo').value)||p.stu,v=snNum($('scnSc').value);
+  if(v===null)return toast('Puanı yazın',true);
+  if(v>(+e.max||100)&&!confirm('Puan tam puandan ('+e.max+') büyük. Yine de kaydedilsin mi?'))return;
+  scnPut(e,stu,v);save();SCN.saved++;SCN.ign=SCN.key;SCN.cand=null;SCN.hold=false;
+  $('scnC').classList.add('hidden');scnCount();scnMsg('✔ '+stu.name+': '+v+' kaydedildi. Sıradaki kâğıdı gösterin');
+  if(S.page==='sinav')render(true);
+}
+async function scnLoop(tok){
+  const e=snCur();let w;
+  try{w=await scnWorker();}catch(x){scnMsg(x.message||'Okuma motoru yüklenemedi',1);return;}
+  scnMsg('Numara ve notu yeşil çerçeveye alın');
+  while(SCN.run&&SCN.tok===tok){
+    if(SCN.hold||document.hidden){await scnSleep(300);continue;}
+    const cv=scnGrab();if(!cv){await scnSleep(300);continue;}
+    try{
+      const r=await w.recognize(cv),p=scnParse(r.data.text,e);
+      if(!p){SCN.key='';SCN.ign='';SCN.n=0;}
+      else{const k=p.stu.id+'|'+p.score;
+        if(k!==SCN.ign){if(k===SCN.key){SCN.n++;if(SCN.n>=2){SCN.hold=true;scnAsk(p);}}else{SCN.key=k;SCN.n=1;}}}
+    }catch(x){}
+    await scnSleep(150);
+  }
+}
+async function scnStart(){
+  const e=snCur();if(!e)return;
+  if(e.q&&e.q.length)return alert('Bu sınav soru soru puanlanıyor. Kamerayla okuma yalnızca toplam puan girilen sınavlarda çalışır.');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return alert('Bu tarayıcı kamerayı açamıyor.');
+  const o=scnUI();o.classList.remove('hidden');o.classList.add('flex');SCN.saved=0;SCN.shots=[];scnCount();$('scnC').classList.add('hidden');
+  try{SCN.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});}
+  catch(x){scnStop();return alert('Kamera açılamadı. Tarayıcıda kamera iznini verin. ('+(x.name||x.message)+')');}
+  const v=$('scnV');v.srcObject=SCN.stream;try{await v.play();}catch(x){}
+  SCN.run=true;SCN.hold=false;SCN.key='';SCN.ign='';SCN.n=0;SCN.tok++;
+  scnMsg('Okuma motoru yükleniyor… (ilk seferde biraz sürebilir)');scnLoop(SCN.tok);
+}
+function scnStop(){
+  SCN.run=false;SCN.hold=false;SCN.tok++;
+  if(SCN.stream){SCN.stream.getTracks().forEach(t=>t.stop());SCN.stream=null;}
+  const v=$('scnV');if(v)v.srcObject=null;
+  const o=$('scnO');if(o){o.classList.add('hidden');o.classList.remove('flex');}
+}
+/* Fotoğraflardan (birden çok): her görselden numara ve puan okunur, liste halinde onaya sunulur. band=true: görsel zaten çerçeve kırpığı */
+async function scnFiles(files,band){
+  const e=snCur();if(!e||!files.length)return;
+  if(e.q&&e.q.length)return alert('Bu sınav soru soru puanlanıyor. Fotoğrafla okuma yalnızca toplam puan girilen sınavlarda çalışır.');
+  scnUI();const rows=[];
+  try{
+    toast('Okuma motoru yükleniyor…');const w=await scnWorker();
+    for(let i=0;i<files.length;i++){
+      toast('Fotoğraf '+(i+1)+' / '+files.length+' okunuyor…');
+      let bm;try{bm=await createImageBitmap(files[i],{imageOrientation:'from-image'});}catch(x){bm=await createImageBitmap(files[i]);}
+      const sh=band?bm.height:Math.round(bm.height*.4),k=Math.min(1,1400/bm.width),cv=document.createElement('canvas');
+      cv.width=Math.round(bm.width*k);cv.height=Math.round(sh*k);cv.getContext('2d').drawImage(bm,0,0,bm.width,sh,0,0,cv.width,cv.height);
+      const th=document.createElement('canvas');th.width=240;th.height=Math.max(30,Math.round(240*cv.height/cv.width));th.getContext('2d').drawImage(cv,0,0,th.width,th.height);
+      scnBin(cv);const r=await w.recognize(cv),p=scnParse(r.data.text,e);
+      rows.push({img:th.toDataURL('image/jpeg',.6),stu:p?p.stu:null,score:p?p.score:null});
+    }
+  }catch(x){return alert('Okunamadı: '+(x.message||x));}
+  SCN.rows=rows;scnBatchShow();
+}
+function scnBatchShow(){
+  const b=$('scnB'),e=snCur();if(!b||!e)return;
+  b.innerHTML='<div class="flex items-center gap-2 p-3 border-b border-slate-300"><b class="flex-1 text-sm">📋 Okunan notlar ('+SCN.rows.length+')</b><button data-sb="close" class="px-3 py-1 rounded-lg bg-slate-600 text-white font-bold">✖</button></div>'
+   +'<div class="flex-1 overflow-y-auto p-3 space-y-2">'+SCN.rows.map((r,i)=>'<div class="card !mb-0 !p-2"><img src="'+r.img+'" class="w-full rounded border mb-2" alt=""><div class="flex items-center gap-2"><input type="checkbox" data-bck="'+i+'"'+(r.stu&&r.score!=null?' checked':'')+' class="w-5 h-5"><label class="text-xs font-bold">No <input data-bno="'+i+'" inputmode="numeric" class="inp w-16 text-center" value="'+esc(r.stu?r.stu.no:'')+'"></label><label class="text-xs font-bold">Puan <input data-bsc="'+i+'" inputmode="decimal" class="inp w-20 text-center" value="'+esc(r.score==null?'':r.score)+'"></label></div><div id="scnBn'+i+'" class="text-xs mt-1 '+(r.stu?'':'text-red-600')+'">'+(r.stu?esc(r.stu.name):'⚠️ Numara okunamadı, yazın')+'</div></div>').join('')+'</div>'
+   +'<div class="p-3 border-t border-slate-300"><button data-sb="save" class="btn bg-emerald-600 w-full min-h-[48px]">✅ İşaretlileri kaydet</button></div>';
+  b.classList.remove('hidden');b.classList.add('flex');
+}
+function scnBatchSave(){
+  const e=snCur(),b=$('scnB');if(!e)return;let n=0,bad=0;
+  SCN.rows.forEach((r,i)=>{const ck=b.querySelector('[data-bck="'+i+'"]');if(!ck||!ck.checked)return;
+    const stu=scnStu(b.querySelector('[data-bno="'+i+'"]').value),v=snNum(b.querySelector('[data-bsc="'+i+'"]').value);
+    if(!stu||v===null||v>(+e.max||100)){bad++;return;}scnPut(e,stu,v);n++;});
+  if(!n&&bad)return alert('Kaydedilebilen satır yok. Numara ve puanı kontrol edin (puan tam puandan büyük olamaz).');
+  save();b.classList.add('hidden');b.classList.remove('flex');render(true);toast(n+' öğrencinin puanı kaydedildi'+(bad?' · '+bad+' satır atlandı':''));
+}
+Object.assign(ACT,{snscan(){scnStart();},snphotos(){const e=snCur();if(e&&e.q&&e.q.length)return alert('Bu sınav soru soru puanlanıyor. Fotoğrafla okuma yalnızca toplam puan girilen sınavlarda çalışır.');scnUI();$('scnF').click();}});
 
 /* ===== Dönem sonu: eksik kontrolü + e-Okul'a aktarılabilir not tablosu ===== */
 const snDon=e=>e.donem||(()=>{const m=+String(e.tarih||'').slice(5,7);return m>=2&&m<=8?'2':'1';})();
