@@ -969,9 +969,16 @@ ACT.kp=()=>{
 
 /* Oturma planı: boş yere dokun → öğrenci adına dokun, sürükle, kapı/tahta/pencere/pano/dolap, kare birleştirme, A4'e tam sığan çıktı */
 S.om='move';let spick=null,sdr=null;S.pc='';S.fo='kapi';S.mg='';
-const FOBJ={kapi:['🚪','Kapı','bg-amber-100 border-amber-500','#fde68a'],masa:['🧑‍🏫','Öğretmen masası','bg-indigo-100 border-indigo-500','#c7d2fe'],pencere:['🪟','Pencere','bg-sky-100 border-sky-500','#bae6fd'],pano:['📋','Pano','bg-emerald-100 border-emerald-500','#a7f3d0'],tahta:['⬛','Tahta','bg-slate-300 border-slate-600','#cbd5e1'],dolap:['🗄️','Dolap','bg-orange-100 border-orange-500','#fed7aa']};
+const FOBJ={kapi:['🚪','Kapı','bg-amber-100 border-amber-500','#fde68a'],masa:['🧑‍🏫','Öğretmen masası','bg-indigo-100 border-indigo-500','#c7d2fe'],pencere:['🪟','Pencere','bg-sky-100 border-sky-500','#bae6fd'],pano:['📋','Pano','bg-emerald-100 border-emerald-500','#a7f3d0'],tahta:['⬛','Yazı tahtası','bg-slate-300 border-slate-600','#cbd5e1'],dolap:['🗄️','Dolap','bg-orange-100 border-orange-500','#fed7aa'],ataturk:['🇹🇷','Atatürk köşesi','bg-red-100 border-red-500','#fecaca']};
+/* Koridor (dar boşluk) sütun/satırları: p.ac['c3']=1, p.ar['r4']=1. p.look='sira' ise kareler bitişik, resimdeki gibi ikili sıra görünür */
+const isAisle=(p,r,c)=>!!((p.ac||{})['c'+c]||(p.ar||{})['r'+r]);
+const AW=14;
+const gtc=(dm,p)=>{let a=[];for(let c=0;c<dm.cols;c++)a.push((p.ac||{})['c'+c]?(c===0?'22px':AW+'px'):'minmax(0,1fr)');return a.join(' ');};
+const gtr=(dm,p)=>{let a=[];for(let r=0;r<dm.rows;r++)a.push((p.ar||{})['r'+r]?AW+'px':'minmax(54px,auto)');return a.join(' ');};
+const nfs=(dm,p)=>{let n=0;for(let c=0;c<dm.cols;c++)if(!(p.ac||{})['c'+c])n++;return n>=7?9:n>=5?10:12;};
 const scol=v=>v==='Var'?'bg-emerald-100 border-emerald-500 text-slate-900':v==='Yok'?'bg-red-100 border-red-500 text-slate-900':v==='Izinli'?'bg-amber-100 border-amber-500 text-slate-900':v==='Kismen'?'bg-violet-100 border-violet-500 text-slate-900':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600';
-const scard=s=>{const r=rd(s),v=r.status&&r.status!=='None'?r.status:'',p=r.points||0;
+const scard=(s,flat)=>{const r=rd(s),v=r.status&&r.status!=='None'?r.status:'',p=r.points||0;
+  if(flat){const nm=T(s.name),fz=nm.length>22?'.85em':nm.length>16?'.93em':'1em';return '<div class="spc relative w-full h-full flex flex-col items-center justify-center p-0.5 text-center leading-[1.1] font-semibold cursor-pointer select-none break-words '+scol(v).replace(/border-\S+/g,'')+(spick===s.id?' ring-4 ring-indigo-500 z-10':'')+'" style="touch-action:'+(S.om==='move'?'none':'auto')+';font-size:calc(var(--nf,11px)*'+fz.replace('em','')+');overflow-wrap:anywhere" data-id="'+esc(s.id)+'">'+(p?'<span class="absolute top-0 right-0.5 text-[9px] font-bold text-indigo-700">'+(p>0?'+':'')+p+'</span>':'')+esc(nm)+'<div class="font-normal opacity-60" style="font-size:.8em">'+esc(s.no)+'</div></div>';}
   return '<div class="spc relative border-2 rounded-lg p-1 text-center text-[11px] leading-tight font-semibold cursor-pointer select-none '+scol(v)+(spick===s.id?' ring-4 ring-indigo-500':'')+'" style="touch-action:'+(S.om==='move'?'none':'auto')+'" data-id="'+esc(s.id)+'">'+(p?'<span class="absolute top-0 right-1 text-[10px] font-bold text-indigo-700">'+(p>0?'+':'')+p+'</span>':'')+esc(s.name.split(' ').slice(0,2).join(' '))+'<div class="font-normal opacity-70 text-[9px]">'+esc(s.no)+'</div></div>';};
 const pcls=()=>sorted(S.students.filter(s=>!s.absent&&T(s.sinif)===G.sinif&&T(s.sube).toLowerCase()===G.sube));
 const planOf=()=>S.plans.find(x=>x.sinif===G.sinif&&x.sube===G.sube)||null;
@@ -991,11 +998,16 @@ function pdim(g,p){
 }
 function cellH(r,c,p,at){
   const k=r+','+c,s=at[k],fo=(p.f||{})[k],mv=mgm(p)[k],d=' data-r="'+r+'" data-c="'+c+'"'+(mv?' data-mg="1"':'');
-  const sp=mv?msz(mv):[1,1],st=mv?' style="grid-row:span '+sp[0]+';grid-column:span '+sp[1]+'"':'',mh='min-h-[62px]';
-  const mk=S.mg===k;
-  if(fo&&FOBJ[fo])return '<div class="sc '+mh+' border-2 rounded-lg flex flex-col items-center justify-center text-[10px] leading-tight text-center font-bold text-slate-900 '+FOBJ[fo][2]+(mk?' ring-4 ring-indigo-500':'')+'"'+d+' data-f="'+fo+'"'+st+'><span class="text-xl">'+FOBJ[fo][0]+'</span>'+esc(FOBJ[fo][1])+'</div>';
+  const sp=mv?msz(mv):[1,1],st=mv?' style="grid-row:span '+sp[0]+';grid-column:span '+sp[1]+'"':'';
+  const lk=p.look==='sira',mh=lk?'min-h-[52px]':'min-h-[62px]',mk=S.mg===k,ia=isAisle(p,r,c);
+  const bd=lk?'border border-slate-700 dark:border-slate-300 rounded-sm':'border-2 rounded-lg';
+  if(fo&&FOBJ[fo]){
+    const tall=sp[0]>sp[1]*2&&sp[0]>1,vs=tall?' style="grid-row:span '+sp[0]+';grid-column:span '+sp[1]+';writing-mode:vertical-rl;transform:rotate(180deg)"':st;
+    return '<div class="sc '+(ia&&!mv?'':mh)+' '+bd+' flex '+(tall?'flex-row':'flex-col')+' items-center justify-center text-[10px] leading-tight text-center font-bold text-slate-900 '+FOBJ[fo][2]+(mk?' ring-4 ring-indigo-500':'')+'"'+d+' data-f="'+fo+'"'+vs+'>'+(tall?'':'<span class="text-xl">'+FOBJ[fo][0]+'</span>')+esc(FOBJ[fo][1])+'</div>';}
   const pk=S.pc===k;
-  if(mv)return '<div class="sc '+mh+' border-2 rounded-lg flex items-center justify-center text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-700 border-slate-400'+(mk?' ring-4 ring-indigo-500':'')+'"'+d+st+'>'+(mk?'<span class="font-bold text-indigo-700">Seçili</span>':'')+'</div>';
+  if(mv)return '<div class="sc '+mh+' '+bd+' flex items-center justify-center text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-700 border-slate-400'+(mk?' ring-4 ring-indigo-500':'')+'"'+d+st+'>'+(mk?'<span class="font-bold text-indigo-700">Seçili</span>':'')+'</div>';
+  if(ia)return '<div class="sc'+(S.om==='mob'?' border border-dashed border-slate-300/70 rounded-sm':'')+(mk?' ring-2 ring-indigo-500':'')+'"'+d+' data-a="1"></div>';
+  if(lk)return '<div class="sc '+mh+' '+bd+' flex items-center justify-center '+(pk||mk?'bg-indigo-100 dark:bg-indigo-900':'bg-white dark:bg-slate-800')+'"'+d+'>'+(s?scard(s,true):((pk||mk)?'<span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-200">Seçili</span>':''))+'</div>';
   return '<div class="sc '+mh+' border-2 border-dashed rounded-lg flex items-center justify-center '+(pk||mk?'!border-indigo-500 bg-indigo-100 dark:bg-indigo-900':'border-slate-300 dark:border-slate-600')+'"'+d+'>'+(s?scard(s):((pk||mk)?'<span class="text-[10px] font-bold text-indigo-700 dark:text-indigo-200">Seçili</span>':''))+'</div>';
 }
 gpage('oturma','🪑','Oturma Planı',null,null,()=>{
@@ -1003,14 +1015,14 @@ gpage('oturma','🪑','Oturma Planı',null,null,()=>{
   const g=pcls(),p=pv(),dm=pdim(g,p),at={},cv=mcov(p);g.forEach(s=>{if(s.seat)at[s.seat]=s;});
   let cells='';for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++){if(cv[r+','+c])continue;cells+=cellH(r,c,p,at);}
   const md=[['move','✏️ Yerleştir'],['mob','🚪 Düzen'],['att','✅ Yoklama'],['pp','➕ Puan'],['pm','➖ Puan']].map(m=>tgb('om',m[1],m[0],S.om===m[0])).join('');
-  const msg={move:'Boş sıraya dokunun, sonra öğrenci adına dokunun (ya da önce öğrenci, sonra sıra). Sürükleyip de bırakabilirsiniz. Dolu sıraya bırakırsanız yer değiştirirler.',mob:S.fo==='bir'?(S.mg?'İkinci köşe kareye dokunun: iki köşe arasındaki alan tek kare olur. Vazgeçmek için aynı kareye tekrar dokunun.':'Birleştirmek için önce alanın bir köşesindeki kareye, sonra karşı köşedeki kareye dokunun.'):S.fo==='ayir'?'Birleşik kareye dokunun, tekrar ayrı karelere bölünür.':'Eşya seçip karelere dokunun, aynı eşyaya tekrar dokunmak kaldırır. Öğrenci olan karelere eşya konmaz. Tahta gibi geniş eşyalar için 🔗 Birleştir\'i kullanın.',att:'Dokundukça: Var → Yok → İzinli → boş.',pp:'Dokununca ders puanı +1.',pm:'Dokununca ders puanı −1.'}[S.om];
+  const msg={move:'Boş sıraya dokunun, sonra öğrenci adına dokunun (ya da önce öğrenci, sonra sıra). Sürükleyip de bırakabilirsiniz. Dolu sıraya bırakırsanız yer değiştirirler.',mob:S.fo==='bir'?(S.mg?'İkinci köşe kareye dokunun: iki köşe arasındaki alan tek kare olur. Vazgeçmek için aynı kareye tekrar dokunun.':'Birleştirmek için önce alanın bir köşesindeki kareye, sonra karşı köşedeki kareye dokunun.'):S.fo==='ayir'?'Birleşik kareye dokunun, tekrar ayrı karelere bölünür.':'Eşya seçip karelere dokunun, aynı eşyaya tekrar dokunmak kaldırır. 🔗 Birleştir ile istediğiniz kadar kareyi tek alan yapın. ║/═ ile dokunduğunuz sütunu/satırı dar koridora çevirin (tekrar dokunun: eski haline döner). Öğrenci olan karelere eşya konmaz. Tahta gibi geniş eşyalar için 🔗 Birleştir\'i kullanın.',att:'Dokundukça: Var → Yok → İzinli → boş.',pp:'Dokununca ders puanı +1.',pm:'Dokununca ders puanı −1.'}[S.om];
   const pb=(v,t,cl)=>'<button data-act="fsel" data-v="'+v+'" class="px-2.5 min-h-[40px] rounded-lg border text-xs font-semibold '+(S.fo===v?cl+' text-white':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+t+'</button>';
-  const pal=Object.keys(FOBJ).map(k=>pb(k,FOBJ[k][0]+' '+esc(FOBJ[k][1]),'bg-indigo-600 border-indigo-600')).join('')+pb('bir','🔗 Birleştir','bg-teal-600 border-teal-600')+pb('ayir','✂️ Ayır','bg-teal-600 border-teal-600')+pb('sil','❌ Sil','bg-red-600 border-red-600');
+  const pal=Object.keys(FOBJ).map(k=>pb(k,FOBJ[k][0]+' '+esc(FOBJ[k][1]),'bg-indigo-600 border-indigo-600')).join('')+pb('bir','🔗 Birleştir','bg-teal-600 border-teal-600')+pb('ayir','✂️ Ayır','bg-teal-600 border-teal-600')+pb('kolon','║ Sütun boşluğu','bg-violet-600 border-violet-600')+pb('satir','═ Satır boşluğu','bg-violet-600 border-violet-600')+pb('sil','❌ Sil','bg-red-600 border-red-600');
   const sz=(t,d,n)=>t+': <button data-act="psz" data-d="'+d+'" data-v="-1" class="inp font-bold !px-3">−</button><b>'+n+'</b><button data-act="psz" data-d="'+d+'" data-v="1" class="inp font-bold !px-3">+</button>';
-  const mob=S.om==='mob'?'<div class="flex flex-wrap gap-1.5 mb-2">'+pal+'</div><div class="flex flex-wrap items-center gap-2 text-xs mb-2">'+sz('Sıra','rows',dm.rows)+' &nbsp; '+sz('Sütun','cols',dm.cols)+'</div>':'';
+  const mob=S.om==='mob'?'<div class="flex flex-wrap gap-1.5 mb-2">'+pal+'</div><div class="flex flex-wrap items-center gap-2 text-xs mb-2">'+sz('Sıra','rows',dm.rows)+' &nbsp; '+sz('Sütun','cols',dm.cols)+'</div><div class="flex flex-wrap items-center gap-2 text-xs mb-2"><button data-act="ptpl" class="btn bg-indigo-600">📐 Resimdeki sınıf düzeni</button><button data-act="plook" class="btn '+(p.look==='sira'?'bg-slate-700':'bg-slate-500')+'">'+(p.look==='sira'?'🪑 Sıra görünümü: açık':'🪑 Sıra görünümü: kapalı')+'</button></div>':'';
   const free=g.filter(s=>!s.seat);
   return '<div class="col-span-full"><div class="flex flex-wrap gap-2 mb-2 [&>*]:min-w-[28%]">'+md+'</div><p class="text-xs text-slate-500 mb-2">'+msg+' ('+G.date.slice(8)+'.'+G.date.slice(5,7)+')</p>'+mob
-   +'<div class="grid gap-1.5" style="grid-template-columns:repeat('+dm.cols+',minmax(0,1fr))">'+cells+'</div>'
+   +'<div class="grid '+(p.look==='sira'?'':'gap-1.5')+'" style="--nf:'+nfs(dm,p)+'px;grid-template-columns:'+gtc(dm,p)+';grid-template-rows:'+gtr(dm,p)+'">'+cells+'</div>'
    +'<div class="flex flex-wrap items-center justify-between gap-2 mt-3 mb-1"><div class="text-xs font-bold">Sırası olmayanlar ('+free.length+')</div><button data-act="pprint" class="btn bg-emerald-600">🖨️ Çıktı al (A4)</button></div>'
    +'<div class="tray grid grid-cols-4 sm:grid-cols-6 gap-1.5 min-h-[50px] border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-1.5">'+(free.map(scard).join('')||'<span class="text-xs text-slate-400 italic">Herkes yerleşti.</span>')+'</div></div>';
 });
@@ -1024,6 +1036,7 @@ const seatedAt=k=>S.students.some(x=>!x.absent&&x.seat===k&&T(x.sinif)===G.sinif
 const place=(s,k)=>{
   const p=pv();
   if((p.f||{})[k]||mgm(p)[k]){toast('Bu karede eşya ya da birleşik alan var',true);return;}
+  {const [pr,pc]=k.split(',').map(Number);if(isAisle(p,pr,pc)){toast('Burası koridor, öğrenci oturtulamaz',true);return;}}
   const o=S.students.find(x=>x!==s&&!x.absent&&x.seat===k&&T(x.sinif)===G.sinif&&T(x.sube).toLowerCase()===G.sube);
   if(o)o.seat=s.seat||'';s.seat=k;S.pc='';save();relist();
 };
@@ -1043,10 +1056,37 @@ const mobTap=k=>{
     p.m[a]=R.h+','+R.w;
     save();relist();return;
   }
+  if(S.fo==='kolon'||S.fo==='satir'){
+    const [r,c]=k.split(',').map(Number),p=pw(),col=S.fo==='kolon',key=col?'c'+c:'r'+r,n=col?c:r,o=col?'ac':'ar';
+    p[o]=p[o]||{};
+    if(p[o][key])delete p[o][key];
+    else{
+      const g=pcls();
+      if(g.some(x=>x.seat&&+x.seat.split(',')[col?1:0]===n))return toast('Bu '+(col?'sütunda':'satırda')+' öğrenci var, önce taşıyın',true);
+      p[o][key]=1;
+    }
+    save();relist();return;
+  }
   if(S.fo==='ayir'){const p=planOf();if(p&&p.m&&p.m[k]){delete p.m[k];save();relist();}return;}
   if(S.fo==='sil'){const p=planOf();if(!p)return;if(p.f&&p.f[k]){delete p.f[k];save();relist();}else if(p.m&&p.m[k]){delete p.m[k];save();relist();}return;}
   if(seatedAt(k))return toast('Bu sırada öğrenci var, önce taşıyın',true);
   const p=pw();if(p.f[k]===S.fo)delete p.f[k];else p.f[k]=S.fo;save();relist();
+};
+ACT.plook=()=>{const p=pw();p.look=p.look==='sira'?'':'sira';save();relist();};
+/* Resimdeki sınıf: Atatürk köşesi, yazı tahtası, öğretmen masası + kapı, solda pencere, 3 ikili sıra sütunu x 6 sıra */
+ACT.ptpl=()=>{
+  if(G.sinif==='ALL'||G.sube==='ALL')return;
+  const g=pcls(),p=pw();
+  if((g.some(s=>s.seat)||Object.keys(p.f).length||Object.keys(p.m).length)&&!confirm('Mevcut oturma düzeni silinip resimdeki sınıf düzeni kurulacak. Öğrenciler sırayla yeniden yerleştirilecek. Devam edilsin mi?'))return;
+  p.cols=9;p.rows=15;p.look='sira';
+  p.ac={c0:1,c3:1,c6:1};p.ar={r3:1,r5:1,r7:1,r9:1,r11:1,r13:1};
+  p.f={'0,1':'ataturk','1,1':'tahta','2,1':'masa','2,8':'kapi','3,0':'pencere'};
+  p.m={'0,1':'1,8','1,1':'1,8','2,1':'1,2','3,0':'12,1'};
+  g.forEach(s=>{s.seat='';});
+  const seats=[];for(const r of [4,6,8,10,12,14])for(const c of [1,2,4,5,7,8])seats.push(r+','+c);
+  g.forEach((s,i)=>{if(seats[i])s.seat=seats[i];});
+  S.pc='';spick=null;S.mg='';S.fo='kapi';save();relist();
+  toast('Düzen kuruldu. Üstteki araçlarla istediğiniz gibi değiştirin.');
 };
 ACT.psz=a=>{
   const g=pcls(),dm=pdim(g,pv()),d=a.dataset.d,v=+a.dataset.v,p=pw(),n=dm[d]+v,me=mext(p);
@@ -1091,7 +1131,7 @@ $('view').addEventListener('click',e=>{
   const c=e.target.closest('.sc');if(!c||e.target.closest('.spc'))return;
   const k=c.dataset.r+','+c.dataset.c;
   if(S.om==='mob'){mobTap(k);return;}
-  if(S.om!=='move'||c.dataset.f||c.dataset.mg)return;
+  if(S.om!=='move'||c.dataset.f||c.dataset.mg||c.dataset.a)return;
   if(spick){const s=S.students.find(x=>x.id===spick);spick=null;if(s)place(s,k);return;}
   S.pc=S.pc===k?'':k;relist();
 });
@@ -1099,17 +1139,19 @@ $('view').addEventListener('click',e=>{
    Sütun sayısı sıradan fazla ya da eşitse yatay, değilse dikey A4 seçilir. */
 function planPrintHtml(g,p,dm,ti,meta){
   const at={},used={},cv=mcov(p);g.forEach(s=>{if(s.seat)at[s.seat]=s;});
-  const land=dm.cols>=dm.rows,W=land?281:194,H=land?194:281,gap=2;
+  const lk=p.look==='sira',land=dm.cols>=dm.rows&&!lk,W=land?281:194,H=land?194:281,gap=lk?0:2;
+  const nc=[...Array(dm.cols).keys()].filter(c=>!(p.ac||{})['c'+c]).length,nr=[...Array(dm.rows).keys()].filter(r=>!(p.ar||{})['r'+r]).length;
   const free=g.filter(s=>!s.seat);
-  const cw=(W-gap*(dm.cols-1))/dm.cols,ch=(H-34-gap*(dm.rows-1))/dm.rows;
+  const cw=(W-gap*(dm.cols-1)-(dm.cols-nc)*5)/nc,ch=(H-34-gap*(dm.rows-1)-(dm.rows-nr)*5)/nr;
   const fs=Math.max(6,Math.min(15,Math.floor(cw/2.4),Math.floor(ch/1.25)));
   let cells='';
   for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++){
     const k=r+','+c;if(cv[k])continue;
     const s=at[k],fo=(p.f||{})[k],mv=mgm(p)[k],sp=mv?msz(mv):[1,1];
     const pos='grid-row:'+(r+1)+' / span '+sp[0]+';grid-column:'+(c+1)+' / span '+sp[1]+';';
-    if(fo&&FOBJ[fo]){used[fo]=1;cells+='<div class="c f" style="'+pos+'background:'+FOBJ[fo][3]+'"><div><div class="i">'+FOBJ[fo][0]+'</div>'+esc(FOBJ[fo][1])+'</div></div>';}
+    if(fo&&FOBJ[fo]){used[fo]=1;const tl=sp[0]>sp[1]*2&&sp[0]>1;cells+='<div class="c f" style="'+pos+'background:'+FOBJ[fo][3]+(tl?';writing-mode:vertical-rl;transform:rotate(180deg)':'')+'"><div>'+(tl?'':'<div class="i">'+FOBJ[fo][0]+'</div>')+esc(FOBJ[fo][1])+'</div></div>';}
     else if(s)cells+='<div class="c s" style="'+pos+'"><div><b>'+esc(s.name)+'</b><br><small>No: '+esc(s.no)+'</small></div></div>';
+    else if(isAisle(p,r,c)&&!mv)continue;
     else if(mv)cells+='<div class="c m" style="'+pos+'"></div>';
     else cells+='<div class="c e" style="'+pos+'"></div>';
   }
@@ -1122,12 +1164,13 @@ function planPrintHtml(g,p,dm,ti,meta){
    +'html,body{margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#111}'
    +'.pg{width:'+W+'mm;height:'+(H-1)+'mm;display:flex;flex-direction:column;overflow:hidden;page-break-after:avoid;break-after:avoid}'
    +'.hd h2{margin:0;font-size:18pt;line-height:1.2}.hd .mt{font-size:10pt;color:#444;margin:1mm 0 2mm}'
-   +'.gr{flex:1;min-height:0;display:grid;grid-template-columns:repeat('+dm.cols+',minmax(0,1fr));grid-template-rows:repeat('+dm.rows+',minmax(0,1fr));gap:'+gap+'mm}'
+   +'.gr{flex:1;min-height:0;display:grid;grid-template-columns:'+gtc(dm,p).replace(/(\d+)px/g,(m,n)=>(n==='22'?7:5)+'mm')+';grid-template-rows:'+gtr(dm,p).replace(/minmax\(54px,auto\)/g,'minmax(0,1fr)').replace(/(\d+)px/g,'5mm')+';gap:'+gap+'mm}'
    +'.c{border:.35mm solid #444;border-radius:1.5mm;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding:.6mm;line-height:1.15;font-size:'+fs+'pt;min-width:0;min-height:0;overflow-wrap:anywhere}'
    +'.c.e{border:.35mm dashed #bbb}.c.m{background:#f1f5f9;border-color:#94a3b8}.c.f{font-weight:700;font-size:'+Math.max(6,fs-1)+'pt}.c.f .i{font-size:'+Math.round(fs*1.6)+'pt;line-height:1.1}'
+   +(lk?'.c{border-radius:0}.c.e{border:.35mm solid #444}.hd{text-align:center}':'')
    +'.c.s small{color:#555;font-size:'+Math.max(6,Math.round(fs*0.8))+'pt}'
    +'.ft{flex:none;font-size:9pt;margin-top:2mm;max-height:15mm;overflow:hidden;line-height:1.3}'
-   +'</style><div class="pg"><div class="hd"><h2>'+esc(ti)+'</h2><div class="mt">'+meta+'</div></div><div class="gr">'+cells+'</div>'
+   +'</style><div class="pg"><div class="hd"><h2>'+esc(lk?'SINIF OTURMA PLANI · '+ti.split('· ')[1]:ti)+'</h2><div class="mt">'+meta+'</div></div><div class="gr">'+cells+'</div>'
    +(leg||fr?'<div class="ft">'+(leg?'<div>'+leg+'</div>':'')+(fr?'<div>'+fr+'</div>':'')+'</div>':'')
    +'</div><script>onload=function(){setTimeout(print,300)}<\/script>';
 }
