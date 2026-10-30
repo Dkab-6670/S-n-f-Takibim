@@ -3586,7 +3586,7 @@ const GP_ON='bg-indigo-600 text-white border-indigo-600',GP_OFF='bg-white dark:b
 const gpChip=(i,f,v,on,del)=>'<span class="inline-flex"><button data-act="gpch" data-i="'+i+'" data-f="'+f+'" data-v="'+esc(v)+'" class="rounded-full border px-2.5 min-h-[34px] text-xs text-left '+(on?GP_ON:GP_OFF)+'">'+esc(v)+'</button>'+(del?'<button data-act="gpcdel" data-f="'+f+'" data-v="'+esc(v)+'" class="px-1 text-xs text-red-600" aria-label="Listeden kaldır" title="Listeden kaldır">✖</button>':'')+'</span>';
 function gpPick(i,f,cur){
   const sel=gpLs(cur,f),cu=gpCus()[f],k=i+'|'+f;
-  const grp=(t,l,del)=>l.length?'<div class="text-[11px] font-bold mt-3 mb-1 text-slate-600 dark:text-slate-300">'+esc(t)+'</div><div class="flex flex-wrap gap-1.5">'+l.map(v=>gpChip(i,f,v,sel.includes(v),del)).join('')+'</div>':'';
+  const grp=(t,l,del)=>l.length?'<div class="text-sm font-extrabold mt-4 mb-1.5 pl-2 border-l-4 border-red-800 text-red-800 dark:text-red-300 dark:border-red-400">'+esc(t)+'</div><div class="flex flex-wrap gap-1.5">'+l.map(v=>gpChip(i,f,v,sel.includes(v),del)).join('')+'</div>':'';
   return '<details class="mt-1" data-gpk="'+k+'"'+(GPL.op&&GPL.op[k]?' open':'')+'><summary class="cursor-pointer text-sm font-semibold inline-block rounded-lg border border-indigo-400 text-indigo-700 dark:text-indigo-300 px-3 py-1.5">📋 Listeden seç · kendi maddenizi ekleyin</summary>'
    +GP_KAT[f].map(g=>grp(g[0],g[1],false)).join('')+grp('⭐ Eklediklerim',cu,true)
    +'<div class="flex gap-2 mt-3"><input id="gpA'+i+'_'+f+'" class="inp flex-1 min-w-0 text-sm" placeholder="Listede yoksa yazın ('+esc(GP_PT[f].toLowerCase())+')"><button data-act="gpcadd" data-i="'+i+'" data-f="'+f+'" class="btn bg-indigo-600">Ekle</button></div></details>';
