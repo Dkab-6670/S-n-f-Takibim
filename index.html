@@ -4148,12 +4148,27 @@ Object.assign(ACT,{snscan(){scnStart();},snphotos(){const e=snCur();if(e&&e.q&&e
 
 /* ===== Dönem sonu: eksik kontrolü + e-Okul'a aktarılabilir not tablosu ===== */
 const snDon=e=>e.donem||(()=>{const m=+String(e.tarih||'').slice(5,7);return m>=2&&m<=8?'2':'1';})();
+/* Sözlü notu önerisi (dönem): Sözlü 1 = derse katılım, Sözlü 2 = ezber + ödev. Veri girilmeyen ölçüt hesaba katılmaz. */
+const SOZ_NOT='Sözlü 1 (derse katılım): devam %40, ders puanı %30, davranış %20, kitap-malzeme %10. Sözlü 2: ezber %60, ödev %40. Veri girilmemiş ölçütler hesaba katılmaz, ağırlık kalanlara dağıtılır. Notlar 5\'in katına yuvarlanır. Bunlar öneridir, gerekirse değiştirin.';
+function sozOner(s,fl){
+  const z=dstat(s),cl=v=>Math.max(0,Math.min(100,v)),a=[],b=[],att=z.v+z.y+z.k;
+  if(featOn('yoklama')&&att>0)a.push([.4,cl((z.v+z.k/2)*100/att)]);
+  if(featOn('ders')&&fl.pts)a.push([.3,cl(70+3*z.p)]);
+  if(featOn('davranis')&&fl.bp)a.push([.2,cl(80+4*z.bp)]);
+  if(featOn('ders')&&att>0)a.push([.1,cl(100-10*z.bk)]);
+  const el=ezOf(s);if(featOn('ezber')&&el.length)b.push([.6,el.filter(n=>bestE(s,n)===2).length*100/el.length]);
+  const hs=S.homeworks.filter(h=>!h.rb&&ap(h,s)&&(!h.donem||h.donem===G.donem)&&(s.hwStatus||{})[h.id]);
+  if(featOn('ders')&&hs.length)b.push([.4,hs.reduce((t,h)=>t+({Yapti:1,Eksik:.5,Yapmadi:0}[(s.hwStatus||{})[h.id]]||0),0)*100/hs.length]);
+  const f=l=>{if(!l.length)return '';const w=l.reduce((t,x)=>t+x[0],0),v=l.reduce((t,x)=>t+x[0]*x[1],0)/w;return Math.min(100,Math.round(v/5)*5);};
+  return [f(a),f(b)];
+}
 function dsTab(){
   const ex=(S.sinav||[]).filter(e=>e.sinif===G.sinif&&(G.sube==='ALL'||!e.sube||e.sube===G.sube)&&snDon(e)===G.donem).sort((a,b)=>a.tarih<b.tarih?-1:1),L=grp();
   const att=featOn('yoklama');
-  const head=['No','Ad Soyad'].concat(ex.map(e=>e.ad||'Sınav'),ex.length?['Sınav ort.']:[],att?['Devamsız gün']:[]);
+  const fl={pts:L.some(s=>Object.values((((s.periods||{})[G.donem]||{}).days)||{}).some(r=>r&&r.points)),bp:L.some(s=>Object.values((((s.periods||{})[G.donem]||{}).days)||{}).some(r=>r&&r.bp))};
+  const head=['No','Ad Soyad'].concat(ex.map(e=>e.ad||'Sınav'),ex.length?['Sınav ort.']:[],['Sözlü 1 (öneri)','Sözlü 2 (öneri)'],att?['Devamsız gün']:[]);
   const rows=L.map(s=>{const sc=ex.map(e=>snTot(e,s)),v=sc.filter(x=>x!==null),z=dstat(s);
-    return [s.no,s.name].concat(sc.map(x=>x===null?'':snR(x)),ex.length?[v.length?snR(v.reduce((a,b)=>a+b,0)/v.length):'']:[],att?[dgun(z.y+z.k/2)]:[]);});
+    return [s.no,s.name].concat(sc.map(x=>x===null?'':snR(x)),ex.length?[v.length?snR(v.reduce((a,b)=>a+b,0)/v.length):'']:[],sozOner(s,fl),att?[dgun(z.y+z.k/2)]:[]);});
   const gaps=[];
   if(att)gaps.push(['Bu dönem hiç yoklama kaydı olmayan',L.filter(s=>{const z=dstat(s);return z.v+z.y+z.i+z.k===0;})]);
   ex.forEach(e=>gaps.push([(e.ad||'Sınav')+' puanı girilmeyen',L.filter(s=>snTot(e,s)===null&&!((e.n||{})[s.id]||{}).g)]));
@@ -4163,7 +4178,7 @@ gpage('dsonu','🏁','Dönem Sonu',null,()=>G.sinif==='ALL'?'':'<div class="mb-3
   if(G.sinif==='ALL')return '<div class="col-span-full card text-sm text-amber-700">Önce yukarıdan bir sınıf seçin.</div>';
   const t=dsTab();if(!t.rows.length)return EMPTY;
   const gp=t.gaps.map(g=>g[1].length?'<div class="text-sm py-1">⚠️ <b>'+esc(g[0])+':</b> '+g[1].length+' öğrenci<div class="text-xs text-slate-500">'+g[1].slice(0,12).map(s=>esc(s.name)).join(', ')+(g[1].length>12?' …':'')+'</div></div>':'<div class="text-sm py-1">✅ '+esc(g[0])+': eksik yok</div>').join('')+(t.ex.length?'':'<div class="text-sm py-1">ℹ️ '+G.donem+'. dönem için sınav kaydı yok. Sınav Notları sayfasından ekleyebilirsiniz.</div>');
-  return '<div class="col-span-full card"><b class="text-sm">Eksik kontrolü · '+G.donem+'. dönem · '+esc(dLab())+'</b><div class="mt-1">'+gp+'</div></div>'
+  return '<div class="col-span-full card"><b class="text-sm">Eksik kontrolü · '+G.donem+'. dönem · '+esc(dLab())+'</b><div class="mt-1">'+gp+'</div></div><details class="col-span-full card"><summary class="cursor-pointer text-sm font-semibold">ℹ️ Sözlü notu önerisi nasıl hesaplanır?</summary><p class="text-xs text-slate-600 dark:text-slate-300 mt-2">'+esc(SOZ_NOT)+'</p></details>'
    +'<div class="col-span-full card overflow-x-auto !p-2"><table class="w-full text-xs whitespace-nowrap"><tr class="text-slate-500">'+t.head.map((x,i)=>'<th class="px-1.5 py-1 '+(i===1?'text-left':'text-center')+'">'+esc(x)+'</th>').join('')+'</tr>'+t.rows.map(r=>'<tr class="border-t border-slate-200 dark:border-slate-700">'+r.map((c,i)=>'<td class="px-1.5 py-1 '+(i===1?'text-left font-semibold':'text-center')+'">'+esc(c)+'</td>').join('')+'</tr>').join('')+'</table></div>';
 });
 Object.assign(ACT,{
@@ -4174,7 +4189,7 @@ Object.assign(ACT,{
   async dsxls(){const t=dsTab();if(!t.rows.length)return toast('Öğrenci yok');try{await xl();}catch(x){return alert(x.message);}
     const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([t.head].concat(t.rows)),'Dönem Sonu');XLSX.writeFile(wb,'Donem_Sonu_'+G.sinif+(G.sube==='ALL'?'':G.sube.toUpperCase())+'_'+G.donem+'.xlsx');},
   dsprn(){const t=dsTab();if(!t.rows.length)return toast('Öğrenci yok');const ti='Dönem Sonu · '+G.donem+'. Dönem · '+dLab();
-    const d='<!doctype html><meta charset="utf-8"><title>'+esc(ti)+'</title><style>@page{size:A4;margin:12mm}body{font-family:Arial;font-size:12px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #444;padding:4px;text-align:center}td.n{text-align:left}th{background:#eee}</style><h3>'+esc(ti)+'</h3><table><tr>'+t.head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr>'+t.rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i===1?' class="n"':'')+'>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</table><p style="margin-top:14px">'+esc(tname()||'')+'</p><script>onload=function(){setTimeout(print,300)}<\/script>';
+    const d='<!doctype html><meta charset="utf-8"><title>'+esc(ti)+'</title><style>@page{size:A4;margin:12mm}body{font-family:Arial;font-size:12px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #444;padding:4px;text-align:center}td.n{text-align:left}th{background:#eee}</style><h3>'+esc(ti)+'</h3><table><tr>'+t.head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr>'+t.rows.map(r=>'<tr>'+r.map((c,i)=>'<td'+(i===1?' class="n"':'')+'>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</table><p style="font-size:10px;margin-top:8px">'+esc(SOZ_NOT)+'</p><p style="margin-top:14px">'+esc(tname()||'')+'</p><script>onload=function(){setTimeout(print,300)}<\/script>';
     open(URL.createObjectURL(new Blob([d],{type:'text/html'})),'_blank');}
 });
 const ypBy=a=>S.yplan.find(y=>y.id===a.dataset.id);
