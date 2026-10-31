@@ -1190,8 +1190,7 @@ function planPrintHtml(g,p,dm,ti,meta){
     else if(fo&&FOBJ[fo]){used[fo]=1;const tl=sp[0]>sp[1]*2&&sp[0]>1;cells+='<div class="c f" style="'+pos+'background:'+FOBJ[fo][3]+(tl?';writing-mode:vertical-rl;transform:rotate(180deg)':'')+'"><div>'+(tl?'':'<div class="i">'+FOBJ[fo][0]+'</div>')+esc(flab(p,k,fo))+'</div></div>';}
     else if(s)cells+='<div class="c s" style="'+pos+'"><div>'+(s.photo&&s.phOk!==false&&ch>=13?'<img class="ph" src="'+esc(s.photo)+'">':'')+'<b>'+esc(s.name)+'</b><br><small>No: '+esc(s.no)+'</small></div></div>';
     else if(isAisle(p,r,c)&&!mv)continue;
-    else if(mv)cells+='<div class="c m" style="'+pos+'"></div>';
-    else cells+='<div class="c e" style="'+pos+'"></div>';
+    else continue;
   }
   const leg=Object.keys(used).map(k=>FOBJ[k][0]+' '+esc(FOBJ[k][1])).join(' &nbsp; ');
   let fn=[],fl=0;for(const s of free){if(fl+s.name.length>(land?420:300))break;fn.push(esc(s.name));fl+=s.name.length+2;}
@@ -1208,15 +1207,15 @@ function planPrintHtml(g,p,dm,ti,meta){
    +'.c.e{border:.35mm dashed #bbb}.c.m{background:#f1f5f9;border-color:#94a3b8}.c.f{font-weight:700;font-size:'+Math.max(6,fs-1)+'pt}.c.f .i{font-size:'+Math.round(fs*1.6)+'pt;line-height:1.1}'
    +(lk?'.c{border-radius:0}.c.e{border:.35mm solid #444}.hd{text-align:center}':'')
    +'.c.s small{color:#555;font-size:'+Math.max(6,Math.round(fs*0.8))+'pt}.c.s{overflow-wrap:normal;word-break:normal}.c.s .ph{display:block;margin:0 auto .6mm;width:'+Math.max(5,Math.min(11,Math.floor(ch*0.36)))+'mm;height:'+Math.max(5,Math.min(11,Math.floor(ch*0.36)))+'mm;border-radius:50%;object-fit:cover}'
-   +'.ft{flex:none;font-size:9pt;margin-top:2mm;max-height:15mm;overflow:hidden;line-height:1.3}'
-   +'</style><div class="pg"><div class="fm"><div class="hd"><h2>'+esc(lk?'SINIF OTURMA PLANI · '+ti.split('· ')[1]:ti)+'</h2><div class="mt">'+meta+'</div></div><div class="gr">'+cells+'</div>'
-   +(fr?'<div class="ft"><div>'+fr+'</div></div>':'')
+   +'.rh{flex:none;margin-top:2.5mm;text-align:right;font-size:10.5pt}.ft{flex:none;font-size:9pt;margin-top:2mm;max-height:15mm;overflow:hidden;line-height:1.3}'
+   +'</style><div class="pg"><div class="fm"><div class="hd"><h2>'+esc(G.sinif+'/'+G.sube.toUpperCase()+' SINIFI OTURMA PLANI')+'</h2><div class="mt">'+meta+'</div></div><div class="gr">'+cells+'</div>'
+   +(fr?'<div class="ft"><div>'+fr+'</div></div>':'')+(tname()?'<div class="rh">Sınıf Rehber Öğretmeni: <b>'+esc(tname())+'</b></div>':'')
    +'</div></div><script>onload=function(){document.querySelectorAll(".c.s").forEach(function(e){var i=e.firstChild,b=i.querySelector("b"),f0=parseFloat(getComputedStyle(e).fontSize),f=f0,n=0;function bad(){return i.offsetHeight>e.clientHeight-2||i.scrollWidth>e.clientWidth;}function ln(){var lh=parseFloat(getComputedStyle(b).lineHeight)||f*1.15;return Math.round(b.offsetHeight/lh);}while(n++<60&&f>8&&(bad()||ln()>2)){f-=.5;e.style.fontSize=f+"px";}if(bad()){f=f0;e.style.fontSize=f+"px";n=0;while(n++<60&&f>4&&bad()){f-=.5;e.style.fontSize=f+"px";}}});setTimeout(print,400)}<\/script>';
 }
 ACT.pprint=()=>{
   if(G.sinif==='ALL'||G.sube==='ALL')return alert('Önce üstteki çubuktan sınıf ve şube seçin.');
   const g=pcls(),p=pv(),dm=pdim(g,p),ti='Oturma Planı · '+G.sinif+'/'+G.sube.toUpperCase(),free=g.filter(s=>!s.seat);
-  const meta=fdt(today)+' · '+(g.length-free.length)+'/'+g.length+' öğrenci yerleşti'+(tname()?' · '+esc(tname()):'');
+  const meta=fdt(today)+' · '+(g.length-free.length)+'/'+g.length+' öğrenci yerleşti';
   open(URL.createObjectURL(new Blob([planPrintHtml(g,p,dm,ti,meta)],{type:'text/html'})),'_blank');
 };
 
@@ -1249,13 +1248,13 @@ async function planCanvas(g,p,dm,ti,meta){
   if(lk){ctx.strokeStyle='#222';ctx.lineWidth=.6*K;ctx.strokeRect((fx+.3)*K,(fy+.3)*K,(fw-.6)*K,(fh-.6)*K);}
   const ix=fx+pad,iy=fy+pad,iw=fw-2*pad,ih=fh-2*pad;
   ctx.fillStyle='#111';ctx.font='bold '+(18*0.3528*K)+'px Arial,Helvetica,sans-serif';
-  ctx.fillText(lk?'SINIF OTURMA PLANI · '+ti.split('· ')[1]:ti,(ix+iw/2)*K,iy*K);
+  ctx.fillText(G.sinif+'/'+G.sube.toUpperCase()+' SINIFI OTURMA PLANI',(ix+iw/2)*K,iy*K);
   ctx.fillStyle='#444';ctx.font=(10*0.3528*K)+'px Arial,Helvetica,sans-serif';ctx.fillText(meta,(ix+iw/2)*K,(iy+8)*K);
   /* alt not: sırası olmayanlar */
   let ftH=0,frTxt='';
   if(free.length){let fn=[],fl=0;for(const s of free){if(fl+s.name.length>(land?420:300))break;fn.push(s.name);fl+=s.name.length+2;}
     frTxt='Sırası olmayanlar ('+free.length+'): '+fn.join(', ')+(fn.length<free.length?' … ve '+(free.length-fn.length)+' öğrenci daha':'');ftH=9;}
-  const gx=ix,gy=iy+15,gw=iw,gh=ih-15-(ftH?ftH+2:0),gap=lk?0:2;
+  const tn=tname(),tH=tn?7:0,gx=ix,gy=iy+15,gw=iw,gh=ih-15-(ftH?ftH+2:0)-tH,gap=lk?0:2;
   /* izgara ölçüleri */
   const tr=(n,isA,aw)=>{const sz=[];let fix=0,nf=0;for(let i=0;i<n;i++){const a=isA(i);sz.push(a?aw(i):null);if(a)fix+=aw(i);else nf++;}return {sz,fix,nf};};
   const TC=tr(dm.cols,c=>!!(p.ac||{})['c'+c],c=>c===0?7:5),TR=tr(dm.rows,r=>!!(p.ar||{})['r'+r],()=>5);
@@ -1298,11 +1297,10 @@ async function planCanvas(g,p,dm,ti,meta){
       ctx.fillStyle='#555';ctx.font=Math.max(5*0.3528*K,Math.min(nm.px*.8,8*0.3528*K))+'px '+FF;ctx.fillText('No: '+s.no,cxm,yy+.3*K);
       continue;
     }
-    if(isAisle(p,r,c)&&!mv)continue;
-    if(mv){ctx.fillStyle='#f1f5f9';ctx.strokeStyle='#94a3b8';cvRR(ctx,x*K,y*K,w*K,h*K,rad*K);ctx.fill();ctx.stroke();continue;}
-    ctx.strokeStyle=lk?'#444':'#bbb';if(!lk)ctx.setLineDash([1.2*K,.8*K]);cvRR(ctx,x*K,y*K,w*K,h*K,rad*K);ctx.stroke();ctx.setLineDash([]);
+    continue;
   }
-  if(frTxt){ctx.fillStyle='#111';ctx.textAlign='left';const f=cvFit(ctx,frTxt,iw,ftH,9,6,3,false);if(f){ctx.font=f.px+'px '+FF;f.lines.forEach((t,i)=>ctx.fillText(t,ix*K,(iy+ih-ftH)*K+i*f.lh));}}
+  if(frTxt){ctx.fillStyle='#111';ctx.textAlign='left';const f=cvFit(ctx,frTxt,iw,ftH,9,6,3,false);if(f){ctx.font=f.px+'px '+FF;f.lines.forEach((t,i)=>ctx.fillText(t,ix*K,(iy+ih-tH-ftH)*K+i*f.lh));}}
+  if(tn){ctx.textAlign='right';ctx.textBaseline='top';ctx.fillStyle='#111';ctx.font=(10.5*0.3528*K)+'px Arial,Helvetica,sans-serif';const lab='Sınıf Rehber Öğretmeni: ',nw=(()=>{ctx.font='bold '+(10.5*0.3528*K)+'px Arial,Helvetica,sans-serif';return ctx.measureText(tn).width;})();ctx.fillText(tn,(ix+iw)*K,(iy+ih-5)*K);ctx.font=(10.5*0.3528*K)+'px Arial,Helvetica,sans-serif';ctx.fillText(lab,(ix+iw)*K-nw,(iy+ih-5)*K);}
   return {cv,pw,ph,inner:{x:fx,y:fy,w:fw,h:fh}};
 }
 const u8cat=parts=>{let n=0;parts.forEach(b=>n+=b.length);const o=new Uint8Array(n);let i=0;parts.forEach(b=>{o.set(b,i);i+=b.length;});return o;};
@@ -1355,7 +1353,7 @@ async function planExport(kind){
   try{
     toast('Hazırlanıyor…');
     const g=pcls(),p=pv(),dm=pdim(g,p),ti='Oturma Planı · '+G.sinif+'/'+G.sube.toUpperCase(),free=g.filter(s=>!s.seat);
-    const meta=fdt(today)+' · '+(g.length-free.length)+'/'+g.length+' öğrenci yerleşti'+(tname()?' · '+tname():'');
+    const meta=fdt(today)+' · '+(g.length-free.length)+'/'+g.length+' öğrenci yerleşti';
     const R=await planCanvas(g,p,dm,ti,meta),K=CK;
     const pdf=kind==='pdf',base='Oturma_Plani_'+G.sinif+G.sube.toUpperCase();
     let src=R.cv;
