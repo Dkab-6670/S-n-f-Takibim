@@ -1382,9 +1382,19 @@ const pgv=(s,n,p)=>{const g=s.cpg||{},k='c'+n+'p'+p;if(k in g)return g[k];const 
 function cuzStat(s,n){let d=0,w=0;for(let p=1;p<=CPG;p++){const v=pgv(s,n,p);if(v===2)d++;else if(v===1)w++;}return {d,w};}
 function syncCuz(s,n){const q=cuzStat(s,n);s.cuz=s.cuz||{};if(q.d===CPG)s.cuz['c'+n]=2;else if(q.d||q.w)s.cuz['c'+n]=1;else delete s.cuz['c'+n];}
 function matCuz(s,n){const g=s.cpg=s.cpg||{};if(!Object.keys(g).some(x=>x.startsWith('c'+n+'p'))&&(s.cuz||{})['c'+n]===2)for(let p=1;p<=CPG;p++)g['c'+n+'p'+p]=2;}
-gpage('haf','📜','Hafızlık Çizelgesi',null,null,()=>{
-  const l=grp().filter(s=>S.hall||pvals(s).some(p=>p.hafiz)||Object.keys(s.cuz||{}).length);
-  const top='<div class="col-span-full flex flex-wrap items-center gap-2"><button data-act="hmode" class="btn bg-slate-600">'+(S.hall?'👳 Sadece hafızlık yapanlar':'👥 Tüm öğrenciler')+'</button><span class="text-xs text-slate-500">Cüze dokunun: sayfaları açılır. Sayfaya dokunun: boş → 🟨 çalışıyor → 🟩 tamam</span></div>';
+function addCard(){
+  const c=grp().filter(x=>!hafIn(x));
+  return '<div class="card flex flex-wrap items-center gap-2"><select id="hadd" class="inp flex-1 min-w-[180px]"><option value="">🌱 Hafızlığa başlayacak öğrenci ekle…</option>'+c.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.sinif)+'/'+esc(String(x.sube).toUpperCase())+' · '+esc(x.no)+' · '+esc(x.name)+'</option>').join('')+'</select><button data-act="hadd" class="btn bg-emerald-600">Ekle</button><span class="text-[11px] text-slate-500 w-full">Eklenen öğrenci listeye girer, ezber takibi sıfırdan başlar. Üstteki sınıf/şube seçimine göre öğrenciler listelenir.</span></div>';
+}
+const hafIn=x=>!x.absent&&(x.hbas||pvals(x).some(p=>p.hafiz));
+gpage('haf','📜','Hafızlık Çizelgesi',null,()=>{
+  const m={};S.students.forEach(x=>{if(!hafIn(x))return;const k=T(x.sinif)+'|'+T(x.sube).toLowerCase();m[k]=(m[k]||0)+1;});
+  const ks=Object.keys(m).sort((a,b)=>{const [a1,a2]=a.split('|'),[b1,b2]=b.split('|');return (parseInt(a1)||0)-(parseInt(b1)||0)||a1.localeCompare(b1)||a2.localeCompare(b2);});
+  const tot=ks.reduce((t,k)=>t+m[k],0),chip=(sn,sb,txt,on)=>'<button data-act="hsel" data-s="'+esc(sn)+'" data-b="'+esc(sb)+'" class="px-3 min-h-[38px] rounded-lg border text-sm font-semibold '+(on?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+txt+'</button>';
+  return '<div class="card flex flex-wrap items-center gap-1.5"><span class="text-xs font-bold text-slate-500">👳 Hafız öğrenciler:</span>'+chip('ALL','ALL','Hepsi ('+tot+')',G.sinif==='ALL'&&G.sube==='ALL')+ks.map(k=>{const [a,b]=k.split('|');return chip(a,b,esc(a)+'/'+esc(b.toUpperCase())+' ('+m[k]+')',G.sinif===a&&G.sube===b);}).join('')+'</div>'+addCard();
+},()=>{
+  const l=grp().filter(hafIn);
+  const top='<div class="col-span-full flex flex-wrap items-center gap-2"><span class="text-xs text-slate-500">👳 Yalnızca hafız işaretli öğrenciler. Cüze dokunun: sayfaları açılır. Sayfaya dokunun: boş → 🟨 çalışıyor → 🟩 tamam</span></div>';
   return top+(l.map(s=>{let dc=0,wc=0,pd=0,h='',pn='';const op=S.hop[s.id];
     for(let n=1;n<=30;n++){const q=cuzStat(s,n),v=q.d===CPG?2:(q.d||q.w)?1:0;pd+=q.d;if(v===2)dc++;else if(v===1)wc++;
       h+='<button data-act="cz" data-id="'+esc(s.id)+'" data-n="'+n+'" class="min-h-[38px] rounded-md border text-[11px] font-bold leading-tight '+(op===n?'ring-4 ring-indigo-500 ':'')+(v===2?'bg-emerald-500 text-white border-emerald-600':v===1?'bg-amber-300 text-amber-900 border-amber-500':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-500')+'">'+n+(v===1&&q.d?'<span class="block text-[9px] font-normal">'+q.d+'/'+CPG+'</span>':'')+'</button>';}
@@ -1392,11 +1402,14 @@ gpage('haf','📜','Hafızlık Çizelgesi',null,null,()=>{
       for(let p=1;p<=CPG;p++){const v=pgv(s,op,p);b+='<button data-act="pg" data-id="'+esc(s.id)+'" data-n="'+op+'" data-p="'+p+'" class="min-h-[40px] rounded-md border text-xs font-bold '+(v===2?'bg-emerald-500 text-white border-emerald-600':v===1?'bg-amber-300 text-amber-900 border-amber-500':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300')+'">'+p+'</button>';}
       pn='<div class="mt-2 rounded-lg border border-indigo-300 dark:border-indigo-700 p-2"><div class="flex flex-wrap items-center justify-between gap-2 mb-1.5"><b class="text-sm">'+op+'. cüz · sayfalar</b><span class="flex gap-1.5"><button data-act="czall" data-id="'+esc(s.id)+'" data-n="'+op+'" data-v="all" class="px-2 min-h-[34px] rounded-lg border text-xs font-semibold bg-emerald-100 border-emerald-500 text-slate-900">Hepsi tamam</button><button data-act="czall" data-id="'+esc(s.id)+'" data-n="'+op+'" data-v="clear" class="px-2 min-h-[34px] rounded-lg border text-xs font-semibold bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600">Temizle</button></span></div><div class="grid grid-cols-10 gap-1">'+b+'</div><div class="text-[11px] text-slate-500 mt-1">🟩 '+q.d+' tamam · 🟨 '+q.w+' çalışıyor · '+(CPG-q.d-q.w)+' boş</div></div>';}
     const tot=30*CPG;
-    return '<div class="card mb-0 md:col-span-2 xl:col-span-3"><div class="flex justify-between gap-2"><div><b>'+(++HI)+'. '+esc(s.name)+'</b> <span class="text-[11px] text-slate-500">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · '+esc(s.no)+'</span></div><b class="text-emerald-600 text-right text-sm">'+pd+'/'+tot+' sayfa<br><span class="text-[11px] font-semibold">'+dc+'/30 cüz</span></b></div><div class="h-2 rounded-full bg-slate-200 dark:bg-slate-700 my-2 overflow-hidden"><div class="h-2 bg-emerald-500" style="width:'+Math.round(pd*100/tot)+'%"></div></div><div class="grid grid-cols-10 gap-1">'+h+'</div>'+pn+'<div class="text-[11px] text-slate-500 mt-1">🟩 '+dc+' cüz tamam · 🟨 '+wc+' cüzde çalışıyor</div></div>';
-  }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu seçimde öğrenci yok. Hafızlık yapanları Ezber sayfasında 👳 ile işaretleyin ya da "Tüm öğrenciler"i seçin.</div>');
+    return '<div class="card mb-0 md:col-span-2 xl:col-span-3"><div class="flex justify-between gap-2"><div><b>'+(++HI)+'. '+esc(s.name)+'</b> <span class="text-[11px] text-slate-500">'+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+' · '+esc(s.no)+'</span>'+(s.hbas&&!pvals(s).some(p=>p.hafiz)?'<div class="mt-0.5 flex flex-wrap items-center gap-1.5"><span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-lime-100 text-lime-800">🌱 '+(pd||wc?'Ezberliyor':'Başlayacak')+'</span>'+(s.hbd?'<span class="text-[11px] text-slate-500">Başlangıç: '+fdt(s.hbd)+'</span>':'')+'<button data-act="hrem" data-id="'+esc(s.id)+'" class="text-[11px] underline text-red-600">Listeden çıkar</button></div>':'')+'</div><b class="text-emerald-600 text-right text-sm">'+pd+'/'+tot+' sayfa<br><span class="text-[11px] font-semibold">'+dc+'/30 cüz</span></b></div><div class="h-2 rounded-full bg-slate-200 dark:bg-slate-700 my-2 overflow-hidden"><div class="h-2 bg-emerald-500" style="width:'+Math.round(pd*100/tot)+'%"></div></div><div class="grid grid-cols-10 gap-1">'+h+'</div>'+pn+'<div class="text-[11px] text-slate-500 mt-1">🟩 '+dc+' cüz tamam · 🟨 '+wc+' cüzde çalışıyor</div></div>';
+  }).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu sınıfta hafız olarak işaretli öğrenci yok. Ezber sayfasında öğrencinin yanındaki 👳 ile işaretleyin.</div>');
 });
 Object.assign(ACT,{
   hmode(){S.hall=!S.hall;relist();},
+  hadd(){const v=($('hadd')||{}).value;if(!v)return toast('Önce listeden bir öğrenci seçin',true);const s=S.students.find(x=>x.id===v);if(!s)return;s.hbas=true;s.hbd=today;save();render(true);},
+  hrem(a){const s=find(a);if(!s)return;const has=Object.keys(s.cpg||{}).length||Object.keys(s.cuz||{}).length;if(!confirm(s.name+' hafızlık listesinden çıkarılsın mı?'+(has?'\nÇizelgedeki işaretleri silinmez; tekrar eklerseniz geri gelir.':'')))return;delete s.hbas;delete s.hbd;save();render(true);},
+  hsel(a){G.sinif=a.dataset.s;G.sube=a.dataset.b;gsave();render(true);},
   cz(a){const n=+a.dataset.n,id=a.dataset.id;if(S.hop[id]===n)delete S.hop[id];else S.hop[id]=n;relist();},
   pg(a){const s=find(a);if(!s)return;const n=+a.dataset.n,p=+a.dataset.p;matCuz(s,n);const g=s.cpg=s.cpg||{},k='c'+n+'p'+p,nx=((g[k]||0)+1)%3;if(nx)g[k]=nx;else delete g[k];syncCuz(s,n);save();relist();},
   czall(a){const s=find(a);if(!s)return;const n=+a.dataset.n,g=s.cpg=s.cpg||{};for(let p=1;p<=CPG;p++){if(a.dataset.v==='all')g['c'+n+'p'+p]=2;else delete g['c'+n+'p'+p];}if(a.dataset.v!=='all'&&s.cuz)delete s.cuz['c'+n];syncCuz(s,n);save();relist();}
@@ -1880,7 +1893,7 @@ var FEAT=[
   ['ders','📚','Ders ve Ödev Takibi','Ders puanı, ödev, kitap ve uyku takibi',['ders','odevhiz']],
   ['ezber','📖',"Kur'an ve Ezber",'Ezber, abdest ve cüz bilgisi',['ezber']],
   ['dini','🕌','Dini Bölüm','Zikirmatik, Esmaü’l-Hüsna, namaz vakitleri, ayet ve hadis',['dini']],
-  ['hafiz','📜','Hafızlık Çizelgesi','Cüz cüz hafızlık takibi',['haf']],
+  ['hafiz','📜','Hafızlık Çizelgesi','Cüz ve sayfa sayfa hafızlık takibi',['haf']],
   ['davranis','🌟','Davranış Takibi','Ders dışı artı / eksi puan ve notlar',['dav']],
   ['reh','🧭','Rehberlik','Rehberlik çalışmaları ve takibi',['reh']],
   ['oturma','🪑','Oturma Planı','Sınıf krokisi, sıraya dokunup yoklama ve puan',['oturma']],
