@@ -1174,7 +1174,10 @@ $('view').addEventListener('click',e=>{
 });
 /* A4 çıktısı: sayfa tam dolar, kareler sayfaya göre büyür/küçülür, tek sayfaya sığar.
    Sütun sayısı sıradan fazla ya da eşitse yatay, değilse dikey A4 seçilir. */
+/* Çıktıda son kullanılan sıradan sonraki boş satırlar atılır; sayfa dolu görünür */
+function outRows(g,p,dm){const lr=Math.max(0,...g.filter(s=>s.seat).map(s=>+s.seat.split(',')[0]),...Object.keys(p.f||{}).map(k=>+k.split(',')[0]));return dm.rows>lr+1?{cols:dm.cols,rows:lr+1}:dm;}
 function planPrintHtml(g,p,dm,ti,meta){
+  dm=outRows(g,p,dm);
   const at={},used={},cv=mcov(p);g.forEach(s=>{if(s.seat)at[s.seat]=s;});
   const lk=p.look==='sira',land=dm.cols>=dm.rows&&!lk,W=land?281:194,H=land?194:281,gap=lk?0:2;
   const nc=[...Array(dm.cols).keys()].filter(c=>!(p.ac||{})['c'+c]).length,nr=[...Array(dm.rows).keys()].filter(r=>!(p.ar||{})['r'+r]).length;
@@ -1185,8 +1188,8 @@ function planPrintHtml(g,p,dm,ti,meta){
   for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++){
     const k=r+','+c;if(cv[k])continue;
     const s=at[k],fo=(p.f||{})[k],mv=mgm(p)[k],sp=mv?msz(mv):[1,1];
-    const pos='grid-row:'+(r+1)+' / span '+sp[0]+';grid-column:'+(c+1)+' / span '+sp[1]+';';
-    if(fo==='ataturk'&&!(p.fl||{})[k]){cells+='<div class="c f" style="'+pos+ataBg+'"></div>';}
+    const pos='grid-row:'+(r+1)+' / span '+Math.min(sp[0],dm.rows-r)+';grid-column:'+(c+1)+' / span '+sp[1]+';';
+    if(fo==='ataturk'&&!(p.fl||{})[k]){cells+='<div class="c f" style="'+pos+ataBg+'border-color:transparent"></div>';}
     else if(fo&&FOBJ[fo]){used[fo]=1;const tl=sp[0]>sp[1]*2&&sp[0]>1;cells+='<div class="c f" style="'+pos+'background:'+FOBJ[fo][3]+(tl?';writing-mode:vertical-rl;transform:rotate(180deg)':'')+'"><div>'+(tl?'':'<div class="i">'+FOBJ[fo][0]+'</div>')+esc(flab(p,k,fo))+'</div></div>';}
     else if(s)cells+='<div class="c s" style="'+pos+'"><div>'+(s.photo&&s.phOk!==false&&ch>=13?'<img class="ph" src="'+esc(s.photo)+'">':'')+'<b>'+esc(s.name)+'</b><br><small>No: '+esc(s.no)+'</small></div></div>';
     else if(isAisle(p,r,c)&&!mv)continue;
@@ -1210,7 +1213,7 @@ function planPrintHtml(g,p,dm,ti,meta){
    +'.rh{flex:none;margin-top:2.5mm;text-align:right;font-size:10.5pt}.ft{flex:none;font-size:9pt;margin-top:2mm;max-height:15mm;overflow:hidden;line-height:1.3}'
    +'</style><div class="pg"><div class="fm"><div class="hd"><h2>'+esc(G.sinif+'/'+G.sube.toUpperCase()+' SINIFI OTURMA PLANI')+'</h2><div class="mt">'+meta+'</div></div><div class="gr">'+cells+'</div>'
    +(fr?'<div class="ft"><div>'+fr+'</div></div>':'')+(tname()?'<div class="rh">Sınıf Rehber Öğretmeni: <b>'+esc(tname())+'</b></div>':'')
-   +'</div></div><script>onload=function(){document.querySelectorAll(".c.s").forEach(function(e){var i=e.firstChild,b=i.querySelector("b"),f0=parseFloat(getComputedStyle(e).fontSize),f=f0,n=0;function bad(){return i.offsetHeight>e.clientHeight-2||i.scrollWidth>e.clientWidth;}function ln(){var lh=parseFloat(getComputedStyle(b).lineHeight)||f*1.15;return Math.round(b.offsetHeight/lh);}while(n++<60&&f>8&&(bad()||ln()>2)){f-=.5;e.style.fontSize=f+"px";}if(bad()){f=f0;e.style.fontSize=f+"px";n=0;while(n++<60&&f>4&&bad()){f-=.5;e.style.fontSize=f+"px";}}});setTimeout(print,400)}<\/script>';
+   +'</div></div><script>onload=function(){var es=document.querySelectorAll(".c.s");es.forEach(function(e){var i=e.firstChild,b=i.querySelector("b"),f0=parseFloat(getComputedStyle(e).fontSize),f=f0,n=0;function bad(){return i.offsetHeight>e.clientHeight-2||i.scrollWidth>e.clientWidth;}function ln(){var lh=parseFloat(getComputedStyle(b).lineHeight)||f*1.15;return Math.round(b.offsetHeight/lh);}while(n++<60&&f>8&&(bad()||ln()>2)){f-=.5;e.style.fontSize=f+"px";}if(bad()){f=f0;e.style.fontSize=f+"px";n=0;while(n++<60&&f>4&&bad()){f-=.5;e.style.fontSize=f+"px";}}});var m=99;es.forEach(function(e){m=Math.min(m,parseFloat(e.style.fontSize||getComputedStyle(e).fontSize));});es.forEach(function(e){e.style.fontSize=m+"px";});setTimeout(print,400)}<\/script>';
 }
 ACT.pprint=()=>{
   if(G.sinif==='ALL'||G.sube==='ALL')return alert('Önce üstteki çubuktan sınıf ve şube seçin.');
@@ -1237,6 +1240,7 @@ function cvFit(ctx,text,wMm,hMm,maxPt,minPt,maxLines,bold){
 function cvRR(ctx,x,y,w,h,r){ctx.beginPath();if(r>0&&ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);}
 const loadPh=src=>new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src;});
 async function planCanvas(g,p,dm,ti,meta){
+  dm=outRows(g,p,dm);
   const lk=p.look==='sira',land=dm.cols>=dm.rows&&!lk,pw=land?297:210,ph=land?210:297,K=CK;
   const cv=document.createElement('canvas');cv.width=Math.round(pw*K);cv.height=Math.round(ph*K);
   const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
@@ -1262,14 +1266,17 @@ async function planCanvas(g,p,dm,ti,meta){
   const cx=[],cwd=[],ry=[],rhd=[];let a=gx;for(let c=0;c<dm.cols;c++){const w=TC.sz[c]==null?cw:TC.sz[c];cx[c]=a;cwd[c]=w;a+=w+gap;}
   a=gy;for(let r=0;r<dm.rows;r++){const h=TR.sz[r]==null?rh:TR.sz[r];ry[r]=a;rhd[r]=h;a+=h+gap;}
   const FF='Arial,Helvetica,sans-serif',rad=lk?0:1.5;
-  for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++){
+  let minPx=1e9;
+  const wrapAt=(text,wMm,px)=>{ctx.font='bold '+px+'px '+FF;const w=wMm*K,words=String(text).split(/\s+/).filter(Boolean),lines=[];let cur='';words.forEach(x=>{const t=cur?cur+' '+x:x;if(!cur||ctx.measureText(t).width<=w)cur=t;else{lines.push(cur);cur=x;}});if(cur)lines.push(cur);return {px,lines,lh:px*1.15};};
+  for(let pass=0;pass<2;pass++)for(let r=0;r<dm.rows;r++)for(let c=0;c<dm.cols;c++){
     const k=r+','+c;if(mcv[k])continue;
     const s=at[k],fo=(p.f||{})[k],mv=mgm(p)[k],sp=mv?msz(mv):[1,1],c2=Math.min(dm.cols-1,c+sp[1]-1),r2=Math.min(dm.rows-1,r+sp[0]-1);
     const x=cx[c],y=ry[r],w=cx[c2]+cwd[c2]-x,h=ry[r2]+rhd[r2]-y,cxm=(x+w/2)*K,cym=(y+h/2)*K;
+    if(pass===0&&!s)continue;
     ctx.lineWidth=.35*K;ctx.setLineDash([]);ctx.strokeStyle='#444';
     if(fo&&FOBJ[fo]){
       const custom=(p.fl||{})[k];
-      ctx.fillStyle=(fo==='ataturk'&&!custom)?'#fff':FOBJ[fo][3];cvRR(ctx,x*K,y*K,w*K,h*K,rad*K);ctx.fill();ctx.stroke();
+      ctx.fillStyle=(fo==='ataturk'&&!custom)?'#fff':FOBJ[fo][3];cvRR(ctx,x*K,y*K,w*K,h*K,rad*K);ctx.fill();if(!(fo==='ataturk'&&!custom))ctx.stroke();
       if(fo==='ataturk'&&!custom){
         if(ata){const m=.6,aw=w-2*m,ah=h-2*m,sc=Math.min(aw/ata.width,ah/ata.height),dw=ata.width*sc,dh=ata.height*sc;ctx.drawImage(ata,(x+w/2-dw/2)*K,(y+h/2-dh/2)*K,dw*K,dh*K);}
         continue;
@@ -1288,13 +1295,14 @@ async function planCanvas(g,p,dm,ti,meta){
       continue;
     }
     if(s){
-      ctx.fillStyle='#fff';cvRR(ctx,x*K,y*K,w*K,h*K,rad*K);ctx.fill();ctx.stroke();
       const im=imgs[s.id],pd=im&&h>=13?Math.min(10,h*.3,w*.4):0,noH=3.2,m=.9;
       const aw=w-2*m,ah=h-2*m-noH-(pd?pd+.6:0),n2=cvFit(ctx,s.name,aw,ah,16,6,2,true),n3=cvFit(ctx,s.name,aw,ah,16,6,3,true),nm=(n3&&(!n2||n3.px>n2.px*1.25)?n3:n2)||cvFit(ctx,s.name,aw,ah,16,3.5,99,true)||{px:3.5*0.3528*K,lines:[s.name],lh:3.5*0.3528*K*1.15};
-      const nH=nm.lines.length*nm.lh,tot=(pd?pd*K+.6*K:0)+nH+noH*K*.85,y0=cym-tot/2;let yy=y0;
+      if(pass===0){minPx=Math.min(minPx,nm.px);continue;}
+      ctx.fillStyle='#fff';cvRR(ctx,x*K,y*K,w*K,h*K,rad*K);ctx.fill();ctx.stroke();
+      const nm2=wrapAt(s.name,aw,minPx),nH=nm2.lines.length*nm2.lh,tot=(pd?pd*K+.6*K:0)+nH+noH*K*.85,y0=cym-tot/2;let yy=y0;
       if(pd){ctx.save();ctx.beginPath();ctx.arc(cxm,yy+pd*K/2,pd*K/2,0,Math.PI*2);ctx.clip();const sc=Math.max(pd*K/im.width,pd*K/im.height),dw=im.width*sc,dh=im.height*sc;ctx.drawImage(im,cxm-dw/2,yy+pd*K/2-dh/2,dw,dh);ctx.restore();yy+=pd*K+.6*K;}
-      ctx.fillStyle='#111';ctx.font='bold '+nm.px+'px '+FF;nm.lines.forEach((t,i)=>ctx.fillText(t,cxm,yy+i*nm.lh));yy+=nH;
-      ctx.fillStyle='#555';ctx.font=Math.max(5*0.3528*K,Math.min(nm.px*.8,8*0.3528*K))+'px '+FF;ctx.fillText('No: '+s.no,cxm,yy+.3*K);
+      ctx.fillStyle='#111';ctx.font='bold '+nm2.px+'px '+FF;nm2.lines.forEach((t,i)=>ctx.fillText(t,cxm,yy+i*nm2.lh));yy+=nH;
+      ctx.fillStyle='#555';ctx.font=Math.max(5*0.3528*K,Math.min(nm2.px*.8,8*0.3528*K))+'px '+FF;ctx.fillText('No: '+s.no,cxm,yy+.3*K);
       continue;
     }
     continue;
