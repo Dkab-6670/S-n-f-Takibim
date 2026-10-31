@@ -580,14 +580,16 @@ function ydSave(o){let r=ydRec();if(!r){r={kim:'_yokd'};S.ayar.push(r);}const ks
 const ydKey=(d,sn,sb)=>d+'|'+T(sn)+'|'+T(sb).toLowerCase();
 const ydStu=()=>S.students.filter(s=>!s.absent&&(G.sinif==='ALL'||T(s.sinif)===G.sinif)&&(G.sube==='ALL'||T(s.sube).toLowerCase()===G.sube));
 const ydGroups=()=>{const m={};ydStu().forEach(s=>{m[T(s.sinif)+'|'+T(s.sube).toLowerCase()]=[T(s.sinif),T(s.sube)];});return Object.values(m);};
-function ydDone(){const g=ydGroups();if(!g.length)return '';const o=ydMap(),t=g.map(x=>o[ydKey(G.date,x[0],x[1])]);return t.every(Boolean)?t.reduce((a,b)=>a>b?a:b):'';}
+function ydDone(){const g=ydGroups();if(!g.length)return '';if(ydStu().some(s=>(rd(s).status||'None')==='None'))return '';const o=ydMap(),t=g.map(x=>o[ydKey(G.date,x[0],x[1])]);return t.every(Boolean)?t.reduce((a,b)=>a>b?a:b):'';}
 const yokItem=()=>{try{return yokItem0();}catch(e){return null;}};
 const yokItem0=()=>{
   if(!featOn('yoklama')||!pageOn('yok')||!(S.prog||[]).length)return null;
   const td=bdNow(),m=bgMin(),o=ydMap(),miss=[];
   bgToday().filter(x=>bgT(x.bas)>=0&&bgT(x.bas)<=m&&m<=bgT(x.bit)+180&&x.sinif&&x.sinif!=='ALL').forEach(x=>{
     const sb=(x.sube&&x.sube!=='ALL')?[String(x.sube).toLowerCase()]:subes(x.sinif);
-    sb.forEach(b=>{if(!S.students.some(s=>!s.absent&&T(s.sinif)===T(x.sinif)&&T(s.sube).toLowerCase()===b))return;if(!o[ydKey(td,x.sinif,b)]){const lab=x.sinif+'/'+b.toUpperCase();if(!miss.includes(lab))miss.push(lab);}});
+    sb.forEach(b=>{const st=S.students.filter(s=>!s.absent&&T(s.sinif)===T(x.sinif)&&T(s.sube).toLowerCase()===b);if(!st.length)return;
+      const ok=o[ydKey(td,x.sinif,b)]&&st.every(s=>{const r=recOn(s,td);return r.status&&r.status!=='None';});
+      if(!ok){const lab=x.sinif+'/'+b.toUpperCase();if(!miss.includes(lab))miss.push(lab);}});
   });
   return miss.length?['yok','✅','Yoklaması bitmemiş: '+miss.join(', '),'a']:null;
 };
@@ -1543,7 +1545,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const BUILD='2026-10-31d';
+const BUILD='2026-10-31e';
 const VER='2026-10-d119',NEWS=[['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
