@@ -351,7 +351,7 @@ function hOrd(i){const d=HGRP[i][1];let m={};try{m=JSON.parse(lsg('home_ord')||'
 ACT.hedit=()=>{HEDIT=!HEDIT;render(true);};
 ACT.hmv=a=>{const i=+a.dataset.g,vis=hOrd(i).filter(k=>P[k]&&pageOn(k)),o=hOrd(i),k=a.dataset.k,j=vis.indexOf(k),t=vis[j+(+a.dataset.d)];if(j<0||!t)return;const x=o.indexOf(k),y=o.indexOf(t);o[x]=t;o[y]=k;let m={};try{m=JSON.parse(lsg('home_ord')||'{}')||{};}catch(e){}m[i]=o;lss('home_ord',JSON.stringify(m));render(true);};
 ACT.hrs=()=>{lss('home_ord','');render(true);};
-const HGRP=[['📅 Günlük işler',['dav','reh','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['sinav','dsonu','stat','uyari','donem','karne','cikti']],['🧰 Diğer',['ayar']]];
+const HGRP=[['📅 Günlük işler',['dav','reh','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['sinav','dnm','stat','uyari','cikti']],['🧰 Diğer',['ayar']]];
 const todayCard=()=>{
   const it=[alertItem(),yokItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
   if(!it.length)return '';
@@ -1557,7 +1557,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const BUILD='2026-11-02f';
+const BUILD='2026-11-02g';
 const VER='2026-11-d123',NEWS=[['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.slice(0,3).map(n=>{const t=String(n[2]).split(/(?<=[.!?])\s/)[0];return '<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(t.length>110?t.slice(0,107)+'…':t)+'</div></div></div>';}).join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
@@ -4656,8 +4656,8 @@ const ceSave=()=>{const e=$('ceL');if(e){const it=e.value.split('\n').map(T).fil
 const ceCards=()=>{
   const all=ezSrt([...new Set(grp().flatMap(ezOf))]),x=S.ceX||[];
   const chips=all.length?all.map((n,i)=>{const on=!x.includes(n);return '<button data-act="cetg" data-i="'+i+'" class="px-2.5 py-1.5 rounded-full border text-xs font-semibold '+(on?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-500 line-through')+'">'+esc(n)+'</button>';}).join(''):'<span class="text-xs text-slate-400 italic">Seçili sınıfa uygulamada atanmış ezber yok (Ezber sayfasından ekleyin).</span>';
-  return '<div class="card"><b>📖 Ezber çizelgesi · uygulamaya bağlı</b><p class="text-xs text-slate-500 my-1">Sütunlar, uygulamada bu sınıfa atadığınız ezberlerdir. Uygulamada tamamlanan ezberin kutusuna ✓ konur. Çıkmasını istemediğiniz ezbere dokunun (üstü çizilir).</p><div class="flex flex-wrap gap-1.5 my-2">'+chips+'</div><button data-act="cpr" data-v="ez1" class="btn bg-indigo-600 w-full">Çizelgeyi yazdır (tamamlananlar ✓ işaretli)</button></div>'
-  +'<div class="card"><b>📝 Ezber çizelgesi · bağımsız (uygulamadan ayrı)</b><p class="text-xs text-slate-500 my-1">Uygulamadaki ezberlerle ilgisi yoktur; her satıra bir ezber yazın, hiçbir kutu işaretli çıkmaz. Liste bu cihazda saklanır. Öğrenci adlarıyla ya da tamamen boş satırlarla basılabilir.</p><textarea id="ceL" rows="6" class="inp w-full mt-2 text-xs">'+esc(ceList().join('\n'))+'</textarea><label class="flex items-center gap-2 text-xs mt-2"><input type="checkbox" id="ceB"'+(S.ceB?' checked':'')+'> Öğrenci adları olmadan, boş satırlı çizelge</label><div class="flex flex-wrap gap-2 mt-2"><button data-act="cpr" data-v="ez2" class="btn bg-emerald-600 flex-1">Boş çizelgeyi yazdır</button><button data-act="cers" class="px-3 py-2 rounded-lg border text-sm">Varsayılana dön</button></div></div>';
+  return '<div class="card"><b>📖 Ezber çizelgesi · tamamlananlar ✓ işaretli</b><p class="text-xs text-slate-500 my-1">Sütunlar, uygulamada bu sınıfa atadığınız ezberlerdir. Uygulamada tamamlanan ezberin kutusuna ✓ konur. Çıkmasını istemediğiniz ezbere dokunun (üstü çizilir).</p><div class="flex flex-wrap gap-1.5 my-2">'+chips+'</div><button data-act="cpr" data-v="ez1" class="btn bg-indigo-600 w-full">Çizelgeyi yazdır (tamamlananlar ✓ işaretli)</button></div>'
+  +'<div class="card"><b>📝 Ezber çizelgesi · boş, elle doldurulur</b><p class="text-xs text-slate-500 my-1">Uygulamadaki ezberlerle ilgisi yoktur; her satıra bir ezber yazın, hiçbir kutu işaretli çıkmaz. Liste bu cihazda saklanır. Öğrenci adlarıyla ya da tamamen boş satırlarla basılabilir.</p><textarea id="ceL" rows="6" class="inp w-full mt-2 text-xs">'+esc(ceList().join('\n'))+'</textarea><label class="flex items-center gap-2 text-xs mt-2"><input type="checkbox" id="ceB"'+(S.ceB?' checked':'')+'> Öğrenci adları olmadan, boş satırlı çizelge</label><div class="flex flex-wrap gap-2 mt-2"><button data-act="cpr" data-v="ez2" class="btn bg-emerald-600 flex-1">Boş çizelgeyi yazdır</button><button data-act="cers" class="px-3 py-2 rounded-lg border text-sm">Varsayılana dön</button></div></div>';
 };
 /* ===== VELİ TOPLANTISI: gündem seç → müdür onay yazısı → toplantıdan sonra tutanak (görüşülenler + kararlar düzenlenebilir) =====
    Gündem ve karar taslakları MEB okullarında yaygın kullanılan veli toplantısı gündem/tutanak örneklerinden derlenmiştir; okulunuza göre değiştirin.
@@ -4751,12 +4751,13 @@ Object.assign(ACT,{
      +'<p style="font-size:11px;color:#444;margin-top:14px">Ek: Veli imza sirküleri (katılım listesi).</p>');
   }
 });
+const cxAcc=(k,t,body)=>'<details class="card !p-0" data-cx="'+k+'"'+(S.cxo&&S.cxo[k]?' open':'')+'><summary class="cursor-pointer font-bold px-4 py-3">'+t+'</summary><div class="px-3 pb-3">'+body.split('class="card"').join('class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 mb-3"')+'</div></details>';
+$('view').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.cx;if(!k)return;(S.cxo=S.cxo||{})[k]=e.target.open;},true);
 reg('cikti','🖨️','Çıktılar',()=>gbar()
-  +'<div class="card"><b>🖨️ Yazdırılabilir çıktılar</b><p class="text-xs text-slate-500 my-1">Seçili sınıf için hazırlanır; açılan sayfada yazdırın ya da PDF olarak kaydedin. Metinler örnektir, okulunuzun biçimine göre kontrol edin.</p><div class="flex flex-wrap gap-2 mt-2"><button data-act="cpr" data-v="sl" class="btn bg-slate-600">📋 Sınıf listesi</button>'+(featOn('ders')?'<button data-act="cpr" data-v="oc" class="btn bg-slate-600">📚 Ödev çizelgesi</button>':'')+'</div></div>'
-  +(featOn('ezber')?ceCards():'')
-  +vtCard()
-  +'<div class="card"><b>✍️ Veli toplantısı imza sirküleri</b><div class="flex flex-wrap gap-2 mt-2"><label class="text-xs">Toplantı tarihi <input type="date" id="cvD" class="inp"></label><input id="cvK" class="inp flex-1 min-w-[160px]" placeholder="Gündem (isteğe bağlı)"></div><button data-act="cpr" data-v="vt" class="btn bg-indigo-600 w-full mt-2">Sirküleri yazdır</button></div>'
-  +'<div class="card"><b>📷 Veli izin belgesi (görüntü paylaşımı)</b><input id="cvH" class="inp w-full mt-2" placeholder="Paylaşım yapılacak hesap ya da platform (isteğe bağlı)"><button data-act="cpr" data-v="vi" class="btn bg-indigo-600 w-full mt-2">Belgeyi yazdır</button></div>');
+  +cxAcc('cl','📋 Sınıf listesi ve ödev çizelgesi','<div class="card"><b>🖨️ Yazdırılabilir çıktılar</b><p class="text-xs text-slate-500 my-1">Seçili sınıf için hazırlanır; açılan sayfada yazdırın ya da PDF olarak kaydedin. Metinler örnektir, okulunuzun biçimine göre kontrol edin.</p><div class="flex flex-wrap gap-2 mt-2"><button data-act="cpr" data-v="sl" class="btn bg-slate-600">📋 Sınıf listesi</button>'+(featOn('ders')?'<button data-act="cpr" data-v="oc" class="btn bg-slate-600">📚 Ödev çizelgesi</button>':'')+'</div></div>')
+  +(featOn('ezber')?cxAcc('ce','📖 Ezber çizelgeleri',ceCards()):'')
+  +cxAcc('vt','🗣️ Veli toplantısı',vtCard()+'<div class="card"><b>✍️ Veli toplantısı imza sirküleri</b><div class="flex flex-wrap gap-2 mt-2"><label class="text-xs">Toplantı tarihi <input type="date" id="cvD" class="inp"></label><input id="cvK" class="inp flex-1 min-w-[160px]" placeholder="Gündem (isteğe bağlı)"></div><button data-act="cpr" data-v="vt" class="btn bg-indigo-600 w-full mt-2">Sirküleri yazdır</button></div>')
+  +cxAcc('vi','📷 Veli izin belgesi','<div class="card"><b>📷 Veli izin belgesi (görüntü paylaşımı)</b><input id="cvH" class="inp w-full mt-2" placeholder="Paylaşım yapılacak hesap ya da platform (isteğe bağlı)"><button data-act="cpr" data-v="vi" class="btn bg-indigo-600 w-full mt-2">Belgeyi yazdır</button></div>'));
 ACT.cpr=a=>{
   const t=a.dataset.v,l=grp(),blank=t==='ez2'&&$('ceB')&&$('ceB').checked;if(!l.length&&!blank)return alert('Seçili sınıfta öğrenci yok.');
   const nm=prof().name||'';
@@ -5026,8 +5027,22 @@ function bgHint(){
 ACT.bgsync=()=>{const c=bgSel();if(!c)return;const sn=String(c.sinif||'');if(!sn||sn==='ALL')return;S.autoId=c.id;G.sinif=sn;G.sube=c.sube&&c.sube!=='ALL'?String(c.sube).toLowerCase():'ALL';G.date=bdNow();gsave();if(S.page==='yplan')YP.sc=true;render(true);};
 BG_PG.forEach(k=>{const pg=P[k];if(pg&&pg.html&&!pg.__bh){const f=pg.html;pg.html=()=>bgHint()+f();pg.__bh=1;}});
 
+/* ===== Dönem sayfası: Dönem Çizelgesi + Dönem Sonu + Karne tek yerde, sekmeli (eski sayfalar aynen çalışır) ===== */
+const DT=[['donem','📅 Çizelge'],['dsonu','🏁 Dönem sonu'],['karne','📝 Karne']];
+S.dtab='donem';
+reg('dnm','📅','Dönem',()=>{
+  const tabs=DT.filter(t=>P[t[0]]&&pageOn(t[0]));
+  if(!tabs.length)return '<div class="card text-sm text-slate-500">Bu bölümün sayfaları Ayarlar > Profil ve özellikler içinden kapatılmış.</div>';
+  if(!tabs.some(t=>t[0]===S.dtab))S.dtab=tabs[0][0];
+  return '<div class="flex gap-2 mb-3">'+tabs.map(t=>'<button data-act="dtab" data-v="'+t[0]+'" class="flex-1 min-h-[44px] rounded-lg border font-semibold text-sm '+(S.dtab===t[0]?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+t[1]+'</button>').join('')+'</div>'+P[S.dtab].html();
+},()=>{const f=P[S.dtab]&&P[S.dtab].after;if(f)f();});
+P.dnm.list=()=>(P[S.dtab]&&P[S.dtab].list)?P[S.dtab].list():'';
+ACT.dtab=a=>{S.dtab=a.dataset.v;render(true);scrollTo({top:0});};
+{const _po=pageOn;pageOn=function(id){return id==='dnm'?DT.some(t=>_po(t[0])):_po(id);};}
+{const _g=go;go=function(id){if(id==='donem'||id==='dsonu'||id==='karne'){S.dtab=id;id='dnm';}_g(id);};}
+
 const PK=new URLSearchParams(location.search).get('k');
-{const c0=P.cikti.html;P.cikti.html=()=>c0()+printBtns();}
+{const c0=P.cikti.html;P.cikti.html=()=>c0()+cxAcc('kg','🗂️ Kağıt çizelgeler ve haftalık/aylık takip',printBtns());}
 if(PK)parentView(PK);else gateStart(()=>{go(kioskOn()?'tahta':'home');if(kioskOn()){if(lsg('kiosk_v1')==='1'&&S.room)listen(S.room);}else if(S.room)listen(S.room);else room();});
 </script>
 </body>
