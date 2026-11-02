@@ -866,8 +866,9 @@ gpage('reh','🧭','Rehberlik Faaliyetleri',null,()=>'<details class="card" data
    +[['all','Hepsi'],['no','❌ Yapmayanlar'],['none','❔ İşaretsizler']].map(f=>'<button data-act="rfl" data-v="'+f[0]+'" class="px-3 py-1.5 rounded-full border text-xs font-semibold '+(S.rf===f[0]?'bg-slate-700 text-white border-slate-700':'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+f[1]+'</button>').join('')
    +'</div><div class="flex gap-2"><button data-act="rall" class="btn bg-emerald-600">✅ İşaretsizleri Yaptı yap</button><button data-act="gedit" data-k="reh" data-key="'+esc(gkey('reh',a))+'" class="px-3 border rounded-lg">✏️</button><button data-act="tdel" data-k="reh" data-id="'+esc(a.id)+'" class="px-3 border rounded-lg text-red-600">🗑️</button></div></div>';
   const rows=l.filter(s=>{const v=(s.hwStatus||{})[a.id]||'None';return S.rf==='all'||(S.rf==='no'&&v==='Yapmadi')||(S.rf==='none'&&v==='None');}).map(s=>{const v=(s.hwStatus||{})[a.id]||'None';
-    return '<div class="card mb-0 !py-2 flex items-center gap-2'+(v==='Yapmadi'?' !bg-red-50 dark:!bg-red-950 !border-red-300':'')+'"><div class="flex-1 min-w-0"><div class="font-semibold break-words"><span class="text-indigo-600 font-bold">'+(++HI)+'.</span> '+esc(s.name)+'</div><div class="text-[11px] text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div></div><div class="flex gap-1.5 w-44 shrink-0">'+B(s,'hw',a.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',a.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div></div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu filtrede öğrenci yok.</div>';
-  return sw+row1+head+rows;
+    return '<div class="card mb-0 !py-2 flex flex-col sm:flex-row sm:items-center gap-2'+(v==='Yapmadi'?' !bg-red-50 dark:!bg-red-950 !border-red-300':'')+'"><div class="flex-1 min-w-0 w-full"><div class="font-semibold break-words"><span class="text-indigo-600 font-bold">'+(++HI)+'.</span> '+esc(s.name)+'</div><div class="text-[11px] text-slate-500">No: '+esc(s.no)+' · '+esc(s.sinif)+'/'+esc(String(s.sube).toUpperCase())+'</div></div><div class="flex gap-1.5 w-full sm:w-44 shrink-0">'+B(s,'hw',a.id+':Yapti','Yaptı',v==='Yapti',GR)+B(s,'hw',a.id+':Yapmadi','Yapmadı',v==='Yapmadi',RD)+'</div></div>';}).join('')||'<div class="card col-span-full text-center text-sm text-slate-400">Bu filtrede öğrenci yok.</div>';
+  const slim='<div class="px-1 pt-1 text-xs"><div class="flex justify-between gap-2"><b class="truncate">'+esc(a.name)+'</b><span class="shrink-0">✅ '+c.Yapti+' · ❌ '+c.Yapmadi+' · ❔ '+c.None+'</span></div><div class="flex h-1.5 rounded-full overflow-hidden mt-1 bg-slate-200 dark:bg-slate-700"><div style="width:'+pc(c.Yapti)+'%" class="bg-emerald-500"></div><div style="width:'+pc(c.Yapmadi)+'%" class="bg-red-500"></div></div></div>';
+  return sw+'<div class="col-span-full"><div class="sticky z-20 -mx-1 px-1 pt-1 pb-2 bg-slate-100 dark:bg-slate-900" style="top:calc(var(--th,56px) - 4px)">'+row1+slim+'</div>'+head+'<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 mt-3">'+rows+'</div></div>';
 });
 Object.assign(ACT,{
   rv(a){S.rview=a.dataset.v;relist();},rsel(a){S.rv=a.dataset.id;relist();},rfl(a){S.rf=a.dataset.v;relist();},
@@ -1545,7 +1546,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const BUILD='2026-11-01a';
+const BUILD='2026-11-02b';
 const VER='2026-11-d122',NEWS=[['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
@@ -2680,7 +2681,7 @@ function bgPick(){
   try{const l=bgToday(),m=bgMin();return l.find(z=>bgT(z.bas)<=m&&m<bgT(z.bit))||l.find(z=>bgT(z.bas)>m)||l[l.length-1]||null;}catch(e){return null;}
 }
 function ypSched(g){
-  const x=bgPick();if(!x)return null;
+  const x=bgSel();if(!x)return null;
   const k=Object.keys(g).sort().find(k=>{const p=k.split('|'),d=(p[1]||'').toLowerCase(),xd=String(x.ders||'').toLowerCase();return(p[0]==='ALL'||p[0]===String(x.sinif))&&(!d||!xd||xd.includes(d)||d.includes(xd));});
   return k?{k:k,id:String(x.id||x.sinif)+'|'+bdNow()}:null;
 }
@@ -4490,22 +4491,38 @@ function bgCur(){
     ||l.slice().reverse().find(x=>m>=bgT(x.bit)&&m-bgT(x.bit)<=10)||null;
 }
 /* Her ders için yalnızca bir kez uygulanır: öğretmen sınıfı elle değiştirirse o ders boyunca elle seçim korunur. */
+function bgSel(){return bgCur()||bgPick();}
 function bgAuto(){
-  const strict=bgCur(),c=strict||bgPick();if(!c||S.autoId===c.id)return;
-  const sn=String(c.sinif||'');if(!sn||sn==='ALL'||!classes().includes(sn))return;
+  const strict=bgCur(),c=strict||bgPick();if(!c||S.autoId===c.id)return false;
+  const sn=String(c.sinif||'');if(!sn||sn==='ALL'||!classes().includes(sn))return false;
   S.autoId=c.id;
   G.sinif=sn;G.sube=c.sube&&c.sube!=='ALL'?String(c.sube).toLowerCase():'ALL';G.date=bdNow();gsave();
   toast('📍 Ders programına göre '+sn+(G.sube==='ALL'?'':'/'+G.sube.toUpperCase())+' seçildi'+(strict?'':' (ders dışı: sıradaki/son ders)'));
+  return true;
 }
 /* Yıllık Plan sayfası: kendi sınıf filtresi (YP.sinif) var; açılırken şu anki dersin sınıfına ayarlanır ve o haftaya kaydırır. */
 function bgAutoYp(){
-  const c=bgPick();if(!c)return;
+  const c=bgSel();if(!c)return;
   const sn=String(c.sinif||'');if(!sn||sn==='ALL')return;
   if(!S.yplan.some(y=>y.t!=='e'&&(y.sinif===sn||y.sinif==='ALL')))return;
-  YP.sinif=sn;YP.sc=true;
+  YP.sc=true;
+  if(S.autoId===c.id)return; /* bu ders için sınıf zaten seçildi (otomatik ya da elle): elle seçimi bozma */
+  S.autoId=c.id;YP.sinif=sn;
   toast('📍 Ders programına göre '+sn+'. sınıfın yıllık planı açıldı');
 }
-document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'){const c=bgCur()||bgPick();if(c)S.autoId=c.id;}if(d.yf==='sinif'){const c=bgCur();if(c)S.autoYp=c.id;}});
+/* Sayfa açıkken yeni ders sırası gelirse (uygulama arka plandan dönünce ya da dakikada bir) sınıf kendiliğinden güncellenir. */
+const BG_PG=['ders','ezber','yok','odevhiz','dav','grupmsj','yplan'];
+function bgTick(){
+  try{
+    if(kioskOn()||!BG_PG.includes(S.page)||typing()||!(S.prog||[]).length)return;
+    const b=S.autoId,g=G.sinif+'|'+G.sube;
+    if(S.page==='yplan')bgAutoYp();else bgAuto();
+    if(S.autoId!==b||G.sinif+'|'+G.sube!==g)render(true);
+  }catch(e){}
+}
+setInterval(bgTick,60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(bgTick,400);});
+document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'){const c=bgSel();if(c)S.autoId=c.id;}if(d.yf==='sinif'){const c=bgSel();if(c)S.autoId=c.id;}});
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgCur()||bgPick();if(c)S.autoId=c.id;}});
 
 
