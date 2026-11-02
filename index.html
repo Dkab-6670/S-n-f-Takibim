@@ -1546,7 +1546,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const BUILD='2026-11-02b';
+const BUILD='2026-11-02c';
 const VER='2026-11-d122',NEWS=[['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.map(n=>'<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(n[2])+'</div></div></div>').join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
@@ -4492,6 +4492,7 @@ function bgCur(){
 }
 /* Her ders için yalnızca bir kez uygulanır: öğretmen sınıfı elle değiştirirse o ders boyunca elle seçim korunur. */
 function bgSel(){return bgCur()||bgPick();}
+function bgRun(){const m=bgMin();return bgToday().find(x=>bgT(x.bas)<=m&&m<bgT(x.bit))||null;}
 function bgAuto(){
   const strict=bgCur(),c=strict||bgPick();if(!c||S.autoId===c.id)return false;
   const sn=String(c.sinif||'');if(!sn||sn==='ALL'||!classes().includes(sn))return false;
@@ -4522,8 +4523,8 @@ function bgTick(){
 }
 setInterval(bgTick,60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(bgTick,400);});
-document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'){const c=bgSel();if(c)S.autoId=c.id;}if(d.yf==='sinif'){const c=bgSel();if(c)S.autoId=c.id;}});
-document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgCur()||bgPick();if(c)S.autoId=c.id;}});
+document.addEventListener('change',e=>{const t=e.target,d=t&&t.dataset?t.dataset:{};if(d.g==='sinif'||d.g==='sube'||d.yf==='sinif'){const c=bgRun();if(c)S.autoId=c.id;}});
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-act="hcls"]')){const c=bgRun();if(c)S.autoId=c.id;}});
 
 
 /* ========== KALDIĞIMIZ YER: sınıf ve derse göre konu / sayfa notu, bir sonraki derste hatırlatma ========== */
@@ -4990,6 +4991,20 @@ ACT.tdelacc=async()=>{
   try{await new Promise(ok=>{const q=indexedDB.deleteDatabase('sinif_offline');q.onsuccess=q.onerror=q.onblocked=()=>ok();setTimeout(ok,1500);});}catch(e){}
   alert('Hesabınız ve verileriniz silindi.');location.reload();
 };
+
+/* ===== Ders programı ile seçili sınıf farklıysa üstte tek satır uyarı: dokununca geçer ===== */
+function bgHint(){
+  try{
+    const c=bgSel();if(!c||kioskOn())return '';
+    const sn=String(c.sinif||''),sb=c.sube&&c.sube!=='ALL'?String(c.sube).toLowerCase():'';
+    if(!sn||sn==='ALL'||!classes().includes(sn))return '';
+    const yp=S.page==='yplan';
+    if(G.sinif===sn&&(yp||!sb||G.sube===sb))return '';
+    return '<button data-act="bgsync" class="w-full text-left mb-3 rounded-xl border border-indigo-300 bg-indigo-50 dark:bg-slate-800 dark:border-indigo-700 px-3 py-2 text-sm">📍 Ders programı: <b>'+esc(sn)+(sb?'/'+esc(sb.toUpperCase()):'. sınıf')+'</b> · '+esc(c.ders||'')+' ('+esc(c.bas)+'–'+esc(c.bit)+') <span class="font-bold text-indigo-700 dark:text-indigo-300">Bu sınıfa geç ›</span></button>';
+  }catch(e){return '';}
+}
+ACT.bgsync=()=>{const c=bgSel();if(!c)return;const sn=String(c.sinif||'');if(!sn||sn==='ALL')return;S.autoId=c.id;G.sinif=sn;G.sube=c.sube&&c.sube!=='ALL'?String(c.sube).toLowerCase():'ALL';G.date=bdNow();gsave();if(S.page==='yplan')YP.sc=true;render(true);};
+BG_PG.forEach(k=>{const pg=P[k];if(pg&&pg.html&&!pg.__bh){const f=pg.html;pg.html=()=>bgHint()+f();pg.__bh=1;}});
 
 const PK=new URLSearchParams(location.search).get('k');
 {const c0=P.cikti.html;P.cikti.html=()=>c0()+printBtns();}
