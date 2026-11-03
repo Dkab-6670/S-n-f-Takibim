@@ -3,7 +3,7 @@ const CDN = ['cdn.tailwindcss.com', 'cdnjs.cloudflare.com', 'www.gstatic.com', '
 
 self.addEventListener('install', e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => Promise.all(['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png'].map(u => c.add(u).catch(() => {})))));
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all(['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'].map(u => c.add(u).catch(() => {})))));
 });
 
 self.addEventListener('activate', e => {
@@ -22,10 +22,12 @@ self.addEventListener('fetch', e => {
   if (!same && !CDN.includes(url.hostname)) return; // Firebase veritabanı ve giriş istekleri hiç karışılmaz
 
   if (same) {
-    // Sayfanın kendisi: önce internet (yeni sürüm hemen gelsin), olmazsa önbellek
+    // Hızlı açılış: önbellekten hemen ver, arkada yenile (yeni sürüm bir sonraki açılışta; sürüm uyarısı da bildirir)
     e.respondWith(
-      fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put(req, c)); return r; })
-        .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match('./') || caches.match('index.html')))
+      caches.match(req, { ignoreSearch: true }).then(hit => {
+        const net = fetch(req).then(r => { if (r && r.ok) { const c = r.clone(); caches.open(CACHE).then(x => x.put(req, c)); } return r; }).catch(() => hit);
+        return hit || net;
+      })
     );
   } else {
     // Tasarım ve simge kütüphaneleri: önbellekten hemen ver, arkada yenile
