@@ -281,6 +281,7 @@ function listen(code){
 }
 function save(){
   if(!S.room||window.DELING)return;
+  try{vkSched();}catch(e){}
   KEYS.forEach(k=>prepare(S[k],PRE[k]));
   const now=snap(),u={},root='rooms/'+S.room;
   diff(u,root,lastRoom===S.room?last:{},now);u[root+'/lastUpdated']=firebase.database.ServerValue.TIMESTAMP;
@@ -1560,7 +1561,7 @@ $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.ta
 
 /* Neler yeni */
 const BUILD='2026-11-04c';
-const VER='2026-11-d123',NEWS=[['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
+const VER='2026-11-d124',NEWS=[['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.slice(0,3).map(n=>{const t=String(n[2]).split(/(?<=[.!?])\s/)[0];return '<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(t.length>110?t.slice(0,107)+'…':t)+'</div></div></div>';}).join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -5080,7 +5081,124 @@ ACT.dtab=a=>{S.dtab=a.dataset.v;render(true);scrollTo({top:0});};
 {const pg=P.home;if(pg&&!pg.__bh){const f=pg.html;pg.html=()=>bgHint()+f();pg.__bh=1;}}
 const PK=new URLSearchParams(location.search).get('k');
 {const c0=P.cikti.html;P.cikti.html=()=>c0()+cxAcc('kg','🗂️ Kağıt çizelgeler ve haftalık/aylık takip',printBtns());}
-if(PK)parentView(PK);else gateStart(()=>{go(kioskOn()?'tahta':'home');if(kioskOn()){if(lsg('kiosk_v1')==='1'&&S.room)listen(S.room);}else if(S.room)listen(S.room);else room();});
+/* ========== VELİ UYGULAMASI: öğrenciye özel kod, otomatik güncellenen karne kaydı ========== */
+const VK_AL='ABCDEFGHJKMNPQRSTUVWXYZ23456789',VK_HEAD='<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+KCSS+'</style>';
+const vkGen=()=>{let t='';crypto.getRandomValues(new Uint32Array(10)).forEach(n=>{t+=VK_AL[n%VK_AL.length];});return t;};
+const vkFmt=c=>String(c||'').slice(0,5)+'-'+String(c||'').slice(5);
+const vkNorm=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const vkOk=c=>/^[A-HJKMNP-Z2-9]{10}$/.test(c);
+const vkHash=s=>{let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return h+'.'+s.length;};
+let VKH={},vkT=0,vkB=false,vkP=false;try{VKH=JSON.parse(lsg('vk_hash')||'{}')||{};}catch(e){}
+const vkSched=()=>{clearTimeout(vkT);vkT=setTimeout(()=>vkRun(false),2500);};
+async function vkRun(force){
+  if(vkB){vkP=true;return 0;}
+  const L=S.students.filter(s=>s&&vkOk(s.vk||''));if(!L.length)return 0;
+  vkB=true;let n=0;const mon=Math.floor(Date.now()/(30*864e5));
+  try{
+    await auth();
+    for(const s of L){
+      let h;try{h=VK_HEAD+karne(s).replace('<h3>Öğretmen Görüşü</h3><div class="l"></div>','');}catch(e){continue;}
+      const k=vkHash(h)+'|'+mon;
+      if(!force&&VKH[s.vk]===k)continue;
+      await db.ref('share/'+s.vk).set({html:h,exp:Date.now()+365*864e5,n:s.name,ts:firebase.database.ServerValue.TIMESTAMP});
+      VKH[s.vk]=k;n++;
+    }
+    lss('vk_hash',JSON.stringify(VKH));
+  }catch(e){console.warn('Veli eşitleme:',e);if(force)toast('Veli kayıtları gönderilemedi: '+e.message+' (Firebase kurallarında share bölümünü kontrol edin)',true);}
+  vkB=false;if(vkP){vkP=false;vkSched();}
+  return n;
+}
+const vkLink=()=>location.origin+location.pathname+'?mod=veli';
+const vkMsg=s=>'Sayın veli, '+s.name+' için veli uygulaması giriş kodu: '+vkFmt(s.vk)+'\n\nUygulamayı açıp kodu girerseniz yalnızca çocuğunuzun devam, ezber, ödev ve puan durumunu görürsünüz. Bilgiler öğretmeniniz kaydettikçe güncellenir.\n'+vkLink();
+const vkRmNode=c=>{delete VKH[c];lss('vk_hash',JSON.stringify(VKH));return auth().then(()=>db.ref('share/'+c).remove()).catch(()=>{});};
+const vkStu=a=>S.students.find(x=>x.id===a.dataset.id);
+Object.assign(ACT,{
+  vkmake(){let n=0;grp().forEach(s=>{if(!vkOk(s.vk||'')){s.vk=vkGen();n++;}});if(!n)return;save();render(true);toast(n+' öğrenciye kod verildi');vkRun(true);},
+  async vksync(){toast('Gönderiliyor…');const n=await vkRun(true);toast('Veli kayıtları güncellendi ✓ ('+(n||0)+')');},
+  vkall(){const t=grp().filter(s=>s.vk).map(s=>s.name+': '+vkFmt(s.vk)).join('\n');(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kodlar kopyalandı ✓')).catch(()=>toast('Kopyalanamadı',true));},
+  vkwa(a){const s=vkStu(a);if(s)waOpen('',vkMsg(s));},
+  vkcp(a){const s=vkStu(a);if(!s)return;(navigator.clipboard?navigator.clipboard.writeText(vkMsg(s)):Promise.reject()).then(()=>toast('Mesaj kopyalandı ✓')).catch(()=>toast('Kopyalanamadı',true));},
+  async vkren(a){const s=vkStu(a);if(!s||!confirm(s.name+' için yeni kod verilsin mi? Eski kod artık çalışmaz.'))return;const o=s.vk;s.vk=vkGen();await vkRmNode(o);save();render(true);vkRun(true);},
+  async vkdel(a){const s=vkStu(a);if(!s||!confirm(s.name+' için veli erişimi kaldırılsın mı? Veli artık göremez.'))return;const o=s.vk;delete s.vk;await vkRmNode(o);save();render(true);toast('Veli erişimi kaldırıldı');}
+});
+const vkCard=()=>{
+  const l=grp(),miss=l.filter(s=>!vkOk(s.vk||'')).length,has=l.filter(s=>s.vk);
+  return '<div class="card"><b class="text-sm">👪 Veli uygulaması kodları</b><p class="text-xs text-slate-500 my-1">Her öğrencinin kendi kodu vardır. Veli uygulamada kodu girince yalnızca çocuğunun karnesini (devam, ezber, ödev, puan) görür. Siz kaydettikçe kendiliğinden güncellenir. Kodu yalnızca ilgili veliye gönderin.</p><div class="flex flex-wrap gap-2 my-2">'
+   +(miss?'<button data-act="vkmake" class="btn bg-teal-600">🔑 Kod oluştur ('+miss+' öğrenci)</button>':'')
+   +(has.length?'<button data-act="vkall" class="btn bg-slate-600">📋 Tüm kodları kopyala</button><button data-act="vksync" class="btn bg-indigo-600">📤 Şimdi gönder</button>':'')+'</div>'
+   +has.map(s=>'<div class="flex items-center justify-between gap-2 text-sm border-b border-slate-200 dark:border-slate-700 py-1"><span>'+esc(s.name)+' <span class="font-mono text-xs text-slate-500">'+esc(vkFmt(s.vk))+'</span></span><span class="flex gap-3 text-lg"><button data-act="vkwa" data-id="'+esc(s.id)+'" title="WhatsApp">💬</button><button data-act="vkcp" data-id="'+esc(s.id)+'" title="Mesajı kopyala">📋</button><button data-act="vkren" data-id="'+esc(s.id)+'" title="Kodu yenile">🔄</button><button data-act="vkdel" data-id="'+esc(s.id)+'" title="Erişimi kaldır">❌</button></span></div>').join('')+'</div>';
+};
+{const k6=P.karne.html;P.karne.html=()=>k6()+vkCard();}
+
+/* Veli uygulaması: yalnızca kod girilen çocuğun kaydını okur, oda verisine hiç bağlanmaz */
+function veliApp(lock){
+  const KEY='veli_codes_v1';let list=[],cur=0,off=null,adding=false,vtk=0;
+  try{list=JSON.parse(lsg(KEY)||'[]')||[];}catch(e){}
+  const sv=()=>lss(KEY,JSON.stringify(list));
+  const pv=document.createElement('div');pv.className='fixed inset-0 z-[600] bg-slate-200 flex flex-col';document.body.appendChild(pv);
+  const stop=()=>{vtk++;if(off){try{off();}catch(e){}off=null;}};
+  async function addCode(){
+    const c=vkNorm($('vpI').value),m=$('vpM');
+    if(!vkOk(c)){m.textContent='Kod 10 harf ve rakamdan oluşur. Lütfen kontrol edin.';return;}
+    const ex=list.findIndex(x=>x.c===c);if(ex>=0){cur=ex;adding=false;draw();return;}
+    m.textContent='Kontrol ediliyor…';
+    try{await auth();const v=(await db.ref('share/'+c).once('value')).val();
+      if(!v||!v.html||v.exp<Date.now()){m.textContent='Bu kod geçersiz ya da kaldırılmış. Lütfen öğretmeninizle görüşün.';return;}
+      list.push({c:c,n:v.n||''});sv();cur=list.length-1;adding=false;lss('veli_h_'+c,v.html);draw();
+    }catch(e){m.textContent='Bağlanılamadı. İnternet bağlantınızı kontrol edin.';}
+  }
+  function draw(){
+    stop();
+    pv.innerHTML='<div class="bg-indigo-700 text-white font-bold px-4 py-3">👪 Veli Ekranı</div>'
+     +(list.length?'<div class="flex flex-wrap gap-2 px-3 py-2 bg-white border-b border-slate-300">'+list.map((x,i)=>'<button data-v="tab" data-i="'+i+'" class="px-3 py-1.5 rounded-full text-sm font-semibold border '+(i===cur&&!adding?'bg-indigo-600 text-white border-indigo-600':'bg-white text-slate-700 border-slate-300')+'">'+esc(x.n||'Öğrenci')+'</button>').join('')+'<button data-v="add" class="px-3 py-1.5 rounded-full text-sm border border-dashed border-slate-400 text-slate-600">➕ Çocuk ekle</button></div>':'')
+     +'<div id="vpB" class="flex-1 flex flex-col min-h-0"></div>';
+    const b=pv.querySelector('#vpB');
+    if(!list.length||adding){
+      b.innerHTML='<div class="p-5 max-w-md w-full mx-auto"><div class="bg-white rounded-2xl p-4 shadow"><b>Öğrenci kodunu girin</b><p class="text-xs text-slate-500 my-2">Kodu sınıf öğretmeniniz verir. Kod yalnızca çocuğunuzun bilgilerini açar.</p><input id="vpI" class="inp w-full text-center text-xl tracking-widest font-mono" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="XXXXX-XXXXX"><div id="vpM" class="text-xs text-red-600 min-h-[1.25rem] my-2"></div><div class="flex gap-2"><button data-v="go" class="btn bg-emerald-600 flex-1">Göster</button>'+(list.length?'<button data-v="cancel" class="px-4 py-2 rounded-lg border">Vazgeç</button>':'')+'</div></div>'+(lock?'':'<button data-v="teacher" class="block mx-auto mt-4 text-xs underline text-slate-500">Öğretmenim</button>')+'</div>';
+      const i=$('vpI');i.addEventListener('keydown',e=>{if(e.key==='Enter')addCode();});return;
+    }
+    const it=list[cur],tk=vtk;
+    b.innerHTML='<div class="flex-1 relative min-h-0"><iframe id="vpF" sandbox class="absolute inset-0 w-full h-full bg-white border-0"></iframe></div><div class="flex items-center justify-between gap-2 px-3 py-2 bg-white border-t border-slate-300 text-xs text-slate-500"><span id="vpS">Yükleniyor…</span><button data-v="rm" class="text-red-600 font-semibold">Listeden çıkar</button></div>';
+    const f=$('vpF'),st=$('vpS'),cache=lsg('veli_h_'+it.c);
+    if(cache){f.srcdoc=cache;st.textContent='Kaydedilmiş kopya gösteriliyor…';}
+    auth().then(()=>{
+      if(tk!==vtk)return;
+      const r=db.ref('share/'+it.c);
+      const cb=sn=>{
+        const v=sn.val();
+        if(!v||!v.html||v.exp<Date.now()){f.srcdoc='<meta charset="utf-8"><p style="font-family:sans-serif;padding:20px">Bu kod artık geçerli değil. Lütfen öğretmeninizden yeni kod isteyin.</p>';st.textContent='';return;}
+        f.srcdoc=v.html;lss('veli_h_'+it.c,v.html);
+        if(v.n&&v.n!==it.n){it.n=v.n;sv();}
+        st.textContent='Son güncelleme: '+(v.ts?new Date(v.ts).toLocaleString('tr-TR'):'');
+      };
+      r.on('value',cb,()=>{st.textContent='Bağlantı yok · son kopya gösteriliyor';});
+      off=()=>r.off('value',cb);
+    }).catch(()=>{st.textContent='Bağlantı yok';});
+  }
+  pv.addEventListener('click',e=>{
+    const x=e.target.closest('[data-v]');if(!x)return;const a=x.dataset.v;
+    if(a==='tab'){cur=+x.dataset.i;adding=false;draw();}
+    else if(a==='add'){adding=true;draw();}
+    else if(a==='cancel'){adding=false;draw();}
+    else if(a==='go')addCode();
+    else if(a==='rm'){if(confirm('Bu çocuk listeden çıkarılsın mı? Tekrar görmek için kodu yeniden girmeniz gerekir.')){const it=list[cur];try{localStorage.removeItem('veli_h_'+it.c);}catch(e2){}list.splice(cur,1);cur=0;sv();draw();}}
+    else if(a==='teacher'){lss('app_role','ogretmen');location.replace(location.pathname);}
+  });
+  draw();
+}
+function roleChoose(next){
+  const o=document.createElement('div');o.className='fixed inset-0 z-[600] bg-indigo-700 flex items-center justify-center p-5';
+  o.innerHTML='<div class="bg-white text-slate-800 rounded-2xl max-w-sm w-full p-5 text-center"><div class="text-4xl mb-2">🕌</div><b class="text-lg">Hoş geldiniz</b><p class="text-sm text-slate-500 my-2">Lütfen seçin:</p><button data-r="o" class="w-full min-h-[48px] rounded-xl bg-indigo-600 text-white font-semibold mb-2">👩‍🏫 Öğretmenim</button><button data-r="v" class="w-full min-h-[48px] rounded-xl bg-emerald-600 text-white font-semibold">👪 Veliyim</button></div>';
+  document.body.appendChild(o);
+  o.addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;o.remove();if(b.dataset.r==='v'){lss('app_role','veli');veliApp(false);}else{lss('app_role','ogretmen');next();}});
+}
+const startT=()=>gateStart(()=>{go(kioskOn()?'tahta':'home');if(kioskOn()){if(lsg('kiosk_v1')==='1'&&S.room)listen(S.room);}else if(S.room)listen(S.room);else room();});
+const VMOD=new URLSearchParams(location.search).get('mod')==='veli';
+if(PK)parentView(PK);
+else if(VMOD)veliApp(true);
+else if(lsg('app_role')==='veli')veliApp(false);
+else if(!lsg('app_role')&&!lsg('sync_room_code')&&!kioskOn())roleChoose(startT);
+else startT();
 </script>
 </body>
 </html>
