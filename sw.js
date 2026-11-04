@@ -1,9 +1,9 @@
-const CACHE = 'sinif-takip-v7';
+const CACHE = 'sinif-takip-v8';
 const CDN = ['cdn.tailwindcss.com', 'cdnjs.cloudflare.com', 'www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => Promise.all(['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'].map(u => c.add(u).catch(() => {})))));
+  e.waitUntil(caches.open(CACHE).then(c => Promise.all(['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'manifest-veli.json', 'icon-veli-192.png', 'icon-veli-512.png', 'icon-veli-maskable-512.png'].map(u => c.add(u).catch(() => {})))));
 });
 
 self.addEventListener('activate', e => {
