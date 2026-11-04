@@ -1,0 +1,20 @@
+{
+  "id": "/?mod=veli",
+  "name": "Sınıf Takip Veli",
+  "short_name": "Veli",
+  "description": "Öğrencinizin devam, ezber, ödev ve puan durumunu öğretmeninizin verdiği kodla görün.",
+  "lang": "tr",
+  "dir": "ltr",
+  "start_url": "./?mod=veli",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#047857",
+  "theme_color": "#047857",
+  "categories": ["education"],
+  "icons": [
+    {"src": "icon-veli-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-veli-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-veli-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
