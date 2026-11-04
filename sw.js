@@ -1,4 +1,4 @@
-const CACHE = 'sinif-takip-v6';
+const CACHE = 'sinif-takip-v7';
 const CDN = ['cdn.tailwindcss.com', 'cdnjs.cloudflare.com', 'www.gstatic.com', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', e => {
@@ -25,7 +25,7 @@ self.addEventListener('fetch', e => {
     // Hızlı açılış: önbellekten hemen ver, arkada yenile (yeni sürüm bir sonraki açılışta; sürüm uyarısı da bildirir)
     e.respondWith(
       caches.match(req, { ignoreSearch: true }).then(hit => {
-        const net = fetch(req).then(r => { if (r && r.ok) { const c = r.clone(); caches.open(CACHE).then(x => x.put(req, c)); } return r; }).catch(() => hit);
+        const net = fetch(req, { cache: 'reload' }).then(r => { if (r && r.ok) { const c = r.clone(); caches.open(CACHE).then(x => x.put(req, c)); } return r; }).catch(() => hit);
         return hit || net;
       })
     );
