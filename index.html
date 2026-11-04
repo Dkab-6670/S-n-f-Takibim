@@ -612,7 +612,7 @@ ACT.allvar=()=>{
 const GM={tip:'kitap',ders:'',ez:'',fmt:'tam',no:'1',range:'bugun',hw:'',off:{},extra:[],text:'',dirty:false,lastTip:''};
 const GM_TIPS=[
   ['kitap','📕 Kitap getirmeyenler','ders'],['yok','🔴 Derse gelmeyenler','yoklama'],['kismen','🟣 Geç kalan / kısmen katılanlar','yoklama'],
-  ['ezbery','📖 Ezberini vermeyenler','ezber'],['odevy','✍️ Ödevini yapmayanlar','ders'],['odeve','🟡 Ödevi eksik olanlar','ders'],['odevt','🌟 Ödevini yapanlar (tebrik)','ders'],
+  ['ezbery','📖 Ezberini vermeyenler','ezber'],['ezbers','⚠️ Hiç ezber vermeyenler (uyarı)','ezber'],['odevy','✍️ Ödevini yapmayanlar','ders'],['odeve','🟡 Ödevi eksik olanlar','ders'],['odevt','🌟 Ödevini yapanlar (tebrik)','ders'],
   ['tebrik','👏 Malzeme getirip devamlı katılanlar (tebrik)','ders'],['puan','🏅 En çok puan alanlar (tebrik)','ders'],['basari','🌟 Başarılı öğrenciler (ezber tamamlayan / artı alan)',''],['serbest','📝 Serbest (öğrenci seçerek)','']
 ];
 const gmTips=()=>GM_TIPS.filter(t=>(!t[2]||featOn(t[2]))&&(t[0]!=='basari'||wmGoodOn()));
@@ -636,6 +636,7 @@ function gmCand(){
     else if(t==='yok')n=cnt(r=>r.status==='Yok');
     else if(t==='kismen'){n=cnt(r=>r.status==='Kismen');if(n&&!rg){const r=R[0][1];x=r.part?' – '+kpLab(r):'';}}
     else if(t==='ezbery'){const nm=GM.ez?[GM.ez]:ezOf(s);n=nm.filter(z=>ezOf(s).includes(z)&&lastEz(s,z)!=='Tamamlandi').length;}
+    else if(t==='ezbers'){const nm=ezOf(s);n=nm.length&&nm.every(z=>lastEz(s,z)!=='Tamamlandi')?1:0;}
     else if(t==='odevy'||t==='odeve'||t==='odevt'){const st={odevy:'Yapmadi',odeve:'Eksik',odevt:'Yapti'}[t];n=GM.hw&&(s.hwStatus||{})[GM.hw]===st&&ap(S.homeworks.find(h=>h.id===GM.hw)||{},s)?1:0;}
     else if(t==='basari'){if(wmHasGood(s)){n=1;x=' – '+wmDurum(s);}}
     else if(t==='tebrik'){const v=cnt(r=>r.status==='Var');n=v&&!cnt(r=>r.status==='Yok'||r.status==='Kismen')&&!cnt(r=>r.book==='Yok')?1:0;}
@@ -665,6 +666,7 @@ function gmGen(){
     const names=GM.ez?[GM.ez]:ezSrt([...new Set(grp().flatMap(ezOf))]);
     return names.map(n=>{const ss=sorted(grp().filter(s=>ids.has(s.id)&&ezOf(s).includes(n)&&lastEz(s,n)!=='Tamamlandi'));return ss.length?bd(n+' ezberini vermeyenler:')+'\n'+ss.map(line).join('\n'):'';}).filter(Boolean).join('\n\n');
   }
+  if(t==='ezbers')return bd('Hiç ezber vermeyen öğrencilerimiz:')+'\n'+L.map((o,i)=>(i+1)+'- '+T(o.s.name)).join('\n')+'\n\nSayın veliler, yukarıda adı geçen öğrencilerimizin ezberlerini vermesi hususunda daha dikkatli olunmasını rica ederim.';
   if(t==='basari')return bd(d1.charAt(0).toLocaleUpperCase('tr')+d1.slice(1)+' ezberini tamamlayan / artı puan alan öğrenciler'+(G.date!==today?' ('+fdt(G.date)+')':'')+':')+'\n'+items+'\n\nHepsini tebrik ediyor, başarılarının devamını diliyorum.';
   if(t==='kitap')return bd(d1.charAt(0).toLocaleUpperCase('tr')+d1.slice(1)+' kitap getirmeyenler'+rl+':')+'\n'+items;
   if(t==='yok')return bd(d2.charAt(0).toLocaleUpperCase('tr')+d2.slice(1)+' gelmeyenler'+rl+':')+'\n'+items;
