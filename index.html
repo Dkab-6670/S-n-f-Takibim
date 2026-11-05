@@ -4167,7 +4167,7 @@ const rrGet=()=>{const r=(S.ayar||[]).find(x=>x.kim===rrKey());let o={};try{o=JS
 const rrPut=o=>{let r=S.ayar.find(x=>x.kim===rrKey());if(!r){r={kim:rrKey()};S.ayar.push(r);}r.rb=JSON.stringify(o);save();};
 const rrCls=()=>G.sinif+(G.sube==='ALL'?'':'/'+String(G.sube).toUpperCase());
 const rrU=x=>String(x).toLocaleUpperCase('tr');
-const rrSent=t=>/[.!?]$/.test(t)?t:/\)$/.test(t)?t:t+' yapıldı.';
+const rrSent=t=>{t=String(t).replace(/\s*\(\s*Etkinlik\s*:[^)]*\)/gi,'').replace(/\s+/g,' ').trim();return /[.!?]$/.test(t)?t:t+' yapıldı.';};
 const rrLines=m=>(rrGet().r[rrYm(m)]||[]).map(x=>T(x.t)).filter(Boolean);
 const rrBul=x=>String(x).replace(/^\s*(?:\d{1,2}\s*[.)\-]\s+|[-•*·▪●○►»]+\s*)/,'').trim();
 function rrParse(txt){
@@ -4198,21 +4198,26 @@ async function rrOcr(f){
 }
 function rrDoc(m){
   const L=rrLines(m),pr=prof(),cls=rrCls(),ad=T(pr.name)||T(typeof nbReh==='function'?nbReh():'')||'',y=rrStart();
-  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rehberlik Faaliyet Raporu</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0}body{font-family:"Times New Roman",Times,serif;color:#000;font-size:15px;line-height:1.5}h1{text-align:center;font-size:16px;margin:0 0 12px}.sg{margin:0 0 10px;padding-left:26px;text-indent:-26px;text-align:left}.s{margin-top:50px;text-align:center;font-weight:bold;page-break-inside:avoid}.b{padding:10px;text-align:center}@media screen{body{max-width:186mm;margin:0 auto;padding:0 12px}}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div>'
-   +'<h1>'+y+'-'+(y+1)+' EĞİTİM – ÖĞRETİM YILI</h1>'+(pr.okul?'<h1>'+esc(rrU(pr.okul))+'</h1>':'')+'<h1>'+esc(cls)+' SINIFI</h1><h1>'+rrU(rrAd(m))+' AYI REHBERLİK FAALİYET RAPORU</h1><div style="height:18px"></div>'
+  /* Tek A4 sayfaya sığması için yazı boyutu, içerik taşıyorsa betikle küçültülür (en çok 10 px'e kadar) */
+  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rehberlik Faaliyet Raporu</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0}body{font-family:"Times New Roman",Times,serif;color:#000;line-height:1.5}#rp{font-size:15px}h1{text-align:center;font-size:1.07em;margin:0 0 .75em}.sg{margin:0 0 .65em;padding-left:1.7em;text-indent:-1.7em;text-align:left}.s{margin-top:3em;text-align:center;font-weight:bold}.b{padding:10px;text-align:center}@media screen{body{max-width:186mm;margin:0 auto;padding:0 12px}}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div><div id="rp">'
+   +'<h1>'+y+'-'+(y+1)+' EĞİTİM – ÖĞRETİM YILI</h1>'+(pr.okul?'<h1>'+esc(rrU(pr.okul))+'</h1>':'')+'<h1>'+esc(cls)+' SINIFI</h1><h1>'+rrU(rrAd(m))+' AYI REHBERLİK FAALİYET RAPORU</h1><div style="height:1.2em"></div>'
    +L.map((t,i)=>'<div class="sg">'+(i+1)+'. '+esc(t)+'</div>').join('')
-   +'<div class="s"><div>'+esc(ad)+'</div><div style="margin-top:6px">'+esc(cls)+' SINIF REHBER ÖĞRETMENİ</div></div>';
+   +'<div class="s"><div>'+esc(ad)+'</div><div style="margin-top:.4em">'+esc(cls)+' SINIF REHBER ÖĞRETMENİ</div></div></div>'
+   +'<script>(function(){var r=document.getElementById("rp"),f=15;while(r.offsetHeight>1000&&f>10){f-=.5;r.style.fontSize=f+"px";}})();<\/script>';
 }
 const rrText=m=>{const L=rrLines(m);return L.length?'*'+rrU(rrAd(m))+' AYI REHBERLİK FAALİYET RAPORU ('+rrCls()+')*\n\n'+L.map((t,i)=>(i+1)+'. '+t).join('\n'):'';};
 const rrL=()=>{const o=rrGet(),ym=rrYm(rrMon());o.r[ym]=o.r[ym]||[];return [o,o.r[ym]];};
 reg('rrap','📝','Rehberlik Raporu',()=>{
   if(G.sinif==='ALL')return gbar()+'<div class="card text-sm text-amber-700">Önce yukarıdan rehber öğretmeni olduğunuz sınıfı seçin.</div>';
-  const o=rrGet(),m=rrMon(),L=o.r[rrYm(m)]||[],tp=o.p[m]||[],has=Object.keys(o.p).length;
+  const o=rrGet(),m=rrMon(),tp=o.p[m]||[],has=Object.keys(o.p).length;let L=o.r[rrYm(m)];
+  if(L===undefined&&tp.length){L=tp.map(t=>({t:rrSent(t),k:t}));o.r[rrYm(m)]=L;rrPut(o);}
+  L=L||[];
   const chips='<div class="flex gap-2 overflow-x-auto pb-1">'+RR_AY.map(a=>'<button data-act="rrm" data-v="'+a[0]+'" class="shrink-0 px-3 py-1.5 rounded-full text-sm font-semibold border '+(a[0]===m?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600')+'">'+a[1]+((o.r[rrYm(a[0])]||[]).some(x=>T(x.t))?' ✓':'')+'</button>').join('')+'</div>';
   const pc='<div class="card"><b>📋 Yıllık plandaki '+rrAd(m)+' konuları</b>'+(tp.length?'<div class="mt-2">'+tp.map((t,i)=>{const on=L.some(x=>x.k===t);return '<div class="flex items-start gap-2 text-sm border-b border-slate-200 dark:border-slate-700 py-1.5"><span class="flex-1">'+esc(t)+'</span>'+(on?'<span class="text-emerald-600 text-xs whitespace-nowrap">✓ rapora eklendi</span>':'<button data-act="rradd" data-i="'+i+'" class="btn bg-teal-600 text-xs whitespace-nowrap">➕ Ekle</button>')+'</div>';}).join('')+'</div>'+(tp.some(t=>!L.some(x=>x.k===t))?'<button data-act="rraddall" class="btn bg-teal-600 mt-2">➕ Hepsini rapora ekle</button>':''):'<p class="text-xs text-slate-500 mt-1">'+(has?'Planda bu ay için konu yok.':'Henüz yıllık plan yüklenmedi.')+' Aşağıdaki karttan fotoğraf ya da metin olarak yükleyebilirsiniz.</p>')+'</div>';
   const lc='<div class="card"><b>✍️ '+rrAd(m)+' ayında yapılan çalışmalar ('+L.length+')</b><p class="text-xs text-slate-500">Rapora girecek maddeler. Plandan ekleyebilir, kendi yaptığınız çalışmaları da yazabilirsiniz. Her maddeyi düzenleyebilirsiniz.</p>'
    +L.map((x,i)=>'<div class="flex items-start gap-1 mt-2"><span class="text-sm font-bold w-6 pt-2">'+(i+1)+'.</span><textarea data-rrl="'+i+'" rows="2" class="inp flex-1 text-sm">'+esc(x.t)+'</textarea><div class="flex flex-col gap-1"><button data-act="rrup" data-i="'+i+'" class="text-sm">⬆️</button><button data-act="rrdn" data-i="'+i+'" class="text-sm">⬇️</button><button data-act="rrdel" data-i="'+i+'" class="text-sm">🗑️</button></div></div>').join('')
    +'<div class="flex gap-2 mt-3"><input id="rrNew" class="inp flex-1" placeholder="Yaptığınız çalışmayı yazın…"><button data-act="rrnew" class="btn bg-emerald-600">➕ Ekle</button></div>'
+   +(tp.length?'<button data-act="rrfill" class="btn bg-amber-600 mt-3">↺ Yalnızca plandaki '+rrAd(m)+' konularıyla yeniden yaz</button>':'')
    +(L.some(x=>T(x.t))?'<div class="flex flex-wrap gap-2 mt-3"><button data-act="rrprm" class="btn bg-indigo-600">🖨️ Önizle / Yazdır</button><button data-act="rrpdf" class="btn bg-emerald-600">📤 PDF paylaş</button><button data-act="rrcp" class="btn bg-slate-600">📋 Kopyala</button><button data-act="rrclr" class="btn bg-red-600">🧹 Ayı temizle</button></div>':'')+'</div>';
   const ic='<div class="card"><button data-act="rrimp" class="btn bg-slate-600">'+(RR.imp?'▲ Kapat':'📷 Yıllık planı yükle / düzenle')+'</button>'
    +(RR.imp?'<p class="text-xs text-slate-500 mt-2">Yıllık planın fotoğrafını seçin; yazı okunup aşağıya aktarılır. Okuma %100 doğru olmaz, kontrol edip düzeltin. Biçim: önce ay adı (örn. EKİM), altına her satıra bir konu.</p><label class="btn bg-indigo-600 mt-2 inline-block cursor-pointer">📷 Fotoğraf seç / çek<input type="file" accept="image/*" data-rrimg="1" class="hidden"></label><textarea id="rrTx" data-rrtx="1" rows="12" class="inp w-full mt-2 text-sm font-mono" placeholder="EKİM&#10;Okul kurallarına uymanın önemi&#10;Afetlere karşı hazırlık&#10;&#10;KASIM&#10;...">'+esc(RR.tx||rrPlanText(o))+'</textarea><div class="flex flex-wrap gap-2 mt-2"><button data-act="rrsave" class="btn bg-emerald-600">💾 Planı kaydet</button>'+(has?'<button data-act="rrpdel" class="btn bg-red-600">🗑️ Planı sil</button>':'')+'</div>':'')+'</div>';
@@ -4235,7 +4240,8 @@ Object.assign(ACT,{
   rrup(a){const [o,L]=rrL(),i=+a.dataset.i;if(i<1)return;[L[i-1],L[i]]=[L[i],L[i-1]];rrPut(o);render(true);},
   rrdn(a){const [o,L]=rrL(),i=+a.dataset.i;if(i>=L.length-1)return;[L[i+1],L[i]]=[L[i],L[i+1]];rrPut(o);render(true);},
   rrdel(a){const [o,L]=rrL();L.splice(+a.dataset.i,1);rrPut(o);render(true);},
-  rrclr(){if(!confirm(rrAd(rrMon())+' ayının rapor maddeleri silinsin mi?'))return;const o=rrGet();delete o.r[rrYm(rrMon())];rrPut(o);render(true);},
+  rrclr(){if(!confirm(rrAd(rrMon())+' ayının rapor maddeleri silinsin mi?'))return;const o=rrGet();o.r[rrYm(rrMon())]=[];rrPut(o);render(true);},
+  rrfill(){const o=rrGet(),m=rrMon(),tp=o.p[m]||[];if(!tp.length)return;if(!confirm(rrAd(m)+' ayının rapor maddeleri silinip yalnızca yıllık plandaki '+rrAd(m)+' konularıyla yeniden yazılsın mı?'))return;o.r[rrYm(m)]=tp.map(t=>({t:rrSent(t),k:t}));rrPut(o);render(true);},
   rrimp(){RR.imp=!RR.imp;render(true);},
   rrsave(){const el=$('rrTx'),p=rrParse(el?el.value:RR.tx),n=Object.values(p).reduce((x,y)=>x+y.length,0);
     if(!n)return alert('Ay başlığı ve altında konu satırı bulunamadı.\nÖnce ay adını (örn. EKİM), altına her satıra bir konu yazın.');
