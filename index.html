@@ -353,7 +353,7 @@ function hOrd(i){const d=HGRP[i][1];let m={};try{m=JSON.parse(lsg('home_ord')||'
 ACT.hedit=()=>{HEDIT=!HEDIT;render(true);};
 ACT.hmv=a=>{const i=+a.dataset.g,vis=hOrd(i).filter(k=>P[k]&&pageOn(k)),o=hOrd(i),k=a.dataset.k,j=vis.indexOf(k),t=vis[j+(+a.dataset.d)];if(j<0||!t)return;const x=o.indexOf(k),y=o.indexOf(t);o[x]=t;o[y]=k;let m={};try{m=JSON.parse(lsg('home_ord')||'{}')||{};}catch(e){}m[i]=o;lss('home_ord',JSON.stringify(m));render(true);};
 ACT.hrs=()=>{lss('home_ord','');render(true);};
-const HGRP=[['📅 Günlük işler',['dav','reh','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['sinav','dnm','stat','uyari','cikti']],['🧰 Diğer',['ayar']]];
+const HGRP=[['📅 Günlük işler',['dav','reh','rrap','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['sinav','dnm','stat','uyari','cikti']],['🧰 Diğer',['ayar']]];
 const todayCard=()=>{
   const it=[alertItem(),yokItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
   if(!it.length)return '';
@@ -371,7 +371,7 @@ function hqCard(){return '<div class="card dx-search !py-1.5 !px-2"><input id="h
 function hqRun(v){
   const box=$('hqr');if(!box)return;const q=hqN(v);if(!q){box.innerHTML='';return;}
   const W=q.split(' ');const hit=txt=>{const n=hqN(txt);return W.every(w=>n.includes(w));};
-  const KW={dsonu:'donem sonu eokul e okul not aktarim kopyala eksik kontrol karne sinav ortalama devamsizlik',menu:'menu tum sayfalar',sinav:'sinav not analiz yazili sozlu puan ortalama kazanim basari',nobet:'nobetci nobet sinif nobetcisi gunluk nobet dagitim kura',gplan:'gunluk plan ders plani gunluk ders plani konu kazanim yontem arac gerec cikti yazdir',grupmsj:'grup mesaj whatsapp toplu duyuru tebrik kitap getirmeyenler gelmeyenler sinif grubu',dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
+  const KW={dsonu:'donem sonu eokul e okul not aktarim kopyala eksik kontrol karne sinav ortalama devamsizlik',menu:'menu tum sayfalar',rrap:'rehberlik aylik faaliyet raporu yillik plan konu rapor fotograf',sinav:'sinav not analiz yazili sozlu puan ortalama kazanim basari',nobet:'nobetci nobet sinif nobetcisi gunluk nobet dagitim kura',gplan:'gunluk plan ders plani gunluk ders plani konu kazanim yontem arac gerec cikti yazdir',grupmsj:'grup mesaj whatsapp toplu duyuru tebrik kitap getirmeyenler gelmeyenler sinif grubu',dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
   const res=[];
   Object.keys(P).forEach(k=>{if(k==='home'||!pageOn(k))return;const p=P[k];if(hit(p.title+' '+(KW[k]||'')))res.push(['<button data-go="'+k+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+p.icon+'</span><b class="flex-1">'+esc(p.title)+'</b><span class="text-[11px] text-slate-400">Sayfa</span></button>',hqN(p.title).startsWith(W[0])?0:1]);});
   [['🗓️','Haftalık ders programım','hprog','haftalik ders programi program saat gun bugunku dersler'],['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükle','vlxl','veli bilgi iletisim telefon anne baba excel yukle e okul'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
@@ -1562,7 +1562,7 @@ $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.ta
 
 /* Neler yeni */
 const BUILD='2026-11-04d';
-const VER='2026-11-d124',NEWS=[['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
+const VER='2026-11-d125',NEWS=[['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.slice(0,3).map(n=>{const t=String(n[2]).split(/(?<=[.!?])\s/)[0];return '<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(t.length>110?t.slice(0,107)+'…':t)+'</div></div></div>';}).join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -1933,7 +1933,7 @@ var FEAT=[
   ['dini','🕌','Dini Bölüm','Zikirmatik, Esmaü’l-Hüsna, namaz vakitleri, ayet ve hadis',['dini']],
   ['hafiz','📜','Hafızlık Çizelgesi','Cüz ve sayfa sayfa hafızlık takibi',['haf']],
   ['davranis','🌟','Davranış Takibi','Ders dışı artı / eksi puan ve notlar',['dav']],
-  ['reh','🧭','Rehberlik','Rehberlik çalışmaları ve takibi',['reh']],
+  ['reh','🧭','Rehberlik','Rehberlik çalışmaları, takibi ve aylık faaliyet raporu',['reh','rrap']],
   ['oturma','🪑','Oturma Planı','Sınıf krokisi, sıraya dokunup yoklama ve puan',['oturma']],
   ['soz','🎲','Söz Hakkı','Rastgele öğrenci seçimi',['soz']],
   ['akvaryum','🐠','Sınıf Akvaryumu','Balıklı motivasyon: yem, şanslı balık, gürültü sensörü, odak sayacı, haftalık karne',['akv']],
@@ -4108,8 +4108,8 @@ function nbDoc(ym){
   const m=+ym.slice(5)-1,pr=prof(),rh=nbReh(),wk=nbWeeks(ym);
   const rows=wk.map((mon,wi)=>{let t='';for(let i=0;i<5;i++){const d=ypAdd(mon,i),hol=nbHol(d),n=nbWho(d);
     t+='<tr>'+(i===0?'<td class="w" rowspan="5"><div>'+(wi+1)+'. HAFTA</div></td>':'')+'<td>'+fdt(d)+'</td><td>'+nbGun[i].toLocaleUpperCase('tr')+'</td>'+(hol?'<td colspan="2" class="t">'+esc(hol.toLocaleUpperCase('tr'))+' (TATİL)</td>':[0,1].map(k=>'<td class="n">'+(n[k]?esc(n[k].name.toLocaleUpperCase('tr')):'')+'</td>').join(''))+'</tr>';}return t;}).join('');
-  const nr=wk.length*5,fs=nr>21?'14px':'15px',pad=nr>21?'8px':'10px';
-  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nöbet Listesi</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0}body{font-family:Arial,sans-serif;color:#000}.o{text-align:center;font-size:15px;margin:0 0 6px}h1{text-align:center;font-size:20px;margin:0;color:#1e3a8a}h2{text-align:center;font-size:17px;margin:2px 0 12px}table{width:100%;border-collapse:collapse;font-size:'+fs+'}td,th{border:1.5px solid #000;padding:'+pad+' 6px;text-align:center}th{background:#e5e7eb;font-size:13px}td.n{font-weight:bold}td.t{background:#f3f4f6;font-style:italic;font-size:13px}td.w{width:5%;padding:0;background:#f3f4f6;font-weight:bold;position:relative}td.w div{position:absolute;left:50%;top:50%;width:90px;margin-left:-45px;margin-top:-8px;text-align:center;white-space:nowrap;transform:rotate(-90deg)}.f{margin-top:20px;display:flex;justify-content:flex-end;font-size:15px;text-align:center}.f div{min-width:230px}.b{padding:10px;text-align:center}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div>'
+  const nr=wk.length*5,rw=Math.max(20,Math.min(38,Math.floor(770/nr))),fs=(rw>=34?15:rw>=30?14:13)+'px';/* tek A4 sayfaya sığması için satır yüksekliği satır sayısına göre ayarlanır */
+  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nöbet Listesi</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0}body{font-family:Arial,sans-serif;color:#000}.o{text-align:center;font-size:15px;margin:0 0 6px}h1{text-align:center;font-size:20px;margin:0;color:#1e3a8a}h2{text-align:center;font-size:17px;margin:2px 0 8px}table{width:100%;border-collapse:collapse;font-size:'+fs+'}td,th{border:1.5px solid #000;padding:0 6px;text-align:center}td{height:'+rw+'px;line-height:1.15}th{background:#e5e7eb;font-size:13px;padding:4px 6px;line-height:1.15}td.n{font-weight:bold}td.t{background:#f3f4f6;font-style:italic;font-size:13px}td.w{width:5%;padding:0;background:#f3f4f6;font-weight:bold;position:relative}td.w div{position:absolute;left:50%;top:50%;width:90px;margin-left:-45px;margin-top:-8px;text-align:center;white-space:nowrap;transform:rotate(-90deg)}.f{margin-top:14px;display:flex;justify-content:flex-end;font-size:15px;text-align:center}.f div{min-width:230px}.b{padding:10px;text-align:center}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div>'
    +(pr.okul?'<div class="o"><b>'+esc(pr.okul)+'</b></div>':'')+'<h1>( '+esc(G.sinif)+(G.sube==='ALL'?'':'/'+esc(String(G.sube).toUpperCase()))+' SINIFI )</h1><h2>'+NB_AY[m].toLocaleUpperCase('tr')+' AYI ÖĞRENCİ NÖBET LİSTESİ</h2>'
    +'<table><tr><th rowspan="2"></th><th rowspan="2">NÖBET<br>TARİHİ</th><th rowspan="2">NÖBET<br>GÜNÜ</th><th colspan="2">NÖBETÇİ ÖĞRENCİNİN</th></tr><tr><th>ADI SOYADI</th><th>ADI SOYADI</th></tr>'+rows+'</table>'
    +'<div class="f"><div>Sınıf Rehber Öğretmeni<br><br><b>'+(rh?esc(rh):'……………………………')+'</b></div></div>';
@@ -4152,6 +4152,99 @@ Object.assign(ACT,{
   nbcp(){const t=nbText(nbYm());if(!t)return toast('Önce nöbetçileri dağıtın',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>prompt('Metni kopyalayın:',t));},
   nbprm(){open(URL.createObjectURL(new Blob([nbDoc(nbYm())],{type:'text/html'})),'_blank');},
   nbpdf(){const ym=nbYm();pdfFromDoc(nbDoc(ym),'Nobet_'+G.sinif+(G.sube==='ALL'?'':G.sube.toUpperCase())+'_'+ym+'.pdf','Nöbet listesi');}
+});
+
+/* ===== Rehberlik aylık faaliyet raporu: yıllık plan konuları + elle girilen aylık çalışmalar. Kayıt: S.ayar içinde {kim:'_rpl|sınıf|şube', rb:JSON{p:{ay:[konu]},r:{'YYYY-AA':[{t,k}]}}} ===== */
+const RR_AY=[['9','Eylül'],['10','Ekim'],['11','Kasım'],['12','Aralık'],['1','Ocak'],['2','Şubat'],['3','Mart'],['4','Nisan'],['5','Mayıs'],['6','Haziran']];
+const RR={m:'',imp:false,tx:''};
+const rrAd=m=>(RR_AY.find(a=>a[0]===String(m))||['',''])[1];
+const rrStart=()=>{const m=+today.slice(5,7),y=+today.slice(0,4);return m>=8?y:y-1;};
+const rrMon=()=>{if(!RR.m){const m=+today.slice(5,7);RR.m=RR_AY.some(a=>+a[0]===m)?String(m):(m===7?'6':'9');}return RR.m;};
+const rrYm=m=>(+m>=8?rrStart():rrStart()+1)+'-'+String(m).padStart(2,'0');
+const rrSb=()=>G.sube==='ALL'?'':String(G.sube).toLowerCase();
+const rrKey=()=>'_rpl|'+G.sinif+'|'+rrSb();
+const rrGet=()=>{const r=(S.ayar||[]).find(x=>x.kim===rrKey());let o={};try{o=JSON.parse((r&&r.rb)||'{}')||{};}catch(e){}if(!isO(o.p))o.p={};if(!isO(o.r))o.r={};return o;};
+const rrPut=o=>{let r=S.ayar.find(x=>x.kim===rrKey());if(!r){r={kim:rrKey()};S.ayar.push(r);}r.rb=JSON.stringify(o);save();};
+const rrCls=()=>G.sinif+(G.sube==='ALL'?'':'/'+String(G.sube).toUpperCase());
+const rrU=x=>String(x).toLocaleUpperCase('tr');
+const rrSent=t=>/[.!?]$/.test(t)?t:t+' konusu işlendi.';
+const rrLines=m=>(rrGet().r[rrYm(m)]||[]).map(x=>T(x.t)).filter(Boolean);
+const rrBul=x=>String(x).replace(/^\s*(?:\d{1,2}\s*[.)\-]\s+|[-•*·▪●○►»]+\s*)/,'').trim();
+function rrParse(txt){
+  const out={},mk={};RR_AY.forEach(a=>{mk[a[1].toLocaleLowerCase('tr')]=a[0];});
+  const nm=Object.keys(mk).join('|'),h=new RegExp('^('+nm+')(?:\\s+ay[ıi])?\\s*[:.\\-–—]*$'),h2=new RegExp('^('+nm+')\\s*[:\\-–—]\\s+(.+)$');
+  let cur=null;
+  String(txt).split(/\r?\n/).forEach(raw=>{
+    const l=raw.trim();if(!l)return;
+    const lo=l.toLocaleLowerCase('tr');let m=lo.match(h);
+    if(m){cur=mk[m[1]];out[cur]=out[cur]||[];return;}
+    m=lo.match(h2);
+    if(m){cur=mk[m[1]];out[cur]=out[cur]||[];const t=rrBul(l.slice(l.length-m[2].length));if(t)out[cur].push(t);return;}
+    if(!cur)return;
+    const t=rrBul(l);if(t.length>2)out[cur].push(t);
+  });
+  Object.keys(out).forEach(k=>{if(!out[k].length)delete out[k];});
+  return out;
+}
+const rrPlanText=o=>RR_AY.filter(a=>(o.p[a[0]]||[]).length).map(a=>rrU(a[1])+'\n'+o.p[a[0]].join('\n')).join('\n\n');
+async function rrOcr(f){
+  toast('Fotoğraf okunuyor… (ilk seferde biraz sürebilir)');
+  await ldJs('https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.1/tesseract.min.js',()=>window.Tesseract);
+  const img=await new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);ok(i);};i.onerror=()=>no(new Error('Görüntü açılamadı'));i.src=u;});
+  const k=Math.min(1,2200/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  const w=await Tesseract.createWorker('tur');
+  try{const r=await w.recognize(c);return (r.data&&r.data.text)||'';}finally{try{await w.terminate();}catch(e){}}
+}
+function rrDoc(m){
+  const L=rrLines(m),pr=prof(),cls=rrCls(),ad=T(pr.name)||T(typeof nbReh==='function'?nbReh():'')||'',y=rrStart();
+  return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rehberlik Faaliyet Raporu</title><style>@page{size:A4 portrait;margin:12mm}html,body{margin:0}body{font-family:"Times New Roman",Times,serif;color:#000;font-size:15px;line-height:1.5}h1{text-align:center;font-size:16px;margin:0 0 12px}.sg{margin:0 0 10px;padding-left:26px;text-indent:-26px;text-align:left}.s{margin-top:50px;text-align:center;font-weight:bold;page-break-inside:avoid}.b{padding:10px;text-align:center}@media screen{body{max-width:186mm;margin:0 auto;padding:0 12px}}@media print{.b{display:none}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div>'
+   +'<h1>'+y+'-'+(y+1)+' EĞİTİM – ÖĞRETİM YILI</h1>'+(pr.okul?'<h1>'+esc(rrU(pr.okul))+'</h1>':'')+'<h1>'+esc(cls)+' SINIFI</h1><h1>'+rrU(rrAd(m))+' AYI REHBERLİK FAALİYET RAPORU</h1><div style="height:18px"></div>'
+   +L.map((t,i)=>'<div class="sg">'+(i+1)+'. '+esc(t)+'</div>').join('')
+   +'<div class="s"><div>'+esc(ad)+'</div><div style="margin-top:6px">'+esc(cls)+' SINIF REHBER ÖĞRETMENİ</div></div>';
+}
+const rrText=m=>{const L=rrLines(m);return L.length?'*'+rrU(rrAd(m))+' AYI REHBERLİK FAALİYET RAPORU ('+rrCls()+')*\n\n'+L.map((t,i)=>(i+1)+'. '+t).join('\n'):'';};
+const rrL=()=>{const o=rrGet(),ym=rrYm(rrMon());o.r[ym]=o.r[ym]||[];return [o,o.r[ym]];};
+reg('rrap','📝','Rehberlik Raporu',()=>{
+  if(G.sinif==='ALL')return gbar()+'<div class="card text-sm text-amber-700">Önce yukarıdan rehber öğretmeni olduğunuz sınıfı seçin.</div>';
+  const o=rrGet(),m=rrMon(),L=o.r[rrYm(m)]||[],tp=o.p[m]||[],has=Object.keys(o.p).length;
+  const chips='<div class="flex gap-2 overflow-x-auto pb-1">'+RR_AY.map(a=>'<button data-act="rrm" data-v="'+a[0]+'" class="shrink-0 px-3 py-1.5 rounded-full text-sm font-semibold border '+(a[0]===m?'bg-indigo-600 text-white border-indigo-600':'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600')+'">'+a[1]+((o.r[rrYm(a[0])]||[]).some(x=>T(x.t))?' ✓':'')+'</button>').join('')+'</div>';
+  const pc='<div class="card"><b>📋 Yıllık plandaki '+rrAd(m)+' konuları</b>'+(tp.length?'<div class="mt-2">'+tp.map((t,i)=>{const on=L.some(x=>x.k===t);return '<div class="flex items-start gap-2 text-sm border-b border-slate-200 dark:border-slate-700 py-1.5"><span class="flex-1">'+esc(t)+'</span>'+(on?'<span class="text-emerald-600 text-xs whitespace-nowrap">✓ rapora eklendi</span>':'<button data-act="rradd" data-i="'+i+'" class="btn bg-teal-600 text-xs whitespace-nowrap">➕ Ekle</button>')+'</div>';}).join('')+'</div>'+(tp.some(t=>!L.some(x=>x.k===t))?'<button data-act="rraddall" class="btn bg-teal-600 mt-2">➕ Hepsini rapora ekle</button>':''):'<p class="text-xs text-slate-500 mt-1">'+(has?'Planda bu ay için konu yok.':'Henüz yıllık plan yüklenmedi.')+' Aşağıdaki karttan fotoğraf ya da metin olarak yükleyebilirsiniz.</p>')+'</div>';
+  const lc='<div class="card"><b>✍️ '+rrAd(m)+' ayında yapılan çalışmalar ('+L.length+')</b><p class="text-xs text-slate-500">Rapora girecek maddeler. Plandan ekleyebilir, kendi yaptığınız çalışmaları da yazabilirsiniz. Her maddeyi düzenleyebilirsiniz.</p>'
+   +L.map((x,i)=>'<div class="flex items-start gap-1 mt-2"><span class="text-sm font-bold w-6 pt-2">'+(i+1)+'.</span><textarea data-rrl="'+i+'" rows="2" class="inp flex-1 text-sm">'+esc(x.t)+'</textarea><div class="flex flex-col gap-1"><button data-act="rrup" data-i="'+i+'" class="text-sm">⬆️</button><button data-act="rrdn" data-i="'+i+'" class="text-sm">⬇️</button><button data-act="rrdel" data-i="'+i+'" class="text-sm">🗑️</button></div></div>').join('')
+   +'<div class="flex gap-2 mt-3"><input id="rrNew" class="inp flex-1" placeholder="Yaptığınız çalışmayı yazın…"><button data-act="rrnew" class="btn bg-emerald-600">➕ Ekle</button></div>'
+   +(L.some(x=>T(x.t))?'<div class="flex flex-wrap gap-2 mt-3"><button data-act="rrprm" class="btn bg-indigo-600">🖨️ Önizle / Yazdır</button><button data-act="rrpdf" class="btn bg-emerald-600">📤 PDF paylaş</button><button data-act="rrcp" class="btn bg-slate-600">📋 Kopyala</button><button data-act="rrclr" class="btn bg-red-600">🧹 Ayı temizle</button></div>':'')+'</div>';
+  const ic='<div class="card"><button data-act="rrimp" class="btn bg-slate-600">'+(RR.imp?'▲ Kapat':'📷 Yıllık planı yükle / düzenle')+'</button>'
+   +(RR.imp?'<p class="text-xs text-slate-500 mt-2">Yıllık planın fotoğrafını seçin; yazı okunup aşağıya aktarılır. Okuma %100 doğru olmaz, kontrol edip düzeltin. Biçim: önce ay adı (örn. EKİM), altına her satıra bir konu.</p><label class="btn bg-indigo-600 mt-2 inline-block cursor-pointer">📷 Fotoğraf seç / çek<input type="file" accept="image/*" data-rrimg="1" class="hidden"></label><textarea id="rrTx" data-rrtx="1" rows="12" class="inp w-full mt-2 text-sm font-mono" placeholder="EKİM&#10;Okul kurallarına uymanın önemi&#10;Afetlere karşı hazırlık&#10;&#10;KASIM&#10;...">'+esc(RR.tx||rrPlanText(o))+'</textarea><div class="flex flex-wrap gap-2 mt-2"><button data-act="rrsave" class="btn bg-emerald-600">💾 Planı kaydet</button>'+(has?'<button data-act="rrpdel" class="btn bg-red-600">🗑️ Planı sil</button>':'')+'</div>':'')+'</div>';
+  return gbar()+'<div class="card"><b>📝 Aylık Rehberlik Faaliyet Raporu · '+esc(rrCls())+'</b></div>'+chips+pc+lc+ic;
+});
+$('view').addEventListener('change',async e=>{
+  const d=e.target.dataset||{};
+  if(d.rrl!==undefined){const [o,L]=rrL(),x=L[+d.rrl];if(x){x.t=T(e.target.value);rrPut(o);}return;}
+  if(d.rrtx){RR.tx=e.target.value;return;}
+  if(d.rrimg){const f=e.target.files&&e.target.files[0];if(!f)return;
+    try{const t=await rrOcr(f);RR.tx=((RR.tx||($('rrTx')&&$('rrTx').value)||'')+'\n'+t).trim();RR.imp=true;render(true);toast('Okundu · kontrol edip kaydedin');}
+    catch(err){alert('Fotoğraf okunamadı: '+(err.message||err)+'\n\nİnternet gerekir. Planı metin olarak da yapıştırabilirsiniz.');}}
+});
+$('view').addEventListener('keydown',e=>{if(e.target.id==='rrNew'&&e.key==='Enter'){e.preventDefault();ACT.rrnew();}});
+Object.assign(ACT,{
+  rrm(a){RR.m=a.dataset.v;render(true);},
+  rradd(a){const [o,L]=rrL(),t=(o.p[rrMon()]||[])[+a.dataset.i];if(!t||L.some(x=>x.k===t))return;L.push({t:rrSent(t),k:t});rrPut(o);render(true);},
+  rraddall(){const [o,L]=rrL();(o.p[rrMon()]||[]).forEach(t=>{if(!L.some(x=>x.k===t))L.push({t:rrSent(t),k:t});});rrPut(o);render(true);},
+  rrnew(){const i=$('rrNew'),v=i?T(i.value):'';if(!v)return;const [o,L]=rrL();L.push({t:v});rrPut(o);render(true);},
+  rrup(a){const [o,L]=rrL(),i=+a.dataset.i;if(i<1)return;[L[i-1],L[i]]=[L[i],L[i-1]];rrPut(o);render(true);},
+  rrdn(a){const [o,L]=rrL(),i=+a.dataset.i;if(i>=L.length-1)return;[L[i+1],L[i]]=[L[i],L[i+1]];rrPut(o);render(true);},
+  rrdel(a){const [o,L]=rrL();L.splice(+a.dataset.i,1);rrPut(o);render(true);},
+  rrclr(){if(!confirm(rrAd(rrMon())+' ayının rapor maddeleri silinsin mi?'))return;const o=rrGet();delete o.r[rrYm(rrMon())];rrPut(o);render(true);},
+  rrimp(){RR.imp=!RR.imp;render(true);},
+  rrsave(){const el=$('rrTx'),p=rrParse(el?el.value:RR.tx),n=Object.values(p).reduce((x,y)=>x+y.length,0);
+    if(!n)return alert('Ay başlığı ve altında konu satırı bulunamadı.\nÖnce ay adını (örn. EKİM), altına her satıra bir konu yazın.');
+    const o=rrGet();if(Object.keys(o.p).length&&!confirm('Kayıtlı yıllık plan bu metinle değiştirilsin mi? (Rapor maddeleriniz silinmez.)'))return;
+    o.p=p;rrPut(o);RR.tx='';RR.imp=false;render(true);toast('Yıllık plan kaydedildi ('+Object.keys(p).length+' ay, '+n+' konu)');},
+  rrpdel(){if(!confirm('Yıllık plan konuları silinsin mi? (Rapor maddeleriniz silinmez.)'))return;const o=rrGet();o.p={};rrPut(o);RR.tx='';render(true);},
+  rrprm(){open(URL.createObjectURL(new Blob([rrDoc(rrMon())],{type:'text/html'})),'_blank');},
+  rrpdf(){const m=rrMon();pdfFromDoc(rrDoc(m),'Rehberlik_'+G.sinif+(G.sube==='ALL'?'':String(G.sube).toUpperCase())+'_'+rrYm(m)+'.pdf','Rehberlik faaliyet raporu');},
+  rrcp(){const t=rrText(rrMon());if(!t)return toast('Rapor maddesi yok',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>toast('Kopyalanamadı',true));}
 });
 
 /* ===== Sınav notları ve analizi. Kayıt: S.sinav = [{sinif,sube,ders,ad,tur,tarih,max,q:[{p,kaz}],n:{öğrenciId:{t,q:[],g}}}] ===== */
