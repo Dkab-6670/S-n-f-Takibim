@@ -4167,7 +4167,7 @@ const rrGet=()=>{const r=(S.ayar||[]).find(x=>x.kim===rrKey());let o={};try{o=JS
 const rrPut=o=>{let r=S.ayar.find(x=>x.kim===rrKey());if(!r){r={kim:rrKey()};S.ayar.push(r);}r.rb=JSON.stringify(o);save();};
 const rrCls=()=>G.sinif+(G.sube==='ALL'?'':'/'+String(G.sube).toUpperCase());
 const rrU=x=>String(x).toLocaleUpperCase('tr');
-const rrSent=t=>/[.!?]$/.test(t)?t:t+' konusu işlendi.';
+const rrSent=t=>/[.!?]$/.test(t)?t:/\)$/.test(t)?t:t+' yapıldı.';
 const rrLines=m=>(rrGet().r[rrYm(m)]||[]).map(x=>T(x.t)).filter(Boolean);
 const rrBul=x=>String(x).replace(/^\s*(?:\d{1,2}\s*[.)\-]\s+|[-•*·▪●○►»]+\s*)/,'').trim();
 function rrParse(txt){
