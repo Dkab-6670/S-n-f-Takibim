@@ -353,7 +353,7 @@ function hOrd(i){const d=HGRP[i][1];let m={};try{m=JSON.parse(lsg('home_ord')||'
 ACT.hedit=()=>{HEDIT=!HEDIT;render(true);};
 ACT.hmv=a=>{const i=+a.dataset.g,vis=hOrd(i).filter(k=>P[k]&&pageOn(k)),o=hOrd(i),k=a.dataset.k,j=vis.indexOf(k),t=vis[j+(+a.dataset.d)];if(j<0||!t)return;const x=o.indexOf(k),y=o.indexOf(t);o[x]=t;o[y]=k;let m={};try{m=JSON.parse(lsg('home_ord')||'{}')||{};}catch(e){}m[i]=o;lss('home_ord',JSON.stringify(m));render(true);};
 ACT.hrs=()=>{lss('home_ord','');render(true);};
-const HGRP=[['📅 Günlük işler',['dav','reh','rrap','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','kulup','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['sinav','dnm','stat','uyari','cikti']],['🧰 Diğer',['ayar']]];
+const HGRP=[['📅 Günlük işler',['dav','reh','rrap','yplan','gplan']],['🏫 Sınıf',['grupmsj','nobet','kulup','ogr','akv','tahta','oturma','soz','haf']],['📊 Rapor ve çıktı',['sinav','sozsinav','dnm','stat','uyari','cikti']],['🧰 Diğer',['ayar']]];
 const todayCard=()=>{
   const it=[alertItem(),yokItem(),remItem(),bkItem(),bdayItem()].filter(Boolean);
   if(!it.length)return '';
@@ -371,7 +371,7 @@ function hqCard(){return '<div class="card dx-search !py-1.5 !px-2"><input id="h
 function hqRun(v){
   const box=$('hqr');if(!box)return;const q=hqN(v);if(!q){box.innerHTML='';return;}
   const W=q.split(' ');const hit=txt=>{const n=hqN(txt);return W.every(w=>n.includes(w));};
-  const KW={dsonu:'donem sonu eokul e okul not aktarim kopyala eksik kontrol karne sinav ortalama devamsizlik',menu:'menu tum sayfalar',kulup:'kulup kulupler sosyal etkinlik dagitim danisman ogretmen secim',rrap:'rehberlik aylik faaliyet raporu yillik plan konu rapor fotograf',sinav:'sinav not analiz yazili sozlu puan ortalama kazanim basari',nobet:'nobetci nobet sinif nobetcisi gunluk nobet dagitim kura',gplan:'gunluk plan ders plani gunluk ders plani konu kazanim yontem arac gerec cikti yazdir',grupmsj:'grup mesaj whatsapp toplu duyuru tebrik kitap getirmeyenler gelmeyenler sinif grubu',dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
+  const KW={dsonu:'donem sonu eokul e okul not aktarim kopyala eksik kontrol karne sinav ortalama devamsizlik',menu:'menu tum sayfalar',sozsinav:'sozlu sinav soru kolay orta zor kuran ezber not yoklama',kulup:'kulup kulupler sosyal etkinlik dagitim danisman ogretmen secim',rrap:'rehberlik aylik faaliyet raporu yillik plan konu rapor fotograf',sinav:'sinav not analiz yazili sozlu puan ortalama kazanim basari',nobet:'nobetci nobet sinif nobetcisi gunluk nobet dagitim kura',gplan:'gunluk plan ders plani gunluk ders plani konu kazanim yontem arac gerec cikti yazdir',grupmsj:'grup mesaj whatsapp toplu duyuru tebrik kitap getirmeyenler gelmeyenler sinif grubu',dini:'dini zikir zikirmatik esma esmaul husna namaz vakti vakitleri ezan tesbih',ogr:'ogrenci ekle liste excel toplu fotograf izin sinif sube numara sil',yedek:'yedek indir yukle json excel rapor geri yukle',stat:'istatistik grafik en cok ezber puan siralama gizle sira kutu',uyari:'uyari bildirim devamsiz odev yapmayan',ayar:'ayarlar cikis hesap pin kilit tema karanlik profil tanim oda kodu guvenlik ekran',akv:'akvaryum balik',tahta:'tahta akilli kiosk kod bekleme ogrenci ekrani',yplan:'yillik plan haftalik ders plani etkinlik meb cerceve excel yukle',bugun:'bugun yoklama ders programi',cikti:'cikti yazdir pdf liste cizelge karne veli izin belgesi',yok:'yoklama devam var yok izinli',ders:'ders puan program',ezber:'ezber cuz sure',odevhiz:'odev hizli kontrol',dav:'davranis puan not',reh:'rehberlik calisma',oturma:'oturma plani sira',soz:'soz hakki kura',haf:'hafizlik cuz cizelge',donem:'donem cizelge haftalik aylik',karne:'karne yazdir pdf'};
   const res=[];
   Object.keys(P).forEach(k=>{if(k==='home'||!pageOn(k))return;const p=P[k];if(hit(p.title+' '+(KW[k]||'')))res.push(['<button data-go="'+k+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+p.icon+'</span><b class="flex-1">'+esc(p.title)+'</b><span class="text-[11px] text-slate-400">Sayfa</span></button>',hqN(p.title).startsWith(W[0])?0:1]);});
   [['🗓️','Haftalık ders programım','hprog','haftalik ders programi program saat gun bugunku dersler'],['📷','Toplu fotoğraf ekle','pbopen','toplu fotograf ekle ogrenci resim foto izin'],['👨‍👩‍👧','Veli bilgilerini Excel ile yükle','vlxl','veli bilgi iletisim telefon anne baba excel yukle e okul'],['🚪','Çıkış yap','tchout','cikis yap hesap oturum kapat'],['🆕','Neler yeni (Yenilikler)','news','yenilik yenilikler neler yeni surum yeni ozellik']].forEach(x=>{if(hit(x[1]+' '+x[3]))res.push(['<button data-act="'+x[2]+'" class="w-full text-left flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"><span class="text-xl">'+x[0]+'</span><b class="flex-1">'+esc(x[1])+'</b><span class="text-[11px] text-slate-400">İşlem</span></button>',1]);});
@@ -1562,7 +1562,7 @@ $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.ta
 
 /* Neler yeni */
 const BUILD='2026-11-04d';
-const VER='2026-11-d127',NEWS=[['🎭','Kulüp dağılımı','Sınıfınızın öğrencilerini kulüplere elle seçtirin, otomatik dağıtın ya da hazır Excel dağıtımını yapıştırın. Hangi kulüpte hangi öğretmen ve öğrenciler olduğunu tek sayfa A4 olarak yazdırın veya paylaşın.'],['📆','Rehberlik kazanımı yıllık planda','Rehberlik planı hafta tarihleriyle yüklenince, programınızda sınıfın Rehberlik dersi geldiğinde Yıllık Plan ve Bugün ekranında o haftanın kazanımı ve etkinliği görünür.'],['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
+const VER='2026-11-d128',NEWS=[['🎤','Sözlü Sınav','İşlediğiniz konulardan kolay-orta-zor kısa cevaplı sorular çekin, öğrencinin bildiğine göre işaretleyin; not otomatik hesaplanıp Sınav Notları’na yazılır.'],['🎭','Kulüp dağılımı','Sınıfınızın öğrencilerini kulüplere elle seçtirin, otomatik dağıtın ya da hazır Excel dağıtımını yapıştırın. Hangi kulüpte hangi öğretmen ve öğrenciler olduğunu tek sayfa A4 olarak yazdırın veya paylaşın.'],['📆','Rehberlik kazanımı yıllık planda','Rehberlik planı hafta tarihleriyle yüklenince, programınızda sınıfın Rehberlik dersi geldiğinde Yıllık Plan ve Bugün ekranında o haftanın kazanımı ve etkinliği görünür.'],['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.slice(0,3).map(n=>{const t=String(n[2]).split(/(?<=[.!?])\s/)[0];return '<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(t.length>110?t.slice(0,107)+'…':t)+'</div></div></div>';}).join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -4396,6 +4396,290 @@ Object.assign(ACT,{
   kuprm(){open(URL.createObjectURL(new Blob([kuDoc()],{type:'text/html'})),'_blank');},
   kupdf(){pdfFromDoc(kuDoc(),'Kulup_'+G.sinif+(G.sube==='ALL'?'':String(G.sube).toUpperCase())+'.pdf','Kulüp dağılımı');},
   kucp(){const t=kuText();if(!t)return toast('Önce öğrencileri dağıtın',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>toast('Kopyalanamadı',true));}
+});
+
+/* ===== Sözlü Sınav: konu bazlı kısa cevaplı soru bankası (kolay/orta/zor) + öğrenci başına soru çekme + bildiğine göre not. Notlar Sınav Notları'na (S.sinav) yazılır. ===== */
+const SQ_L=['','Kolay','Orta','Zor'];
+const SQ_C=['','bg-emerald-100 text-emerald-800','bg-amber-100 text-amber-800','bg-rose-100 text-rose-800'];
+/* [konu, [yıllık plan anahtar sözcükleri], [[düzey 1-3, soru, cevap anahtarı], ...]] */
+const SQ=[
+["Kur’an-ı Kerim’i Tanıyalım",["tanıyal","vahiy","mushaf"],[
+ [1,"Kur’an-ı Kerim kaç cüzden oluşur?","30 cüz."],
+ [1,"Kur’an-ı Kerim’de kaç sûre vardır?","114 sûre."],
+ [1,"Kur’an-ı Kerim’i Peygamberimize getiren melek kimdir?","Cebrâil (a.s.)."],
+ [1,"Kur’an-ı Kerim hangi dilde indirilmiştir?","Arapça."],
+ [2,"Kur’an-ı Kerim’in ilk inen âyetleri hangi sûrenin başındadır?","Alak sûresi (“İkra”: Oku!)."],
+ [2,"Mushaftaki ilk ve son sûre hangileridir?","İlk sûre Fâtiha, son sûre Nâs."],
+ [2,"Kur’an-ı Kerim yaklaşık kaç yılda indirilmiştir?","Yaklaşık 23 yılda."],
+ [2,"Kur’an-ı Kerim’in en uzun sûresi hangisidir?","Bakara sûresi."],
+ [2,"Kur’an-ı Kerim’in diğer isimlerinden ikisini söyleyiniz.","Furkân, Zikir, Nûr, Hüdâ, Kitâb vb."],
+ [3,"Mekke’de inen âyetlere ne denir? Medine’de inenlere ne denir?","Mekke’de inenlere Mekkî, Medine’de inenlere Medenî denir."],
+ [3,"Kur’an-ı Kerim ilk defa hangi halife zamanında kitap hâline getirilmiştir, kim görevlendirilmiştir?","Hz. Ebû Bekir zamanında; Zeyd b. Sâbit görevlendirilmiştir. (Hz. Osman zamanında çoğaltılıp bölgelere gönderilmiştir.)"]]],
+["Fâtiha Sûresi",["fatiha"],[
+ [1,"Fâtiha sûresi kaç âyettir?","7 âyet."],
+ [1,"Fâtiha sûresi namazda ne zaman okunur?","Namazın her rekâtında okunur."],
+ [2,"“Elhamdülillâhi Rabbil-âlemîn” ne demektir?","Hamd, âlemlerin Rabbi olan Allah’a mahsustur."],
+ [2,"Fâtiha sûresinde Allah’tan ne istenir?","Bizi doğru yola iletmesi (“İhdinas-sırâtal müstakîm”)."],
+ [3,"“Mâliki yevmid-dîn” ne demektir?","Din (hesap ve ceza) gününün sahibi."],
+ [3,"Fâtiha sûresinin diğer adlarından ikisini söyleyiniz.","Ümmü’l-Kitâb, Seb’u’l-Mesânî, Şifâ, Hamd sûresi vb."],
+ [3,"“Fâtiha” kelimesi ne demektir?","Açan, başlangıç yapan; Kur’an’ı açan sûre."]]],
+["İhlâs Sûresi",["ihlas"],[
+ [1,"İhlâs sûresi kaç âyettir?","4 âyet."],
+ [1,"İhlâs sûresi hangi konuyu anlatır?","Allah’ın bir ve tek olduğunu (tevhid)."],
+ [2,"“Kul hüvallâhü ehad” ne demektir?","De ki: O, Allah’tır, birdir."],
+ [2,"“Lem yelid ve lem yûled” ne demektir?","Doğurmamıştır ve doğmamıştır."],
+ [3,"“Allâhüs-samed” ifadesindeki “samed” ne demektir?","Her şey kendisine muhtaç olan, kendisi hiçbir şeye muhtaç olmayan."],
+ [3,"Peygamberimiz İhlâs sûresinin değeri için ne buyurmuştur?","Kur’an’ın üçte birine denk olduğunu buyurmuştur."]]],
+["Felak Sûresi",["felak"],[
+ [1,"Felak sûresi kaç âyettir?","5 âyet."],
+ [2,"“Felak” ne demektir?","Sabah aydınlığı, şafak (yarılıp ağaran sabah)."],
+ [2,"Felak sûresinde hangi şerlerden Allah’a sığınılır? (iki örnek)","Yarattıklarının şerri, karanlığı çöken gecenin şerri, düğümlere üfleyen büyücülerin şerri, haset edenin şerri."],
+ [3,"Felak ve Nâs sûrelerine birlikte ne ad verilir?","Muavvizeteyn (sığınma sûreleri)."],
+ [3,"“Ve min şerri hâsidin izâ hased” ne demektir?","Haset ettiği zaman hasetçinin şerrinden (sığınırım)."]]],
+["Nâs Sûresi",["nas"],[
+ [1,"Nâs sûresi kaç âyettir?","6 âyet."],
+ [1,"“Nâs” ne demektir?","İnsanlar."],
+ [2,"“Kul eûzü bi Rabbin-nâs” ne demektir?","De ki: İnsanların Rabbine sığınırım."],
+ [2,"Nâs sûresinde kimin şerrinden Allah’a sığınılır?","Sinsi vesvese verenin (şeytanın) şerrinden."],
+ [3,"“Hannâs” kelimesi ne demektir?","Sinsice vesvese verip Allah anılınca geri çekilen (şeytan)."],
+ [3,"Mushaftaki son sûre hangisidir?","Nâs sûresi."]]],
+["Kevser Sûresi",["kevser"],[
+ [1,"Kevser sûresi kaç âyettir?","3 âyet; Kur’an’ın en kısa sûresidir."],
+ [2,"“Kevser” ne demektir?","Çok hayır, bolluk; cennetteki bir nehrin adıdır."],
+ [2,"“Fe sallî li Rabbike venhar” ne demektir?","Rabbin için namaz kıl ve kurban kes."],
+ [3,"“İnne şâni-eke hüvel-ebter” ne demektir?","Asıl soyu kesik (hayırdan yoksun) olan, sana kin besleyendir."],
+ [3,"Kevser sûresinde Allah Peygamberimize ne verdiğini bildirir?","Kevser’i; yani çok hayır ve nimeti."]]],
+["Nasr Sûresi",["nasr"],[
+ [1,"Nasr sûresi kaç âyettir?","3 âyet."],
+ [1,"“Nasr” ne demektir?","Yardım."],
+ [2,"Nasr sûresi hangi olaya işaret eder?","Allah’ın yardımının gelmesine ve Mekke’nin fethine."],
+ [2,"İnsanlar Allah’ın dinine akın akın girince ne yapmamız emredilir?","Rabbimizi hamd ile tesbih etmek ve O’ndan bağışlanma dilemek."],
+ [3,"Nasr sûresi Mekkî midir, Medenî midir?","Medenî’dir."],
+ [3,"“İnnehû kâne tevvâbâ” ne demektir?","Çünkü O (Allah), tövbeleri çok kabul edendir."]]],
+["Tebbet (Mesed) Sûresi",["tebbet","mesed","leheb"],[
+ [1,"Tebbet sûresi kaç âyettir?","5 âyet."],
+ [1,"Tebbet sûresinde adı geçen kişi kimdir?","Ebû Leheb."],
+ [2,"Ebû Leheb, Peygamberimizin neyi olur?","Amcası."],
+ [2,"Tebbet sûresinin diğer adı nedir?","Mesed (Leheb) sûresi."],
+ [3,"Ebû Leheb’in karısı sûrede nasıl anılır?","Odun taşıyıcısı (hammâletel-hatab) olarak."],
+ [3,"“Tebbet yedâ Ebî Lehebin ve tebb” ne demektir?","Ebû Leheb’in iki eli kurusun; kurudu da."]]],
+["Kâfirûn Sûresi",["kafirun"],[
+ [1,"Kâfirûn sûresi kaç âyettir?","6 âyet."],
+ [1,"“Kâfirûn” ne demektir?","İnkâr edenler."],
+ [2,"“Leküm dînüküm ve liye dîn” ne demektir?","Sizin dininiz size, benim dinim banadır."],
+ [2,"Kâfirûn sûresi hangi konuyu anlatır?","Müminin Allah’tan başkasına kulluk etmeyeceğini (tevhidi) anlatır."],
+ [3,"“Lâ a’büdü mâ ta’büdûn” ne demektir?","Ben sizin taptıklarınıza tapmam."]]],
+["Mâûn Sûresi",["maun"],[
+ [1,"Mâûn sûresi kaç âyettir?","7 âyet."],
+ [1,"Mâûn sûresine göre yetime nasıl davranmalıyız?","Onu itip kakmamalı, iyi davranmalı ve yardım etmeliyiz."],
+ [2,"“Mâûn” ne demektir?","Küçük yardımlar, ihtiyaç duyulan ufak eşyalar."],
+ [2,"Mâûn sûresinde kınanan davranışlardan ikisini söyleyiniz.","Yetimi itip kakmak, yoksulu doyurmaya teşvik etmemek, namazı ciddiye almamak, gösteriş yapmak, ufak yardımı esirgemek."],
+ [3,"“Ellezîne hüm yürâûn” ne demektir?","Onlar gösteriş yaparlar."],
+ [3,"“Ellezîne hüm an salâtihim sâhûn” ne demektir?","Onlar namazlarından gafildirler."]]],
+["Fîl Sûresi",["fil"],[
+ [1,"Fîl sûresi kaç âyettir?","5 âyet."],
+ [1,"“Fîl” ne demektir?","Fil."],
+ [2,"Fîl sûresi hangi olayı anlatır?","Ebrehe’nin fil ordusuyla Kâbe’yi yıkmaya gelmesini ve Allah’ın onları helak etmesini."],
+ [2,"Allah, Ebrehe’nin ordusuna karşı ne göndermiştir?","Sürü sürü kuşlar (ebâbîl); attıkları taşlarla onları helak etmiştir."],
+ [3,"Fil olayı Peygamberimizle ilgili hangi tarihe denk gelir?","Peygamberimizin doğduğu yıla (Fil yılı)."],
+ [3,"“Elem tera keyfe fe’ale Rabbüke bi ashâbil-fîl” ne demektir?","Rabbinin fil sahiplerine ne yaptığını görmedin mi?"]]],
+["Kureyş Sûresi",["kureys"],[
+ [1,"Kureyş sûresi kaç âyettir?","4 âyet."],
+ [1,"Kureyş sûresi hangi kabileyi anlatır?","Mekke’de yaşayan Kureyş kabilesini."],
+ [2,"Kureyş’in kış ve yaz yolculukları ne içindi?","Ticaret (kervan) yolculuklarıydı."],
+ [2,"Kureyş sûresinde onlara kime kulluk etmeleri emredilir?","Bu evin (Kâbe’nin) Rabbine."],
+ [3,"Allah, Kureyş’e hangi iki nimeti hatırlatır?","Onları açlıktan doyurması ve korkudan güvene kavuşturması."],
+ [3,"“Bu evin Rabbi” ifadesinde hangi yapı kastedilir?","Kâbe."]]],
+["Besmele ve Eûzü",["besmele","euzu","eûzü"],[
+ [1,"“Bismillâhirrahmânirrahîm” ne demektir?","Rahmân ve Rahîm olan Allah’ın adıyla."],
+ [1,"“Eûzü billâhi mineş-şeytânir-racîm” ne demektir?","Kovulmuş şeytandan Allah’a sığınırım."],
+ [2,"Kur’an okumaya başlarken hangisi önce, hangisi sonra okunur?","Önce Eûzü, sonra Besmele okunur."],
+ [2,"Besmele’deki “Rahmân” ve “Rahîm” isimleri neyi anlatır?","Allah’ın merhametinin çok geniş olduğunu."],
+ [3,"Hangi sûrenin başında Besmele yoktur?","Tevbe sûresinin."],
+ [3,"İşlere Besmele ile başlamak bize ne kazandırır?","Allah’ın adıyla ve O’ndan yardım dileyerek başlama bilinci kazandırır."]]],
+["Kelime-i Şehâdet ve Tevhid",["sehadet","tevhid"],[
+ [1,"Kelime-i Şehâdet’i okuyunuz.","Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve resûlüh."],
+ [1,"Kelime-i Tevhid’i okuyunuz.","Lâ ilâhe illallâh Muhammedün Resûlullâh."],
+ [2,"Kelime-i Şehâdet’in anlamı nedir?","Allah’tan başka ilâh olmadığına ve Muhammed’in O’nun kulu ve elçisi olduğuna şehâdet ederim."],
+ [2,"Kelime-i Şehâdet İslâm’ın kaçıncı şartıdır?","Birinci şartıdır."],
+ [3,"“Şehâdet” kelimesi ne demektir?","Bilerek ve inanarak şahitlik etmek."],
+ [3,"“Tevhid” ne demektir?","Allah’ı bir ve tek bilmek."]]],
+["Sübhâneke ve Ettehiyyâtü",["subhaneke","ettehiyyat","tehiyyat"],[
+ [1,"Sübhâneke duası namazın neresinde okunur?","Namaza başlarken, iftitah tekbirinden sonra."],
+ [1,"Ettehiyyâtü duası namazda ne zaman okunur?","Her iki rekâtın sonundaki oturuşta."],
+ [2,"Sübhâneke duasında Allah’ı nasıl anıyoruz?","Her türlü eksiklikten uzak olarak anıyor, O’na hamd ediyor, ismini mübarek diye anıyoruz."],
+ [2,"Ettehiyyâtü duasında hangi ibadetlerin Allah’a mahsus olduğu söylenir?","Dille, bedenle ve malla yapılan bütün ibadetlerin."],
+ [3,"Ettehiyyâtü’de Peygamberimize nasıl selâm veririz?","“Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berekâtüh.”"],
+ [3,"Namazda Ettehiyyâtü’den sonra hangi dualar okunur?","Salli ve Bârik (salavat) duaları."]]],
+["Salli-Bârik ve Rabbenâ Duaları",["salli","barik","rabbena"],[
+ [1,"Salli ve Bârik duaları kimin için yapılır?","Peygamberimiz Hz. Muhammed ve ailesi için."],
+ [1,"Salli-Bârik namazın neresinde okunur?","Son oturuşta, Ettehiyyâtü’den sonra."],
+ [2,"“Rabbenâ âtinâ fiddünyâ haseneten…” duasının anlamı nedir?","Rabbimiz bize dünyada da iyilik ver, âhirette de iyilik ver ve bizi ateş azabından koru."],
+ [2,"Rabbenağfirlî duasında kimler için bağışlanma dilenir?","Kendimiz, annemiz-babamız ve bütün müminler için."],
+ [3,"Rabbenağfirlî duasında bağışlanma hangi günde istenir?","Hesabın görüleceği günde (yevme yekûmül hisâb)."],
+ [3,"Salli duasında Peygamberimizle birlikte hangi peygamberin adı anılır?","Hz. İbrâhim."]]],
+["Âyetel Kürsî",["kursi","ayetel"],[
+ [1,"Âyetel Kürsî Kur’an’ın hangi sûresinde yer alır?","Bakara sûresinde (255. âyet)."],
+ [1,"Âyetel Kürsî ne zaman okunur?","Farz namazlardan sonra, yatmadan önce vb."],
+ [2,"“Allâhü lâ ilâhe illâ hüvel hayyül kayyûm” ne demektir?","Allah’tan başka ilâh yoktur; O diridir (Hayy), her şeyi ayakta tutandır (Kayyûm)."],
+ [2,"“Lâ te’huzühû sinetün velâ nevm” ne demektir?","O’nu ne uyuklama tutar ne de uyku."],
+ [3,"“Kürsî” ne demektir?","Allah’ın ilmi ve hükümranlığı; gökleri ve yeri kuşatan kudreti."],
+ [3,"Âyetel Kürsî’de Allah’ın hangi sıfatlarından ikisi vurgulanır?","Hayy, Kayyûm, ilminin genişliği, uyumaması, yüceliği ve büyüklüğü."]]],
+["Amentü (İmanın Şartları)",["amentu","iman"],[
+ [1,"İmanın şartı kaçtır?","6’dır."],
+ [1,"“Âmentü” ne demektir?","İman ettim."],
+ [2,"İmanın altı şartını söyleyiniz.","Allah’a, meleklerine, kitaplarına, peygamberlerine, âhiret gününe ve kadere (hayrı ve şerri Allah’tandır) iman."],
+ [2,"Kitaplara iman ne demektir?","Allah’ın peygamberlere gönderdiği kitaplara (Tevrat, Zebur, İncil, Kur’an) inanmaktır."],
+ [3,"Âhirete iman ne demektir?","Ölümden sonra dirilmeye, hesaba, cennet ve cehenneme inanmaktır."],
+ [3,"Kadere iman ne demektir?","Her şeyin Allah’ın ilmi ve takdiriyle olduğuna inanmaktır."]]],
+["Kunut Duaları ve Vitir",["kunut","vitir"],[
+ [1,"Kunut duaları hangi namazda okunur?","Vitir namazında."],
+ [1,"Vitir namazı kaç rekâttır?","3 rekâttır."],
+ [2,"Kunut dualarını vitir namazının kaçıncı rekâtında okuruz?","Üçüncü rekâtta, Fâtiha ve zamm-ı sûreden sonra tekbir alıp."],
+ [3,"Vitir namazı hangi vakitte kılınır?","Yatsı namazından sonra (yatsı vaktinde)."],
+ [3,"Kunut duasında Allah’a karşı neler yaptığımızı söyleriz? (iki örnek)","Ondan yardım ve bağışlanma dileriz, O’na inanır ve güveniriz."]]],
+["Günlük Dualar (Yemek, İftar, Ezan)",["yemek","iftar","ezan dua"],[
+ [1,"Yemeğe başlarken ne söyleriz?","Besmele çekeriz (Bismillâh)."],
+ [1,"Yemekten sonra hangi dua okunur?","“Elhamdülillâhillezî et’amenâ ve sekânâ ve cealenâ minel-müslimîn.”"],
+ [2,"Yemek duasının (bitiş) anlamı nedir?","Bizi yediren, içiren ve Müslümanlardan kılan Allah’a hamdolsun."],
+ [2,"İftar duasının anlamı nedir?","Allah’ım, senin rızân için oruç tuttum, sana inandım, sana güvendim ve senin rızkınla orucumu açtım."],
+ [2,"Ezan duası ne zaman okunur?","Ezan bittikten sonra."],
+ [3,"Ezan duasında Peygamberimiz için neler istenir?","Vesîle ve fazîlet (yüksek makam) verilmesi."]]],
+["Abdest, Gusül ve Teyemmüm",["abdest","gusul","teyemmum"],[
+ [1,"Abdestin farzı kaçtır?","4’tür."],
+ [2,"Abdestin farzlarını söyleyiniz.","Yüzü yıkamak, kolları dirseklerle beraber yıkamak, başın dörtte birini mesh etmek, ayakları topuklarla beraber yıkamak."],
+ [2,"Abdesti bozan iki durum söyleyiniz.","Ön ve arkadan bir şey çıkması, kanın akması, yatarak uyumak, bayılmak vb."],
+ [2,"Teyemmüm ne zaman yapılır?","Su bulunmadığında veya hastalık gibi nedenlerle kullanılamadığında, temiz toprakla."],
+ [3,"Guslün (boy abdesti) farzları kaçtır, nelerdir?","3’tür: ağıza su vermek, burna su vermek, bütün vücudu yıkamak."],
+ [3,"Teyemmümün farzı kaçtır?","2’dir: niyet etmek, toprağa vurup yüzü ve kolları meshetmek."]]],
+["Namaz Bilgileri ve 32 Farz",["namaz","32 farz","farz"],[
+ [1,"Beş vakit namaz hangileridir?","Sabah, öğle, ikindi, akşam, yatsı."],
+ [1,"Namazda yönümüzü nereye çeviririz?","Kâbe’ye (kıbleye)."],
+ [2,"Farz namazların rekât sayılarını söyleyiniz.","Sabah 2, öğle 4, ikindi 4, akşam 3, yatsı 4."],
+ [2,"İslâm’ın şartları kaçtır, söyleyiniz.","5’tir: Kelime-i şehâdet, namaz, oruç, zekât, hac."],
+ [3,"Namazın farzları kaçtır?","12’dir: 6’sı namazın dışında (şartlar), 6’sı namazın içinde (rükünler)."],
+ [3,"Namazın içindeki farzlar nelerdir?","İftitah tekbiri, kıyam, kıraat, rükû, secde, son oturuş (ka’de-i âhîre)."],
+ [3,"Namazın dışındaki farzlar (şartlar) nelerdir?","Hadesten ve necasetten taharet, setr-i avret, kıbleye yönelmek, vakit, niyet."],
+ [3,"32 farz nelerden oluşur?","İslâm’ın şartı 5 + imanın şartı 6 + abdestin farzı 4 + guslün farzı 3 + teyemmümün farzı 2 + namazın farzı 12 = 32."]]],
+["Elif-Bâ ve Okuma Kuralları",["elif","harek","sedde","cezm","tenvin","med"],[
+ [1,"Arap alfabesinde kaç harf vardır?","28 harf."],
+ [1,"Arapça hangi yönden yazılır ve okunur?","Sağdan sola."],
+ [1,"Harekeler kaçtır, adları nedir?","3’tür: üstün, esre, ötre."],
+ [2,"Üstün, esre ve ötre harfe hangi sesleri verir?","Üstün “e/a”, esre “i”, ötre “u/ü” sesini verir."],
+ [2,"Şedde ne işe yarar?","Harfin iki kere (çift) okunmasını sağlar."],
+ [2,"Cezm (sükûn) nedir?","Harfin harekesiz, sakin okunduğunu gösteren işarettir."],
+ [3,"Med harfleri hangileridir?","Elif, vav ve yâ."],
+ [3,"Tenvin nedir?","Kelime sonunda çift hareke; “-an, -in, -un” sesi verir."],
+ [3,"Kalın okunan harfler (hurûf-ı müstaliye) hangileridir?","Hı, Sâd, Dâd, Tı, Zı, Ğayn, Kaf."]]]
+];
+const ssFold=x=>kuFold(String(x||'').replace(/[âÂ]/g,'a').replace(/[îÎ]/g,'i').replace(/[ûÛ]/g,'u'));
+const SS={sel:null,cfg:{c:{1:1,2:1,3:1},w:{1:30,2:30,3:40},rn:true,ad:'',ders:'Kur’an-ı Kerim'},cur:'',addq:false,pl:''};
+const ssKey=()=>'_ssn|'+G.sinif+'|'+rrSb();
+const ssGet=()=>{const r=kuRec(ssKey());let o=null;try{o=JSON.parse((r&&r.rb)||'null');}catch(e){}return o&&isO(o)&&o.k?o:null;};
+const ssPut=o=>{let r=kuRec(ssKey());if(!r){r={kim:ssKey()};S.ayar.push(r);}r.rb=o?JSON.stringify(o):'';save();};
+const ssCust=()=>{const r=kuRec('_sqb');try{const a=JSON.parse((r&&r.rb)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}};
+const ssPutCust=a=>{let r=kuRec('_sqb');if(!r){r={kim:'_sqb'};S.ayar.push(r);}r.rb=JSON.stringify(a);save();};
+const ssBank=()=>{const b=[];SQ.forEach((g,gi)=>g[2].forEach((q,qi)=>b.push({id:'d'+gi+'_'+qi,k:g[0],z:q[0],q:q[1],a:q[2]})));ssCust().forEach(c=>b.push({id:c.id,k:c.k,z:+c.z,q:c.q,a:c.a,u:1}));return b;};
+const ssKonu=()=>{const k=SQ.map(g=>g[0]);ssCust().forEach(c=>{if(!k.includes(c.k))k.push(c.k);});return k;};
+function ssFromPlan(){
+  const rows=S.yplan.filter(y=>y.t!=='e'&&y.ok&&/kur.?an/i.test(y.ders||'')&&(y.sinif==='ALL'||String(y.sinif)===G.sinif));
+  const txt=' '+ssFold(rows.map(y=>(y.konu||'')+' '+(y.kaz||'')).join(' '))+' ';
+  const out=[];
+  SQ.forEach(g=>{if(g[1].some(w=>{const f=ssFold(w);return f.length>=5?txt.includes(f):txt.includes(' '+f.trim()+' ');}))out.push(g[0]);});
+  return {sel:out,n:rows.length};
+}
+function ssScore(o,r){
+  if(!r||!r.q||!r.q.length||r.q.some(x=>x.c==null))return null;
+  let num=0,den=0;
+  [1,2,3].forEach(z=>{const l=r.q.filter(x=>x.z===z);if(l.length){const w=+o.w[z]||0;num+=w*(l.reduce((a,x)=>a+x.c,0)/l.length);den+=w;}});
+  if(!den)return null;const p=num/den*100;return o.rn?Math.round(p/5)*5:Math.round(p);
+}
+function ssExam(o){
+  let e=S.sinav.find(x=>x.id&&x.id===o.eid)||S.sinav.find(x=>x.ad===o.ad&&T(x.ders)===T(o.ders)&&String(x.sinif)===G.sinif&&x.donem===G.donem&&(x.sube||'')===snSb());
+  if(!e){e={donem:G.donem,sinif:G.sinif,sube:snSb(),ders:o.ders,ad:o.ad,tarih:G.date,max:100,q:[],n:{}};S.sinav.push(e);save();}
+  if(e.id)o.eid=e.id;return e;
+}
+function ssNote(o,sid){const r=o.r[sid],e=ssExam(o);e.n=e.n||{};const t=ssScore(o,r);e.n[sid]=r&&r.g?{t:null,g:true}:(t==null?{t:null}:{t:t});ssPut(o);}
+function ssDraw(o,ex,z){
+  const pool=ssBank().filter(b=>o.k.includes(b.k)&&b.z===z&&!ex.includes(b.id));if(!pool.length)return null;
+  const used={};Object.values(o.r).forEach(r=>(r.q||[]).forEach(x=>{used[x.id]=(used[x.id]||0)+1;}));
+  const min=Math.min.apply(null,pool.map(b=>used[b.id]||0)),c=pool.filter(b=>(used[b.id]||0)===min),b=c[Math.floor(Math.random()*c.length)];
+  return {id:b.id,z:z,k:b.k,q:b.q,a:b.a,c:null};
+}
+function ssOpen(o,sid){
+  let r=o.r[sid];
+  if(!r||!r.q||!r.q.length){
+    r=o.r[sid]={q:[]};const miss=[];
+    [1,2,3].forEach(z=>{for(let i=0;i<(+o.c[z]||0);i++){const q=ssDraw(o,r.q.map(x=>x.id),z);if(q)r.q.push(q);else miss.push(SQ_L[z]);}});
+    if(miss.length)toast('Seçili konularda yeterli '+[...new Set(miss)].join('/')+' soru yok',true);
+    ssPut(o);
+  }
+  SS.cur=sid;
+}
+reg('sozsinav','🎤','Sözlü Sınav',()=>{
+  if(G.sinif==='ALL')return gbar()+'<div class="card text-sm text-amber-700">Önce yukarıdan sınıfı seçin.</div>';
+  const st=snStu();if(!st.length)return gbar()+'<div class="card text-sm text-slate-500">Bu sınıfta öğrenci yok.</div>';
+  const o=ssGet();
+  if(!o){
+    if(SS.sel===null){const p=ssFromPlan();SS.sel=p.sel.slice();SS.pl=p.n?(p.n+' işlenmiş Kur’an dersi konusundan '+p.sel.length+' başlık eşleşti'):'';}
+    const bank=ssBank(),cnt={};bank.forEach(b=>{cnt[b.k]=(cnt[b.k]||0)+1;});
+    const c=SS.cfg,sel=ssKonu().map((k,i)=>'<label class="flex items-start gap-2 py-1 text-sm"><input type="checkbox" data-ssk="'+i+'" class="mt-1"'+(SS.sel.includes(k)?' checked':'')+'><span class="flex-1">'+esc(k)+' <span class="text-xs text-slate-500">('+(cnt[k]||0)+' soru)</span></span></label>').join('');
+    const num=(id,v,mx)=>'<input type="number" min="0" max="'+mx+'" data-sscfg="'+id+'" value="'+v+'" class="inp w-16 text-center">';
+    const cu=ssCust(),kn=ssKonu();
+    return gbar()+'<div class="card"><b>🎤 Sözlü Sınav · '+esc(rrCls())+'</b><p class="text-xs text-slate-500 mt-1">İşlediğiniz konuları seçin. Her öğrenciye, seçtiğiniz konulardan kolay-orta-zor kısa cevaplı sorular çekilir. Bildiğine göre ✅ / 🟡 / ❌ işaretlersiniz, not kendiliğinden hesaplanır ve <b>Sınav Notları</b>na yazılır.</p>'
+     +'<label class="text-xs font-bold mt-3 block">Sınav adı</label><input data-sscfg="ad" class="inp w-full" value="'+esc(c.ad||'1. Sözlü')+'"><label class="text-xs font-bold mt-2 block">Ders</label><input data-sscfg="ders" class="inp w-full" value="'+esc(c.ders)+'">'
+     +'<div class="text-xs font-bold mt-3">Öğrenciye kaç soru? <span class="font-normal text-slate-500">(ağırlık = nota katkısı)</span></div><div class="flex gap-3 mt-1 text-center"><div><div class="text-[11px] text-emerald-700 font-bold">Kolay</div>'+num('c1',c.c[1],5)+'<div class="mt-1">'+num('w1',c.w[1],100)+'</div></div><div><div class="text-[11px] text-amber-700 font-bold">Orta</div>'+num('c2',c.c[2],5)+'<div class="mt-1">'+num('w2',c.w[2],100)+'</div></div><div><div class="text-[11px] text-rose-700 font-bold">Zor</div>'+num('c3',c.c[3],5)+'<div class="mt-1">'+num('w3',c.w[3],100)+'</div></div></div>'
+     +'<label class="flex items-center gap-2 text-sm mt-3"><input type="checkbox" data-sscfg="rn"'+(c.rn?' checked':'')+'> Notu 5’in katına yuvarla</label></div>'
+     +'<div class="card"><b class="text-sm">📚 İşlenen konular</b>'+(SS.pl?'<div class="text-xs text-emerald-700 mt-1">📅 Yıllık Plan’dan: '+esc(SS.pl)+'</div>':'<div class="text-xs text-slate-500 mt-1">Yıllık Plan’da “İşlendi” işaretli Kur’an dersi konusu bulunamadı; elle seçin.</div>')
+     +'<div class="flex flex-wrap gap-2 my-2"><button data-act="sspl" class="btn bg-teal-600 text-xs">📅 Yıllık plana göre seç</button><button data-act="ssall" class="btn bg-slate-600 text-xs">Tümünü seç</button><button data-act="ssnone" class="btn bg-slate-500 text-xs">Hiçbiri</button></div>'+sel+'</div>'
+     +'<div class="card"><button data-act="ssgo" class="btn bg-emerald-600 w-full min-h-[48px] text-base">▶ Sözlü sınavı başlat</button></div>'
+     +'<div class="card"><button data-act="ssqt" class="btn bg-slate-600">'+(SS.addq?'▲ Kapat':'➕ Kendi sorumu ekle / sorularım ('+cu.length+')')+'</button>'
+     +(SS.addq?'<div class="mt-2"><input id="ssqK" list="ssqKl" class="inp w-full" placeholder="Konu (listeden seçin ya da yeni yazın)"><datalist id="ssqKl">'+kn.map(k=>'<option value="'+esc(k)+'">').join('')+'</datalist><select id="ssqZ" class="inp w-full mt-2"><option value="1">Kolay</option><option value="2">Orta</option><option value="3">Zor</option></select><textarea id="ssqQ" rows="2" class="inp w-full mt-2" placeholder="Soru"></textarea><textarea id="ssqA" rows="2" class="inp w-full mt-2" placeholder="Cevap anahtarı"></textarea><button data-act="ssqadd" class="btn bg-emerald-600 mt-2">💾 Soruyu ekle</button>'
+       +cu.map(q=>'<div class="text-xs border-t border-slate-200 mt-2 pt-2"><span class="px-1.5 py-0.5 rounded '+SQ_C[q.z]+'">'+SQ_L[q.z]+'</span> <b>'+esc(q.k)+'</b><div>'+esc(q.q)+'</div><div class="text-slate-500">'+esc(q.a)+'</div><button data-act="ssqdel" data-id="'+esc(q.id)+'" class="text-red-600 mt-1">🗑 Sil</button></div>').join('')+'</div>':'')+'</div>';
+  }
+  /* — Sınav sürüyor — */
+  const done=st.filter(s=>ssScore(o,o.r[s.id])!=null).length,sc=st.map(s=>ssScore(o,o.r[s.id])).filter(v=>v!=null),av=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length):null;
+  const head='<div class="card"><b>🎤 '+esc(o.ad)+' · '+esc(rrCls())+'</b><div class="text-xs text-slate-500">'+esc(o.ders)+' · '+done+'/'+st.length+' öğrenci notlandı'+(av!=null?' · sınıf ortalaması <b>'+av+'</b>':'')+'</div><div class="flex flex-wrap gap-2 mt-2"><button data-act="ssnotes" class="btn bg-indigo-600 text-xs">📊 Sınav Notları’nda aç</button><button data-act="ssend" class="btn bg-red-600 text-xs">⏹ Sınavı bitir</button></div></div>';
+  if(SS.cur&&st.some(s=>s.id===SS.cur)){
+    const s=st.find(x=>x.id===SS.cur),r=o.r[s.id]||{q:[]},sc1=ssScore(o,r),idx=st.indexOf(s);
+    return gbar()+head+'<div class="card"><button data-act="ssback" class="btn bg-slate-600 text-xs">◀ Öğrenci listesi</button><div class="mt-2 text-lg font-bold">'+esc(s.no?s.no+' · ':'')+esc(s.name)+'</div>'
+      +(r.g?'<div class="mt-2 text-amber-700 font-semibold">Sınava girmedi olarak işaretli.</div>':'')+'</div>'
+      +(r.g?'':r.q.map((q,i)=>'<div class="card"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded text-xs font-bold '+SQ_C[q.z]+'">'+SQ_L[q.z]+'</span><span class="text-xs text-slate-500 flex-1">'+esc(q.k)+'</span><button data-act="sschg" data-i="'+i+'" class="text-xs text-indigo-700">🔄 Değiştir</button></div><div class="text-lg font-semibold mt-2">'+esc(q.q)+'</div><div class="text-xs bg-slate-100 dark:bg-slate-700 rounded p-2 mt-2">✔ <b>Cevap:</b> '+esc(q.a)+'</div><div class="grid grid-cols-3 gap-2 mt-3">'
+        +[[1,'✅ Bildi'],[0.5,'🟡 Kısmen'],[0,'❌ Bilemedi']].map(b=>'<button data-act="ssgr" data-i="'+i+'" data-c="'+b[0]+'" class="min-h-[46px] rounded-lg border text-sm font-semibold '+(q.c===b[0]?(b[0]===1?'bg-emerald-600 text-white border-emerald-600':b[0]===0.5?'bg-amber-500 text-white border-amber-500':'bg-rose-600 text-white border-rose-600'):'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+b[1]+'</button>').join('')+'</div></div>').join(''))
+      +'<div class="card"><div class="text-sm">Not: <b class="text-2xl">'+(r.g?'—':sc1==null?'—':sc1)+'</b> <span class="text-xs text-slate-500">'+(r.g?'':sc1==null?'(tüm soruları işaretleyince hesaplanır)':'/ 100 · Sınav Notları’na yazıldı')+'</span></div><div class="flex flex-wrap gap-2 mt-3"><button data-act="ssabs" class="btn bg-amber-600 text-xs">'+(r.g?'↩ Girdi olarak işaretle':'🚫 Girmedi')+'</button>'+(idx<st.length-1?'<button data-act="ssnext" class="btn bg-emerald-600 flex-1">Sonraki öğrenci ▶</button>':'')+'</div></div>';
+  }
+  return gbar()+head+'<div class="card"><b class="text-sm">👥 Öğrenciler</b>'+st.map(s=>{const r=o.r[s.id],sc1=ssScore(o,r),asked=r&&r.q&&r.q.length;return '<div class="flex items-center gap-2 py-1.5 border-b border-slate-200 dark:border-slate-700"><span class="w-9 text-xs text-slate-500 shrink-0">'+esc(s.no||'')+'</span><span class="flex-1 min-w-0 text-sm font-medium">'+esc(s.name)+'</span>'+(r&&r.g?'<span class="text-xs text-amber-700">girmedi</span>':sc1!=null?'<span class="text-sm font-bold text-emerald-700 w-9 text-right">'+sc1+'</span>':asked?'<span class="text-xs text-amber-700">sürüyor</span>':'')+'<button data-act="ssop" data-id="'+esc(s.id)+'" class="btn '+(sc1!=null?'bg-slate-500':'bg-teal-600')+' text-xs">'+(sc1!=null?'Düzenle':asked?'Devam':'🎤 Sor')+'</button></div>';}).join('')+'</div>';
+});
+$('view').addEventListener('change',e=>{
+  const d=e.target.dataset||{};
+  if(d.ssk!==undefined){const k=ssKonu()[+d.ssk];if(!k)return;SS.sel=SS.sel||[];const i=SS.sel.indexOf(k);if(e.target.checked&&i<0)SS.sel.push(k);if(!e.target.checked&&i>=0)SS.sel.splice(i,1);return;}
+  if(d.sscfg!==undefined){const k=d.sscfg,c=SS.cfg,v=e.target.type==='checkbox'?e.target.checked:e.target.value;
+    if(k==='ad')c.ad=T(v);else if(k==='ders')c.ders=T(v);else if(k==='rn')c.rn=!!v;else if(/^c[123]$/.test(k))c.c[+k[1]]=Math.max(0,Math.min(5,parseInt(v)||0));else if(/^w[123]$/.test(k))c.w[+k[1]]=Math.max(0,Math.min(100,parseFloat(v)||0));}
+});
+Object.assign(ACT,{
+  sspl(){const p=ssFromPlan();SS.sel=p.sel.slice();SS.pl=p.n?(p.n+' işlenmiş Kur’an dersi konusundan '+p.sel.length+' başlık eşleşti'):'';render(true);if(!p.n)toast('Yıllık Plan’da işlenmiş Kur’an konusu yok',true);},
+  ssall(){SS.sel=ssKonu();render(true);},
+  ssnone(){SS.sel=[];render(true);},
+  ssqt(){SS.addq=!SS.addq;render(true);},
+  ssqadd(){const k=T($('ssqK').value),q=T($('ssqQ').value),a=T($('ssqA').value),z=+$('ssqZ').value||1;if(!k||!q)return alert('Konu ve soruyu yazın.');const l=ssCust();l.push({id:'c'+Date.now(),k:k,z:z,q:q,a:a});ssPutCust(l);if(SS.sel&&!SS.sel.includes(k))SS.sel.push(k);render(true);toast('Soru eklendi');},
+  ssqdel(a){if(!confirm('Bu soru silinsin mi?'))return;ssPutCust(ssCust().filter(x=>x.id!==a.dataset.id));render(true);},
+  ssgo(){
+    const c=SS.cfg,sel=SS.sel||[];
+    if(!sel.length)return alert('En az bir konu seçin.');
+    if(![1,2,3].some(z=>c.c[z]>0))return alert('En az bir düzeyde soru sayısı girin.');
+    const bank=ssBank();const eks=[1,2,3].filter(z=>c.c[z]>0&&!bank.some(b=>sel.includes(b.k)&&b.z===z));
+    if(eks.length&&!confirm('Seçili konularda '+eks.map(z=>SQ_L[z]).join(', ')+' düzeyinde soru yok; bu düzey atlanacak. Devam edilsin mi?'))return;
+    const o={ad:c.ad||'1. Sözlü',ders:c.ders||'Kur’an-ı Kerim',k:sel.slice(),c:{1:c.c[1],2:c.c[2],3:c.c[3]},w:{1:c.w[1],2:c.w[2],3:c.w[3]},rn:c.rn,eid:'',r:{}};
+    ssExam(o);ssPut(o);SS.cur='';render(true);
+  },
+  ssop(a){const o=ssGet();if(!o)return;ssOpen(o,a.dataset.id);render(true);scrollTo({top:0});},
+  ssback(){SS.cur='';render(true);},
+  ssgr(a){const o=ssGet();if(!o||!SS.cur)return;const r=o.r[SS.cur],q=r&&r.q[+a.dataset.i];if(!q)return;const v=parseFloat(a.dataset.c);q.c=(q.c===v)?null:v;r.g=false;ssNote(o,SS.cur);render(true);},
+  sschg(a){const o=ssGet();if(!o||!SS.cur)return;const r=o.r[SS.cur],i=+a.dataset.i,q=r&&r.q[i];if(!q)return;const n=ssDraw(o,r.q.map(x=>x.id),q.z);if(!n)return toast('Bu düzeyde başka soru kalmadı',true);r.q[i]=n;ssNote(o,SS.cur);render(true);},
+  ssabs(){const o=ssGet();if(!o||!SS.cur)return;const r=o.r[SS.cur]=o.r[SS.cur]||{q:[]};r.g=!r.g;ssNote(o,SS.cur);render(true);},
+  ssnext(){const o=ssGet();if(!o)return;const st=snStu(),i=st.findIndex(s=>s.id===SS.cur);let n=st.slice(i+1).find(s=>ssScore(o,o.r[s.id])==null&&!(o.r[s.id]&&o.r[s.id].g))||st[i+1];if(n){ssOpen(o,n.id);render(true);scrollTo({top:0});}},
+  ssnotes(){const o=ssGet();if(!o)return;const e=ssExam(o);ssPut(o);SN.id=e.id||'';go('sinav');},
+  ssend(){if(!confirm('Sözlü sınav bitirilsin mi? Notlar Sınav Notları’nda kalır.'))return;ssPut(null);SS.cur='';SS.sel=null;render(true);}
 });
 
 /* ===== Sınav notları ve analizi. Kayıt: S.sinav = [{sinif,sube,ders,ad,tur,tarih,max,q:[{p,kaz}],n:{öğrenciId:{t,q:[],g}}}] ===== */
