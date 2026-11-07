@@ -1562,7 +1562,7 @@ $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.ta
 
 /* Neler yeni */
 const BUILD='2026-11-04d';
-const VER='2026-11-d128',NEWS=[['🎤','Sözlü Sınav','İşlediğiniz konulardan kolay-orta-zor kısa cevaplı sorular çekin, öğrencinin bildiğine göre işaretleyin; not otomatik hesaplanıp Sınav Notları’na yazılır.'],['🎭','Kulüp dağılımı','Sınıfınızın öğrencilerini kulüplere elle seçtirin, otomatik dağıtın ya da hazır Excel dağıtımını yapıştırın. Hangi kulüpte hangi öğretmen ve öğrenciler olduğunu tek sayfa A4 olarak yazdırın veya paylaşın.'],['📆','Rehberlik kazanımı yıllık planda','Rehberlik planı hafta tarihleriyle yüklenince, programınızda sınıfın Rehberlik dersi geldiğinde Yıllık Plan ve Bugün ekranında o haftanın kazanımı ve etkinliği görünür.'],['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
+const VER='2026-11-d130',NEWS=[['🎤','Sözlü Sınav: 8. sınıf','8. sınıf Kur’an-ı Kerim ders kitabından (DÖGM) kısa cevaplı sorular eklendi; sınıfa göre kitap otomatik seçilir. Toplu soru ekleme de var.'],['🎤','Sözlü Sınav (kitaptan)','Sorular MEB Kur’an-ı Kerim 5. sınıf ders kitabından. 1. sınavda 8. haftaya kadar, 2. sınavda dönemin tamamı (son konular ağırlıklı) Yıllık Plan haftalarına göre otomatik seçilir.'],['🎭','Kulüp dağılımı','Sınıfınızın öğrencilerini kulüplere elle seçtirin, otomatik dağıtın ya da hazır Excel dağıtımını yapıştırın. Hangi kulüpte hangi öğretmen ve öğrenciler olduğunu tek sayfa A4 olarak yazdırın veya paylaşın.'],['📆','Rehberlik kazanımı yıllık planda','Rehberlik planı hafta tarihleriyle yüklenince, programınızda sınıfın Rehberlik dersi geldiğinde Yıllık Plan ve Bugün ekranında o haftanın kazanımı ve etkinliği görünür.'],['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.slice(0,3).map(n=>{const t=String(n[2]).split(/(?<=[.!?])\s/)[0];return '<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(t.length>110?t.slice(0,107)+'…':t)+'</div></div></div>';}).join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -4398,195 +4398,285 @@ Object.assign(ACT,{
   kucp(){const t=kuText();if(!t)return toast('Önce öğrencileri dağıtın',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>toast('Kopyalanamadı',true));}
 });
 
-/* ===== Sözlü Sınav: konu bazlı kısa cevaplı soru bankası (kolay/orta/zor) + öğrenci başına soru çekme + bildiğine göre not. Notlar Sınav Notları'na (S.sinav) yazılır. ===== */
+/* ===== Sözlü Sınav: MEB Kur’an-ı Kerim 5. sınıf ders kitabından (2026) kısa cevaplı sorular (kolay/orta/zor). Kapsam, Yıllık Plan’daki hafta bilgisine göre seçilir. Notlar Sınav Notları’na (S.sinav) yazılır. ===== */
 const SQ_L=['','Kolay','Orta','Zor'];
 const SQ_C=['','bg-emerald-100 text-emerald-800','bg-amber-100 text-amber-800','bg-rose-100 text-rose-800'];
-/* [konu, [yıllık plan anahtar sözcükleri], [[düzey 1-3, soru, cevap anahtarı], ...]] */
-const SQ=[
-["Kur’an-ı Kerim’i Tanıyalım",["tanıyal","vahiy","mushaf"],[
- [1,"Kur’an-ı Kerim kaç cüzden oluşur?","30 cüz."],
- [1,"Kur’an-ı Kerim’de kaç sûre vardır?","114 sûre."],
- [1,"Kur’an-ı Kerim’i Peygamberimize getiren melek kimdir?","Cebrâil (a.s.)."],
- [1,"Kur’an-ı Kerim hangi dilde indirilmiştir?","Arapça."],
- [2,"Kur’an-ı Kerim’in ilk inen âyetleri hangi sûrenin başındadır?","Alak sûresi (“İkra”: Oku!)."],
- [2,"Mushaftaki ilk ve son sûre hangileridir?","İlk sûre Fâtiha, son sûre Nâs."],
- [2,"Kur’an-ı Kerim yaklaşık kaç yılda indirilmiştir?","Yaklaşık 23 yılda."],
- [2,"Kur’an-ı Kerim’in en uzun sûresi hangisidir?","Bakara sûresi."],
- [2,"Kur’an-ı Kerim’in diğer isimlerinden ikisini söyleyiniz.","Furkân, Zikir, Nûr, Hüdâ, Kitâb vb."],
- [3,"Mekke’de inen âyetlere ne denir? Medine’de inenlere ne denir?","Mekke’de inenlere Mekkî, Medine’de inenlere Medenî denir."],
- [3,"Kur’an-ı Kerim ilk defa hangi halife zamanında kitap hâline getirilmiştir, kim görevlendirilmiştir?","Hz. Ebû Bekir zamanında; Zeyd b. Sâbit görevlendirilmiştir. (Hz. Osman zamanında çoğaltılıp bölgelere gönderilmiştir.)"]]],
-["Fâtiha Sûresi",["fatiha"],[
- [1,"Fâtiha sûresi kaç âyettir?","7 âyet."],
- [1,"Fâtiha sûresi namazda ne zaman okunur?","Namazın her rekâtında okunur."],
- [2,"“Elhamdülillâhi Rabbil-âlemîn” ne demektir?","Hamd, âlemlerin Rabbi olan Allah’a mahsustur."],
- [2,"Fâtiha sûresinde Allah’tan ne istenir?","Bizi doğru yola iletmesi (“İhdinas-sırâtal müstakîm”)."],
- [3,"“Mâliki yevmid-dîn” ne demektir?","Din (hesap ve ceza) gününün sahibi."],
- [3,"Fâtiha sûresinin diğer adlarından ikisini söyleyiniz.","Ümmü’l-Kitâb, Seb’u’l-Mesânî, Şifâ, Hamd sûresi vb."],
- [3,"“Fâtiha” kelimesi ne demektir?","Açan, başlangıç yapan; Kur’an’ı açan sûre."]]],
-["İhlâs Sûresi",["ihlas"],[
- [1,"İhlâs sûresi kaç âyettir?","4 âyet."],
- [1,"İhlâs sûresi hangi konuyu anlatır?","Allah’ın bir ve tek olduğunu (tevhid)."],
- [2,"“Kul hüvallâhü ehad” ne demektir?","De ki: O, Allah’tır, birdir."],
- [2,"“Lem yelid ve lem yûled” ne demektir?","Doğurmamıştır ve doğmamıştır."],
- [3,"“Allâhüs-samed” ifadesindeki “samed” ne demektir?","Her şey kendisine muhtaç olan, kendisi hiçbir şeye muhtaç olmayan."],
- [3,"Peygamberimiz İhlâs sûresinin değeri için ne buyurmuştur?","Kur’an’ın üçte birine denk olduğunu buyurmuştur."]]],
-["Felak Sûresi",["felak"],[
- [1,"Felak sûresi kaç âyettir?","5 âyet."],
- [2,"“Felak” ne demektir?","Sabah aydınlığı, şafak (yarılıp ağaran sabah)."],
- [2,"Felak sûresinde hangi şerlerden Allah’a sığınılır? (iki örnek)","Yarattıklarının şerri, karanlığı çöken gecenin şerri, düğümlere üfleyen büyücülerin şerri, haset edenin şerri."],
- [3,"Felak ve Nâs sûrelerine birlikte ne ad verilir?","Muavvizeteyn (sığınma sûreleri)."],
- [3,"“Ve min şerri hâsidin izâ hased” ne demektir?","Haset ettiği zaman hasetçinin şerrinden (sığınırım)."]]],
-["Nâs Sûresi",["nas"],[
- [1,"Nâs sûresi kaç âyettir?","6 âyet."],
- [1,"“Nâs” ne demektir?","İnsanlar."],
- [2,"“Kul eûzü bi Rabbin-nâs” ne demektir?","De ki: İnsanların Rabbine sığınırım."],
- [2,"Nâs sûresinde kimin şerrinden Allah’a sığınılır?","Sinsi vesvese verenin (şeytanın) şerrinden."],
- [3,"“Hannâs” kelimesi ne demektir?","Sinsice vesvese verip Allah anılınca geri çekilen (şeytan)."],
- [3,"Mushaftaki son sûre hangisidir?","Nâs sûresi."]]],
-["Kevser Sûresi",["kevser"],[
- [1,"Kevser sûresi kaç âyettir?","3 âyet; Kur’an’ın en kısa sûresidir."],
- [2,"“Kevser” ne demektir?","Çok hayır, bolluk; cennetteki bir nehrin adıdır."],
- [2,"“Fe sallî li Rabbike venhar” ne demektir?","Rabbin için namaz kıl ve kurban kes."],
- [3,"“İnne şâni-eke hüvel-ebter” ne demektir?","Asıl soyu kesik (hayırdan yoksun) olan, sana kin besleyendir."],
- [3,"Kevser sûresinde Allah Peygamberimize ne verdiğini bildirir?","Kevser’i; yani çok hayır ve nimeti."]]],
-["Nasr Sûresi",["nasr"],[
- [1,"Nasr sûresi kaç âyettir?","3 âyet."],
- [1,"“Nasr” ne demektir?","Yardım."],
- [2,"Nasr sûresi hangi olaya işaret eder?","Allah’ın yardımının gelmesine ve Mekke’nin fethine."],
- [2,"İnsanlar Allah’ın dinine akın akın girince ne yapmamız emredilir?","Rabbimizi hamd ile tesbih etmek ve O’ndan bağışlanma dilemek."],
- [3,"Nasr sûresi Mekkî midir, Medenî midir?","Medenî’dir."],
- [3,"“İnnehû kâne tevvâbâ” ne demektir?","Çünkü O (Allah), tövbeleri çok kabul edendir."]]],
-["Tebbet (Mesed) Sûresi",["tebbet","mesed","leheb"],[
- [1,"Tebbet sûresi kaç âyettir?","5 âyet."],
- [1,"Tebbet sûresinde adı geçen kişi kimdir?","Ebû Leheb."],
- [2,"Ebû Leheb, Peygamberimizin neyi olur?","Amcası."],
- [2,"Tebbet sûresinin diğer adı nedir?","Mesed (Leheb) sûresi."],
- [3,"Ebû Leheb’in karısı sûrede nasıl anılır?","Odun taşıyıcısı (hammâletel-hatab) olarak."],
- [3,"“Tebbet yedâ Ebî Lehebin ve tebb” ne demektir?","Ebû Leheb’in iki eli kurusun; kurudu da."]]],
-["Kâfirûn Sûresi",["kafirun"],[
- [1,"Kâfirûn sûresi kaç âyettir?","6 âyet."],
- [1,"“Kâfirûn” ne demektir?","İnkâr edenler."],
- [2,"“Leküm dînüküm ve liye dîn” ne demektir?","Sizin dininiz size, benim dinim banadır."],
- [2,"Kâfirûn sûresi hangi konuyu anlatır?","Müminin Allah’tan başkasına kulluk etmeyeceğini (tevhidi) anlatır."],
- [3,"“Lâ a’büdü mâ ta’büdûn” ne demektir?","Ben sizin taptıklarınıza tapmam."]]],
-["Mâûn Sûresi",["maun"],[
- [1,"Mâûn sûresi kaç âyettir?","7 âyet."],
- [1,"Mâûn sûresine göre yetime nasıl davranmalıyız?","Onu itip kakmamalı, iyi davranmalı ve yardım etmeliyiz."],
- [2,"“Mâûn” ne demektir?","Küçük yardımlar, ihtiyaç duyulan ufak eşyalar."],
- [2,"Mâûn sûresinde kınanan davranışlardan ikisini söyleyiniz.","Yetimi itip kakmak, yoksulu doyurmaya teşvik etmemek, namazı ciddiye almamak, gösteriş yapmak, ufak yardımı esirgemek."],
- [3,"“Ellezîne hüm yürâûn” ne demektir?","Onlar gösteriş yaparlar."],
- [3,"“Ellezîne hüm an salâtihim sâhûn” ne demektir?","Onlar namazlarından gafildirler."]]],
-["Fîl Sûresi",["fil"],[
- [1,"Fîl sûresi kaç âyettir?","5 âyet."],
- [1,"“Fîl” ne demektir?","Fil."],
- [2,"Fîl sûresi hangi olayı anlatır?","Ebrehe’nin fil ordusuyla Kâbe’yi yıkmaya gelmesini ve Allah’ın onları helak etmesini."],
- [2,"Allah, Ebrehe’nin ordusuna karşı ne göndermiştir?","Sürü sürü kuşlar (ebâbîl); attıkları taşlarla onları helak etmiştir."],
- [3,"Fil olayı Peygamberimizle ilgili hangi tarihe denk gelir?","Peygamberimizin doğduğu yıla (Fil yılı)."],
- [3,"“Elem tera keyfe fe’ale Rabbüke bi ashâbil-fîl” ne demektir?","Rabbinin fil sahiplerine ne yaptığını görmedin mi?"]]],
-["Kureyş Sûresi",["kureys"],[
- [1,"Kureyş sûresi kaç âyettir?","4 âyet."],
- [1,"Kureyş sûresi hangi kabileyi anlatır?","Mekke’de yaşayan Kureyş kabilesini."],
- [2,"Kureyş’in kış ve yaz yolculukları ne içindi?","Ticaret (kervan) yolculuklarıydı."],
- [2,"Kureyş sûresinde onlara kime kulluk etmeleri emredilir?","Bu evin (Kâbe’nin) Rabbine."],
- [3,"Allah, Kureyş’e hangi iki nimeti hatırlatır?","Onları açlıktan doyurması ve korkudan güvene kavuşturması."],
- [3,"“Bu evin Rabbi” ifadesinde hangi yapı kastedilir?","Kâbe."]]],
-["Besmele ve Eûzü",["besmele","euzu","eûzü"],[
- [1,"“Bismillâhirrahmânirrahîm” ne demektir?","Rahmân ve Rahîm olan Allah’ın adıyla."],
- [1,"“Eûzü billâhi mineş-şeytânir-racîm” ne demektir?","Kovulmuş şeytandan Allah’a sığınırım."],
- [2,"Kur’an okumaya başlarken hangisi önce, hangisi sonra okunur?","Önce Eûzü, sonra Besmele okunur."],
- [2,"Besmele’deki “Rahmân” ve “Rahîm” isimleri neyi anlatır?","Allah’ın merhametinin çok geniş olduğunu."],
- [3,"Hangi sûrenin başında Besmele yoktur?","Tevbe sûresinin."],
- [3,"İşlere Besmele ile başlamak bize ne kazandırır?","Allah’ın adıyla ve O’ndan yardım dileyerek başlama bilinci kazandırır."]]],
-["Kelime-i Şehâdet ve Tevhid",["sehadet","tevhid"],[
- [1,"Kelime-i Şehâdet’i okuyunuz.","Eşhedü en lâ ilâhe illallâh ve eşhedü enne Muhammeden abdühû ve resûlüh."],
- [1,"Kelime-i Tevhid’i okuyunuz.","Lâ ilâhe illallâh Muhammedün Resûlullâh."],
- [2,"Kelime-i Şehâdet’in anlamı nedir?","Allah’tan başka ilâh olmadığına ve Muhammed’in O’nun kulu ve elçisi olduğuna şehâdet ederim."],
- [2,"Kelime-i Şehâdet İslâm’ın kaçıncı şartıdır?","Birinci şartıdır."],
- [3,"“Şehâdet” kelimesi ne demektir?","Bilerek ve inanarak şahitlik etmek."],
- [3,"“Tevhid” ne demektir?","Allah’ı bir ve tek bilmek."]]],
-["Sübhâneke ve Ettehiyyâtü",["subhaneke","ettehiyyat","tehiyyat"],[
- [1,"Sübhâneke duası namazın neresinde okunur?","Namaza başlarken, iftitah tekbirinden sonra."],
- [1,"Ettehiyyâtü duası namazda ne zaman okunur?","Her iki rekâtın sonundaki oturuşta."],
- [2,"Sübhâneke duasında Allah’ı nasıl anıyoruz?","Her türlü eksiklikten uzak olarak anıyor, O’na hamd ediyor, ismini mübarek diye anıyoruz."],
- [2,"Ettehiyyâtü duasında hangi ibadetlerin Allah’a mahsus olduğu söylenir?","Dille, bedenle ve malla yapılan bütün ibadetlerin."],
- [3,"Ettehiyyâtü’de Peygamberimize nasıl selâm veririz?","“Esselâmü aleyke eyyühen-nebiyyü ve rahmetullâhi ve berekâtüh.”"],
- [3,"Namazda Ettehiyyâtü’den sonra hangi dualar okunur?","Salli ve Bârik (salavat) duaları."]]],
-["Salli-Bârik ve Rabbenâ Duaları",["salli","barik","rabbena"],[
- [1,"Salli ve Bârik duaları kimin için yapılır?","Peygamberimiz Hz. Muhammed ve ailesi için."],
- [1,"Salli-Bârik namazın neresinde okunur?","Son oturuşta, Ettehiyyâtü’den sonra."],
- [2,"“Rabbenâ âtinâ fiddünyâ haseneten…” duasının anlamı nedir?","Rabbimiz bize dünyada da iyilik ver, âhirette de iyilik ver ve bizi ateş azabından koru."],
- [2,"Rabbenağfirlî duasında kimler için bağışlanma dilenir?","Kendimiz, annemiz-babamız ve bütün müminler için."],
- [3,"Rabbenağfirlî duasında bağışlanma hangi günde istenir?","Hesabın görüleceği günde (yevme yekûmül hisâb)."],
- [3,"Salli duasında Peygamberimizle birlikte hangi peygamberin adı anılır?","Hz. İbrâhim."]]],
-["Âyetel Kürsî",["kursi","ayetel"],[
- [1,"Âyetel Kürsî Kur’an’ın hangi sûresinde yer alır?","Bakara sûresinde (255. âyet)."],
- [1,"Âyetel Kürsî ne zaman okunur?","Farz namazlardan sonra, yatmadan önce vb."],
- [2,"“Allâhü lâ ilâhe illâ hüvel hayyül kayyûm” ne demektir?","Allah’tan başka ilâh yoktur; O diridir (Hayy), her şeyi ayakta tutandır (Kayyûm)."],
- [2,"“Lâ te’huzühû sinetün velâ nevm” ne demektir?","O’nu ne uyuklama tutar ne de uyku."],
- [3,"“Kürsî” ne demektir?","Allah’ın ilmi ve hükümranlığı; gökleri ve yeri kuşatan kudreti."],
- [3,"Âyetel Kürsî’de Allah’ın hangi sıfatlarından ikisi vurgulanır?","Hayy, Kayyûm, ilminin genişliği, uyumaması, yüceliği ve büyüklüğü."]]],
-["Amentü (İmanın Şartları)",["amentu","iman"],[
- [1,"İmanın şartı kaçtır?","6’dır."],
- [1,"“Âmentü” ne demektir?","İman ettim."],
- [2,"İmanın altı şartını söyleyiniz.","Allah’a, meleklerine, kitaplarına, peygamberlerine, âhiret gününe ve kadere (hayrı ve şerri Allah’tandır) iman."],
- [2,"Kitaplara iman ne demektir?","Allah’ın peygamberlere gönderdiği kitaplara (Tevrat, Zebur, İncil, Kur’an) inanmaktır."],
- [3,"Âhirete iman ne demektir?","Ölümden sonra dirilmeye, hesaba, cennet ve cehenneme inanmaktır."],
- [3,"Kadere iman ne demektir?","Her şeyin Allah’ın ilmi ve takdiriyle olduğuna inanmaktır."]]],
-["Kunut Duaları ve Vitir",["kunut","vitir"],[
- [1,"Kunut duaları hangi namazda okunur?","Vitir namazında."],
- [1,"Vitir namazı kaç rekâttır?","3 rekâttır."],
- [2,"Kunut dualarını vitir namazının kaçıncı rekâtında okuruz?","Üçüncü rekâtta, Fâtiha ve zamm-ı sûreden sonra tekbir alıp."],
- [3,"Vitir namazı hangi vakitte kılınır?","Yatsı namazından sonra (yatsı vaktinde)."],
- [3,"Kunut duasında Allah’a karşı neler yaptığımızı söyleriz? (iki örnek)","Ondan yardım ve bağışlanma dileriz, O’na inanır ve güveniriz."]]],
-["Günlük Dualar (Yemek, İftar, Ezan)",["yemek","iftar","ezan dua"],[
- [1,"Yemeğe başlarken ne söyleriz?","Besmele çekeriz (Bismillâh)."],
- [1,"Yemekten sonra hangi dua okunur?","“Elhamdülillâhillezî et’amenâ ve sekânâ ve cealenâ minel-müslimîn.”"],
- [2,"Yemek duasının (bitiş) anlamı nedir?","Bizi yediren, içiren ve Müslümanlardan kılan Allah’a hamdolsun."],
- [2,"İftar duasının anlamı nedir?","Allah’ım, senin rızân için oruç tuttum, sana inandım, sana güvendim ve senin rızkınla orucumu açtım."],
- [2,"Ezan duası ne zaman okunur?","Ezan bittikten sonra."],
- [3,"Ezan duasında Peygamberimiz için neler istenir?","Vesîle ve fazîlet (yüksek makam) verilmesi."]]],
-["Abdest, Gusül ve Teyemmüm",["abdest","gusul","teyemmum"],[
- [1,"Abdestin farzı kaçtır?","4’tür."],
- [2,"Abdestin farzlarını söyleyiniz.","Yüzü yıkamak, kolları dirseklerle beraber yıkamak, başın dörtte birini mesh etmek, ayakları topuklarla beraber yıkamak."],
- [2,"Abdesti bozan iki durum söyleyiniz.","Ön ve arkadan bir şey çıkması, kanın akması, yatarak uyumak, bayılmak vb."],
- [2,"Teyemmüm ne zaman yapılır?","Su bulunmadığında veya hastalık gibi nedenlerle kullanılamadığında, temiz toprakla."],
- [3,"Guslün (boy abdesti) farzları kaçtır, nelerdir?","3’tür: ağıza su vermek, burna su vermek, bütün vücudu yıkamak."],
- [3,"Teyemmümün farzı kaçtır?","2’dir: niyet etmek, toprağa vurup yüzü ve kolları meshetmek."]]],
-["Namaz Bilgileri ve 32 Farz",["namaz","32 farz","farz"],[
- [1,"Beş vakit namaz hangileridir?","Sabah, öğle, ikindi, akşam, yatsı."],
- [1,"Namazda yönümüzü nereye çeviririz?","Kâbe’ye (kıbleye)."],
- [2,"Farz namazların rekât sayılarını söyleyiniz.","Sabah 2, öğle 4, ikindi 4, akşam 3, yatsı 4."],
- [2,"İslâm’ın şartları kaçtır, söyleyiniz.","5’tir: Kelime-i şehâdet, namaz, oruç, zekât, hac."],
- [3,"Namazın farzları kaçtır?","12’dir: 6’sı namazın dışında (şartlar), 6’sı namazın içinde (rükünler)."],
- [3,"Namazın içindeki farzlar nelerdir?","İftitah tekbiri, kıyam, kıraat, rükû, secde, son oturuş (ka’de-i âhîre)."],
- [3,"Namazın dışındaki farzlar (şartlar) nelerdir?","Hadesten ve necasetten taharet, setr-i avret, kıbleye yönelmek, vakit, niyet."],
- [3,"32 farz nelerden oluşur?","İslâm’ın şartı 5 + imanın şartı 6 + abdestin farzı 4 + guslün farzı 3 + teyemmümün farzı 2 + namazın farzı 12 = 32."]]],
-["Elif-Bâ ve Okuma Kuralları",["elif","harek","sedde","cezm","tenvin","med"],[
- [1,"Arap alfabesinde kaç harf vardır?","28 harf."],
- [1,"Arapça hangi yönden yazılır ve okunur?","Sağdan sola."],
- [1,"Harekeler kaçtır, adları nedir?","3’tür: üstün, esre, ötre."],
- [2,"Üstün, esre ve ötre harfe hangi sesleri verir?","Üstün “e/a”, esre “i”, ötre “u/ü” sesini verir."],
- [2,"Şedde ne işe yarar?","Harfin iki kere (çift) okunmasını sağlar."],
- [2,"Cezm (sükûn) nedir?","Harfin harekesiz, sakin okunduğunu gösteren işarettir."],
- [3,"Med harfleri hangileridir?","Elif, vav ve yâ."],
- [3,"Tenvin nedir?","Kelime sonunda çift hareke; “-an, -in, -un” sesi verir."],
- [3,"Kalın okunan harfler (hurûf-ı müstaliye) hangileridir?","Hı, Sâd, Dâd, Tı, Zı, Ğayn, Kaf."]]]
+/* [bölüm başlığı, [yıllık plan eşleştirme sözcükleri], tema, [[düzey 1-3, soru, cevap anahtarı, kitap sayfası], ...]] */
+const SQ5=[
+["1.1 Kur’an-ı Kerim’i Öğrenmenin Önemi ve Okumanın Adabı",["ogrenmenin onemi","okumanin adabi","adabini","euzubesmele"],1,[
+ [1,"“Kur’an” kelimesi hangi fiilden türemiştir ve ne anlama gelir?","Arapçada “okumak” anlamına gelen “karae” fiilinden türemiş bir isimdir.",12],
+ [1,"Kur’an-ı Kerim kaç sureden oluşur? Hangi sûreyle başlar, hangisiyle biter?","114 sûre; Fâtiha ile başlar, Nâs ile biter.",12],
+ [1,"Kur’an-ı Kerim, Peygamberimize hangi melek aracılığıyla gönderilmiştir?","Cebrâil (a.s.) aracılığıyla.",12],
+ [1,"Kur’an-ı Kerim ne zaman indirilmeye başlanmıştır?","610 yılı Ramazan ayının Kadir Gecesi’nde.",12],
+ [1,"Kur’an-ı Kerim’i okurken ve ona dokunurken neye özen gösterilir?","Abdestli olmaya.",14],
+ [2,"Kur’an-ı Kerim yaklaşık kaç yılda indirilmiştir?","Yaklaşık yirmi üç yılda.",12],
+ [2,"Peygamberimiz, Kur’an okumanın ve öğrenmenin önemini hangi sözlerle ifade etmiştir? (Bir tanesini söyleyiniz.)","“Kur’an okuyun! Çünkü Kur’an, kıyamet gününde okuyucusuna şefaatçi olacaktır.” veya “Sizin en hayırlınız, Kur’an’ı öğrenen ve öğretendir.”",12],
+ [2,"Kur’an-ı Kerim’de emredilen veya öğütlenen davranışlardan ikisini söyleyiniz.","Adaleti, doğruluğu, iyiliği öğütler; anne babaya iyi davranmayı, insanlara güzel sözle hitap etmeyi emreder.",13],
+ [2,"Kur’an-ı Kerim okumak neden bir ibadettir?","Müslümanlar için ibadettir ve okuyana sevap kazandırır (Fâtır suresi 29. âyet).",13],
+ [2,"Kur’an-ı Kerim okumaya hangi ifadelerle başlanır?","Önce istiaze (“Eûzü billâhi mineşşeytânirracîm”), ardından besmele (“Bismillahirrahmanirrahîm”) ile.",14],
+ [3,"İstiaze ne demektir? Anlamı nedir?","Sözlükte sığınma, bağlanma, korunma, güvenme; terim olarak her türlü kötülükten Allah’a sığınıp yalnızca O’ndan yardım istemektir. Anlamı: “Kovulmuş şeytanın şerrinden Allah’a sığınırım.”",14],
+ [3,"Besmelenin anlamı nedir?","“Esirgeyen ve bağışlayan Allah’ın adıyla.”",14],
+ [3,"Kur’an okunurken Müslümanlar nasıl davranır? Hangi âyette bildirilir?","Saygı ve ilgiyle dinler, susarlar: “Kur’an okunduğu zaman onu dinleyin ve susun ki size merhamet edilsin.” (A’râf 204)",14],
+ [3,"Sâd suresi 29. âyete göre Kur’an-ı Kerim’in indiriliş amacı nedir?","Âyetleri üzerinde düşünülsün ve akıl sahipleri öğüt alsın diye indirilmiş mübarek bir kitaptır.",13],
+ [3,"Ahiretin varlığına inanmak, insanın davranışlarını nasıl etkiler?","Yaptığı iyilik ve kötülüklerin karşılığı olduğuna inandığı için iyi ve yararlı işler yapmaya çaba gösterir, kötü davranışlardan uzak durmaya çalışır.",13]]],
+["1.2 Harfler ve Özellikleri",["harfler ve ozellik","mahrec","okunuslarina gore","harfleri seslendir","kuran harfleri"],1,[
+ [1,"Kur’an alfabesi kaç harften oluşur?","Yirmi sekiz harften.",17],
+ [1,"Kur’an harfleriyle oluşturulan kelimeler hangi yönde yazılır ve okunur?","Sağdan sola doğru.",17],
+ [1,"Lâmelif alfabede yer alan bir harf midir?","Hayır; lâm ve elif harflerinin bir araya gelmesiyle oluşur.",16],
+ [2,"Kur’an harfleri okunuşlarına göre hangi iki gruba ayrılır? İçlerinde hangi harf grupları da bulunur?","İnce ve kalın harflere ayrılır; içlerinde peltek okunan ve boğazdan seslendirilen harfler de bulunur.",18],
+ [2,"Peltek harfler hangileridir? Hangisi kalındır?","ث, ذ, ظ harfleri; ظ kalın, ث ve ذ ince harflerdendir.",18],
+ [2,"Boğaz harfleri hangileridir? Hangileri kalındır?","ا ح خ ع غ ه; bunlardan خ ve غ kalın, diğerleri ince harflerdendir.",18],
+ [2,"“Mahreç” nedir?","Harflerin ses yolundan çıktığı yerlere denir.",19],
+ [2,"Harflerin çıkış yerleri kaça ayrılır? Adlarını söyleyiniz.","Üçe: dil, dudak ve boğaz.",19],
+ [2,"Ra (ر) harfi nasıl okunur?","Aldığı hareke veya sakin olması durumuna göre ince ya da kalın okunur.",18],
+ [3,"Harfler neden mahreçlerine uygun olarak okunmalıdır?","Bir harfin yanlış seslendirilmesi kelimelerin anlamlarının değişmesine yol açabilir.",19],
+ [3,"Dudak harfleri hangileridir?","ب ف م و harfleri.",19],
+ [3,"Peltek harfler nasıl seslendirilir?","Dil ucunun üst yüzeyi üst ön dişlerin ucuna getirilerek.",18],
+ [3,"Boğaz harfleri nasıl seslendirilir?","Boğazdan gelen bir titreşimle.",18]]],
+["1.3 Harfleri Yazma",["harfleri yazma","harfleri yazabil","yazilislari","harflerin yazil"],1,[
+ [1,"Arapçada harflerin yazılışı neye göre farklılık gösterir?","Kelimede bulundukları yere göre (başta, ortada, sonda).",22],
+ [2,"Bir harfin başta, ortada ve sonda yazılışı nasıldır? Açıklayınız.","Başta kendinden sonraki harfle bitişmiş, ortada hem önceki hem sonraki harfle bitişmiş, sonda kendinden önceki harfle bitişmiş şekilde yazılır; alfabede bağımsız yazılır.",22],
+ [2,"Kendinden sonra gelen harflerle birleşmeyen Kur’an harfleri hangileridir?","ا, د, ذ, ر, ز, و",22],
+ [3,"Harekeli elif (ا) nasıl isimlendirilir?","Hemze olarak isimlendirilir.",22],
+ [3,"Yuvarlak te (ة) kelime sonunda önceki harfe birleşirse ve birleşmezse nasıl yazılır?","Birleşirse “ـة”, birleşmezse “ة” şeklinde yazılır.",22]]],
+["1.4 Harfleri Harekelerle Telaffuz Etme (Üstün, Esre, Ötre)",["harekeler","harekelerle","harfleri seslendirme","ustun, esre"],1,[
+ [1,"Hareke nedir?","Harflerin ünlü olarak seslendirilmesine yardımcı olan işaretlerdir.",27],
+ [1,"Harekeler hangileridir?","Üstün, esre ve ötre.",27],
+ [1,"Üstün nasıl bir işarettir?","Harfin üstünde bulunan yatık bir çizgidir.",27],
+ [1,"Esre nasıl bir işarettir?","Harfin altında bulunan yatık bir çizgidir.",30],
+ [1,"Ötre nasıl bir işarettir?","Harfin üstünde bulunan ve küçük bir vav harfine benzeyen harekedir.",33],
+ [2,"Üstün, ince ve kalın harfleri hangi sesle okutur?","İnce harfleri “e”, kalın harfleri “a” sesiyle okutur.",27],
+ [2,"Esre, ince ve kalın harfleri hangi sesle okutur?","İnce harfleri “i”, kalın harfleri “ı-i” arası bir sesle okutur.",30],
+ [2,"Ötre, ince ve kalın harfleri hangi sesle okutur?","İnce harfleri “u-ü” arası bir sesle, kalın harfleri “u” sesiyle okutur.",33],
+ [3,"Hareke nedir? Örneklerle açıklayınız.","Harflerin ünlü seslendirilmesine yardım eden işaretlerdir; örn. ب harfi üstünle “be”, esreyle “bi”, ötreyle “bü/bu” okunur.",37]]],
+["1.5.1 Sübhaneke Duası ve Anlamı",["subhaneke"],1,[
+ [1,"Dua nedir?","Müminlerin sevgi ve saygıyla Yüce Allah’a isteklerini ileterek O’ndan yardım dilemesidir. (Sözlükte çağırmak, seslenmek, istemek.)",38],
+ [1,"Sübhaneke duası namazın neresinde okunur?","Namazların ilk rekâtında, Fâtiha suresinden önce (tekbir aldıktan sonra).",39],
+ [2,"“Sübhaneke” kelimesi hangi kelimeyle aynı kökten türemiştir?","Arapça “tespih” kelimesiyle.",38],
+ [2,"Tespih ne demektir?","Allah’ı her türlü eksiklikten uzak tutmak; O’nun yüceliğine layık olmayan kusur ve noksanlıklardan uzak olduğuna kalpten inanmak ve bunu söz ile ifade etmektir.",38],
+ [2,"Sübhaneke duasının anlamını söyleyiniz.","“Sen eksik sıfatlardan uzaksın Allah’ım! Seni daima böyle tenzih eder ve sana hamt ederim. Senin adın mübarektir. İzzet ve celalin yücedir. Senden başka ilah yoktur.”",38],
+ [2,"Sübhaneke duası hangi ifadeyle sona erer? Bu ifade hangi kavramı vurgular?","“Senden başka ilah yoktur” ifadesiyle sona erer; tevhit kavramını vurgular.",40],
+ [3,"Sübhaneke duası, namazların ilk rekâtı dışında nerelerde okunur? (İki örnek)","İkindi ve yatsı sünnetinde üçüncü rekâtın başında; teravihte dört rekâtta bir selam verilirse üçüncü rekâtın başında; cenaze namazının birinci tekbirinden sonra “ve celle senâük” eklenerek.",39],
+ [3,"Müslümanlar Sübhaneke duasıyla neyi ifade ederler?","Allah’ın yüceliği karşısında O’na teslimiyetlerini; sevgi, saygı ve bağlılıklarını.",39],
+ [3,"Hz. Peygamber, Sübhaneke duasını ne zaman okurdu?","Her namazın başında tekbir aldıktan sonra.",39]]],
+["1.5.2 Rabbena Duaları ve Anlamları",["rabbena"],1,[
+ [1,"Rabbena Âtina duasının anlamını söyleyiniz.","“Rabbimiz! Bize dünyada da iyilik ver, ahirette de iyilik ver ve bizi ateş azabından koru.” (Bakara 201)",41],
+ [1,"Rabbena Âtina duası Kur’an-ı Kerim’in hangi suresinde yer alır?","Bakara suresinde (201. âyet).",41],
+ [2,"Rabbicalni duasının anlamını söyleyiniz. Hangi peygamberin duasıdır?","Hz. İbrahim’in duasıdır: “Rabbim! Beni ve soyumdan gelecek olanları namazı devamlı kılanlardan eyle. Rabbimiz, duamı kabul et.” (İbrahim 40)",41],
+ [2,"Rabbenağfirli duasının anlamını söyleyiniz.","“Rabbimiz! Hesap görülecek günde beni, ana babamı ve inananları bağışla.” (İbrahim 41)",41],
+ [2,"Rabbenağfirli duasıyla kimler için dua edilir?","Başta anne ve babamız olmak üzere tüm müminler için.",41],
+ [2,"İstiğfar ne demektir?","Sözlükte örtme, perdeleme, kirden pastan korunma, bağışlanma ve af isteme; Allah’a samimi şekilde af dilemektir.",41],
+ [3,"Rabbena Âtina duasında hangi gerçek vurgulanır? Müslümanlardan ne beklenir?","Dünya ve ahiret hayatının birbiriyle bağlantılı olduğu vurgulanır; Müslümanların dünya ile ahiret arasında denge kurması gerekir.",41],
+ [3,"Rabbena duaları namazın neresinde okunur?","Son oturuşta, Tahiyyat, Salli ve Barik dualarından sonra.",41],
+ [3,"Müslümanlar neden hayatlarının her anında Allah’a dua ederler?","Her söz ve eylemde Allah’ın rızasını gözetirler; dua ederek O’nu hatırlarında tutarlar. Allah da kendisine dua edene karşılık vereceğini bildirmiştir (Bakara 186).",38]]],
+["2.1.1 Cezim",["cezim"],2,[
+ [1,"Cezim nasıl bir işarettir?","Harfin üstüne konan, yuvarlak ve küçük bir işarettir.",52],
+ [1,"Cezimli harfe başka ne ad verilir?","Sakin harf.",52],
+ [2,"Cezim üzerinde bulunduğu harfe ne yaptırır?","Üzerinde bulunduğu harfi harekesiz okutur ve kendinden önceki harfe bağlar.",52],
+ [3,"“Cezim, üzerinde bulunduğu harfin iki kez okunmasını sağlar.” ifadesi doğru mudur? Düzeltiniz.","Yanlıştır. Harfi iki kez okutan şeddedir; cezim harfi harekesiz (sakin) okutur.",58]]],
+["2.1.2 Şedde",["sedde"],2,[
+ [1,"Şedde işareti neye benzer ve nereye yazılır?","Ters “m” şekline benzer ve harfin üstüne yazılır.",55],
+ [1,"Şedde ne işe yarar?","Üzerinde bulunduğu harfin iki defa okunmasını sağlar.",55],
+ [2,"Şeddeli harf iki defa okunurken birincisi ve ikincisi nasıl okunur?","Birincisi cezimli, ikincisi kendi harekesi ile okunur.",55],
+ [2,"Şeddeli harfte şedde dışında başka bir işaret de bulunur mu?","Evet; üstün, esre veya ötre harekelerinden biri de yer alır.",55],
+ [3,"Şeddeli harf kelimenin neresinde bulunmaz?","Kelimenin başında bulunmaz.",55],
+ [3,"Cezim ile şedde arasındaki fark nedir?","Cezim harfi harekesiz (sakin) okutur; şedde harfi iki defa okutur (birincisi cezimli, ikincisi kendi harekesiyle).",52]]],
+["2.2 Tenvin (İki Üstün, İki Esre, İki Ötre)",["tenvin"],2,[
+ [1,"Tenvin harekenin sesine hangi sesi ilave eder?","“n” sesini.",59],
+ [1,"Tenvin kaç şekilde yazılır? Adlarını söyleyiniz.","Üç şekilde: iki üstün, iki esre, iki ötre. Kelimelerin sonlarında bulunur.",59],
+ [2,"İki üstün nasıl bir işarettir? İnce ve kalın harfleri nasıl okutur?","Harfin üzerine konan, sol taraftan aşağı doğru hafif eğik, üst üste küçük çift çizgidir; ince harfleri “en”, kalın harfleri “an” sesiyle okutur.",59],
+ [2,"İki esre nasıl bir işarettir? İnce ve kalın harfleri nasıl okutur?","Harfin altına konan, hafif eğik, üst üste küçük çift çizgidir; ince harfleri “in”, kalın harfleri “in-ın” arası bir sesle okutur.",61],
+ [2,"İki ötre nasıl bir işarettir? İnce ve kalın harfleri nasıl okutur?","Harfin üzerine konur, şapkalı vav şeklindedir; ince harfleri “ün-un” arası bir sesle, kalın harfleri “un” sesiyle okutur.",63],
+ [3,"İki üstün, hangi harf dışında elif (ا) desteği ile birlikte yazılır?","Yuvarlak te (ة) dışındaki harflerde elif desteği ile birlikte yazılır.",59],
+ [3,"Üstün, esre, ötre ile tenvin arasındaki benzerlik nedir?","Tenvin, harekenin sesine “n” sesi ilave eder; iki üstün, iki esre ve iki ötre harekelerinin ikişer işaretle yazılmış hâlidir ve kelime sonunda bulunur.",59]]],
+["2.3 Tahiyyat Duası ve Anlamı",["tahiyyat"],2,[
+ [1,"Tahiyyat duası namazda ne zaman okunur?","Namazların oturuşlarında (ilk ve son oturuşta).",74],
+ [1,"Tahiyyat duası hangi olayı konu edinir?","Hz. Muhammed’in (sav) Miraç Gecesi’nde Allah (cc) ile selamlaşmasını.",68],
+ [2,"“Tahiyye” kelimesi ne anlama gelir?","Selamlama, sağlık ve esenlik temennisi, Allah’tan hayırlı ömür dileme.",69],
+ [2,"Tahiyyat duasının anlamını söyleyiniz.","“Bütün yüceltmeler, övgüler ve dualar, bütün ibadetler Allah’a mahsustur. Sana selam olsun ey Peygamber! Allah’ın rahmeti ve bereketi üzerine olsun. Selam bize ve Allah’ın salih kulları üzerine olsun. Şahitlik ederim ki Allah’tan başka ilah yoktur ve şahitlik ederim ki Muhammed, Allah’ın kulu ve Resulü’dür.”",68],
+ [2,"Rahmet nedir?","Sevgi, şefkat, merhamet, bütün varlıkların iyiliğini arzu etme ve onlara her türlü yardımda bulunma isteğidir.",69],
+ [2,"Tahiyyat duasında hangi inanç ifadesi yer alır?","Allah’tan başka ilah olmadığına ve Hz. Muhammed’in O’nun kulu ve elçisi olduğuna şahitlik (kelime-i şehadet).",68],
+ [3,"Kul kime denir? Elçi (resul) kime denir?","Kul: Allah’ın yarattığı, O’na inanan ve O’na ibadet etmekle sorumlu olan insan. Resul: Allah’ın emir ve yasaklarını insanlara bildirmek üzere seçtiği peygamber.",69],
+ [3,"Hz. Peygamber, Tahiyyat duasını sahabeye nasıl öğretmiştir?","Kur’an-ı Kerim’den bir sure öğretir gibi.",69],
+ [3,"Müslümanlar Tahiyyat duasını okuyarak neleri yapmış olurlar? (İki örnek)","Allah’a saygılarını sunarlar; Hz. Peygamber’e selam ve bağlılıklarını bildirirler; Miraç Gecesi’nin hatırasını yaşarlar; Allah’ın kendilerine ve salih kullara rahmetle yaklaşmasını isterler.",69],
+ [3,"Tahiyyat duasında “Allah’ın her türlü eksik sıfattan uzak ve yüce olduğuna” değinilir mi?","Hayır; bu konu Sübhaneke duasında yer alır.",76]]],
+["3.1 Med Harfleri (Elif, Vav, Ya)",["med harfleri","harfimed"],3,[
+ [1,"Med ne demektir?","“Çekmek, uzatmak, yaymak” anlamına gelir.",80],
+ [1,"Med harfleri hangileridir?","Elif (ا), vav (و) ve ya (ى).",80],
+ [1,"Med harfleri ne işe yarar?","Kendisinden önce gelen harfleri bir elif miktarı uzatarak okutur.",80],
+ [2,"Bir elif miktarı nedir?","Bir parmak kaldırma veya indirme süresidir.",80],
+ [2,"Med harfi elif, hangi harekeli harften sonra gelir? Nasıl okutur?","Sakin olup kendinden önce gelen üstün harekeli harfi bir elif miktarı uzatır; ince harfleri “e-a” arası, kalın harfleri “a” sesiyle uzatır.",80],
+ [2,"Med harfi vav, hangi harekeli harften sonra gelir? Nasıl okutur?","Sakin olup kendinden önce gelen ötre harekeli harfi uzatır; ince harfleri “u-ü” arası, kalın harfleri “u” sesiyle uzatır.",83],
+ [2,"Med harfi ya, hangi harekeli harften sonra gelir? Nasıl okutur?","Sakin olup kendinden önce gelen esre harekeli harfi uzatır; ince harfleri “i”, kalın harfleri “ı-i” arası sesle uzatır.",85],
+ [3,"Kur’an okurken harfleri gereksiz uzatmak veya kısaltmak ne gibi sorunlara yol açar?","Kelimelerde anlam kayıplarına veya farklı anlamların ortaya çıkmasına sebep olur.",80],
+ [3,"Med harflerini harekelerine göre sınıflandırınız.","Üstünden sonra elif, ötreden sonra vav, esreden sonra ya med harfi olur.",89]]],
+["3.2.1 Âsar-Çeker",["asar","ceker"],3,[
+ [1,"Âsar işareti harfin neresine konur? Çeker işareti neresine?","Âsar harfin üstüne dikey olarak, çeker harfin altına dikey olarak konur.",90],
+ [2,"Âsar işareti bulunduğu harfi nasıl okutur?","Bir elif miktarı uzatarak okutur.",90],
+ [2,"Çeker işareti genellikle neyin yerine kullanılır?","Genellikle med harfi olan ى’dan önce bulunan esre işareti yerine kullanılır; bazen de ى’yı temsil eder.",90],
+ [3,"Âsar ve çeker işaretlerinin ortak görevi nedir?","Bulundukları harfi bir elif miktarı uzatarak okutmaktır.",90]]],
+["3.2.2 Okunmayan Elif",["okunmayan elif"],3,[
+ [1,"Okunmayan elif nedir?","Kur’an-ı Kerim’de elif (ا) bazen yazıldığı hâlde okunmaz.",92],
+ [2,"Okunmayan elif, kelimenin okunuşunu etkiler mi?","Hayır; yazıldığı hâlde okunur değildir, kelimenin okunmasına etki etmez.",92]]]
 ];
+/* 8. sınıf: DÖGM “Ortaokul-İmam Hatip Ortaokulu Kur’an-ı Kerim 8” ders kitabı (Salman, Yılmaz, Uzun, Karaağaç; 2021) — kitap s. 9–77 */
+const SQ8=[
+["8.1.1 Tevhid",["tevhid"],1,[
+ [1,"Tevhid ne demektir?","Bir şeyin bir ve tek olduğunu kabul etmek; Allah’ı zatında ve sıfatlarında birlemek, O’nun eşi ve benzeri olmadığına inanmaktır.",9],
+ [1,"Müslüman olmanın ilk şartı nedir?","Kelime-i şehâdet getirmektir.",9],
+ [1,"Tevhidin zıddı olan kavram nedir?","Şirk.",11],
+ [2,"Şirk nedir?","Allah’a inanmakla birlikte başka varlıkları Allah’a ortak kılmak ve eş tanımaktır.",11],
+ [2,"Tevhid suresi olarak da bilinen sure hangisidir?","İhlâs suresi.",11],
+ [2,"Tevhid, bütün peygamberlerin getirdiği ortak inanç mıdır? Açıklayınız.","Evet; bütün peygamberlerin mesajı önce Allah’ın birliğine vurgu yapmıştır.",9],
+ [2,"Tevhidin gereklerinden ikisini söyleyiniz.","Allah’ı birlemek; Allah’tan başkasına ibadet etmemek; yalnız Allah’tan yardım istemek; Allah’a oğul ve kız isnat etmemek; yaratan, yediren, şifa verenin Allah olduğuna inanmak.",10],
+ [3,"Kâinattaki düzen, Allah’ın birliğinin delili olarak nasıl açıklanır? (Enbiyâ 22)","Yerde ve göklerde Allah’tan başka ilahlar olsaydı yer ve gök düzeni bozulurdu; kâinattaki düzen ve ahenk Allah’ın birliğinin en önemli delillerindendir.",10],
+ [3,"Hz. İbrahim, Allah’ı nasıl tanıtmıştır? (Şuarâ 78-82)","Beni yaratan, doğru yolu gösteren, yediren-içiren, hastalanınca şifa veren, canımı alıp diriltecek ve hesap günü hatalarımı bağışlayacağını umduğum O’dur.",10],
+ [3,"Kur’an, Allah’a oğul ve kız isnat edilmesini neden kabul etmez?","Tevhid inancıyla örtüşmez; Allah ne doğurmuş ne doğurulmuştur, O her şeyin yaratıcısıdır.",11],
+ [3,"Fâtiha suresinde tevhide vurgu yapan ifade nedir?","“Yalnız Sana ibadet eder, yalnız Senden yardım dileriz.”",11]]],
+["8.1.2 Risalet",["risalet","peygamberlik"],1,[
+ [1,"Risalet ne demektir?","Peygamberlik, elçilik; Allah’ın vahiyle öğrettiği bilgileri ve emirleri insanlara ulaştırma görevidir.",12],
+ [1,"Peygamberlik çok ibadet edilerek kazanılan bir unvan mıdır?","Hayır; peygamberler Allah tarafından seçilir.",12],
+ [1,"Hz. Musa, Hz. Davud, Hz. İsa ve Hz. Muhammed’e gönderilen kitaplar hangileridir?","Tevrat, Zebur, İncil ve Kur’an-ı Kerim.",14],
+ [2,"Peygamberlerin “tebliğ” sıfatı ne demektir?","Allah’ın kendilerine indirdiği vahiyleri insanlara eksiksiz bildirmeleridir.",13],
+ [2,"“Emanet” sıfatı ne demektir?","Peygamberlerin güvenilir olması; Allah’ın emir ve yasaklarını değiştirmeden aktarmalarıdır.",13],
+ [2,"“Fetanet” sıfatı ne demektir?","Peygamberlerin akıllı ve zeki olması; güçlü hafıza, mantık ve ikna kabiliyetine sahip olmalarıdır.",13],
+ [2,"“Sıdk” sıfatı ne demektir?","Doğru, dürüst ve sözünü yerine getirmek; söz ve fiillerinin aynı doğrultuda olmasıdır.",13],
+ [2,"“İsmet” sıfatı ne demektir?","Peygamberlerin her türlü günah işlemekten uzak olması; vahyi tebliğ ederken unutma ve hatadan korunmalarıdır.",13],
+ [2,"Vahiy nedir?","Allah’ın çeşitli yollarla peygamberlerine bildirdiği ilahî mesajlardır.",14],
+ [2,"Mucize nedir?","Peygamberlerin, kendilerine inanmayanlara peygamberliklerini ispat etmek için Allah’ın izniyle gösterdikleri olağanüstü olaylardır.",14],
+ [3,"Peygamberlerin olağanüstü varlıklar olmadığı hangi ayetle bildirilir? Onları bizden ayıran özellik nedir?","“De ki: Ben ancak sizin gibi bir insanım…” (Kehf 110). Ayıran özellik Allah’tan vahiy almalarıdır.",12],
+ [3,"Hz. Muhammed’e verilen en büyük mucize nedir? Diğer peygamberlerden bir mucize örneği veriniz.","Kur’an-ı Kerim; Hz. İbrahim’in ateşte yanmaması, Hz. Musa’nın asasının yılana dönüşmesi vb.",15],
+ [3,"“Suhuf” nedir?","Allah’ın Cebrâil aracılığıyla bazı peygamberlere gönderdiği dinî emirler ve bu emirleri içeren sayfalardır.",14]]],
+["8.1.3 Ahiret",["ahiret"],1,[
+ [1,"Ahiret ne demektir?","Son, sonra olan; dünyadan sonraki sonsuz hayat.",15],
+ [1,"Ahiret hayatı hangi meleğin sûra üflemesiyle başlayacaktır?","İsrâfil.",15],
+ [2,"Berzah nedir?","Ölümle başlayıp tekrar dirilme zamanına kadar süren ara dönemdir.",15],
+ [2,"Mahşer nedir?","Kıyamet günü ikinci kez sûra üflendikten sonra insanların diriltilip hesap vermek üzere toplanacakları yerdir.",15],
+ [2,"Mizan nedir?","Kıyamet günü insanların günah ve sevabını tartan terazidir.",15],
+ [2,"Sırat köprüsü nedir?","Mahşer yerinden cehennemin üzerinden cennete kadar uzanan köprüdür.",15],
+ [3,"Ahiret inancının kazanımlarından üçünü söyleyiniz.","Sorumluluk bilinci verir; iyiliklere yönlendirir; kötülüklerden uzaklaştırır.",17],
+ [3,"Ahirete inanmak, dünya hayatını ihmal etmeyi gerektirir mi? Açıklayınız.","Hayır; dünya, ahiretin kazanılacağı yerdir. İnsan temizliğine, çalışmasına ve sorumluluklarına dikkat etmelidir.",17],
+ [3,"Yeniden dirilmeyi inkâr edenlere Kur’an hangi cevabı verir? (Yâsîn 78-79) Dünyadan örnek veriniz.","“Onları ilk defa yaratan diriltecektir.” Örnek: toprağa atılan tohumun filizlenmesi, kurak toprağın yağmurla canlanması.",17]]],
+["8.1.4 Hz. Yakup ve Hz. Yusuf Kıssası",["yusuf","yakup","kissa"],1,[
+ [1,"Hz. Yakup kimin torunu, kimin oğludur?","Hz. İbrahim’in torunu, Hz. İshak’ın oğludur.",18],
+ [1,"Yusuf suresi Kur’an’da nasıl nitelendirilir?","“Ahsenü’l-Kasas”, yani kıssaların en güzeli.",18],
+ [1,"Hz. Yusuf rüyasında ne görmüştü?","On bir yıldız, güneş ve ayın kendisine secde ettiğini.",19],
+ [1,"Kardeşleri Hz. Yusuf’u nereye attılar?","Bir kuyuya.",20],
+ [2,"Hz. Yakup, Yusuf’a rüyası hakkında ne tavsiye etti? Neden?","Rüyayı kardeşlerine anlatmamasını; yoksa ona tuzak kurarlardı, çünkü şeytan insanın apaçık düşmanıdır.",19],
+ [2,"Hz. Yusuf kuyudan nasıl kurtuldu, sonra ne oldu?","Oradan geçen bir kervanın sucusu onu çıkardı; Mısır’a götürülüp köle olarak satıldı.",21],
+ [2,"Hz. Yusuf, vezirin hanımının kötü teklifi karşısında ne yaptı?","Allah’a sığındı, iradesine hâkim oldu ve iffetini korudu.",23],
+ [2,"Hz. Yusuf’un gömleğinin arkadan yırtılmış olması neyi ispatladı?","Hz. Yusuf’un suçsuz ve doğru söyleyen olduğunu.",23],
+ [2,"Hz. Yusuf zindanda arkadaşlarına rüyalarını yorumlamadan önce ne yaptı?","Onları hak dine (tevhide) davet etti.",24],
+ [2,"Hz. Yusuf, Mısır kralının rüyasını nasıl yorumladı?","Yedi yıl bolluk, ardından yedi kurak yıl, sonra yağmurlu bir yıl geleceğini; ürünün başağında saklanmasını söyledi.",24],
+ [2,"Hz. Yusuf Mısır’da hangi göreve getirildi, kıtlığa karşı ne yaptı?","Maliye veziri oldu; tarıma önem verdi, ihtiyaç fazlası ürünü kıtlık yılları için sakladı.",25],
+ [3,"Hz. Yusuf kardeşlerini affederken ne dedi? (Yûsuf 92)","“Bugün sizi ayıplamak ve azarlamak yoktur. Allah sizi affetsin! O, merhametlilerin en merhametlisidir.”",30],
+ [3,"Hz. Yakup, oğlunu kaybedince nasıl davrandı?","Sabretti, kederini içine gömdü, şikâyetini yalnız Allah’a arz etti ve Allah’ın rahmetinden ümidini kesmedi.",28],
+ [3,"Hz. Yakup oğullarına ümitsizliğe düşmemeleri için ne dedi?","“Allah’ın rahmetinden ümit kesmeyin. Çünkü kâfirler topluluğundan başkası Allah’ın rahmetinden ümit kesmez.”",28],
+ [3,"Haset nedir? Gıpta nedir? Farkı nedir?","Haset: başkasının sahip olduğu değerin elinden çıkmasını istemek (yasaktır). Gıpta: onun benzerinin kendisine de verilmesini istemek (yasak değildir).",21],
+ [3,"Hz. Yusuf’un üç gömleği neyi temsil eder?","Kanlı gömlek mazlumiyeti; arkası yırtık gömlek masumiyet ve iffeti; “Yusuf kokulu” gömlek istikrar ve istikameti.",30]]],
+["8.1.5 Hucurat Suresi",["hucurat"],1,[
+ [1,"Hucurat suresi kaç âyettir? Kur’an’daki sırası kaçtır?","18 âyet; 49. sûredir.",34],
+ [1,"Hucurat suresi hangi dönemde inmiştir?","Medine döneminde.",34],
+ [1,"“Hucurat” ne demektir?","Odalar (Hz. Peygamber ve ailesine ait odalar).",34],
+ [2,"Hucurat suresinin konusu nedir?","Müminlerin Peygamber’e saygısı, birbirlerine karşı edep ve ahlâk; Allah katındaki değerin ölçüsü.",34],
+ [2,"Hucurat 6. âyete göre bir haber gelince ne yapılmalıdır?","Haberin doğruluğu araştırılmalıdır.",35],
+ [2,"10. âyette müminler arasındaki bağ nasıl ifade edilir?","“Müminler ancak kardeştirler.”",36],
+ [2,"11. âyette yasaklanan davranışlardan ikisini söyleyiniz.","Alay etme, kötü lakap takma, birbirini karalama.",36],
+ [2,"12. âyette yasaklanan davranışlardan ikisini söyleyiniz.","Kötü zan, başkasının kusurunu ve mahremiyetini araştırma, gıybet.",36],
+ [2,"Gıybet nedir?","Mümin kardeşini, duyduğunda hoşlanmayacağı şekilde anmaktır. Söylenen onda varsa gıybet, yoksa iftiradır.",37],
+ [3,"13. âyete göre insanlar arasında üstünlük neye göre olur?","Soyda değil; Allah’ın emirlerine içtenlikle uymada (takvada). Allah katında en değerli olan, O’na karşı gelmekten en çok sakınandır.",37],
+ [3,"Gıybet, âyette hangi benzetmeyle anlatılır?","Ölü kardeşin etini yemeye benzetilir.",36],
+ [3,"Hucurat 15. âyete göre iyi bir müminde bulunması gereken özelliklerden ikisi?","Kalben iman etmek; imanında şüpheye düşmemek; İslam’ı ve Müslümanları korumak, gerekirse malını ve canını vermek.",38],
+ [3,"Temîmoğulları olayında hangi davranış yanlıştı?","Hz. Peygamber’in evinin önünde kaba bir şekilde “Muhammed, Muhammed!” diye bağırmaları.",35]]],
+["8.1.6 Neml 19. Âyetteki Dua",["neml"],1,[
+ [1,"Dua nedir?","İnsanın aracısız bir şekilde Allah ile konuşmasıdır; kulluğun özüdür.",38],
+ [2,"Neml suresi 19. âyetteki duanın anlamını söyleyiniz.","“Ey Rabbim! Beni; bana ve anne babama verdiğin nimetlere şükretmeye ve razı olacağın salih ameller işlemeye sevk et ve beni rahmetinle salih kullarının arasına kat!”",38],
+ [2,"Neml 19. âyetteki dua bizi hangi yönden olgunlaştırmayı amaçlar?","Ahlâkî yönden.",38],
+ [3,"Dua ile birlikte insanın ne yapması gerekir? Örnek veriniz.","Adım atması, çalışması gerekir; tohum atmayan çiftçinin dua etmesi gibi, çalışmayan insanın dua etmesi de yetmez. (Ra’d 11)",38],
+ [3,"Bu duada anne babayla ilgili hangi mesaj vardır?","Anne babaya verilen nimetlere de şükretmek gerekir; anne babasına saygılı olmayan iyi kullar arasına giremez.",39]]],
+["8.1.7 İslam, Takva, Sabır, Sulh",["takva","sabir","sulh","kavramlarini"],1,[
+ [1,"İslam kelimesi hangi anlamlara gelir?","Boyun eğme, itaat, teslim olma, barış yapma, selamette olma.",40],
+ [1,"Takva nedir? Takva sahibine ne denir?","Allah’ın sevgisini kaybetmekten korkarak emirlerini yerine getirmek, yasakladıklarını terk etmektir; takva sahibine muttaki denir.",41],
+ [1,"Sabır ne demektir?","Zorluklar karşısında yılgınlık göstermemek; acı, yoksulluk, haksızlık karşısında Allah’a sığınıp güvenerek dayanmaktır.",42],
+ [1,"Sulh ne demektir?","Barış, huzur ve kardeşliktir.",43],
+ [2,"Cibril hadisine göre İslam’ın şartları nelerdir?","Kelime-i şehâdet, namaz, zekât, Ramazan orucu ve gücü yetenin hac.",40],
+ [2,"İnsanın yaratılış amacı nedir? (Zâriyât 56)","Allah’a kulluk etmektir.",41],
+ [2,"“Takva elbisesi” ne demektir?","Kötülüklerden korunmaktır: dili yalandan, eli izinsiz almaktan, gözü harama bakmaktan korumak.",42],
+ [2,"“Allah’ın en sevdiği ibadet” hadisi sabır konusunda ne öğretir?","Az da olsa sürekli yapılan iş sevilir; zorlukları aşmada önemli olan bir işi az da olsa sürekli yapmaktır.",42],
+ [3,"Üstünlük ölçüsü olarak takva hangi âyetle bildirilir?","“Allah katında en değerli olanınız, O’ndan en çok korkanınızdır.” (Hucurat 13)",41],
+ [3,"Barış hangi dört alanda ele alınmıştır?","Ailede, okulda, toplumda ve dünyada.",44],
+ [3,"Peygamberimiz küslükle ilgili ne buyurmuştur?","Bir müminin din kardeşini üç günden fazla terk edip küs durması helâl değildir.",43],
+ [3,"Takva sahibi insan, kırmızı ışık örneğinde nasıl davranır?","Polis ya da kamera olup olmamasına bakmaz; Allah’ın yaptıklarını mutlaka karşısına çıkaracağını bilir.",42]]],
+["8.2.1 İdgamlar (Mea’l-gunne, Bila-gunne)",["idgam"],2,[
+ [1,"İdgam ne demektir?","Sözlükte gizlemek; terim olarak sakin bir harfi kendisinden sonra gelen harekeli harfe katarak şeddeli okumaktır.",71],
+ [1,"İdgam kaç çeşittir? Tenvin ve sakin nunla ilgili olanlar hangileridir?","Altı çeşittir; tenvin ve sakin nunla ilgili olanlar idgam-ı mea’l-gunne ve idgam-ı bila-gunne’dir.",71],
+ [2,"Gunne nedir?","Genizden gelen ses; sesi burundan çıkarır gibi okumaktır.",71],
+ [2,"İdgam-ı mea’l-gunne hangi harflerle yapılır?","ي م ن و (Yemnû) harfleriyle.",71],
+ [2,"İdgam-ı mea’l-gunnede gunne ne kadar tutulur?","Bir buçuk elif miktarı.",71],
+ [2,"İdgam-ı bila-gunne hangi harflerle yapılır?","ل ve ر (lam ve ra) harfleriyle.",72],
+ [3,"İdgam-ı mea’l-gunne için hangi şart vardır? Örnek veriniz.","Sakin nun ile idgam harflerinin farklı kelimelerde olması şarttır; aynı kelimede idgam yapılmaz, izharlı okunur (dünyâ, bünyân, sınvân, kınvân).",71],
+ [3,"İdgam-ı bila-gunnede ne yapılır?","Tenvin veya sakin nun kendinden sonraki harfe katılıp şeddelenir; gunne yapılmaz.",72],
+ [3,"“Men ya’mel” örneğinde hangi kural uygulanır? Açıklayınız.","Sakin nundan sonra ye geldiği için idgam-ı mea’l-gunne olur: nun ye’ye katılarak şeddelenir, gunneli okunur.",72]]],
+["8.2.2 Sakin Mim’in Okunuşu",["sakin mim"],2,[
+ [1,"Cezimli mime ne ad verilir?","Sakin mim.",73],
+ [1,"Sakin mimin okunuşuyla ilgili kaç tecvid kuralı vardır?","Üç.",73],
+ [2,"Sakin mimden sonra harekeli mim gelirse hangi kural uygulanır?","İdgam-ı misleyn mea’l-gunne: iki mim birbirine katılıp şeddelenir, gunneli ve bir buçuk elif okunur.",73],
+ [2,"Sakin mimden sonra mim ve be dışında bir harf gelirse hangi kural uygulanır?","İzhar-ı şefevî: idgam ve gunne yapılmaz, cezimli olarak okunur.",73],
+ [2,"Sakin mimden sonra be gelirse hangi kural uygulanır?","İhfa-i şefevî (dudak ihfası): gunneli okunur, dudaklar fazla bastırılmaz.",74],
+ [3,"Sakin mimin üç kuralını adlarıyla söyleyiniz.","İdgam-ı misleyn mea’l-gunne, izhar-ı şefevî, ihfa-i şefevî.",73]]],
+["8.2.3 Ra’nın Hükümleri",["ra nin hukum","ra harfi"],2,[
+ [1,"Ra harfinin harekesi üstün veya ötre ise nasıl okunur?","Kalın okunur.",74],
+ [1,"Ra harfinin harekesi esre ise nasıl okunur?","İnce okunur.",75],
+ [2,"Ra harfi sakin olursa okunuşa nasıl karar verilir?","Kendinden önceki harfin harekesine bakılır: üstün veya ötre ise kalın, esre ise ince okunur.",74],
+ [2,"İsti’lâ (kalın) harfleri hangileridir?","Hı, Sâd, Dâd, Ğayn, Tı, Kaf, Zı.",74],
+ [2,"Sakin ra’dan önce esre, sonra isti’lâ harfi gelirse ra nasıl okunur?","Kalın okunur (örn. mirsâd, firka).",74],
+ [2,"Ra’dan önce lîn harfi olan ya (ي) varsa ve ra’da durulursa ra nasıl okunur?","İnce okunur.",75],
+ [3,"Ra hem kalın hem ince okunabilen durumlardan birini söyleyiniz.","Örn. isti’lâ harfi olan kaf’ın esreli olduğu “kullü fırkın”; öncesinde esreli sakin tı veya sâd olan ra’da durulduğunda; “en esri, yesri, fesri” gibi kelimelerde durulduğunda.",75],
+ [3,"Ra sakin, önünde esreli vasıl hemzesi varsa (irci’î, irteżâ) nasıl okunur?","Kalın okunur.",74]]],
+["8.2.4 Vakıf, İbtida ve Vasıl",["vakif","ibtida","vasil"],2,[
+ [1,"Vakıf ne demektir?","Durmak; Kur’an okurken nefes alıp yeniden başlamak üzere durmaktır.",76],
+ [2,"Sonunda tek hareke bulunan kelimede nasıl durulur?","Cezim yapılarak durulur (el-âlemîn, el-asr).",76],
+ [2,"İki üstünlü kelimede nasıl durulur?","Hareke atılıp med harfi elif üzerinde üstünle durulur; bir elif miktarı uzatılır.",76],
+ [2,"Sonunda yuvarlak te (ة) olan kelimede nasıl durulur?","Yuvarlak te sükûnlu he’ye (ْه) çevrilerek durulur.",76],
+ [3,"İki ötre veya iki esreli kelimede nasıl durulur?","Cezim yapılarak durulur (ehad, mesed).",76],
+ [3,"Sonu şeddeli kelimede nasıl durulur?","Cezim yapılarak durulur; şeddeyi belirtmek için harf sükûnlu biraz tutulur (müstekarr).",76],
+ [3,"Vakıf işaretleri konusunda ilk defa çalışma yapan kişi kimdir?","Muhammed b. Tayfur es-Secâvendî.",77]]]
+];
+const ssSQ=()=>G.sinif==='8'?SQ8:G.sinif==='5'?SQ5:[];
+const ssPages=()=>G.sinif==='8'?"DÖGM Kur’an-ı Kerim 8 ders kitabı, s. 9–77 (1. ünitenin tamamı; 2. ünitede idgam, sakin mim, ra, vakıf)":G.sinif==='5'?"MEB Kur’an-ı Kerim 5. sınıf ders kitabı, s. 10–92 (1. ve 2. tema, 3. temanın 3.2.2 bölümüne kadar)":"";
 const ssFold=x=>kuFold(String(x||'').replace(/[âÂ]/g,'a').replace(/[îÎ]/g,'i').replace(/[ûÛ]/g,'u'));
-const SS={sel:null,cfg:{c:{1:1,2:1,3:1},w:{1:30,2:30,3:40},rn:true,ad:'',ders:'Kur’an-ı Kerim'},cur:'',addq:false,pl:''};
+const SS={cfg:{mode:1,e1:8,e2:18,ff:3,c:{1:1,2:1,3:1},w:{1:30,2:30,3:40},rn:true,ad:'',ders:'Kur’an-ı Kerim'},man:[],cur:'',addq:false};
 const ssKey=()=>'_ssn|'+G.sinif+'|'+rrSb();
 const ssGet=()=>{const r=kuRec(ssKey());let o=null;try{o=JSON.parse((r&&r.rb)||'null');}catch(e){}return o&&isO(o)&&o.k?o:null;};
 const ssPut=o=>{let r=kuRec(ssKey());if(!r){r={kim:ssKey()};S.ayar.push(r);}r.rb=o?JSON.stringify(o):'';save();};
-const ssCust=()=>{const r=kuRec('_sqb');try{const a=JSON.parse((r&&r.rb)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}};
+const ssCustAll=()=>{const r=kuRec('_sqb');try{const a=JSON.parse((r&&r.rb)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}};
+const ssCust=()=>ssCustAll().filter(c=>!c.g||c.g===G.sinif);
 const ssPutCust=a=>{let r=kuRec('_sqb');if(!r){r={kim:'_sqb'};S.ayar.push(r);}r.rb=JSON.stringify(a);save();};
-const ssBank=()=>{const b=[];SQ.forEach((g,gi)=>g[2].forEach((q,qi)=>b.push({id:'d'+gi+'_'+qi,k:g[0],z:q[0],q:q[1],a:q[2]})));ssCust().forEach(c=>b.push({id:c.id,k:c.k,z:+c.z,q:c.q,a:c.a,u:1}));return b;};
-const ssKonu=()=>{const k=SQ.map(g=>g[0]);ssCust().forEach(c=>{if(!k.includes(c.k))k.push(c.k);});return k;};
-function ssFromPlan(){
-  const rows=S.yplan.filter(y=>y.t!=='e'&&y.ok&&/kur.?an/i.test(y.ders||'')&&(y.sinif==='ALL'||String(y.sinif)===G.sinif));
-  const txt=' '+ssFold(rows.map(y=>(y.konu||'')+' '+(y.kaz||'')).join(' '))+' ';
-  const out=[];
-  SQ.forEach(g=>{if(g[1].some(w=>{const f=ssFold(w);return f.length>=5?txt.includes(f):txt.includes(' '+f.trim()+' ');}))out.push(g[0]);});
-  return {sel:out,n:rows.length};
+const ssWkRec=()=>{const r=kuRec('_ssw|'+G.sinif);let o={};try{o=JSON.parse((r&&r.rb)||'{}')||{};}catch(e){}return isO(o)?o:{};};
+const ssWkPut=o=>{const k='_ssw|'+G.sinif;let r=kuRec(k);if(!r){r={kim:k};S.ayar.push(r);}r.rb=JSON.stringify(o);save();};
+const ssBank=()=>{const b=[];ssSQ().forEach((g,gi)=>g[3].forEach((q,qi)=>b.push({id:'d'+gi+'_'+qi,k:g[0],z:q[0],q:q[1],a:q[2],p:q[3]})));ssCust().forEach(c=>b.push({id:c.id,k:c.k,z:+c.z,q:c.q,a:c.a,p:c.p||0,u:1}));return b;};
+const ssKonu=()=>{const k=ssSQ().map(g=>g[0]);ssCust().forEach(c=>{if(!k.includes(c.k))k.push(c.k);});return k;};
+/* Yıllık Plan’daki Kur’an dersi satırlarından her bölümün haftasını bulur (eşleşen satırların en erken haftası); öğretmenin elle girdiği hafta önceliklidir. */
+function ssWeeks(){
+  const rows=S.yplan.filter(y=>y.t!=='e'&&/kur.?an/i.test(y.ders||'')&&(y.sinif==='ALL'||String(y.sinif)===G.sinif)&&+y.hafta>0);
+  const man=ssWkRec(),out={};
+  ssSQ().forEach(g=>{
+    const hit=rows.filter(y=>{const txt=' '+ssFold((y.konu||'')+' '+(y.kaz||''))+' ';return g[1].some(w=>{const f=ssFold(w);return f.length>=5?txt.includes(f):txt.includes(' '+f.trim()+' ');});});
+    out[g[0]]={plan:hit.length?Math.min.apply(null,hit.map(y=>+y.hafta)):0,man:man[g[0]]||0};
+    out[g[0]].w=out[g[0]].man||out[g[0]].plan||0;
+  });
+  return {w:out,n:rows.length};
+}
+/* Kapsam: 1. sınav = 1..e1. hafta; 2. sınav = 1..e2. hafta, e1’den sonraki (son) konular ff kat ağırlıklı; elle = işaretlenenler */
+function ssScope(){
+  const c=SS.cfg,wk=ssWeeks(),sel=[],sw={};
+  ssKonu().forEach(k=>{
+    const w=(wk.w[k]||{}).w||0;
+    if(c.mode===1){if(w&&w<=c.e1){sel.push(k);sw[k]=1;}}
+    else if(c.mode===2){if(w&&w<=c.e2){sel.push(k);sw[k]=w>c.e1?(+c.ff||1):1;}}
+    else if(SS.man.includes(k)){sel.push(k);sw[k]=1;}
+  });
+  return {sel:sel,sw:sw,wk:wk};
 }
 function ssScore(o,r){
   if(!r||!r.q||!r.q.length||r.q.some(x=>x.c==null))return null;
@@ -4600,11 +4690,13 @@ function ssExam(o){
   if(e.id)o.eid=e.id;return e;
 }
 function ssNote(o,sid){const r=o.r[sid],e=ssExam(o);e.n=e.n||{};const t=ssScore(o,r);e.n[sid]=r&&r.g?{t:null,g:true}:(t==null?{t:null}:{t:t});ssPut(o);}
+/* Ağırlıklı rastgele soru çekme: ağırlık = bölüm ağırlığı; oturumda daha az sorulan sorular tercih edilir */
 function ssDraw(o,ex,z){
   const pool=ssBank().filter(b=>o.k.includes(b.k)&&b.z===z&&!ex.includes(b.id));if(!pool.length)return null;
   const used={};Object.values(o.r).forEach(r=>(r.q||[]).forEach(x=>{used[x.id]=(used[x.id]||0)+1;}));
-  const min=Math.min.apply(null,pool.map(b=>used[b.id]||0)),c=pool.filter(b=>(used[b.id]||0)===min),b=c[Math.floor(Math.random()*c.length)];
-  return {id:b.id,z:z,k:b.k,q:b.q,a:b.a,c:null};
+  const wt=pool.map(b=>((o.sw&&o.sw[b.k])||1)/(1+3*(used[b.id]||0)));
+  let t=wt.reduce((a,x)=>a+x,0)*Math.random(),i=0;for(;i<pool.length-1;i++){t-=wt[i];if(t<=0)break;}
+  const b=pool[i];return {id:b.id,z:z,k:b.k,q:b.q,a:b.a,p:b.p||0,c:null};
 }
 function ssOpen(o,sid){
   let r=o.r[sid];
@@ -4621,30 +4713,35 @@ reg('sozsinav','🎤','Sözlü Sınav',()=>{
   const st=snStu();if(!st.length)return gbar()+'<div class="card text-sm text-slate-500">Bu sınıfta öğrenci yok.</div>';
   const o=ssGet();
   if(!o){
-    if(SS.sel===null){const p=ssFromPlan();SS.sel=p.sel.slice();SS.pl=p.n?(p.n+' işlenmiş Kur’an dersi konusundan '+p.sel.length+' başlık eşleşti'):'';}
-    const bank=ssBank(),cnt={};bank.forEach(b=>{cnt[b.k]=(cnt[b.k]||0)+1;});
-    const c=SS.cfg,sel=ssKonu().map((k,i)=>'<label class="flex items-start gap-2 py-1 text-sm"><input type="checkbox" data-ssk="'+i+'" class="mt-1"'+(SS.sel.includes(k)?' checked':'')+'><span class="flex-1">'+esc(k)+' <span class="text-xs text-slate-500">('+(cnt[k]||0)+' soru)</span></span></label>').join('');
+    const c=SS.cfg,sc=ssScope(),bank=ssBank(),cnt={};bank.forEach(b=>{cnt[b.k]=(cnt[b.k]||0)+1;});
     const num=(id,v,mx)=>'<input type="number" min="0" max="'+mx+'" data-sscfg="'+id+'" value="'+v+'" class="inp w-16 text-center">';
+    const rad=(v,t)=>'<label class="flex items-start gap-2 py-1 text-sm"><input type="radio" name="ssmode" data-sscfg="mode" value="'+v+'" class="mt-1"'+(c.mode===v?' checked':'')+'><span class="flex-1">'+t+'</span></label>';
+    const list=ssKonu().map((k,i)=>{const w=(sc.wk.w[k]||{}),ww=sc.sw[k],inn=sc.sel.includes(k);
+      return '<div class="flex items-start gap-2 py-1.5 border-b border-slate-200 dark:border-slate-700"><input type="checkbox" data-ssk="'+i+'" class="mt-1"'+(inn?' checked':'')+'><div class="flex-1 min-w-0 text-sm">'+esc(k)+'<div class="text-[11px] text-slate-500">'+(cnt[k]||0)+' soru'+(w.plan?' · planda '+w.plan+'. hafta':'')+(ww>1?' · <b class="text-rose-700">×'+ww+' ağırlık</b>':'')+'</div></div><div class="text-center shrink-0"><div class="text-[10px] text-slate-500">hafta</div><input type="number" min="0" max="40" data-ssw="'+i+'" value="'+(w.w||'')+'" class="inp w-14 text-center text-sm" placeholder="—"></div></div>';}).join('');
     const cu=ssCust(),kn=ssKonu();
-    return gbar()+'<div class="card"><b>🎤 Sözlü Sınav · '+esc(rrCls())+'</b><p class="text-xs text-slate-500 mt-1">İşlediğiniz konuları seçin. Her öğrenciye, seçtiğiniz konulardan kolay-orta-zor kısa cevaplı sorular çekilir. Bildiğine göre ✅ / 🟡 / ❌ işaretlersiniz, not kendiliğinden hesaplanır ve <b>Sınav Notları</b>na yazılır.</p>'
-     +'<label class="text-xs font-bold mt-3 block">Sınav adı</label><input data-sscfg="ad" class="inp w-full" value="'+esc(c.ad||'1. Sözlü')+'"><label class="text-xs font-bold mt-2 block">Ders</label><input data-sscfg="ders" class="inp w-full" value="'+esc(c.ders)+'">'
-     +'<div class="text-xs font-bold mt-3">Öğrenciye kaç soru? <span class="font-normal text-slate-500">(ağırlık = nota katkısı)</span></div><div class="flex gap-3 mt-1 text-center"><div><div class="text-[11px] text-emerald-700 font-bold">Kolay</div>'+num('c1',c.c[1],5)+'<div class="mt-1">'+num('w1',c.w[1],100)+'</div></div><div><div class="text-[11px] text-amber-700 font-bold">Orta</div>'+num('c2',c.c[2],5)+'<div class="mt-1">'+num('w2',c.w[2],100)+'</div></div><div><div class="text-[11px] text-rose-700 font-bold">Zor</div>'+num('c3',c.c[3],5)+'<div class="mt-1">'+num('w3',c.w[3],100)+'</div></div></div>'
+    return gbar()+'<div class="card"><b>🎤 Sözlü Sınav · '+esc(rrCls())+'</b><p class="text-xs text-slate-500 mt-1">Sorular <b>MEB Kur’an-ı Kerim 5. sınıf ders kitabından</b> alınmıştır (her sorunun yanında kitap sayfası yazar). Kapsamı Yıllık Plan’daki haftalara göre seçersiniz; öğrenciye kolay-orta-zor sorular çekilir, bildiğine göre ✅ / 🟡 / ❌ işaretlersiniz, not otomatik hesaplanıp <b>Sınav Notları</b>na yazılır.</p><div class="text-[11px] '+(ssSQ().length?'text-slate-500':'text-amber-700 font-semibold')+' mt-1">'+(ssSQ().length?'Soru bankası: '+ssPages()+'.':'Bu sınıf için ders kitabından hazır soru henüz eklenmedi. Aşağıdan kendi sorularınızı ekleyebilir ya da toplu yapıştırabilirsiniz.')+'</div>'
+     +'<label class="text-xs font-bold mt-3 block">Sınav adı</label><input data-sscfg="ad" class="inp w-full" value="'+esc(c.ad||(c.mode===2?'2. Sözlü':'1. Sözlü'))+'"><label class="text-xs font-bold mt-2 block">Ders</label><input data-sscfg="ders" class="inp w-full" value="'+esc(c.ders)+'">'
+     +'<div class="text-xs font-bold mt-3">Öğrenciye kaç soru? <span class="font-normal text-slate-500">(altta: nota katkı ağırlığı)</span></div><div class="flex gap-3 mt-1 text-center"><div><div class="text-[11px] text-emerald-700 font-bold">Kolay</div>'+num('c1',c.c[1],5)+'<div class="mt-1">'+num('w1',c.w[1],100)+'</div></div><div><div class="text-[11px] text-amber-700 font-bold">Orta</div>'+num('c2',c.c[2],5)+'<div class="mt-1">'+num('w2',c.w[2],100)+'</div></div><div><div class="text-[11px] text-rose-700 font-bold">Zor</div>'+num('c3',c.c[3],5)+'<div class="mt-1">'+num('w3',c.w[3],100)+'</div></div></div>'
      +'<label class="flex items-center gap-2 text-sm mt-3"><input type="checkbox" data-sscfg="rn"'+(c.rn?' checked':'')+'> Notu 5’in katına yuvarla</label></div>'
-     +'<div class="card"><b class="text-sm">📚 İşlenen konular</b>'+(SS.pl?'<div class="text-xs text-emerald-700 mt-1">📅 Yıllık Plan’dan: '+esc(SS.pl)+'</div>':'<div class="text-xs text-slate-500 mt-1">Yıllık Plan’da “İşlendi” işaretli Kur’an dersi konusu bulunamadı; elle seçin.</div>')
-     +'<div class="flex flex-wrap gap-2 my-2"><button data-act="sspl" class="btn bg-teal-600 text-xs">📅 Yıllık plana göre seç</button><button data-act="ssall" class="btn bg-slate-600 text-xs">Tümünü seç</button><button data-act="ssnone" class="btn bg-slate-500 text-xs">Hiçbiri</button></div>'+sel+'</div>'
-     +'<div class="card"><button data-act="ssgo" class="btn bg-emerald-600 w-full min-h-[48px] text-base">▶ Sözlü sınavı başlat</button></div>'
+     +'<div class="card"><b class="text-sm">📅 Kapsam (Yıllık Plan haftalarına göre)</b>'
+     +rad(1,'<b>1. Sınav:</b> 1. haftadan <input type="number" min="1" max="40" data-sscfg="e1" value="'+c.e1+'" class="inp w-14 text-center text-sm"> . haftaya kadar (o hafta dahil) işlenen konular')
+     +rad(2,'<b>2. Sınav:</b> dönemin tamamı (1–<input type="number" min="1" max="40" data-sscfg="e2" value="'+c.e2+'" class="inp w-14 text-center text-sm">. hafta); <b>'+(+c.e1+1)+'. haftadan sonraki son konular</b> <input type="number" min="1" max="10" data-sscfg="ff" value="'+c.ff+'" class="inp w-12 text-center text-sm"> kat ağırlıklı')
+     +rad(0,'<b>Elle seç</b> (aşağıdan işaretleyin)')
+     +'<div class="text-xs mt-1 '+(sc.wk.n?'text-emerald-700':'text-amber-700')+'">'+(sc.wk.n?'Yıllık Plan’dan '+sc.wk.n+' Kur’an dersi satırı okundu; haftalar otomatik eşleşti. Yanlışsa sağdaki “hafta” kutusundan düzeltin.':'Yıllık Plan’da bu sınıf için haftası yazılı Kur’an dersi satırı bulunamadı. Hafta kutularına elle yazın ya da “Elle seç”i kullanın.')+'</div>'
+     +'<div class="mt-2">'+list+'</div></div>'
+     +'<div class="card"><div class="text-sm mb-2">Seçili kapsam: <b>'+sc.sel.length+' bölüm</b>, <b>'+sc.sel.reduce((a,k)=>a+(cnt[k]||0),0)+' soru</b></div><button data-act="ssgo" class="btn bg-emerald-600 w-full min-h-[48px] text-base">▶ Sözlü sınavı başlat</button></div>'
      +'<div class="card"><button data-act="ssqt" class="btn bg-slate-600">'+(SS.addq?'▲ Kapat':'➕ Kendi sorumu ekle / sorularım ('+cu.length+')')+'</button>'
-     +(SS.addq?'<div class="mt-2"><input id="ssqK" list="ssqKl" class="inp w-full" placeholder="Konu (listeden seçin ya da yeni yazın)"><datalist id="ssqKl">'+kn.map(k=>'<option value="'+esc(k)+'">').join('')+'</datalist><select id="ssqZ" class="inp w-full mt-2"><option value="1">Kolay</option><option value="2">Orta</option><option value="3">Zor</option></select><textarea id="ssqQ" rows="2" class="inp w-full mt-2" placeholder="Soru"></textarea><textarea id="ssqA" rows="2" class="inp w-full mt-2" placeholder="Cevap anahtarı"></textarea><button data-act="ssqadd" class="btn bg-emerald-600 mt-2">💾 Soruyu ekle</button>'
+     +(SS.addq?'<div class="mt-2"><input id="ssqK" list="ssqKl" class="inp w-full" placeholder="Bölüm (listeden seçin ya da yeni yazın)"><datalist id="ssqKl">'+kn.map(k=>'<option value="'+esc(k)+'">').join('')+'</datalist><select id="ssqZ" class="inp w-full mt-2"><option value="1">Kolay</option><option value="2">Orta</option><option value="3">Zor</option></select><textarea id="ssqQ" rows="2" class="inp w-full mt-2" placeholder="Soru"></textarea><textarea id="ssqA" rows="2" class="inp w-full mt-2" placeholder="Cevap anahtarı"></textarea><button data-act="ssqadd" class="btn bg-emerald-600 mt-2">💾 Soruyu ekle</button>'
        +cu.map(q=>'<div class="text-xs border-t border-slate-200 mt-2 pt-2"><span class="px-1.5 py-0.5 rounded '+SQ_C[q.z]+'">'+SQ_L[q.z]+'</span> <b>'+esc(q.k)+'</b><div>'+esc(q.q)+'</div><div class="text-slate-500">'+esc(q.a)+'</div><button data-act="ssqdel" data-id="'+esc(q.id)+'" class="text-red-600 mt-1">🗑 Sil</button></div>').join('')+'</div>':'')+'</div>';
   }
   /* — Sınav sürüyor — */
   const done=st.filter(s=>ssScore(o,o.r[s.id])!=null).length,sc=st.map(s=>ssScore(o,o.r[s.id])).filter(v=>v!=null),av=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length):null;
-  const head='<div class="card"><b>🎤 '+esc(o.ad)+' · '+esc(rrCls())+'</b><div class="text-xs text-slate-500">'+esc(o.ders)+' · '+done+'/'+st.length+' öğrenci notlandı'+(av!=null?' · sınıf ortalaması <b>'+av+'</b>':'')+'</div><div class="flex flex-wrap gap-2 mt-2"><button data-act="ssnotes" class="btn bg-indigo-600 text-xs">📊 Sınav Notları’nda aç</button><button data-act="ssend" class="btn bg-red-600 text-xs">⏹ Sınavı bitir</button></div></div>';
+  const head='<div class="card"><b>🎤 '+esc(o.ad)+' · '+esc(rrCls())+'</b><div class="text-xs text-slate-500">'+esc(o.ders)+' · '+esc(o.scope||'')+' · '+done+'/'+st.length+' öğrenci notlandı'+(av!=null?' · sınıf ortalaması <b>'+av+'</b>':'')+'</div><div class="flex flex-wrap gap-2 mt-2"><button data-act="ssnotes" class="btn bg-indigo-600 text-xs">📊 Sınav Notları’nda aç</button><button data-act="ssend" class="btn bg-red-600 text-xs">⏹ Sınavı bitir</button></div></div>';
   if(SS.cur&&st.some(s=>s.id===SS.cur)){
     const s=st.find(x=>x.id===SS.cur),r=o.r[s.id]||{q:[]},sc1=ssScore(o,r),idx=st.indexOf(s);
     return gbar()+head+'<div class="card"><button data-act="ssback" class="btn bg-slate-600 text-xs">◀ Öğrenci listesi</button><div class="mt-2 text-lg font-bold">'+esc(s.no?s.no+' · ':'')+esc(s.name)+'</div>'
       +(r.g?'<div class="mt-2 text-amber-700 font-semibold">Sınava girmedi olarak işaretli.</div>':'')+'</div>'
-      +(r.g?'':r.q.map((q,i)=>'<div class="card"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded text-xs font-bold '+SQ_C[q.z]+'">'+SQ_L[q.z]+'</span><span class="text-xs text-slate-500 flex-1">'+esc(q.k)+'</span><button data-act="sschg" data-i="'+i+'" class="text-xs text-indigo-700">🔄 Değiştir</button></div><div class="text-lg font-semibold mt-2">'+esc(q.q)+'</div><div class="text-xs bg-slate-100 dark:bg-slate-700 rounded p-2 mt-2">✔ <b>Cevap:</b> '+esc(q.a)+'</div><div class="grid grid-cols-3 gap-2 mt-3">'
+      +(r.g?'':r.q.map((q,i)=>'<div class="card"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded text-xs font-bold '+SQ_C[q.z]+'">'+SQ_L[q.z]+'</span><span class="text-xs text-slate-500 flex-1 min-w-0">'+esc(q.k)+'</span><button data-act="sschg" data-i="'+i+'" class="text-xs text-indigo-700 shrink-0">🔄 Değiştir</button></div><div class="text-lg font-semibold mt-2">'+esc(q.q)+'</div><div class="text-xs bg-slate-100 dark:bg-slate-700 rounded p-2 mt-2">✔ <b>Cevap:</b> '+esc(q.a)+(q.p?'<div class="text-[11px] text-slate-500 mt-1">📖 Kitap s. '+q.p+'</div>':'')+'</div><div class="grid grid-cols-3 gap-2 mt-3">'
         +[[1,'✅ Bildi'],[0.5,'🟡 Kısmen'],[0,'❌ Bilemedi']].map(b=>'<button data-act="ssgr" data-i="'+i+'" data-c="'+b[0]+'" class="min-h-[46px] rounded-lg border text-sm font-semibold '+(q.c===b[0]?(b[0]===1?'bg-emerald-600 text-white border-emerald-600':b[0]===0.5?'bg-amber-500 text-white border-amber-500':'bg-rose-600 text-white border-rose-600'):'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+b[1]+'</button>').join('')+'</div></div>').join(''))
       +'<div class="card"><div class="text-sm">Not: <b class="text-2xl">'+(r.g?'—':sc1==null?'—':sc1)+'</b> <span class="text-xs text-slate-500">'+(r.g?'':sc1==null?'(tüm soruları işaretleyince hesaplanır)':'/ 100 · Sınav Notları’na yazıldı')+'</span></div><div class="flex flex-wrap gap-2 mt-3"><button data-act="ssabs" class="btn bg-amber-600 text-xs">'+(r.g?'↩ Girdi olarak işaretle':'🚫 Girmedi')+'</button>'+(idx<st.length-1?'<button data-act="ssnext" class="btn bg-emerald-600 flex-1">Sonraki öğrenci ▶</button>':'')+'</div></div>';
   }
@@ -4652,24 +4749,29 @@ reg('sozsinav','🎤','Sözlü Sınav',()=>{
 });
 $('view').addEventListener('change',e=>{
   const d=e.target.dataset||{};
-  if(d.ssk!==undefined){const k=ssKonu()[+d.ssk];if(!k)return;SS.sel=SS.sel||[];const i=SS.sel.indexOf(k);if(e.target.checked&&i<0)SS.sel.push(k);if(!e.target.checked&&i>=0)SS.sel.splice(i,1);return;}
+  if(d.ssk!==undefined){const k=ssKonu()[+d.ssk];if(!k)return;
+    if(SS.cfg.mode!==0){SS.man=ssScope().sel.slice();SS.cfg.mode=0;}
+    const i=SS.man.indexOf(k);if(e.target.checked&&i<0)SS.man.push(k);if(!e.target.checked&&i>=0)SS.man.splice(i,1);render(true);return;}
+  if(d.ssw!==undefined){const k=ssKonu()[+d.ssw];if(!k)return;const o=ssWkRec(),v=parseInt(e.target.value)||0;if(v>0)o[k]=v;else delete o[k];ssWkPut(o);render(true);return;}
   if(d.sscfg!==undefined){const k=d.sscfg,c=SS.cfg,v=e.target.type==='checkbox'?e.target.checked:e.target.value;
-    if(k==='ad')c.ad=T(v);else if(k==='ders')c.ders=T(v);else if(k==='rn')c.rn=!!v;else if(/^c[123]$/.test(k))c.c[+k[1]]=Math.max(0,Math.min(5,parseInt(v)||0));else if(/^w[123]$/.test(k))c.w[+k[1]]=Math.max(0,Math.min(100,parseFloat(v)||0));}
+    if(k==='ad')c.ad=T(v);else if(k==='ders')c.ders=T(v);else if(k==='rn')c.rn=!!v;
+    else if(k==='mode'){c.mode=parseInt(v);if(c.mode===0&&!SS.man.length)SS.man=ssScope().sel.slice();if(!c.ad||/^[12]\. Sözlü$/.test(c.ad))c.ad=c.mode===2?'2. Sözlü':'1. Sözlü';render(true);}
+    else if(k==='e1'||k==='e2'||k==='ff'){c[k]=Math.max(1,Math.min(40,parseInt(v)||1));render(true);}
+    else if(/^c[123]$/.test(k))c.c[+k[1]]=Math.max(0,Math.min(5,parseInt(v)||0));else if(/^w[123]$/.test(k))c.w[+k[1]]=Math.max(0,Math.min(100,parseFloat(v)||0));}
 });
 Object.assign(ACT,{
-  sspl(){const p=ssFromPlan();SS.sel=p.sel.slice();SS.pl=p.n?(p.n+' işlenmiş Kur’an dersi konusundan '+p.sel.length+' başlık eşleşti'):'';render(true);if(!p.n)toast('Yıllık Plan’da işlenmiş Kur’an konusu yok',true);},
-  ssall(){SS.sel=ssKonu();render(true);},
-  ssnone(){SS.sel=[];render(true);},
   ssqt(){SS.addq=!SS.addq;render(true);},
-  ssqadd(){const k=T($('ssqK').value),q=T($('ssqQ').value),a=T($('ssqA').value),z=+$('ssqZ').value||1;if(!k||!q)return alert('Konu ve soruyu yazın.');const l=ssCust();l.push({id:'c'+Date.now(),k:k,z:z,q:q,a:a});ssPutCust(l);if(SS.sel&&!SS.sel.includes(k))SS.sel.push(k);render(true);toast('Soru eklendi');},
-  ssqdel(a){if(!confirm('Bu soru silinsin mi?'))return;ssPutCust(ssCust().filter(x=>x.id!==a.dataset.id));render(true);},
+  ssqadd(){const k=T($('ssqK').value),q=T($('ssqQ').value),a=T($('ssqA').value),z=+$('ssqZ').value||1;if(!k||!q)return alert('Bölümü ve soruyu yazın.');const l=ssCustAll();l.push({id:'c'+Date.now(),g:G.sinif,k:k,z:z,q:q,a:a});ssPutCust(l);render(true);toast('Soru eklendi');},
+  ssqimp(){const t=($('ssqB')||{}).value||'',l=ssCustAll();let n=0;t.split(/\r?\n/).forEach(x=>{const p=x.split(/\s*;\s*/);if(p.length>=4&&/^[123]$/.test(p[1].trim())&&p[0].trim()&&p[2].trim()){l.push({id:'c'+Date.now()+'_'+n,g:G.sinif,k:p[0].trim(),z:+p[1].trim(),q:p[2].trim(),a:p[3].trim(),p:+(p[4]||0)||0});n++;}});if(!n)return alert('Satır biçimi: bölüm ; düzey(1-3) ; soru ; cevap ; sayfa');ssPutCust(l);render(true);toast(n+' soru eklendi');},
+  ssqdel(a){if(!confirm('Bu soru silinsin mi?'))return;ssPutCust(ssCustAll().filter(x=>x.id!==a.dataset.id));render(true);},
   ssgo(){
-    const c=SS.cfg,sel=SS.sel||[];
-    if(!sel.length)return alert('En az bir konu seçin.');
+    const c=SS.cfg,sc=ssScope(),sel=sc.sel;
+    if(!sel.length)return alert('Kapsama giren bölüm yok.\nHafta kutularını kontrol edin ya da “Elle seç”ten bölüm işaretleyin.');
     if(![1,2,3].some(z=>c.c[z]>0))return alert('En az bir düzeyde soru sayısı girin.');
-    const bank=ssBank();const eks=[1,2,3].filter(z=>c.c[z]>0&&!bank.some(b=>sel.includes(b.k)&&b.z===z));
+    const bank=ssBank(),eks=[1,2,3].filter(z=>c.c[z]>0&&!bank.some(b=>sel.includes(b.k)&&b.z===z));
     if(eks.length&&!confirm('Seçili konularda '+eks.map(z=>SQ_L[z]).join(', ')+' düzeyinde soru yok; bu düzey atlanacak. Devam edilsin mi?'))return;
-    const o={ad:c.ad||'1. Sözlü',ders:c.ders||'Kur’an-ı Kerim',k:sel.slice(),c:{1:c.c[1],2:c.c[2],3:c.c[3]},w:{1:c.w[1],2:c.w[2],3:c.w[3]},rn:c.rn,eid:'',r:{}};
+    const scope=c.mode===1?'1.–'+c.e1+'. hafta':c.mode===2?'1.–'+c.e2+'. hafta (son konular ×'+c.ff+')':'elle seçilen konular';
+    const o={ad:c.ad||(c.mode===2?'2. Sözlü':'1. Sözlü'),ders:c.ders||'Kur’an-ı Kerim',k:sel.slice(),sw:sc.sw,scope:scope,c:{1:c.c[1],2:c.c[2],3:c.c[3]},w:{1:c.w[1],2:c.w[2],3:c.w[3]},rn:c.rn,eid:'',r:{}};
     ssExam(o);ssPut(o);SS.cur='';render(true);
   },
   ssop(a){const o=ssGet();if(!o)return;ssOpen(o,a.dataset.id);render(true);scrollTo({top:0});},
@@ -4679,7 +4781,7 @@ Object.assign(ACT,{
   ssabs(){const o=ssGet();if(!o||!SS.cur)return;const r=o.r[SS.cur]=o.r[SS.cur]||{q:[]};r.g=!r.g;ssNote(o,SS.cur);render(true);},
   ssnext(){const o=ssGet();if(!o)return;const st=snStu(),i=st.findIndex(s=>s.id===SS.cur);let n=st.slice(i+1).find(s=>ssScore(o,o.r[s.id])==null&&!(o.r[s.id]&&o.r[s.id].g))||st[i+1];if(n){ssOpen(o,n.id);render(true);scrollTo({top:0});}},
   ssnotes(){const o=ssGet();if(!o)return;const e=ssExam(o);ssPut(o);SN.id=e.id||'';go('sinav');},
-  ssend(){if(!confirm('Sözlü sınav bitirilsin mi? Notlar Sınav Notları’nda kalır.'))return;ssPut(null);SS.cur='';SS.sel=null;render(true);}
+  ssend(){if(!confirm('Sözlü sınav bitirilsin mi? Notlar Sınav Notları’nda kalır.'))return;ssPut(null);SS.cur='';render(true);}
 });
 
 /* ===== Sınav notları ve analizi. Kayıt: S.sinav = [{sinif,sube,ders,ad,tur,tarih,max,q:[{p,kaz}],n:{öğrenciId:{t,q:[],g}}}] ===== */
