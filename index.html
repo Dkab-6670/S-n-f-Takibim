@@ -323,13 +323,17 @@ function render(force){
   if(!force&&typing()){pending=true;return;}
   if(!force&&S.page==='akv'&&akSoft())return;
   if(!pageOn(S.page))S.page='home';if(window.__lp!==S.page){['o_prof','o_tan','o_sec','o_bak','bOpen','kOpen','exOpen'].forEach(k=>{S[k]=false;});window.__lp=S.page;if(S.page==='ayar'&&S.wantBak){S.o_bak=true;S.wantBak=false;}}const p=P[S.page]||P.home;
-  $('ptitle').innerHTML=(S.page!=='home'?'<button data-go="home" aria-label="Ana Sayfa" class="btn bg-indigo-600 !px-3 !py-1 whitespace-nowrap">🏠<span class="hidden sm:inline"> Ana Sayfa</span></button>':'')+'<span>'+p.icon+' '+esc(p.title)+'</span>'+(S.page!=='home'?'<span class="ml-auto text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full px-3 py-1 whitespace-nowrap">📌 '+(S.G.sinif==='ALL'?'Tüm sınıflar':esc(S.G.sinif)+(S.G.sube==='ALL'?'. sınıf':'/'+esc(S.G.sube.toUpperCase())))+'</span>':'');document.title=p.title+' | Sınıf Takip';
+  $('ptitle').innerHTML=(S.page!=='home'?'<button data-act="back" aria-label="Geri" class="btn bg-slate-600 !px-3 !py-1 whitespace-nowrap">◀<span class="hidden sm:inline"> Geri</span></button>':'')+(S.page!=='home'?'<button data-go="home" aria-label="Ana Sayfa" class="btn bg-indigo-600 !px-3 !py-1 whitespace-nowrap">🏠<span class="hidden sm:inline"> Ana Sayfa</span></button>':'')+'<span>'+p.icon+' '+esc(p.title)+'</span>'+(S.page!=='home'?'<span class="ml-auto text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full px-3 py-1 whitespace-nowrap">📌 '+(S.G.sinif==='ALL'?'Tüm sınıflar':esc(S.G.sinif)+(S.G.sube==='ALL'?'. sınıf':'/'+esc(S.G.sube.toUpperCase())))+'</span>':'');document.title=p.title+' | Sınıf Takip';
   document.body.classList.toggle('dx-home',S.page==='home'||S.page==='menu');
   try{$('view').innerHTML=p.html();if(p.after)p.after();}catch(err){window.__err&&__err(err,true);$('view').innerHTML='<div class="card"><b>⚠️ Bu sayfa açılamadı.</b><div class="text-sm mt-1">Verileriniz güvende. Ana sayfaya dönebilir veya sayfayı yenileyebilirsiniz.</div><div class="flex gap-2 mt-3"><button data-go="home" class="btn bg-indigo-600">🏠 Ana Sayfa</button><button onclick="location.reload()" class="btn bg-slate-600">Yenile</button></div></div>';}
   document.documentElement.style.setProperty('--th',($('ptitle').offsetHeight+8)+'px');
   document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===S.page));
 }
-function go(id){if(id==='sinif')id='yok';if(id==='yedek'){id='ayar';S.wantBak=true;}try{if(id==='nobet')nbAuto();if(['ders','ezber','yok','odevhiz','dav','grupmsj'].includes(id))bgAuto();else if(id==='yplan')bgAutoYp();}catch(e){}S.page=P[id]?id:'home';render(true);scrollTo({top:0});}
+/* Sayfa geçmişi: her sayfa değişiminde önceki sayfa saklanır; ◀ Geri düğmesi ve telefonun geri tuşu/hareketi bir önceki sayfaya döner */
+var NAVH=[];try{history.replaceState({n:0},'');}catch(e){}
+function go(id,noPush){if(id==='sinif')id='yok';if(id==='yedek'){id='ayar';S.wantBak=true;}try{if(id==='nobet')nbAuto();if(['ders','ezber','yok','odevhiz','dav','grupmsj'].includes(id))bgAuto();else if(id==='yplan')bgAutoYp();}catch(e){}const prev=S.page,np=P[id]?id:'home';if(!noPush&&prev&&np!==prev){NAVH.push(prev);if(NAVH.length>60)NAVH.shift();try{history.pushState({n:NAVH.length},'');}catch(e){}}S.page=np;render(true);scrollTo({top:0});}
+window.addEventListener('popstate',e=>{const t=(e.state&&e.state.n)||0;if(t<NAVH.length){const p=NAVH[t]||'home';NAVH.length=t;go(p,true);}});
+function goBack(){if(NAVH.length){const cur=S.page;try{history.back();}catch(e){}setTimeout(()=>{if(S.page===cur&&NAVH.length){const p=NAVH.pop();go(p,true);}},250);}else go('home',true);}
 $('view').addEventListener('focusout',()=>{if(pending){pending=false;setTimeout(render,0);}});
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return;}
@@ -1562,7 +1566,7 @@ $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.ta
 
 /* Neler yeni */
 const BUILD='2026-11-04d';
-const VER='2026-11-d132',NEWS=[['🎤','Sözlü Sınav: 7. sınıf','7. sınıf Kur’an-ı Kerim ders kitabından (1. tema, s. 16–43) kısa cevaplı sorular eklendi.'],['🖨️','Çalışma soruları','Sözlü sınavda sorulacak soruları sınıf adıyla A4 çıktı alın, PDF paylaşın ya da WhatsApp için kopyalayın; öğrenciler önceden çalışsın. Öğretmen için cevaplı nüsha da var.'],['🎤','Sözlü Sınav: 8. sınıf','8. sınıf Kur’an-ı Kerim ders kitabından (DÖGM) kısa cevaplı sorular eklendi; sınıfa göre kitap otomatik seçilir. Toplu soru ekleme de var.'],['🎤','Sözlü Sınav (kitaptan)','Sorular MEB Kur’an-ı Kerim 5. sınıf ders kitabından. 1. sınavda 8. haftaya kadar, 2. sınavda dönemin tamamı (son konular ağırlıklı) Yıllık Plan haftalarına göre otomatik seçilir.'],['🎭','Kulüp dağılımı','Sınıfınızın öğrencilerini kulüplere elle seçtirin, otomatik dağıtın ya da hazır Excel dağıtımını yapıştırın. Hangi kulüpte hangi öğretmen ve öğrenciler olduğunu tek sayfa A4 olarak yazdırın veya paylaşın.'],['📆','Rehberlik kazanımı yıllık planda','Rehberlik planı hafta tarihleriyle yüklenince, programınızda sınıfın Rehberlik dersi geldiğinde Yıllık Plan ve Bugün ekranında o haftanın kazanımı ve etkinliği görünür.'],['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
+const VER='2026-11-d134',NEWS=[['🎯','Sözlü nota taban puan','Sözlü sınavda taban puan (örn. 25) seçebilirsiniz; kalan puan sorulara dağıtılır. Soru sayısı arttıkça her sorunun puanı otomatik değişir.'],['◀','Geri düğmesi','Her sayfanın başlığında ◀ Geri düğmesi var. Telefonun geri tuşu/hareketi de artık bir önceki sayfaya döner.'],['🎤','Sözlü Sınav: 7. sınıf','7. sınıf Kur’an-ı Kerim ders kitabından (1. tema, s. 16–43) kısa cevaplı sorular eklendi.'],['🖨️','Çalışma soruları','Sözlü sınavda sorulacak soruları sınıf adıyla A4 çıktı alın, PDF paylaşın ya da WhatsApp için kopyalayın; öğrenciler önceden çalışsın. Öğretmen için cevaplı nüsha da var.'],['🎤','Sözlü Sınav: 8. sınıf','8. sınıf Kur’an-ı Kerim ders kitabından (DÖGM) kısa cevaplı sorular eklendi; sınıfa göre kitap otomatik seçilir. Toplu soru ekleme de var.'],['🎤','Sözlü Sınav (kitaptan)','Sorular MEB Kur’an-ı Kerim 5. sınıf ders kitabından. 1. sınavda 8. haftaya kadar, 2. sınavda dönemin tamamı (son konular ağırlıklı) Yıllık Plan haftalarına göre otomatik seçilir.'],['🎭','Kulüp dağılımı','Sınıfınızın öğrencilerini kulüplere elle seçtirin, otomatik dağıtın ya da hazır Excel dağıtımını yapıştırın. Hangi kulüpte hangi öğretmen ve öğrenciler olduğunu tek sayfa A4 olarak yazdırın veya paylaşın.'],['📆','Rehberlik kazanımı yıllık planda','Rehberlik planı hafta tarihleriyle yüklenince, programınızda sınıfın Rehberlik dersi geldiğinde Yıllık Plan ve Bugün ekranında o haftanın kazanımı ve etkinliği görünür.'],['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.slice(0,3).map(n=>{const t=String(n[2]).split(/(?<=[.!?])\s/)[0];return '<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(t.length>110?t.slice(0,107)+'…':t)+'</div></div></div>';}).join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
 document.body.appendChild(nm);
@@ -4253,6 +4257,7 @@ $('view').addEventListener('change',async e=>{
 });
 $('view').addEventListener('keydown',e=>{if(e.target.id==='rrNew'&&e.key==='Enter'){e.preventDefault();ACT.rrnew();}});
 Object.assign(ACT,{
+  back(){goBack();},
   rrm(a){RR.m=a.dataset.v;render(true);},
   rradd(a){const [o,L]=rrL(),t=(o.p[rrMon()]||[])[+a.dataset.i];if(!t||L.some(x=>x.k&&rrWk(x.k).t===rrWk(t).t))return;L.push({t:rrSent(t),k:rrWk(t).t});rrPut(o);render(true);},
   rraddall(){const [o,L]=rrL();(o.p[rrMon()]||[]).forEach(t=>{if(!L.some(x=>x.k&&rrWk(x.k).t===rrWk(t).t))L.push({t:rrSent(t),k:rrWk(t).t});});rrPut(o);render(true);},
@@ -4354,6 +4359,71 @@ function kuDoc(){
    +'<script>(function(){var r=document.getElementById("kp"),g=document.getElementById("kg"),b=6;function ok(){return r.scrollHeight<=r.clientHeight+1&&g.scrollHeight<=g.clientHeight+1;}for(var f=6;f<=22;f+=.5){r.style.fontSize=f+"px";if(!ok())break;b=f;}r.style.fontSize=b+"px";})();<\/script>';
 }
 const kuText=()=>{const g=kuGroups(),L=g.C.filter(c=>(g.by[c.n]||[]).length);if(!L.length)return '';return '*'+rrCls()+' SINIFI KULÜP DAĞILIMI*\n\n'+L.map(c=>'*'+c.n+'. '+c.t+'*\nDanışman: '+(c.o||'—')+'\n'+g.by[c.n].map(s=>'- '+(T(s.no)?s.no+' ':'')+s.name).join('\n')).join('\n\n')+(g.un.length?'\n\nKulüp seçmeyen: '+g.un.map(s=>s.name).join(', '):'');};
+/* Kulüp dağılımı: A4 sayfayı doğrudan tuvale çizer (ölçüler tek tek hesaplanır; her cihazda aynı, taşma/kesilme olmaz). Yazı boyutu sayfayı dolduracak en büyük değere ayarlanır, kalan boşluk satırlara paylaştırılır. */
+function kuCanvas(){
+  const g=kuGroups(),pr=prof(),y0=rrStart(),cls=rrCls(),ad=T(pr.name)||T(typeof nbReh==='function'?nbReh():'')||'';
+  const W=1654,H=2339,M=100,AW=W-2*M,AH=H-2*M,GAP=26,FF='Arial, Helvetica, sans-serif';
+  const items=g.C.filter(c=>(g.by[c.n]||[]).length).map(c=>({c:c,st:g.by[c.n]}));
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const setF=(sz,b)=>{x.font=(b?'bold ':'')+sz+'px '+FF;};
+  const wrap=(t,sz,b,mw)=>{setF(sz,b);const out=[];let cur='';String(t).split(' ').forEach(k=>{const tt=cur?cur+' '+k:k;if(!cur||x.measureText(tt).width<=mw)cur=tt;else{out.push(cur);cur=k;}});if(cur)out.push(cur);return out;};
+  const colW=(AW-GAP)/2,ttl1=pr.okul?rrU(pr.okul):'',ttl2=y0+'-'+(y0+1)+' EĞİTİM – ÖĞRETİM YILI · '+cls+' SINIFI KULÜP DAĞILIMI';
+  const unT=g.un.length?'Kulüp seçmeyen / yerleşmeyen: '+g.un.map(s=>s.name).join(', '):'';
+  function plan(f){
+    const pad=f*.55,hf=f*1.08,bx=items.map(it=>{
+      setF(f,false);const noW=x.measureText('0000').width,hl=wrap(it.c.n+'. '+it.c.t,hf,true,colW-2*pad),al=wrap('Danışman: '+(it.c.o||'—'),f*.95,true,colW-2*pad);
+      const sl=it.st.map(s=>({no:T(s.no),ln:wrap(s.name,f,false,colW-2*pad-noW)}));
+      const hH=hl.length*hf*1.3+pad*.9,aH=al.length*f*.95*1.4+pad*.8,sH=sl.reduce((a,s)=>a+s.ln.length*f*1.4,0);
+      return {it:it,hl:hl,al:al,sl:sl,noW:noW,hH:hH,aH:aH,h:hH+aH+sH+pad};});
+    const rows=[];for(let i=0;i<bx.length;i+=2)rows.push(bx.slice(i,i+2));
+    const t1=ttl1?wrap(ttl1,f*1.6,true,AW):[],t2=wrap(ttl2,f*1.15,true,AW),titleH=t1.length*f*1.6*1.3+t2.length*f*1.15*1.35+f*.9;
+    const ul=unT?wrap(unT,f*.95,false,AW-2*pad):[],unH=ul.length?ul.length*f*.95*1.4+pad*1.4+f*.6:0,sigH=f*1.25*1.4+f*1.0*1.4+f*1.3;
+    const rh=rows.map(r=>Math.max.apply(null,r.map(b=>b.h))),total=titleH+rh.reduce((a,b)=>a+b,0)+Math.max(0,rows.length-1)*GAP*1.0+(rows.length?GAP:0)+unH+sigH;
+    return {f:f,pad:pad,hf:hf,rows:rows,rh:rh,t1:t1,t2:t2,titleH:titleH,ul:ul,unH:unH,sigH:sigH,total:total};
+  }
+  let best=plan(14);for(let f=14;f<=66;f+=.5){const p=plan(f);if(p.total>AH)break;best=p;}
+  const P=best,f=P.f,pad=P.pad;
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.textBaseline='top';
+  const extra=Math.max(0,AH-P.total),add=P.rows.length?extra/P.rows.length:0;
+  const rr=(px,py,w,h,r)=>{x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();};
+  let y=M;
+  x.textAlign='center';x.fillStyle='#1e3a8a';
+  P.t1.forEach(l=>{setF(f*1.6,true);x.fillText(l,W/2,y);y+=f*1.6*1.3;});
+  x.fillStyle='#111';P.t2.forEach(l=>{setF(f*1.15,true);x.fillText(l,W/2,y);y+=f*1.15*1.35;});
+  y+=f*.9;
+  if(!items.length){setF(f,false);x.fillText('Henüz kulübe öğrenci yerleştirilmedi.',W/2,y+f);}
+  P.rows.forEach((row,ri)=>{
+    const rh=P.rh[ri]+add;
+    row.forEach((b,ci)=>{
+      const bxp=row.length===1?M+(AW-colW)/2:M+ci*(colW+GAP);
+      x.save();rr(bxp,y,colW,rh,f*.3);x.fillStyle='#fff';x.fill();x.save();x.clip();x.fillStyle='#e0e7ff';x.fillRect(bxp,y,colW,b.hH);x.restore();
+      x.strokeStyle='#1e3a8a';x.lineWidth=3;x.beginPath();x.moveTo(bxp,y+b.hH);x.lineTo(bxp+colW,y+b.hH);x.stroke();rr(bxp,y,colW,rh,f*.3);x.stroke();x.restore();
+      x.textAlign='left';let ty=y+pad*.45;x.fillStyle='#111';
+      b.hl.forEach(l=>{setF(P.hf,true);x.fillText(l,bxp+pad,ty);ty+=P.hf*1.3;});
+      ty=y+b.hH+pad*.4;
+      b.al.forEach((l,i)=>{if(i===0){setF(f*.95,false);x.fillStyle='#1e3a8a';x.fillText('Danışman: ',bxp+pad,ty);const w=x.measureText('Danışman: ').width;setF(f*.95,true);x.fillText(l.replace(/^Danışman: /,''),bxp+pad+w,ty);}else{setF(f*.95,true);x.fillStyle='#1e3a8a';x.fillText(l,bxp+pad,ty);}ty+=f*.95*1.4;});
+      ty+=pad*.25;
+      b.sl.forEach(s=>{s.ln.forEach((l,i)=>{if(i===0&&s.no){setF(f,false);x.fillStyle='#666';x.fillText(s.no,bxp+pad,ty);}setF(f,false);x.fillStyle='#000';x.fillText(l,bxp+pad+b.noW,ty);ty+=f*1.4;});});
+    });
+    y+=rh+GAP;
+  });
+  if(P.ul.length){
+    const uh=P.unH-f*.6;x.save();x.setLineDash([10,8]);x.strokeStyle='#666';x.lineWidth=2;rr(M,y,AW,uh,f*.3);x.stroke();x.restore();
+    x.textAlign='left';x.fillStyle='#111';let ty=y+pad*.7;P.ul.forEach(l=>{setF(f*.95,false);x.fillText(l,M+pad,ty);ty+=f*.95*1.4;});y+=P.unH;
+  }
+  /* imza: rehber öğretmenin adı üstte, “Sınıf Rehber Öğretmeni” altında, ortalı; sayfanın altına yaslı */
+  const sy=H-M-(f*1.25*1.4+f*1.0*1.4);x.textAlign='center';x.fillStyle='#000';
+  setF(f*1.25,true);x.fillText(ad||'………………………',W/2,sy);setF(f*1.0,false);x.fillText('Sınıf Rehber Öğretmeni',W/2,sy+f*1.25*1.4);
+  return cv;
+}
+async function pdfFromCanvas(cv,fn,title){
+  try{toast('PDF hazırlanıyor…');await pdfLibs();const pdf=new window.jspdf.jsPDF({unit:'mm',format:'a4'});pdf.addImage(cv.toDataURL('image/jpeg',.95),'JPEG',0,0,210,297);
+    PDFB={blob:pdf.output('blob'),fn:fn,title:title};$('pdfT').textContent='📄 PDF hazır';$('pdfN').textContent=fn+' · 1 sayfa';pdfm.classList.remove('hidden');pdfm.classList.add('flex');
+  }catch(e){alert('PDF oluşturulamadı: '+(e.message||e));}
+}
+function openCanvasPage(cv,title){
+  cv.toBlob(b=>{const u=URL.createObjectURL(b);const h='<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+title+'</title><style>@page{size:A4 portrait;margin:0}html,body{margin:0;background:#e5e7eb}img{display:block;width:100%;max-width:210mm;height:auto;margin:0 auto;background:#fff}.b{padding:10px;text-align:center}@media print{html,body{background:#fff;height:297mm;overflow:hidden}.b{display:none}img{width:210mm;max-width:none;height:297mm}}</style><div class="b"><button onclick="print()" style="font-size:16px;padding:8px 16px">🖨️ Yazdır</button></div><img src="'+u+'">';open(URL.createObjectURL(new Blob([h],{type:'text/html'})),'_blank');},'image/png');
+}
 reg('kulup','🎭','Kulüpler',()=>{
   if(G.sinif==='ALL')return gbar()+'<div class="card text-sm text-amber-700">Önce yukarıdan rehber öğretmeni olduğunuz sınıfı seçin.</div>';
   const st=kuStu();if(!st.length)return gbar()+'<div class="card text-sm text-slate-500">Bu sınıfta öğrenci yok.</div>';
@@ -4393,8 +4463,8 @@ Object.assign(ACT,{
   },
   kucsave(){const el=$('kuCt'),C=kuParseClubs(el?el.value:KU.ct);if(!C.length)return alert('Kulüp bulunamadı. Her satıra: no ; kulüp adı ; danışman');kuPutC(C);KU.ct='';KU.cl=false;render(true);toast(C.length+' kulüp kaydedildi');},
   kucreset(){if(!confirm('Kulüp listesi başlangıçtaki 13 kulübe döndürülsün mü?'))return;const r=kuRec('_klpL');if(r)S.ayar=S.ayar.filter(x=>x!==r);save();KU.ct='';render(true);},
-  kuprm(){open(URL.createObjectURL(new Blob([kuDoc()],{type:'text/html'})),'_blank');},
-  kupdf(){pdfFromDoc(kuDoc(),'Kulup_'+G.sinif+(G.sube==='ALL'?'':String(G.sube).toUpperCase())+'.pdf','Kulüp dağılımı');},
+  kuprm(){openCanvasPage(kuCanvas(),'Kulüp Dağılımı');},
+  kupdf(){pdfFromCanvas(kuCanvas(),'Kulup_'+G.sinif+(G.sube==='ALL'?'':String(G.sube).toUpperCase())+'.pdf','Kulüp dağılımı');},
   kucp(){const t=kuText();if(!t)return toast('Önce öğrencileri dağıtın',true);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Kopyalandı')).catch(()=>toast('Kopyalanamadı',true));}
 });
 
@@ -4729,7 +4799,7 @@ const SQ7=[
 const ssSQ=()=>G.sinif==='8'?SQ8:G.sinif==='7'?SQ7:G.sinif==='5'?SQ5:[];
 const ssPages=()=>G.sinif==='7'?"Kur’an-ı Kerim 7. sınıf ders kitabı, 1. tema, s. 16–43 (kavramlar, durak ve secaventler, boğaz harfleri, Bakara 164–186, Kunut duaları)":G.sinif==='8'?"DÖGM Kur’an-ı Kerim 8 ders kitabı, s. 9–77 (1. ünitenin tamamı; 2. ünitede idgam, sakin mim, ra, vakıf)":G.sinif==='5'?"MEB Kur’an-ı Kerim 5. sınıf ders kitabı, s. 10–92 (1. ve 2. tema, 3. temanın 3.2.2 bölümüne kadar)":"";
 const ssFold=x=>kuFold(String(x||'').replace(/[âÂ]/g,'a').replace(/[îÎ]/g,'i').replace(/[ûÛ]/g,'u'));
-const SS={cfg:{mode:1,e1:8,e2:18,ff:3,c:{1:1,2:1,3:1},w:{1:30,2:30,3:40},rn:true,ad:'',ders:'Kur’an-ı Kerim'},man:[],cur:'',addq:false};
+const SS={cfg:{mode:1,e1:8,e2:18,ff:3,c:{1:1,2:1,3:1},w:{1:2,2:3,3:4},tb:0,rn:true,ad:'',ders:'Kur’an-ı Kerim'},man:[],cur:'',addq:false};
 const ssKey=()=>'_ssn|'+G.sinif+'|'+rrSb();
 const ssGet=()=>{const r=kuRec(ssKey());let o=null;try{o=JSON.parse((r&&r.rb)||'null');}catch(e){}return o&&isO(o)&&o.k?o:null;};
 const ssPut=o=>{let r=kuRec(ssKey());if(!r){r={kim:ssKey()};S.ayar.push(r);}r.rb=o?JSON.stringify(o):'';save();};
@@ -4779,12 +4849,19 @@ function ssDoc(ans){
    +(r.n?r.body:'<p>Seçili kapsamda soru bulunamadı.</p>')+(ad?'<div class="f">Sınıf Öğretmeni: <b>'+esc(ad)+'</b></div>':'')+'</div>';
 }
 function ssStudyText(ans){const r=ssStudy(ans);if(!r.n)return '';let n=0;return '*'+rrCls()+' SINIFI · '+(r.cu.ders||'Kur’an-ı Kerim')+' · '+r.cu.ad+' ÇALIŞMA SORULARI*\nKapsam: '+r.cu.scope+' · '+r.n+' soru\nSözlü sınavda bu sorulardan sorulacaktır.\n\n'+r.secs.map(k=>{const L=r.bank.filter(b=>b.k===k).sort((a,b)=>a.z-b.z);return '*'+k+'*'+(r.cu.sw[k]>1?' ★':'')+'\n'+L.map(q=>{n++;return n+'. ['+SQ_L[q.z]+'] '+q.q+(ans?'\n   Cevap: '+q.a:'');}).join('\n');}).join('\n\n');}
-function ssScore(o,r){
+/* Puanlama: taban puan + (100 − taban) soru başına ağırlıklara göre dağıtılır. Soru sayısı artınca her sorunun puanı otomatik küçülür. Eski oturumlar (wm yok) düzey toplamı yöntemiyle hesaplanır. */
+function ssCalc(o,r){
   if(!r||!r.q||!r.q.length||r.q.some(x=>x.c==null))return null;
-  let num=0,den=0;
-  [1,2,3].forEach(z=>{const l=r.q.filter(x=>x.z===z);if(l.length){const w=+o.w[z]||0;num+=w*(l.reduce((a,x)=>a+x.c,0)/l.length);den+=w;}});
-  if(!den)return null;const p=num/den*100;return o.rn?Math.round(p/5)*5:Math.round(p);
+  const tb=+o.tb||0;
+  if(o.wm==='q'){let num=0,den=0;r.q.forEach(q=>{const u=+o.w[q.z]||0;num+=u*q.c;den+=u;});if(!den)return null;return {tb:tb,earned:(100-tb)*num/den,raw:tb+(100-tb)*num/den};}
+  let num=0,den=0;[1,2,3].forEach(z=>{const l=r.q.filter(x=>x.z===z);if(l.length){const w=+o.w[z]||0;num+=w*(l.reduce((a,x)=>a+x.c,0)/l.length);den+=w;}});
+  if(!den)return null;const p=num/den*100;return {tb:tb,earned:(100-tb)*p/100,raw:tb+(100-tb)*p/100};
 }
+const ssScore=(o,r)=>{const c=ssCalc(o,r);if(!c)return null;return o.rn?Math.round(c.raw/5)*5:Math.round(c.raw);};
+const ssFm=v=>(Math.round(v*10)/10).toString().replace('.',',');
+const ssQPts=(o,r,q)=>{if(o.wm!=='q')return null;let den=0;r.q.forEach(x=>{den+=+o.w[x.z]||0;});return den?(100-(+o.tb||0))*(+o.w[q.z]||0)/den:null;};
+function ssDist(c){let den=0;[1,2,3].forEach(z=>{den+=(+c.c[z]||0)*(+c.w[z]||0);});const pool=100-(+c.tb||0);return {den:den,pool:pool,pt:z=>den?pool*(+c.w[z]||0)/den:0};}
+const ssDistHtml=c=>{const d=ssDist(c),n=[1,2,3].reduce((a,z)=>a+(+c.c[z]||0),0);if(!n||!d.den)return '<div class="text-xs text-amber-700 mt-2">Soru sayısı ve ağırlık girin.</div>';return '<div class="text-xs mt-3 rounded-lg bg-slate-100 dark:bg-slate-700 p-2"><b>Puan dağıtımı · '+n+' soru</b><div>Taban puan <b>'+ssFm(+c.tb||0)+'</b> + sorulara dağıtılan <b>'+ssFm(d.pool)+'</b> = 100</div>'+[1,2,3].filter(z=>+c.c[z]>0).map(z=>'<div class="mt-1"><span class="px-1.5 py-0.5 rounded '+SQ_C[z]+'">'+SQ_L[z]+'</span> '+c.c[z]+' soru × <b>'+ssFm(d.pt(z))+'</b> puan = '+ssFm(d.pt(z)*c.c[z])+'</div>').join('')+'<div class="mt-1 text-slate-500">Hiç bilemeyen öğrenci '+ssFm(+c.tb||0)+', hepsini bilen 100 alır.</div></div>';};
 function ssExam(o){
   let e=S.sinav.find(x=>x.id&&x.id===o.eid)||S.sinav.find(x=>x.ad===o.ad&&T(x.ders)===T(o.ders)&&String(x.sinif)===G.sinif&&x.donem===G.donem&&(x.sube||'')===snSb());
   if(!e){e={donem:G.donem,sinif:G.sinif,sube:snSb(),ders:o.ders,ad:o.ad,tarih:G.date,max:100,q:[],n:{}};S.sinav.push(e);save();}
@@ -4822,8 +4899,8 @@ reg('sozsinav','🎤','Sözlü Sınav',()=>{
     const cu=ssCust(),kn=ssKonu();
     return gbar()+'<div class="card"><b>🎤 Sözlü Sınav · '+esc(rrCls())+'</b><p class="text-xs text-slate-500 mt-1">Sorular <b>seçili sınıfın Kur’an-ı Kerim ders kitabından</b> alınmıştır (her sorunun yanında kitap sayfası yazar). Kapsamı Yıllık Plan’daki haftalara göre seçersiniz; öğrenciye kolay-orta-zor sorular çekilir, bildiğine göre ✅ / 🟡 / ❌ işaretlersiniz, not otomatik hesaplanıp <b>Sınav Notları</b>na yazılır.</p><div class="text-[11px] '+(ssSQ().length?'text-slate-500':'text-amber-700 font-semibold')+' mt-1">'+(ssSQ().length?'Soru bankası: '+ssPages()+'.':'Bu sınıf için ders kitabından hazır soru henüz eklenmedi. Aşağıdan kendi sorularınızı ekleyebilir ya da toplu yapıştırabilirsiniz.')+'</div>'
      +'<label class="text-xs font-bold mt-3 block">Sınav adı</label><input data-sscfg="ad" class="inp w-full" value="'+esc(c.ad||(c.mode===2?'2. Sözlü':'1. Sözlü'))+'"><label class="text-xs font-bold mt-2 block">Ders</label><input data-sscfg="ders" class="inp w-full" value="'+esc(c.ders)+'">'
-     +'<div class="text-xs font-bold mt-3">Öğrenciye kaç soru? <span class="font-normal text-slate-500">(altta: nota katkı ağırlığı)</span></div><div class="flex gap-3 mt-1 text-center"><div><div class="text-[11px] text-emerald-700 font-bold">Kolay</div>'+num('c1',c.c[1],5)+'<div class="mt-1">'+num('w1',c.w[1],100)+'</div></div><div><div class="text-[11px] text-amber-700 font-bold">Orta</div>'+num('c2',c.c[2],5)+'<div class="mt-1">'+num('w2',c.w[2],100)+'</div></div><div><div class="text-[11px] text-rose-700 font-bold">Zor</div>'+num('c3',c.c[3],5)+'<div class="mt-1">'+num('w3',c.w[3],100)+'</div></div></div>'
-     +'<label class="flex items-center gap-2 text-sm mt-3"><input type="checkbox" data-sscfg="rn"'+(c.rn?' checked':'')+'> Notu 5’in katına yuvarla</label></div>'
+     +'<div class="text-xs font-bold mt-3">Öğrenciye kaç soru? <span class="font-normal text-slate-500">(altta: soru başına ağırlık)</span></div><div class="flex gap-3 mt-1 text-center"><div><div class="text-[11px] text-emerald-700 font-bold">Kolay</div>'+num('c1',c.c[1],5)+'<div class="mt-1">'+num('w1',c.w[1],100)+'</div></div><div><div class="text-[11px] text-amber-700 font-bold">Orta</div>'+num('c2',c.c[2],5)+'<div class="mt-1">'+num('w2',c.w[2],100)+'</div></div><div><div class="text-[11px] text-rose-700 font-bold">Zor</div>'+num('c3',c.c[3],5)+'<div class="mt-1">'+num('w3',c.w[3],100)+'</div></div></div>'
+     +'<label class="flex items-center gap-2 text-sm mt-3"><input type="checkbox" data-sscfg="rn"'+(c.rn?' checked':'')+'> Notu 5’in katına yuvarla</label><label class="text-xs font-bold mt-3 block">Taban puan <span class="font-normal text-slate-500">(sınava giren herkes en az bunu alır; kalan puan sorulara dağıtılır. Örn. 25. Kapalı için 0)</span></label><input type="number" min="0" max="90" data-sscfg="tb" value="'+(c.tb||0)+'" class="inp w-24">'+ssDistHtml(c)+'</div>'
      +'<div class="card"><b class="text-sm">📅 Kapsam (Yıllık Plan haftalarına göre)</b>'
      +rad(1,'<b>1. Sınav:</b> 1. haftadan <input type="number" min="1" max="40" data-sscfg="e1" value="'+c.e1+'" class="inp w-14 text-center text-sm"> . haftaya kadar (o hafta dahil) işlenen konular')
      +rad(2,'<b>2. Sınav:</b> dönemin tamamı (1–<input type="number" min="1" max="40" data-sscfg="e2" value="'+c.e2+'" class="inp w-14 text-center text-sm">. hafta); <b>'+(+c.e1+1)+'. haftadan sonraki son konular</b> <input type="number" min="1" max="10" data-sscfg="ff" value="'+c.ff+'" class="inp w-12 text-center text-sm"> kat ağırlıklı')
@@ -4842,9 +4919,9 @@ reg('sozsinav','🎤','Sözlü Sınav',()=>{
     const s=st.find(x=>x.id===SS.cur),r=o.r[s.id]||{q:[]},sc1=ssScore(o,r),idx=st.indexOf(s);
     return gbar()+head+'<div class="card"><button data-act="ssback" class="btn bg-slate-600 text-xs">◀ Öğrenci listesi</button><div class="mt-2 text-lg font-bold">'+esc(s.no?s.no+' · ':'')+esc(s.name)+'</div>'
       +(r.g?'<div class="mt-2 text-amber-700 font-semibold">Sınava girmedi olarak işaretli.</div>':'')+'</div>'
-      +(r.g?'':r.q.map((q,i)=>'<div class="card"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded text-xs font-bold '+SQ_C[q.z]+'">'+SQ_L[q.z]+'</span><span class="text-xs text-slate-500 flex-1 min-w-0">'+esc(q.k)+'</span><button data-act="sschg" data-i="'+i+'" class="text-xs text-indigo-700 shrink-0">🔄 Değiştir</button></div><div class="text-lg font-semibold mt-2">'+esc(q.q)+'</div><div class="text-xs bg-slate-100 dark:bg-slate-700 rounded p-2 mt-2">✔ <b>Cevap:</b> '+esc(q.a)+(q.p?'<div class="text-[11px] text-slate-500 mt-1">📖 Kitap s. '+q.p+'</div>':'')+'</div><div class="grid grid-cols-3 gap-2 mt-3">'
+      +(r.g?'':r.q.map((q,i)=>'<div class="card"><div class="flex items-center gap-2"><span class="px-2 py-0.5 rounded text-xs font-bold '+SQ_C[q.z]+'">'+SQ_L[q.z]+'</span><span class="text-xs text-slate-500 flex-1 min-w-0">'+esc(q.k)+'</span><button data-act="sschg" data-i="'+i+'" class="text-xs text-indigo-700 shrink-0">🔄 Değiştir</button></div><div class="text-lg font-semibold mt-2">'+esc(q.q)+'</div><div class="text-xs bg-slate-100 dark:bg-slate-700 rounded p-2 mt-2">'+(ssQPts(o,r,q)!=null?'<div class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 mb-1">Bu soru '+ssFm(ssQPts(o,r,q))+' puan</div>':'')+'✔ <b>Cevap:</b> '+esc(q.a)+(q.p?'<div class="text-[11px] text-slate-500 mt-1">📖 Kitap s. '+q.p+'</div>':'')+'</div><div class="grid grid-cols-3 gap-2 mt-3">'
         +[[1,'✅ Bildi'],[0.5,'🟡 Kısmen'],[0,'❌ Bilemedi']].map(b=>'<button data-act="ssgr" data-i="'+i+'" data-c="'+b[0]+'" class="min-h-[46px] rounded-lg border text-sm font-semibold '+(q.c===b[0]?(b[0]===1?'bg-emerald-600 text-white border-emerald-600':b[0]===0.5?'bg-amber-500 text-white border-amber-500':'bg-rose-600 text-white border-rose-600'):'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600')+'">'+b[1]+'</button>').join('')+'</div></div>').join(''))
-      +'<div class="card"><div class="text-sm">Not: <b class="text-2xl">'+(r.g?'—':sc1==null?'—':sc1)+'</b> <span class="text-xs text-slate-500">'+(r.g?'':sc1==null?'(tüm soruları işaretleyince hesaplanır)':'/ 100 · Sınav Notları’na yazıldı')+'</span></div><div class="flex flex-wrap gap-2 mt-3"><button data-act="ssabs" class="btn bg-amber-600 text-xs">'+(r.g?'↩ Girdi olarak işaretle':'🚫 Girmedi')+'</button>'+(idx<st.length-1?'<button data-act="ssnext" class="btn bg-emerald-600 flex-1">Sonraki öğrenci ▶</button>':'')+'</div></div>';
+      +'<div class="card"><div class="text-sm">Not: <b class="text-2xl">'+(r.g?'—':sc1==null?'—':sc1)+'</b> <span class="text-xs text-slate-500">'+(r.g?'':sc1==null?'(tüm soruları işaretleyince hesaplanır)':'/ 100 · Sınav Notları’na yazıldı')+'</span>'+(!r.g&&sc1!=null&&(+o.tb||0)>0?'<div class="text-xs text-slate-500 mt-1">Taban '+ssFm(+o.tb)+' + kazanılan '+ssFm(ssCalc(o,r).earned)+' = '+ssFm(ssCalc(o,r).raw)+(o.rn?' → '+sc1:'')+'</div>':'')+'</div><div class="flex flex-wrap gap-2 mt-3"><button data-act="ssabs" class="btn bg-amber-600 text-xs">'+(r.g?'↩ Girdi olarak işaretle':'🚫 Girmedi')+'</button>'+(idx<st.length-1?'<button data-act="ssnext" class="btn bg-emerald-600 flex-1">Sonraki öğrenci ▶</button>':'')+'</div></div>';
   }
   return gbar()+head+'<div class="card"><b class="text-sm">👥 Öğrenciler</b>'+st.map(s=>{const r=o.r[s.id],sc1=ssScore(o,r),asked=r&&r.q&&r.q.length;return '<div class="flex items-center gap-2 py-1.5 border-b border-slate-200 dark:border-slate-700"><span class="w-9 text-xs text-slate-500 shrink-0">'+esc(s.no||'')+'</span><span class="flex-1 min-w-0 text-sm font-medium">'+esc(s.name)+'</span>'+(r&&r.g?'<span class="text-xs text-amber-700">girmedi</span>':sc1!=null?'<span class="text-sm font-bold text-emerald-700 w-9 text-right">'+sc1+'</span>':asked?'<span class="text-xs text-amber-700">sürüyor</span>':'')+'<button data-act="ssop" data-id="'+esc(s.id)+'" class="btn '+(sc1!=null?'bg-slate-500':'bg-teal-600')+' text-xs">'+(sc1!=null?'Düzenle':asked?'Devam':'🎤 Sor')+'</button></div>';}).join('')+'</div>';
 });
@@ -4858,7 +4935,8 @@ $('view').addEventListener('change',e=>{
     if(k==='ad')c.ad=T(v);else if(k==='ders')c.ders=T(v);else if(k==='rn')c.rn=!!v;
     else if(k==='mode'){c.mode=parseInt(v);if(c.mode===0&&!SS.man.length)SS.man=ssScope().sel.slice();if(!c.ad||/^[12]\. Sözlü$/.test(c.ad))c.ad=c.mode===2?'2. Sözlü':'1. Sözlü';render(true);}
     else if(k==='e1'||k==='e2'||k==='ff'){c[k]=Math.max(1,Math.min(40,parseInt(v)||1));render(true);}
-    else if(/^c[123]$/.test(k))c.c[+k[1]]=Math.max(0,Math.min(5,parseInt(v)||0));else if(/^w[123]$/.test(k))c.w[+k[1]]=Math.max(0,Math.min(100,parseFloat(v)||0));}
+    else if(k==='tb'){c.tb=Math.max(0,Math.min(90,parseFloat(v)||0));render(true);}
+    else if(/^c[123]$/.test(k)){c.c[+k[1]]=Math.max(0,Math.min(5,parseInt(v)||0));render(true);}else if(/^w[123]$/.test(k)){c.w[+k[1]]=Math.max(0,Math.min(100,parseFloat(v)||0));render(true);}}
 });
 Object.assign(ACT,{
   ssqt(){SS.addq=!SS.addq;render(true);},
@@ -4876,7 +4954,7 @@ Object.assign(ACT,{
     const bank=ssBank(),eks=[1,2,3].filter(z=>c.c[z]>0&&!bank.some(b=>sel.includes(b.k)&&b.z===z));
     if(eks.length&&!confirm('Seçili konularda '+eks.map(z=>SQ_L[z]).join(', ')+' düzeyinde soru yok; bu düzey atlanacak. Devam edilsin mi?'))return;
     const scope=ssScopeTxt();
-    const o={ad:c.ad||(c.mode===2?'2. Sözlü':'1. Sözlü'),ders:c.ders||'Kur’an-ı Kerim',k:sel.slice(),sw:sc.sw,scope:scope,c:{1:c.c[1],2:c.c[2],3:c.c[3]},w:{1:c.w[1],2:c.w[2],3:c.w[3]},rn:c.rn,eid:'',r:{}};
+    const o={ad:c.ad||(c.mode===2?'2. Sözlü':'1. Sözlü'),ders:c.ders||'Kur’an-ı Kerim',k:sel.slice(),sw:sc.sw,scope:scope,c:{1:c.c[1],2:c.c[2],3:c.c[3]},w:{1:c.w[1],2:c.w[2],3:c.w[3]},rn:c.rn,tb:+c.tb||0,wm:'q',eid:'',r:{}};
     ssExam(o);ssPut(o);SS.cur='';render(true);
   },
   ssop(a){const o=ssGet();if(!o)return;ssOpen(o,a.dataset.id);render(true);scrollTo({top:0});},
@@ -5951,7 +6029,7 @@ function roleChoose(next){
   document.body.appendChild(o);
   o.addEventListener('click',e=>{const b=e.target.closest('[data-r]');if(!b)return;o.remove();if(b.dataset.r==='v'){lss('app_role','veli');veliApp(false);}else{lss('app_role','ogretmen');next();}});
 }
-const startT=()=>gateStart(()=>{go(kioskOn()?'tahta':'home');if(kioskOn()){if(lsg('kiosk_v1')==='1'&&S.room)listen(S.room);}else if(S.room)listen(S.room);else room();});
+const startT=()=>gateStart(()=>{go(kioskOn()?'tahta':'home',true);if(kioskOn()){if(lsg('kiosk_v1')==='1'&&S.room)listen(S.room);}else if(S.room)listen(S.room);else room();});
 const VMOD=new URLSearchParams(location.search).get('mod')==='veli';
 if(PK)parentView(PK);
 else if(VMOD)veliApp(true);
