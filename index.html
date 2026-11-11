@@ -40,11 +40,20 @@ td.tot input{font-weight:bold}
 #notes{margin-top:8px;font-size:8.5px;line-height:1.45}
 #notes b{font-size:9px}
 .sig{text-align:right;font-size:9px;margin-top:6px}
-@media (max-width:760px){#app{flex-direction:column}#panel{width:100%;max-height:46%;border-right:0;border-bottom:1px solid var(--line)}}
+#tabs{display:none}
+@media (max-width:760px){
+ #app{flex-direction:column}
+ #tabs{display:flex;flex:none;gap:6px;padding:8px;background:var(--panel);border-bottom:1px solid var(--line)}
+ #tabs button{margin:0;flex:1;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:11px 4px}
+ #tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+ #panel{width:100%;flex:1;min-height:0;border-right:0}
+ #app.pv #panel{display:none}
+ #app:not(.pv) #stage{display:none}
+}
 @media print{
  @page{size:A4 portrait;margin:0}
  html,body{height:auto;overflow:visible;background:#fff}
- #panel{display:none}#app,#stage,#wrap{display:block;height:auto;width:auto;overflow:visible}
+ #panel,#tabs{display:none!important}#app,#stage,#wrap{display:block!important;height:auto;width:auto;overflow:visible}
  #page{transform:none!important;box-shadow:none;width:210mm;height:297mm}
  td input:focus{background:transparent}
 }
@@ -52,6 +61,7 @@ td.tot input{font-weight:bold}
 </head>
 <body>
 <div id="app">
+ <div id="tabs"><button id="tE" class="on">✏️ Düzenle</button><button id="tP">📄 Önizleme</button><button id="tR">🖨 Yazdır</button></div>
  <div id="panel">
   <h2>Sınıf</h2>
   <select id="sel"></select>
@@ -190,6 +200,8 @@ function fit(){
  var wr=$('wrap');wr.style.width=794*s+'px';wr.style.height=1123*s+'px';wr.style.marginTop='8px';
 }
 window.addEventListener('resize',fit);
+function tab(pv){$('app').classList.toggle('pv',pv);$('tE').classList.toggle('on',!pv);$('tP').classList.toggle('on',pv);if(pv)fit()}
+$('tE').onclick=function(){tab(false)};$('tP').onclick=function(){tab(true)};$('tR').onclick=function(){window.print()};
 fillPanel();build();
 </script>
 </body>
