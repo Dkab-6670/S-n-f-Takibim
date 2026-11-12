@@ -132,6 +132,8 @@ header {
 }
 /* Durum çubuğu altı: sabit, tam opak kırmızı şerit; altından kayan içerik bulanık görünmesin */
 body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#a50f1c;z-index:90;pointer-events:none}
+/* Ana Sayfa'da dekor katmanı bu şeridi ezip beyaz-pembe geçişli yapıyordu; iPhone üst rengi buradan alıp başlığı puslu gösteriyordu. Şerit her sayfada aynı opak kırmızı olsun. */
+body.dx-home::before{content:"";position:fixed;top:0;left:0;right:0;bottom:auto;height:env(safe-area-inset-top,0px);background:#a50f1c!important;background-image:none!important;z-index:90!important;pointer-events:none}
 /* Sayfa başlığı (Ana Sayfa vb.): net, opak, filtresiz */
 #ptitle{opacity:1!important;filter:none!important;-webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:60;font-weight:800;color:#0f172a;box-shadow:0 2px 6px rgba(15,23,42,.14)}
 html.dark #ptitle,.dark #ptitle{color:#f1f5f9}
