@@ -121,8 +121,10 @@ html.dx-on,html.dx-on body{background:#06222c!important}html.dx-on body::before{
 
 <style id="header-crisp-fix">
 /* Mobil üst başlık: iOS saydam durum çubuğu kaynaklı puslu görünümü önle. */
-html { background-color: #e6f4f8; }
-html.dark { background-color: #0f172a; }
+/* Sayfanın en üstü ilk dosyadaki gibi kırmızı kalır (iPhone üst kenar efekti buradan renk alır, başlık net görünür).
+   Ekranı küçültünce görünen geri kalan zemin kırmızı değil, sayfanın kendi rengindedir. */
+html { background: linear-gradient(#a50f1c,#a50f1c) top left/100% calc(env(safe-area-inset-top,0px) + 160px) no-repeat, #e6f4f8; }
+html.dark { background: linear-gradient(#a50f1c,#a50f1c) top left/100% calc(env(safe-area-inset-top,0px) + 160px) no-repeat, #0f172a; }
 header {
   filter: none !important;
   -webkit-filter: none !important;
@@ -132,8 +134,6 @@ header {
 }
 /* Durum çubuğu altı: sabit, tam opak kırmızı şerit; altından kayan içerik bulanık görünmesin */
 body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#a50f1c;z-index:90;pointer-events:none}
-/* Ana Sayfa'da dekor katmanı bu şeridi ezip beyaz-pembe geçişli yapıyordu; iPhone üst rengi buradan alıp başlığı puslu gösteriyordu. Şerit her sayfada aynı opak kırmızı olsun. */
-body.dx-home::before{content:"";position:fixed;top:0;left:0;right:0;bottom:auto;height:env(safe-area-inset-top,0px);background:#a50f1c!important;background-image:none!important;z-index:90!important;pointer-events:none}
 /* Sayfa başlığı (Ana Sayfa vb.): net, opak, filtresiz */
 #ptitle{opacity:1!important;filter:none!important;-webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:60;font-weight:800;color:#0f172a;box-shadow:0 2px 6px rgba(15,23,42,.14)}
 html.dark #ptitle,.dark #ptitle{color:#f1f5f9}
