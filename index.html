@@ -96,6 +96,7 @@ html.dark body.dx-home::before{opacity:.3}
 .dx-vw{position:relative;width:100%;max-width:440px}.dx-vw .dn-card{margin-bottom:12px}
 .dx-vx{position:absolute;top:-8px;right:-4px;z-index:3;width:36px;height:36px;border-radius:50%;background:#fff;color:#0b4a5e;font-size:18px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 .dx-vb{width:52px;height:42px;font-size:18px}
+.dx-pi{display:block;width:auto;height:auto;max-width:100%;max-height:calc(100vh - 190px);max-height:calc(100dvh - 190px);margin:0 auto 12px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.4);background:#f6edd3}.dx-pi2{display:block;width:100%;max-width:440px;height:auto;margin:0 auto 12px;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.3);background:#f6edd3}
 .dx-yr{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}.dx-yr b{font-size:18px;color:#0b6a8f}.dark .dx-yr b{color:#7dd3fc}
 .dx-b2{background:#0284c7!important;border-color:#0284c7!important;padding:6px 14px!important}
 .dx-mh{font-size:20px;font-weight:700;color:#0b6a8f;margin:16px 4px 6px}.dark .dx-mh{color:#7dd3fc}
@@ -1565,7 +1566,7 @@ Object.assign(ACT,{
 $('view').addEventListener('change',e=>{if(e.target.id==='pto')lss('pin_to',e.target.value);});
 
 /* Neler yeni */
-const BUILD='2026-11-12a';
+const BUILD='2026-11-12b';
 const VER='2026-11-d136',NEWS=[['📋','Sözlü değerlendirme ölçeği','Sözlü notların nasıl verildiğini gösteren ölçek (cevap düzeyleri, taban, soru puanları, başarı düzeyleri) ve öğrenci öğrenci sonuç çizelgesi; yazdırın ya da PDF paylaşın.'],['🎯','Sözlü nota taban puan','Sözlü sınavda taban puan (örn. 25) seçebilirsiniz; kalan puan sorulara dağıtılır. Soru sayısı arttıkça her sorunun puanı otomatik değişir.'],['◀','Geri düğmesi','Her sayfanın başlığında ◀ Geri düğmesi var. Telefonun geri tuşu/hareketi de artık bir önceki sayfaya döner.'],['🎤','Sözlü Sınav: 7. sınıf','7. sınıf Kur’an-ı Kerim ders kitabından (1. tema, s. 16–43) kısa cevaplı sorular eklendi.'],['🖨️','Çalışma soruları','Sözlü sınavda sorulacak soruları sınıf adıyla A4 çıktı alın, PDF paylaşın ya da WhatsApp için kopyalayın; öğrenciler önceden çalışsın. Öğretmen için cevaplı nüsha da var.'],['🎤','Sözlü Sınav: 8. sınıf','8. sınıf Kur’an-ı Kerim ders kitabından (DÖGM) kısa cevaplı sorular eklendi; sınıfa göre kitap otomatik seçilir. Toplu soru ekleme de var.'],['🎤','Sözlü Sınav (kitaptan)','Sorular MEB Kur’an-ı Kerim 5. sınıf ders kitabından. 1. sınavda 8. haftaya kadar, 2. sınavda dönemin tamamı (son konular ağırlıklı) Yıllık Plan haftalarına göre otomatik seçilir.'],['🎭','Kulüp dağılımı','Sınıfınızın öğrencilerini kulüplere elle seçtirin, otomatik dağıtın ya da hazır Excel dağıtımını yapıştırın. Hangi kulüpte hangi öğretmen ve öğrenciler olduğunu tek sayfa A4 olarak yazdırın veya paylaşın.'],['📆','Rehberlik kazanımı yıllık planda','Rehberlik planı hafta tarihleriyle yüklenince, programınızda sınıfın Rehberlik dersi geldiğinde Yıllık Plan ve Bugün ekranında o haftanın kazanımı ve etkinliği görünür.'],['📝','Rehberlik Raporu','Yıllık rehberlik planını fotoğraftan ya da metinden yükleyin; her ay plandaki konuları ve kendi yaptığınız çalışmaları ekleyip aylık faaliyet raporunu yazdırın.'],['👪','Veli uygulaması','Karne sayfasında her öğrenciye özel kod verin. Veli uygulamada kodu girince yalnızca çocuğunun devam, ezber, ödev ve puan durumunu görür; siz kaydettikçe kendiliğinden güncellenir.'],['✨','Daha sade ekranlar','Sınıf çubuğu küçüldü, başlık inceldi, Kaldığımız yer ve bu pencere kısaldı.'],['🗣️','Veli toplantısı: gündem, müdür onayı, tutanak','Çıktılar sayfasında hazır gündem maddelerinden seçin (kendi maddenizi de ekleyebilirsiniz), müdür onayı için gündem yazısını yazdırın; toplantıdan sonra görüşülenleri ve kararları düzenleyip tutanağı yazdırın. İmza sirkülerinde rehber öğretmen imzası, adı soyadı ve unvanı alt alta çıkar.'],['📖','İki ayrı ezber çizelgesi','Çıktılar sayfasında artık iki çizelge var: uygulamaya bağlı olan (sınıfa atanan ezberler, tamamlayana ✓) ve uygulamadan bağımsız olan (kendi listeniz, işaretsiz; isterseniz öğrenci adları olmadan boş satırlarla).'],['📖','Kur\'an / ezber çizelgesi çıktısı','Çıktılar sayfasında sınıfın ezber çizelgesi A4 yatay olarak çıkar: başta "8/D Sınıfı Ezber Listesi", seçili sınıfın öğrencileri (No, Ad Soyad) ve dik yazılı ezber/dua başlıkları. Ezber listesini kendiniz değiştirebilirsiniz; uygulamada tamamlanan ezberlere ✓ konur.'],['📜','Hafızlık çizelgesi: sayfa sayfa takip','Cüze dokununca o cüzün 1–20. sayfaları açılır; her sayfa boş → çalışıyor → tamam olarak işaretlenir. Cüz durumu ve toplam sayfa sayısı kendiliğinden hesaplanır. Eski tamam cüzleriniz korunur.'],['✋','Oturma planı: eşyaları taşı ve adlandır','Düzen ekranında ✋ Taşı ile kapı, masa, tahta, pano gibi eşyaları yeni yere alın, 🏷️ Adı değiştir ile adlarını değiştirin. İsimler kutuya sığacak şekilde küçülür; çıktı çerçeveli.'],['☰','Sade ana sayfa ve Tüm Menü','Ana sayfada yalnızca yoklama, ders & ödev, mesaj ve günlük plan var. Namaz vakti, dini bölüm ve diğer tüm sayfalar "Tüm menü" içinde.'],['🧮','Sınav notları ve Dönem Sonu','Sınav puanlarını girin, kazanım bazlı analiz alın. Dönem Sonu sayfası eksikleri gösterir ve notları e-Okul\'a yapıştırmak için kopyalar.'],['📝','Günlük Plan','Ders programından günün dersleri gelir; konu, kazanım, yöntem ve araçlar yıllık plandan, giriş-gelişme-sonuç hazır önerilerle dolar. A4 çıktı, arkalı önlü 1 kâğıt ve PDF paylaşma vardır. Ana sayfada Günlük işler altında.'],['🧹','Sınıf Nöbetçileri','Her gün 2 öğrenci, sınıf listesi sırasıyla ve hafta bütünlüğüyle dağıtılır. Tatil günleri atlanır. Aylık A4 çizelge PDF olarak paylaşılabilir. Sınıf grubuna mesaj olarak da gönderilir.'],['💬','Veli ve grup mesajları','Mesajlarda ders adı yazılır. Başarılı öğrencilerin velilerine ve sınıf grubuna mesaj gönderilebilir. WhatsApp artık doğrudan uygulamada açılır.'],['📥','Yıllık plan yükleme','MEB Excel planındaki yöntem, araç-gereç ve ölçme sütunları da alınır; günlük plana otomatik gelir. Daha önce yüklediyseniz yeniden yükleyin.']];
 const nm=document.createElement('div');nm.className='fixed inset-0 z-[450] hidden items-center justify-center bg-black/60 p-4';
 nm.innerHTML='<div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl max-w-md w-full max-h-[85vh] overflow-y-auto p-5"><b class="text-lg">🆕 Neler yeni</b><div class="my-3 space-y-3">'+NEWS.slice(0,3).map(n=>{const t=String(n[2]).split(/(?<=[.!?])\s/)[0];return '<div class="flex gap-3"><div class="text-2xl">'+n[0]+'</div><div><b class="text-sm">'+esc(n[1])+'</b><div class="text-xs text-slate-500">'+esc(t.length>110?t.slice(0,107)+'…':t)+'</div></div></div>';}).join('')+'</div><button id="nmOk" class="btn bg-indigo-600 w-full">Tamam</button></div>';
@@ -3078,7 +3079,7 @@ function dnStarPath(x,cx,cy,r){x.beginPath();for(let i=0;i<16;i++){const a=Math.
 /* Paylaşım biçimi: r = Reels/Hikâye 9:16 (varsayılan), p = Gönderi 4:5, k = Kare 1:1 */
 const DN_FM={r:{n:'Reels / Hikâye 9:16',w:1080,h:1920},p:{n:'Gönderi 4:5',w:1080,h:1350},k:{n:'Kare 1:1',w:1080,h:1080}};
 const dnFmt=()=>{const k=lsg('dn_fmt');return DN_FM[k]?k:'r';};
-function dnCanvas(o){
+function dnCanvasOld(o){
   const fk=dnFmt(),W=DN_FM[fk].w,H=DN_FM[fk].h,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),th=DN_TH[o.theme]||DN_TH.green,gold='#e8c675';
   const rl=fk==='r';/* Reels: üst ve alttaki uygulama arayüzü kartı kapatmasın diye içerik güvenli alana alınır */
   const AF='Amiri,"Noto Naskh Arabic","Traditional Arabic",serif',SF='Georgia,serif';
@@ -3108,9 +3109,153 @@ function dnCanvas(o){
   if(!o.part2&&!o.parts&&o.foot){x.fillStyle=gold;x.font='600 38px sans-serif';x.fillText(o.foot,W/2,rl?H-390:H-150);}
   return c;
 }
+/* ===== Poster tasarımı: krem zemin, yeşil kemer, fenerler, DKAB Merkezi logosu, cami manzarası ===== */
+const DN_BRAND='DKAB MERKEZİ',DN_SLOGAN='İLİM · İMAN · İHSAN';
+function dnFontsLoad(){try{if(document.fonts&&document.fonts.load)return Promise.all([document.fonts.load('bold 40px Amiri'),document.fonts.load('40px Amiri')]).catch(()=>{});}catch(e){}return Promise.resolve();}
+function dnArc(x,t,cx,cy,r,mid,top){
+  const ch=[...t],ws=ch.map(c=>x.measureText(c).width),tot=ws.reduce((a,b)=>a+b,0);let a=top?mid-tot/r/2:mid+tot/r/2;
+  ch.forEach((c,i)=>{const da=ws[i]/r,ang=top?a+da/2:a-da/2;x.save();x.translate(cx+Math.cos(ang)*r,cy+Math.sin(ang)*r);x.rotate(top?ang+Math.PI/2:ang-Math.PI/2);x.fillText(c,0,0);x.restore();a=top?a+da:a-da;});
+}
+function dnGoldGrad(x,x0,y0,x1,y1){const g=x.createLinearGradient(x0,y0,x1,y1);g.addColorStop(0,'#f3dc94');g.addColorStop(.5,'#c9972f');g.addColorStop(1,'#8a6a1f');return g;}
+function dnLogo(x,cx,cy,R){
+  const k=R/84;x.save();x.translate(cx,cy);x.scale(k,k);
+  x.shadowColor='rgba(0,0,0,.35)';x.shadowBlur=14;x.shadowOffsetY=4;x.fillStyle=dnGoldGrad(x,-84,-84,84,84);x.beginPath();x.arc(0,0,84,0,7);x.fill();x.shadowColor='transparent';
+  x.fillStyle='#0d4332';x.beginPath();x.arc(0,0,79,0,7);x.fill();
+  x.fillStyle='#fbf3da';x.beginPath();x.arc(0,0,52,0,7);x.fill();x.strokeStyle=dnGoldGrad(x,-50,-50,50,50);x.lineWidth=3;x.stroke();
+  x.textAlign='center';x.textBaseline='middle';x.fillStyle='#f3dc94';
+  x.font='bold 19px Arial,sans-serif';dnArc(x,DN_BRAND,0,0,66,-Math.PI/2,true);
+  x.font='bold 10.5px Arial,sans-serif';dnArc(x,DN_SLOGAN,0,0,66,Math.PI/2,false);
+  [0,Math.PI].forEach(a=>{x.save();x.translate(Math.cos(a)*66,Math.sin(a)*66);x.rotate(Math.PI/4);x.fillRect(-3,-3,6,6);x.restore();});
+  /* iç amblem: cami + açık kitap + hilâl */
+  x.fillStyle='#0d4332';
+  x.beginPath();x.arc(0,-8,19,Math.PI,0);x.lineTo(19,3);x.lineTo(-19,3);x.closePath();x.fill();
+  [-31,31].forEach(m=>{x.fillRect(m-3.2,-26,6.4,29);x.beginPath();x.moveTo(m-4.4,-26);x.lineTo(m,-36);x.lineTo(m+4.4,-26);x.closePath();x.fill();});
+  x.fillStyle='#c9972f';x.beginPath();x.arc(0,-31,6,0,7);x.fill();x.fillStyle='#fbf3da';x.beginPath();x.arc(2.4,-32,5,0,7);x.fill();
+  x.fillStyle='#fffaf0';x.strokeStyle='#0d4332';x.lineWidth=2;
+  x.beginPath();x.moveTo(0,10);x.quadraticCurveTo(-18,2,-36,7);x.lineTo(-36,29);x.quadraticCurveTo(-18,24,0,32);x.closePath();x.fill();x.stroke();
+  x.beginPath();x.moveTo(0,10);x.quadraticCurveTo(18,2,36,7);x.lineTo(36,29);x.quadraticCurveTo(18,24,0,32);x.closePath();x.fill();x.stroke();
+  x.lineWidth=1.2;for(let i=0;i<3;i++){const y=14+i*5;x.beginPath();x.moveTo(-31,y-3);x.quadraticCurveTo(-17,y-5,-5,y+1);x.moveTo(31,y-3);x.quadraticCurveTo(17,y-5,5,y+1);x.stroke();}
+  x.restore();
+}
+function dnLantern(x,cx,top,s){
+  x.save();
+  x.strokeStyle='#b88a2a';x.lineWidth=2;x.beginPath();x.moveTo(cx,-700);x.lineTo(cx,top);x.stroke();
+  for(let y=-700;y<top-6;y+=13){x.beginPath();x.ellipse(cx,y+6,3,6.5,0,0,7);x.stroke();}
+  x.translate(cx,top);x.scale(s,s);
+  const hg=x.createRadialGradient(0,82,4,0,82,120);hg.addColorStop(0,'rgba(255,214,110,.55)');hg.addColorStop(1,'rgba(255,214,110,0)');x.fillStyle=hg;x.fillRect(-130,-40,260,260);
+  x.fillStyle=dnGoldGrad(x,-24,0,24,0);x.beginPath();x.arc(0,4,6,0,7);x.fill();
+  x.beginPath();x.moveTo(-10,8);x.lineTo(10,8);x.lineTo(26,28);x.lineTo(-26,28);x.closePath();x.fill();
+  const gg=x.createRadialGradient(0,84,2,0,84,62);gg.addColorStop(0,'#fffbe3');gg.addColorStop(.45,'#ffd770');gg.addColorStop(1,'#d98f22');
+  x.fillStyle=gg;x.beginPath();x.moveTo(-26,28);x.lineTo(26,28);x.lineTo(31,48);x.lineTo(31,112);x.lineTo(21,138);x.lineTo(-21,138);x.lineTo(-31,112);x.lineTo(-31,48);x.closePath();x.fill();
+  x.strokeStyle=dnGoldGrad(x,-30,0,30,0);x.lineWidth=3.4;x.stroke();
+  x.lineWidth=2.4;[-14,0,14].forEach(v=>{x.beginPath();x.moveTo(v*0.9,28);x.lineTo(v*1.2,138);x.stroke();});
+  x.beginPath();x.moveTo(-31,70);x.lineTo(31,70);x.moveTo(-31,100);x.lineTo(31,100);x.stroke();
+  x.fillStyle=dnGoldGrad(x,-22,0,22,0);x.beginPath();x.moveTo(-22,138);x.lineTo(22,138);x.lineTo(0,160);x.closePath();x.fill();
+  x.beginPath();x.arc(0,166,4.5,0,7);x.fill();x.lineWidth=2;x.strokeStyle='#b88a2a';x.beginPath();x.moveTo(0,160);x.lineTo(0,172);x.stroke();
+  x.restore();
+}
+function dnTree(x,cx,cy,r,seed){
+  let s=seed;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};
+  const cols=['#1d4a2a','#2a6035','#3a7a41','#4f9150'];
+  for(let i=0;i<26;i++){const a=rnd()*6.283,d=rnd()*r*0.85,px=cx+Math.cos(a)*d*0.8,py=cy+Math.sin(a)*d,rr=r*(0.22+rnd()*0.2);
+    const g=x.createRadialGradient(px-rr*.3,py-rr*.3,rr*.1,px,py,rr);g.addColorStop(0,cols[2+(i&1)]);g.addColorStop(1,cols[i%2]);x.fillStyle=g;x.beginPath();x.arc(px,py,rr,0,7);x.fill();}
+}
+function dnMosque(x,ox,oy,c){
+  x.save();x.translate(ox,oy);x.fillStyle=c;
+  const dome=(cx,cy,r)=>{x.beginPath();x.moveTo(cx-r,cy);x.bezierCurveTo(cx-r,cy-r*1.25,cx+r,cy-r*1.25,cx+r,cy);x.closePath();x.fill();x.fillRect(cx-1.2,cy-r*1.25-12,2.4,13);x.beginPath();x.arc(cx,cy-r*1.25-12,3,0,7);x.fill();};
+  const mina=(cx,top,w,base)=>{x.fillRect(cx-w/2,top,w,base-top);x.fillRect(cx-w*0.9,top+26,w*1.8,5);x.beginPath();x.moveTo(cx-w*0.62,top);x.lineTo(cx,top-24);x.lineTo(cx+w*0.62,top);x.closePath();x.fill();};
+  x.fillRect(500,150,250,70);dome(590,150,50);dome(528,170,22);dome(652,170,22);
+  x.fillRect(536,150,108,18);
+  mina(484,70,10,222);mina(626,20,9,222);mina(690,62,9,222);mina(726,68,8,222);
+  x.restore();
+}
+function dnBook(x,ox,oy){
+  x.save();x.translate(ox,oy);
+  x.strokeStyle='#6b4a22';x.lineWidth=5;x.lineCap='round';x.beginPath();x.moveTo(50,98);x.lineTo(200,10);x.moveTo(200,98);x.lineTo(50,10);x.stroke();
+  const cov=x.createLinearGradient(0,0,0,40);cov.addColorStop(0,'#1c5a40');cov.addColorStop(1,'#0b3d2e');
+  x.fillStyle=cov;x.beginPath();x.moveTo(-6,8);x.lineTo(250,-12);x.lineTo(268,2);x.lineTo(10,30);x.closePath();x.fill();x.strokeStyle='#d9b45a';x.lineWidth=2;x.stroke();
+  x.fillStyle='#fbf3da';x.strokeStyle='#b88a2a';x.lineWidth=1.6;
+  x.beginPath();x.moveTo(128,2);x.quadraticCurveTo(76,-22,6,-14);x.lineTo(8,22);x.quadraticCurveTo(76,8,128,24);x.closePath();x.fill();x.stroke();
+  x.beginPath();x.moveTo(128,2);x.quadraticCurveTo(190,-30,252,-34);x.lineTo(252,2);x.quadraticCurveTo(190,-6,128,24);x.closePath();x.fill();x.stroke();
+  x.strokeStyle='rgba(20,69,47,.55)';x.lineWidth=1.2;
+  for(let i=0;i<5;i++){const t=i*5;x.beginPath();x.moveTo(18,-6+t*0.9);x.quadraticCurveTo(76,-14+t*0.9,118,5+t);x.moveTo(138,5+t);x.quadraticCurveTo(190,-14+t*0.8,240,-24+t*0.9);x.stroke();}
+  x.strokeStyle='#d9b45a';x.lineWidth=1.4;x.beginPath();x.moveTo(8,-14);x.lineTo(8,22);x.moveTo(252,-34);x.lineTo(252,2);x.stroke();
+  x.restore();
+}
+function dnScene(x,SW,sun){
+  /* koordinat: y=0 sahne üstü, 250 alt. SW: mantıksal genişlik */
+  const g=x.createRadialGradient(SW*0.5,200,6,SW*0.5,200,Math.max(SW*0.62,380));g.addColorStop(0,'rgba(255,226,140,.95)');g.addColorStop(.35,'rgba(255,205,110,.5)');g.addColorStop(1,'rgba(255,205,110,0)');
+  x.fillStyle=g;x.fillRect(0,-260,SW,520);
+  x.fillStyle='#fff6cf';x.beginPath();x.arc(SW*0.53,196,22,0,7);x.fill();
+  dnTree(x,4,-60,82,7);dnTree(x,10,56,74,13);dnTree(x,SW-4,-30,78,21);dnTree(x,SW-10,70,70,29);
+  dnMosque(x,SW-750,0,'rgba(92,118,100,.9)');
+  const hz=x.createLinearGradient(0,150,0,236);hz.addColorStop(0,'rgba(246,231,190,0)');hz.addColorStop(1,'rgba(246,231,190,.85)');x.fillStyle=hz;x.fillRect(0,150,SW,90);
+  const gr=x.createLinearGradient(0,214,0,250);gr.addColorStop(0,'#3f6b3d');gr.addColorStop(1,'#16371f');x.fillStyle=gr;x.fillRect(0,214,SW,40);
+  x.strokeStyle='rgba(217,180,90,.85)';x.lineWidth=2;x.beginPath();x.moveTo(0,222);x.lineTo(SW,222);x.stroke();
+  x.fillStyle='rgba(217,180,90,.55)';for(let i=8;i<SW;i+=26){x.beginPath();x.moveTo(i,236);x.lineTo(i+8,230);x.lineTo(i+16,236);x.lineTo(i+8,242);x.closePath();x.fill();}
+  dnBook(x,26,168);
+}
+function dnOrn(x,cx,cy,r,col){x.fillStyle=col;x.beginPath();for(let i=0;i<16;i++){const a=Math.PI*i/8-Math.PI/2,rr=i%2?r*0.55:r;x[i?'lineTo':'moveTo'](cx+rr*Math.cos(a),cy+rr*Math.sin(a));}x.closePath();x.fill();}
+function dnSecs(o){
+  if(o.sec)return o.sec;if(o.parts)return o.parts;
+  const a={head:o.head,big:o.big,arab:o.arab,name:o.title,ok:o.ok,body:o.body,foot:o.foot};
+  return o.part2?[a,{head:o.part2.head,body:o.part2.body,foot:o.part2.foot}]:[a];
+}
+function dnPoster(o,pv){
+  const fk=dnFmt(),F=DN_FM[fk];let W=F.w,H=F.h;if(pv){H=Math.round(H*pv/W);W=pv;}
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),u=W/750,rl=fk==='r',sq=fk==='k';
+  const ts=sq?0.78:1,ss=sq?0.66:1,dy=rl?170*u:0,AF='Amiri,"Noto Naskh Arabic","Geeza Pro","Traditional Arabic",serif',SF='Georgia,"Times New Roman",serif';
+  /* zemin */
+  const bg=x.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#fbf5e4');bg.addColorStop(.55,'#f3e8c8');bg.addColorStop(1,'#f4dfae');x.fillStyle=bg;x.fillRect(0,0,W,H);
+  /* alt manzara */
+  x.save();x.translate(0,H-250*ss*u);x.scale(u*ss,u*ss);dnScene(x,750/ss);x.restore();
+  /* üst: kemer, fenerler, logo, besmele */
+  x.save();x.translate(0,dy);x.scale(u,u);
+  const sideY=290*ts,peakY=40*ts,m=30,mx=-dy/u;
+  const arch=()=>{x.beginPath();x.moveTo(m,sideY);x.bezierCurveTo(m,sideY*0.45,750*0.2,peakY+60*ts,375,peakY);x.bezierCurveTo(750*0.8,peakY+60*ts,750-m,sideY*0.45,750-m,sideY);};
+  x.save();x.beginPath();x.moveTo(0,mx);x.lineTo(750,mx);x.lineTo(750,sideY);x.lineTo(750-m,sideY);x.bezierCurveTo(750-m,sideY*0.45,750*0.8,peakY+60*ts,375,peakY);x.bezierCurveTo(750*0.2,peakY+60*ts,m,sideY*0.45,m,sideY);x.lineTo(0,sideY);x.closePath();
+  const gg=x.createLinearGradient(0,mx,0,sideY);gg.addColorStop(0,'#0a3a2a');gg.addColorStop(1,'#14684c');x.fillStyle=gg;x.fill();x.clip();
+  x.strokeStyle='rgba(232,198,117,.26)';x.lineWidth=1.4;
+  for(let yy=mx-20;yy<sideY+30;yy+=34)for(let xx=-20;xx<770;xx+=34){x.beginPath();x.moveTo(xx,yy-15);x.lineTo(xx+15,yy);x.lineTo(xx,yy+15);x.lineTo(xx-15,yy);x.closePath();x.stroke();if(((xx+yy)/34|0)%2===0)dnOrn(x,xx,yy,5,'rgba(232,198,117,.28)');}
+  x.restore();
+  arch();x.strokeStyle=dnGoldGrad(x,0,0,750,0);x.lineWidth=6;x.stroke();x.strokeStyle='rgba(251,245,228,.7)';x.lineWidth=1.6;x.stroke();
+  const pil=x.createLinearGradient(0,0,36,0);pil.addColorStop(0,'#e9d49a');pil.addColorStop(1,'#c9a24a');
+  [[0,1],[714,-1]].forEach(p=>{x.fillStyle=pil;x.fillRect(p[0],sideY,36,70*ts);x.fillStyle=dnGoldGrad(x,0,0,36,0);x.fillRect(p[0]-(p[1]<0?0:0),sideY,36,6);x.strokeStyle='#8a6a1f';x.lineWidth=1.4;x.strokeRect(p[0]+3,sideY+10,30,56*ts);});
+  dnLantern(x,64,100*ts,ts);dnLantern(x,686,100*ts,ts);
+  dnLogo(x,375,95*ts,84*ts);
+  const by=216*ts,bh=60*ts,bw=470;
+  const bgd=x.createLinearGradient(0,by-bh/2,0,by+bh/2);bgd.addColorStop(0,'#0f4d38');bgd.addColorStop(1,'#08301f');
+  x.shadowColor='rgba(0,0,0,.28)';x.shadowBlur=10;x.shadowOffsetY=3;x.fillStyle=bgd;x.beginPath();x.roundRect?x.roundRect(375-bw/2,by-bh/2,bw,bh,bh/2):x.rect(375-bw/2,by-bh/2,bw,bh);x.fill();x.shadowColor='transparent';
+  x.strokeStyle=dnGoldGrad(x,0,by-30,0,by+30);x.lineWidth=3;x.stroke();
+  [375-bw/2-26,375+bw/2+26].forEach(cx=>{dnOrn(x,cx,by,13*ts,'#c9972f');dnOrn(x,cx,by,6*ts,'#0f4d38');});
+  x.textAlign='center';x.textBaseline='alphabetic';x.direction='rtl';x.fillStyle='#f6e6b0';x.font='bold '+Math.round(34*ts)+'px '+AF;x.fillText('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',375,by+11*ts);x.direction='ltr';
+  x.restore();
+  /* içerik */
+  const mg=82*u,maxW=W-2*mg,top=dy+(sq?206:272)*u,bottom=H-(rl?300*u:(sq?160:222)*u);
+  const SP={label:{f:'bold 17px Arial,sans-serif',lh:34,fill:'#8a6a1f',sp:1},arab:{f:'bold 40px '+AF,lh:68,rtl:1,fill:'#14452f'},big:{f:'bold 118px '+AF,lh:150,rtl:1,fill:'#14452f'},name:{f:'bold 44px '+SF,lh:58,fill:'#14452f'},ok:{f:'italic 24px '+SF,lh:34,fill:'#6b5a35'},body:{f:'italic 28px '+SF,lh:40,fill:'#2f2a1c'},pill:{f:'bold 20px Arial,sans-serif',lh:56,fill:'#f6e6b0'},div:{lh:50}};
+  const spaced=t=>String(t).split(' ').map(w=>w.split('').join(' ')).join('   ');
+  const blocks=useOk=>{const b=[];dnSecs(o).forEach((s,i)=>{if(i)b.push({k:'div'});if(s.head)b.push({k:'label',t:spaced(s.head)});if(s.big)b.push({k:'big',t:s.big});if(s.arab)b.push({k:'arab',t:s.arab});if(s.name)b.push({k:'name',t:s.name});if(s.ok&&useOk)b.push({k:'ok',t:s.ok});if(s.body)b.push({k:'body',t:s.body});if(s.foot)b.push({k:'pill',t:s.foot});});return b;};
+  const fit=(bl,min)=>{let f=1,L;for(;f>=min;f-=0.04){L=bl.map(b=>{const s=SP[b.k];if(b.k==='div')return {b,s,lines:[''],h:s.lh*f*u};x.font=(s.f.replace(/(\d+(\.\d+)?)px/,(q,n)=>(n*f*u)+'px'));x.direction=s.rtl?'rtl':'ltr';const ln=b.k==='label'?[b.t]:dnWrap(x,b.t,b.k==='pill'?maxW-70*u:maxW);return {b,s,lines:ln,h:(b.k==='pill'?s.lh*f*u:ln.length*s.lh*f*u)};});x.direction='ltr';if(L.reduce((a,q)=>a+q.h,0)<=bottom-top)break;}return {L,f};};
+  let r=fit(blocks(true),0.5);if(r.f<0.5)r=fit(blocks(false),0.35);
+  const L=r.L,f=r.f,tot=L.reduce((a,q)=>a+q.h,0);let y=top+Math.max(0,Math.min(60*u,(bottom-top-tot)/2));
+  L.forEach(q=>{
+    const s=q.s,b=q.b;
+    if(b.k==='div'){const cy=y+q.h/2;x.strokeStyle='#c9972f';x.lineWidth=2*u;x.beginPath();x.moveTo(W/2-250*u,cy);x.lineTo(W/2-26*u,cy);x.moveTo(W/2+26*u,cy);x.lineTo(W/2+250*u,cy);x.stroke();dnOrn(x,W/2,cy,15*u*f,'#c9972f');dnOrn(x,W/2,cy,7*u*f,'#fbf5e4');y+=q.h;return;}
+    if(b.k==='pill'){const fs=20*f*u;x.font='bold '+fs+'px Arial,sans-serif';const tw=Math.min(maxW,x.measureText(q.lines[0]).width+56*u*f),ph=40*f*u,cy=y+q.h/2;
+      x.strokeStyle='#c9972f';x.lineWidth=2*u;x.beginPath();x.moveTo(W/2-tw/2-14*u,cy);x.lineTo(mg,cy);x.moveTo(W/2+tw/2+14*u,cy);x.lineTo(W-mg,cy);x.stroke();
+      const pg=x.createLinearGradient(0,cy-ph/2,0,cy+ph/2);pg.addColorStop(0,'#14684c');pg.addColorStop(1,'#0a3a2a');x.fillStyle=pg;x.beginPath();x.roundRect?x.roundRect(W/2-tw/2,cy-ph/2,tw,ph,ph/2):x.rect(W/2-tw/2,cy-ph/2,tw,ph);x.fill();x.strokeStyle=dnGoldGrad(x,0,cy-ph/2,0,cy+ph/2);x.lineWidth=2.4*u;x.stroke();
+      x.fillStyle='#fff3cf';x.textAlign='center';x.textBaseline='middle';x.fillText(q.lines[0],W/2,cy+1*u);x.textBaseline='alphabetic';y+=q.h;return;}
+    x.font=s.f.replace(/(\d+(\.\d+)?)px/,(m2,n)=>(n*f*u)+'px');x.fillStyle=s.fill;x.textAlign='center';x.direction=s.rtl?'rtl':'ltr';
+    q.lines.forEach(l=>{y+=s.lh*f*u;x.fillText(l,W/2,y-s.lh*f*u*(s.rtl?0.3:0.27));});x.direction='ltr';
+  });
+  return c;
+}
+
+function dnCanvas(o){try{return dnPoster(o);}catch(e){return dnCanvasOld(o);}}
+const dnPosterURL=(o,pv)=>dnPoster(o,pv||780).toDataURL('image/jpeg',.92);
 async function dnShare(o,text){
   try{
-    const c=dnCanvas(o),blob=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([blob],'dini-kart.png',{type:'image/png'});
+    await dnFontsLoad();const c=dnCanvas(o),blob=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([blob],'dini-kart.png',{type:'image/png'});
     if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:o.head||'',text:text||''});return;}
     if(navigator.share){await navigator.share({title:o.head||'',text:text||''});return;}
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dini-kart.png';document.body.appendChild(a);a.click();a.remove();toast('Kart görsel olarak indirildi');
@@ -3163,10 +3308,10 @@ function dxTrioHtml(T3,keep){
 const dnFmtRow=()=>'<div class="dn-row" style="margin-top:0"><span class="text-xs" style="color:#e8c675;align-self:center">Paylaşım boyutu:</span>'+Object.keys(DN_FM).map(k=>'<button data-act="dxfmt" data-v="'+k+'" class="dn-btn'+(dnFmt()===k?' dn-gold':'')+'">'+esc(DN_FM[k].n)+'</button>').join('')+'</div>';
 function dxDuo(){
   const T3=dxTrioData(),ed=S.dxEdit,a=T3.a,h=T3.h,ma=T3.ma,mh=T3.mh,ha=T3.ha,hh=T3.hh;
-  DN_SH.d=dxTrioShare(T3);
+  DN_SH.d=dxAyHadO(T3);DN_SH.e=dxEsDuaO();
   const panel=ed==='a'?{t:ha?ma.t:'',k:ha&&ma.k||'',id:a.id,ph:'TDV mealini buraya yapıştırın',kp:'Kaynak (örn. TDV Meali)'}:ed==='h'?{t:hh?mh.t:'',k:hh&&mh.k||'',id:h.id,ph:'Hadis metnini buraya yapıştırın',kp:'Kaynak ve numara (örn. Buhârî, Îmân 7, No: 13)'}:null;
-  return dxTrioHtml(T3,true)
-   +'<div class="dn-row"><button data-act="dxduo" data-d="-1" class="dn-btn" aria-label="Önceki">◀</button><button data-act="dxduo" data-d="1" class="dn-btn" aria-label="Sonraki">▶</button><button data-act="dxshare" data-k="d" class="dn-btn dn-gold">📤 Paylaş</button></div>'
+  return '<div class="dn-card dn-green"><img class="dx-pi2" alt="Ayet ve hadis" src="'+dnPosterURL(DN_SH.d.o)+'"><img class="dx-pi2" alt="Esmâ ve dua" src="'+dnPosterURL(DN_SH.e.o)+'">'
+   +'<div class="dn-row"><button data-act="dxduo" data-d="-1" class="dn-btn" aria-label="Önceki">◀</button><button data-act="dxduo" data-d="1" class="dn-btn" aria-label="Sonraki">▶</button><button data-act="dxshare" data-k="d" class="dn-btn dn-gold">📤 Ayet·Hadis</button><button data-act="dxshare" data-k="e" class="dn-btn dn-gold">📤 Esmâ·Dua</button></div>'
    +dnFmtRow()
    +'<div class="dn-row"><button data-act="dxedit" data-k="a" class="dn-btn">✏️ Meali düzenle</button><button data-act="dxedit" data-k="h" class="dn-btn">✏️ Hadisi düzenle</button></div>'
    +(panel?'<div class="dn-edit"><textarea id="dxMt" rows="4" placeholder="'+esc(panel.ph)+'">'+esc(panel.t)+'</textarea><input id="dxMk" placeholder="'+esc(panel.kp)+'" value="'+esc(panel.k)+'"><div class="dn-row"><button data-act="dxmsave" data-k="'+ed+'" data-id="'+panel.id+'" class="dn-btn dn-gold">Kaydet</button><button data-act="dxmdel" data-k="'+ed+'" data-id="'+panel.id+'" class="dn-btn">Taslağa dön</button></div></div>':'')+'</div>';
@@ -3237,7 +3382,7 @@ function dxEzBody(){
 }
 Object.assign(ACT,{
   dxfmt(a){lss('dn_fmt',a.dataset.v);toast('Paylaşım boyutu: '+DN_FM[a.dataset.v].n);if($('dxV')&&$('dxV').style.display!=='none')dxViewDraw();render(true);},
-  dxduo(a){const d=+a.dataset.d;S.dxA=(S.dxA||0)+d;S.dxH=(S.dxH||0)+d;S.dxD=(S.dxD||0)+d;S.dxEdit='';render(true);},
+  dxduo(a){const d=+a.dataset.d;S.dxA=(S.dxA||0)+d;S.dxH=(S.dxH||0)+d;S.dxD=(S.dxD||0)+d;S.dxVe=(S.dxVe||0)+d;S.dxEdit='';render(true);},
   dxezo(a){S.dxEz=a.dataset.id;S.dxRev={};render(true);scrollTo({top:0});},
   dxezb(){S.dxEz='';S.dxRev={};render(true);},
   dxrev(a){S.dxRev=S.dxRev||{};S.dxRev[a.dataset.i]=!S.dxRev[a.dataset.i];render(true);},
@@ -3350,13 +3495,17 @@ const DX_DUA=[
  {id:'d9',ar:'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',ok:'Hasbünallâhü ve ni’mel vekîl.',t:'Allah bize yeter, O ne güzel vekildir.',k:'Âl-i İmrân 173'}
 ];
 /* ---- Daire kısayollar ve görüntüleyici ---- */
-const DX_CIR=[['gun','📖','Ayet · Hadis · Dua'],['esma','✨','Günün Esması']];
+const DX_CIR=[['gun','📖','Ayet · Hadis'],['esma','✨','Esmâ · Dua']];
 function dxCircles(){
   return '<div class="dx-cir">'+DX_CIR.map(c=>'<button data-act="dxopen" data-k="'+c[0]+'"><span>'+c[1]+'</span><small>'+c[2]+'</small></button>').join('')+'</div>';
 }
+function dxAyHadO(T3){return {o:{sec:[{head:'GÜNÜN AYETİ',arab:T3.a.ar,body:T3.at,foot:T3.a.s+' Suresi · '+T3.a.n},{head:'GÜNÜN HADİSİ',body:'“'+T3.ht+'”',foot:T3.hk}]},txt:'GÜNÜN AYETİ\n'+T3.a.ar+'\n'+T3.at+'\n— '+T3.a.s+' Suresi, '+T3.a.n+'\n\nGÜNÜN HADİSİ\n“'+T3.ht+'”\n— '+T3.hk};}
+function dxEsDuaO(){const i=((esDay()+(S.dxVe||0))%99+99)%99,e=ESMA[i],d=dxDuaPick();return {o:{sec:[{head:'GÜNÜN İSMİ · '+(i+1)+'/99',big:e[1],name:e[0],body:e[2]},{head:'GÜNÜN DUASI',arab:d.ar,ok:d.ok,body:d.t,foot:d.k}]},txt:'GÜNÜN İSMİ · '+(i+1)+'/99\n'+e[1]+' — '+e[0]+'\n'+e[2]+'\n\nGÜNÜN DUASI\n'+d.ar+'\n'+d.ok+'\n'+d.t+'\n— '+d.k};}
+const dxPosterImg=o=>'<img class="dx-pi" alt="" src="'+dnPosterURL(o)+'">';
 function dxViewCard(k){
   const c=dnCfg();
-  if(k==='gun'){const T3=dxTrioData();DN_SH.v=dxTrioShare(T3);return dxTrioHtml(T3);}
+  if(k==='gun'){DN_SH.v=dxAyHadO(dxTrioData());return dxPosterImg(DN_SH.v.o);}
+  if(k==='esma'){DN_SH.v=dxEsDuaO();return dxPosterImg(DN_SH.v.o);}
   if(k==='ayet'){const a=DN_AYET[dxPick(DN_AYET,'dxA')],m=(c.meal||{})[a.id],t=m&&m.t?m.t:a.t;DN_SH.v={o:{theme:'green',head:'GÜNÜN AYETİ',arab:a.ar,body:t,foot:a.s+' Suresi · '+a.n},txt:a.ar+'\n'+t+'\n— '+a.s+' Suresi, '+a.n};
     return '<div class="dn-card dn-green"><div class="dn-hd">GÜNÜN AYETİ</div><div class="dn-ar">'+esc(a.ar)+'</div><div class="dn-tr">'+esc(t)+'</div><div class="dn-ft">'+esc(a.s)+' Suresi · '+esc(a.n)+'</div>'+(m&&m.t?'':'<div class="dn-tag dn-draft">Taslak anlam</div>')+'</div>';}
   if(k==='hadis'){const h=DN_HADIS[dxPick(DN_HADIS,'dxH')],m=(c.hmeal||{})[h.id],t=m&&m.t?m.t:h.t,kk=m&&m.t&&m.k?m.k:h.k;DN_SH.v={o:{theme:'navy',head:'GÜNÜN HADİSİ',body:'“'+t+'”',foot:kk},txt:'“'+t+'”\n— '+kk};
@@ -3369,11 +3518,12 @@ function dxViewCard(k){
 function dxViewDraw(){
   const v=$('dxV');if(!v||v.style.display==='none')return;
   v.innerHTML='<div class="dx-vw"><button data-act="dxvx" class="dx-vx" aria-label="Kapat">✕</button>'+dxViewCard(S.dxVk)+'<div class="dn-row" style="margin-top:0"><button data-act="dxvn" data-d="-1" class="dn-btn dx-vb" aria-label="Önceki">◀</button><button data-act="dxshare" data-k="v" class="dn-btn dn-gold">📤 Paylaş</button><button data-act="dxvn" data-d="1" class="dn-btn dx-vb" aria-label="Sonraki">▶</button></div>'+dnFmtRow()+'</div>';
+  const o=DN_SH.v&&DN_SH.v.o;if(o&&o.sec)dnFontsLoad().then(()=>{if(v.style.display==='none'||!DN_SH.v||DN_SH.v.o!==o)return;const im=v.querySelector('.dx-pi');if(im)im.src=dnPosterURL(o);});
 }
 Object.assign(ACT,{
   dxopen(a){S.dxVk=a.dataset.k;let v=$('dxV');if(!v){v=document.createElement('div');v.id='dxV';v.className='dx-v';document.body.appendChild(v);}v.style.display='flex';dxViewDraw();},
   dxvx(){const v=$('dxV');if(v)v.style.display='none';},
-  dxvn(a){const d=+a.dataset.d,k=S.dxVk;if(k==='gun'){S.dxA=(S.dxA||0)+d;S.dxH=(S.dxH||0)+d;S.dxD=(S.dxD||0)+d;}else if(k==='ayet')S.dxA=(S.dxA||0)+d;else if(k==='hadis')S.dxH=(S.dxH||0)+d;else if(k==='esma')S.dxVe=(S.dxVe||0)+d;else S.dxD=(S.dxD||0)+d;dxViewDraw();},
+  dxvn(a){const d=+a.dataset.d,k=S.dxVk;if(k==='gun'){S.dxA=(S.dxA||0)+d;S.dxH=(S.dxH||0)+d;}else if(k==='ayet')S.dxA=(S.dxA||0)+d;else if(k==='hadis')S.dxH=(S.dxH||0)+d;else if(k==='esma'){S.dxVe=(S.dxVe||0)+d;S.dxD=(S.dxD||0)+d;}else S.dxD=(S.dxD||0)+d;dxViewDraw();},
   dxyr(a){S.dxY=(S.dxY||new Date().getFullYear())+(+a.dataset.d);render(true);},
   dxcm(a){const td=new Date(),c=S.dxCm||{y:td.getFullYear(),m:td.getMonth()},x=new Date(c.y,c.m+(+a.dataset.d),1);S.dxCm={y:x.getFullYear(),m:x.getMonth()};render(true);},
   dxtoday(){S.dxCm=null;S.dxSel='';render(true);},
