@@ -6252,7 +6252,7 @@ async function vkRun(force){
       let h;try{h=VK_HEAD+karne(s).replace('<h3>Öğretmen Görüşü</h3><div class="l"></div>','');}catch(e){continue;}
       const k=vkHash(h)+'|'+mon;
       if(!force&&VKH[s.vk]===k)continue;
-      await db.ref('share/'+s.vk).set({html:h,exp:Date.now()+365*864e5,n:s.name,ts:firebase.database.ServerValue.TIMESTAMP});
+      await db.ref('share/'+s.vk).set({html:h,exp:Date.now()+365*864e5,n:s.name,uid:firebase.auth().currentUser.uid,ts:firebase.database.ServerValue.TIMESTAMP});
       VKH[s.vk]=k;n++;
     }
     lss('vk_hash',JSON.stringify(VKH));
