@@ -3908,7 +3908,7 @@ function bdSync(){
 }
 async function bdPin(){if(lsg('pin_v1'))return true;const a=prompt('Tahtadan çıkış için 4-6 haneli bir PIN belirleyin:');if(a===null)return false;if(!/^\d{4,6}$/.test(a)){alert('PIN 4-6 rakam olmalı.');return false;}lss('pin_v1',await sha(a));return true;}
 function bdStandby(){
-  return '<div class="card text-center py-12 max-w-md mx-auto mt-10"><div class="text-6xl">🔒</div><div class="text-2xl font-bold mt-2">Sınıf tahtası kilitli</div><p class="text-slate-500 my-2">Öğretmenin verdiği 6 haneli kodu girin.</p><input id="sbIn" type="password" inputmode="numeric" maxlength="6" class="inp text-4xl text-center w-full" placeholder="••••••"><div id="sbMsg" class="min-h-[22px] text-red-600 text-sm my-2"></div><button data-act="bdenter" class="btn bg-indigo-600 !text-lg !py-3 w-full">Başlat</button><button data-act="bdexit" class="btn bg-slate-400 opacity-50 mt-6">🔓 Öğretmen</button></div>';
+  return '<div class="card text-center py-12 max-w-md mx-auto mt-10"><div class="text-6xl">🔒</div><div class="text-2xl font-bold mt-2">Sınıf tahtası kilitli</div><p class="text-slate-500 my-2">Öğretmenin verdiği 8 haneli kodu girin.</p><input id="sbIn" type="password" inputmode="numeric" maxlength="8" class="inp text-4xl text-center w-full" placeholder="••••••••"><div id="sbMsg" class="min-h-[22px] text-red-600 text-sm my-2"></div><button data-act="bdenter" class="btn bg-indigo-600 !text-lg !py-3 w-full">Başlat</button><button data-act="bdexit" class="btn bg-slate-400 opacity-50 mt-6">🔓 Öğretmen</button></div>';
 }
 function bdSetup(){
   bdWatch();
@@ -3917,7 +3917,7 @@ function bdSetup(){
   g.forEach(s=>{const r=rd(s);if(r.tp){p+=r.tp;ch.push(esc(s.name)+' +'+r.tp);}Object.values(s.hwSelf||{}).forEach(d=>{if(d===G.date)h++;});});
   const v=BD.sess,left=bdLeft(),k=(lsg('tahta_kod')||'').split('|'),ok=v&&left>0;
   const sel='<div class="flex flex-wrap items-center gap-2"><select data-g="sinif" class="inp">'+o([['ALL','Tüm Sınıflar']].concat(classes().map(c=>[c,c+'. Sınıf'])),G.sinif)+'</select><select data-g="sube" class="inp">'+o([['ALL','Tüm Şubeler']].concat(subes(G.sinif).map(x=>[x,x.toUpperCase()+' Şubesi'])),G.sube)+'</select><label class="text-sm">Günlük yem hakkı: <select data-bd="cap" class="inp">'+[1,2,3,4,5].map(n=>'<option value="'+n+'"'+(n===bdCap()?' selected':'')+'>'+n+'</option>').join('')+'</select></label> <label class="text-sm">Süre: <select data-bd="dk" class="inp">'+[15,20,30,40,45,60,90].map(n=>'<option value="'+n+'"'+(n===bdDk()?' selected':'')+'>'+n+' dk</option>').join('')+'</select></label></div>';
-  const box=ok?'<div class="text-center mt-3"><div class="text-sm">'+(v.bas?'Tahta açık · '+left+' dk kaldı':'Tahtada kod bekleniyor · '+left+' dk içinde girilmeli')+'</div><div class="text-5xl font-mono font-bold tracking-widest my-2">'+(k[1]===v.h?esc(k[0]):'••••••')+'</div>'+(k[1]===v.h?'':'<div class="text-xs text-slate-500">Kod bu cihazda kayıtlı değil. Bitirip yenisini oluşturun.</div>')+'<div class="flex gap-2 justify-center mt-2"><button data-act="bdplus" class="btn bg-indigo-600">+10 dk</button></div></div>'
+  const box=ok?'<div class="text-center mt-3"><div class="text-sm">'+(v.bas?'Tahta açık · '+left+' dk kaldı':'Tahtada kod bekleniyor · '+left+' dk içinde girilmeli')+'</div><div class="text-5xl font-mono font-bold tracking-widest my-2">'+(k[1]===v.h?esc(k[0]):'••••••••')+'</div>'+(k[1]===v.h?'':'<div class="text-xs text-slate-500">Kod bu cihazda kayıtlı değil. Bitirip yenisini oluşturun.</div>')+'<div class="flex gap-2 justify-center mt-2"><button data-act="bdplus" class="btn bg-indigo-600">+10 dk</button></div></div>'
     :'<button data-act="bdcode" class="btn bg-emerald-600 !text-lg !py-3 w-full mt-3">📱 '+bdDk()+' dk’lık kod oluştur ('+g.length+' öğrenci)</button>';
   return '<div class="card"><b>📱 Geçici tahta kodu</b><p class="text-sm text-slate-500 my-2">Telefondan ya da bilgisayardan kod oluşturun, tahtaya girilsin. Öğrenci ekranı kod girildiği andan itibaren seçtiğiniz süre (varsayılan 40 dakika) açık kalır, sonra kendiliğinden kilitlenir. Kod oluşturulduktan sonra 30 dakika içinde girilmelidir. Kodu tahtadaki öğretmene ya da sorumlu kişiye iletebilirsiniz.</p>'+sel+box+'<button data-act="bdlock" class="btn bg-red-600 !text-base !py-3 w-full mt-3">🔒 Tahtayı şimdi kilitle</button></div>'
    +'<div class="card"><b>🖥️ Bu cihaz akıllı tahta ise</b><p class="text-sm text-slate-500 my-2">Bir kez ayarlayın: cihaz kod bekleme ekranına geçer, çıkış için PIN ister. Sonraki derslerde yalnızca kod oluşturmanız yeterli.</p><div class="flex flex-wrap gap-2"><button data-act="bdstandby" class="btn bg-indigo-600 !text-base !py-3">🔒 Kodlu bekleme ekranına al</button><button data-act="bdstart" class="btn bg-slate-600 !text-base !py-3">Süresiz öğrenci ekranı ('+g.length+')</button></div></div>'
@@ -3945,7 +3945,7 @@ $('view').addEventListener('change',e=>{if(e.target.dataset.bd==='cap'){lss('tah
 Object.assign(ACT,{
   async bdcode(){
     if(!S.room)return alert('Önce oda kodunu girin.');if(!grp().length)return alert('Bu seçimde öğrenci yok.');
-    const c=String(100000+crypto.getRandomValues(new Uint32Array(1))[0]%900000),h=await sha(c);
+    const c=String(10000000+crypto.getRandomValues(new Uint32Array(1))[0]%90000000),h=await sha(c);
     try{await auth();await bdSessRef().set({h:h,sn:G.sinif,sb:G.sube,cap:bdCap(),ol:firebase.database.ServerValue.TIMESTAMP,dk:bdDk()});await db.ref('kioskKod/'+S.room).set({[c]:bdSrv()+(bdDk()+30)*6e4});}catch(e){return alert('Kod oluşturulamadı: '+e.message);}
     lss('tahta_kod',c+'|'+h);
   },
@@ -3955,7 +3955,7 @@ Object.assign(ACT,{
   async bdenter(){
     const m=t=>{const e=$('sbMsg');if(e)e.textContent=t;},c=(($('sbIn')||{}).value||'').trim(),r=bdSessRef();
     if(Date.now()<sbU)return m('Çok fazla deneme, biraz bekleyin.');if(!r)return m('Oda bağlı değil.');
-    if(!/^\d{6}$/.test(c))return m('Kod 6 haneli olmalı.');
+    if(!/^\d{8}$/.test(c))return m('Kod 8 haneli olmalı.');
     let v=null;try{await auth();await db.ref('kioskUid/'+S.room+'/'+firebase.auth().currentUser.uid).set({k:c});v=(await r.once('value')).val();}catch(e){sbF++;if(sbF>=5){sbU=Date.now()+30000;sbF=0;}return m('Kod yanlış, süresi dolmuş ya da bağlantı yok.');}
     if(!v||v.h!==await sha(c)){sbF++;if(sbF>=5){sbU=Date.now()+30000;sbF=0;}return m('Kod yanlış.');}
     const now=bdSrv(),dk=v.dk||40;
