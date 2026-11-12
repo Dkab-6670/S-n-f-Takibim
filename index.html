@@ -7,11 +7,12 @@
 <link rel="manifest" href="manifest.json" id="mf">
 <script>try{if(new URLSearchParams(location.search).get('mod')==='veli'){document.getElementById('mf').href='manifest-veli.json';}}catch(e){}</script>
 <meta name="theme-color" content="#a50f1c">
+<script>try{if(navigator.standalone||matchMedia("(display-mode: standalone)").matches)document.documentElement.classList.add("ios-sa");}catch(e){}</script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8F%AB%3C/text%3E%3C/svg%3E">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://sinif-takibim-default-rtdb.firebaseio.com" crossorigin>
 <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin>
@@ -133,7 +134,8 @@ header {
   isolation: isolate;
 }
 /* Durum çubuğu altı: sabit, tam opak kırmızı şerit; altından kayan içerik bulanık görünmesin */
-body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#a50f1c;z-index:90;pointer-events:none}
+html::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#a50f1c;z-index:90;pointer-events:none}
+html.dx-on::before{display:none}
 /* Sayfa başlığı (Ana Sayfa vb.): net, opak, filtresiz */
 #ptitle{opacity:1!important;filter:none!important;-webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:60;font-weight:800;color:#0f172a;box-shadow:0 2px 6px rgba(15,23,42,.14)}
 html.dark #ptitle,.dark #ptitle{color:#f1f5f9}
@@ -144,9 +146,27 @@ header .sk-brand, header .sk-flag, header .sk-tx, header .sk-tx b, header .sk-tx
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+/* Net başlık: gölge yok, mobilde sade ve opak zemin */
+.sk-tx b{text-shadow:none!important}
+/* iOS 26: üst kenarda tek ve düz renkli sabit eleman (kırmızı şerit) olsun.
+   Ana sayfa desen katmanı (beyaz parıltılı, sabit) üst kenardan uzak dursun; yoksa iOS üstü bulanıklaştırıyor. */
+body.dx-home::before{top:calc(env(safe-area-inset-top,0px) + 180px)!important}
+/* iOS 27: Ana Ekran uygulamasında üst kenar bulanıklığını gizlemek için, üstte düz renkli gerçek bir sabit eleman */
+#iosTopBand{display:none}
+@supports (-webkit-touch-callout:none){
+  html.ios-sa #iosTopBand{display:block;position:fixed;top:0;left:0;right:0;height:12px;background-color:#a50f1c;z-index:2147483647;pointer-events:none}
+  html.ios-sa.dx-on #iosTopBand{background-color:#06222c}
+  html.ios-sa header{padding-top:calc(env(safe-area-inset-top,0px) + 6px)!important}
+}
+@media(max-width:767px){
+  header{background-image:none!important;background-color:#a50f1c!important}
+  .sk-tx i{background:#f4dc9a!important}
+  header .relative.w-full{background:#6e0a14!important}
+}
 </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
+<div id="iosTopBand" aria-hidden="true"></div>
 <header class="text-white shadow" style="padding-top:env(safe-area-inset-top,0px);background-color:#a50f1c;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 400 130%27%3E%3Cg fill=%27%235a0810%27 fill-opacity=%27.42%27%3E%3Cpath d=%27M0 130V104h120v-8h20a60 60 0 0 1 120 0h20v8h120v26z%27/%3E%3Cpath d=%27M140 96a60 60 0 0 1 120 0z%27/%3E%3Crect x=%2794%27 y=%2734%27 width=%2712%27 height=%2770%27/%3E%3Cpath d=%27M92 34l8-30 8 30z%27/%3E%3Crect x=%27294%27 y=%2734%27 width=%2712%27 height=%2770%27/%3E%3Cpath d=%27M292 34l8-30 8 30z%27/%3E%3Cpath d=%27M18 104a24 24 0 0 1 48 0z%27/%3E%3Cpath d=%27M334 104a24 24 0 0 1 48 0z%27/%3E%3Crect x=%27198%27 y=%2722%27 width=%274%27 height=%2718%27/%3E%3Ccircle cx=%27200%27 cy=%2718%27 r=%276%27/%3E%3C/g%3E%3C/svg%3E'),url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 200 200%27%3E%3Cdefs%3E%3Cmask id=%27m%27%3E%3Crect width=%27200%27 height=%27200%27 fill=%27white%27/%3E%3Ccircle cx=%27122%27 cy=%27100%27 r=%2760%27 fill=%27black%27/%3E%3C/mask%3E%3C/defs%3E%3Cg fill=%27white%27 fill-opacity=%27.16%27%3E%3Ccircle cx=%27100%27 cy=%27100%27 r=%2772%27 mask=%27url%28%23m%29%27/%3E%3Cpolygon points=%27152.0,83.0 156.1,94.3 168.2,94.7 158.7,102.2 162.0,113.8 152.0,107.0 142.0,113.8 145.3,102.2 135.8,94.7 147.9,94.3%27/%3E%3C/g%3E%3C/svg%3E'),url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 800 200%27 preserveAspectRatio=%27none%27%3E%3Cg fill=%27white%27%3E%3Cpath fill-opacity=%27.07%27 d=%27M0 0h520c-60 60-120 40-190 110S120 200 0 160z%27/%3E%3Cpath fill-opacity=%27.06%27 d=%27M0 200V120c140 40 300-20 460-70s240-10 340-50v200z%27/%3E%3C/g%3E%3C/svg%3E'),linear-gradient(135deg,#7d0b17 0%,#b3101e 50%,#d71f2f 100%);background-repeat:no-repeat;background-position:right bottom,92% 35%,center,center;background-size:auto 62%,auto 170%,100% 100%,auto;border-radius:0 0 26px 26px;position:relative;z-index:60">
  <div class="max-w-6xl mx-auto px-3 pb-3 pt-3 flex flex-wrap items-center justify-between gap-2" style="padding-top:.75rem">
   <div class="sk-brand"><svg class="sk-flag" viewBox="0 0 90 60" aria-hidden="true"><defs><linearGradient id="skg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></linearGradient></defs><rect width="90" height="60" fill="#e30a17"/><circle cx="34" cy="30" r="15" fill="#fff"/><circle cx="38.6" cy="30" r="12" fill="#e30a17"/><polygon fill="#fff" points="60.5,30.0 54.8,32.0 54.6,38.1 50.9,33.2 45.1,35.0 48.6,30.0 45.1,25.0 50.9,26.8 54.6,21.9 54.8,28.0"/><rect width="90" height="60" fill="url(#skg)"/></svg><div class="sk-tx"><b>Sınıf Takip</b><i></i></div></div>
