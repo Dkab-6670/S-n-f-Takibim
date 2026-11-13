@@ -198,13 +198,13 @@ html.ios-sa #ptitle{position:static!important;top:auto!important}
     border-radius:0 0 60% 40% / 0 0 16px 26px!important;
     box-shadow:0 3px 10px rgba(90,8,16,.28)!important;
   }
-  header>div{flex-wrap:nowrap!important;align-items:center!important;padding-top:.55rem!important;padding-bottom:1.6rem!important;row-gap:0!important}
-  .sk-brand{gap:14px!important;min-width:0}
+  header>div{flex-wrap:wrap!important;align-items:center!important;padding-top:.55rem!important;padding-bottom:1.6rem!important;row-gap:.4rem!important}
+  .sk-brand{gap:14px!important;min-width:0;flex:0 1 auto}
   .sk-flag{width:58px!important;height:39px!important;border-radius:8px!important;box-shadow:0 0 0 3px #f4dc9a,0 0 0 4.5px rgba(232,198,117,.55),0 4px 10px rgba(0,0,0,.35)!important;flex:none}
   .sk-tx b{font-size:25px!important;white-space:nowrap}
   .sk-tx i{height:3px!important;margin-top:6px!important}
   /* Durum/menü satırı: tam genişlik yerine küçük, yarı saydam hap */
-  header .relative.w-full{width:auto!important;flex:none;background:rgba(60,5,12,.22)!important;border-radius:999px!important;padding:.25rem .55rem!important;gap:.4rem!important;position:relative;z-index:2}
+  header .relative.w-full{width:auto!important;flex:none;background:rgba(60,5,12,.22)!important;border-radius:999px!important;padding:.25rem .55rem!important;gap:.4rem!important;position:relative;z-index:2;margin-left:auto;max-width:100%}
   header #stx{display:none}
   header #rc{font-size:13px!important;margin-left:0!important}
 }
@@ -316,7 +316,7 @@ const db=firebase.database();
 let _auth=null,ref=null,last={},lastRoom='',online=true,queued=0,t2;
 const auth=()=>_auth||(_auth=new Promise((ok,no)=>{const a=firebase.auth(),u=a.onAuthStateChanged(x=>{u();x?ok():a.signInAnonymously().then(ok,e=>{_auth=null;alert('Giriş hatası: '+e.message+'\nFirebase > Authentication > Anonymous açık mı?');no(e);});});}));
 const genCode=()=>{const al='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='SNF-';crypto.getRandomValues(new Uint32Array(16)).forEach(n=>{s+=al[n%al.length]});return s;};
-const mask=c=>c.length>6?c.slice(0,4)+'•'.repeat(c.length-4):c;
+const mask=c=>c.length>6?c.slice(0,4)+'•'.repeat(Math.min(c.length-4,4)):c;
 function status(c,t){$('dot').className='w-3 h-3 md:w-2.5 md:h-2.5 rounded-full bg-'+c+'-500';$('stx').textContent=t;}
 let tt;function toast(m,err){const t=$('toast');t.textContent=m;t.className=t.className.replace(/ bg-\S+/g,'')+(err?' bg-red-600':' bg-emerald-600')+' opacity-100';clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('opacity-100'),err?5000:1800);}
 /* ===== Çevrimdışı çalışma: cihazda veri kopyası + kalıcı bekleyen değişiklik kuyruğu =====
