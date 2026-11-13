@@ -148,6 +148,9 @@ header .sk-brand, header .sk-flag, header .sk-tx, header .sk-tx b, header .sk-tx
 }
 /* Net başlık: gölge yok, mobilde sade ve opak zemin */
 .sk-tx b{text-shadow:none!important}
+/* Açılır menü, yapışkan "Ana Sayfa" kartının (z-index:60) önünde açılsın */
+#mn{z-index:200!important}
+header{position:relative!important;z-index:70!important}
 /* iOS 26: üst kenarda tek ve düz renkli sabit eleman (kırmızı şerit) olsun.
    Ana sayfa desen katmanı (beyaz parıltılı, sabit) üst kenardan uzak dursun; yoksa iOS üstü bulanıklaştırıyor. */
 body.dx-home::before{top:calc(env(safe-area-inset-top,0px) + 180px)!important}
