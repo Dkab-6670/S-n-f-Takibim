@@ -150,6 +150,8 @@ header .sk-brand, header .sk-flag, header .sk-tx, header .sk-tx b, header .sk-tx
 .sk-tx b{text-shadow:none!important}
 /* Açılır menü, yapışkan "Ana Sayfa" kartının (z-index:60) önünde açılsın */
 #mn{z-index:200!important}
+/* Sayfanın arkasındaki zemin (küçültünce / çekince görünen yer) tamamen kırmızı: iOS üst perdeyi bu renkten alıyor olabilir. Koyu yeşil tema (dx-on) kendi rengini korur. */
+html:not(.dx-on),html.dark:not(.dx-on){background:#a50f1c!important}
 /* Üstten hizalı kayan pencereler (öğrenci kartı vb.): başlık durum çubuğunun altında kalmasın */
 .fixed.inset-0.overflow-y-auto[class*="bg-black"],.fixed.inset-0.overflow-y-auto[class*="bg-slate-900"]{padding-top:calc(env(safe-area-inset-top,0px) + 10px)!important}
 /* iOS üst renk örneklemesi: html'in kırmızı bandını body'nin gradyanı kapatıyordu. Bandı body'nin kendisine de koy. */
