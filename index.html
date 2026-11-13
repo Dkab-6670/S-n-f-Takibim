@@ -5203,7 +5203,6 @@ function ssKzDoc(idx){
   +'<div class="t">'+y+'-'+(y+1)+' EĞİTİM ÖĞRETİM YILI</div><div class="t">'+(pr.okul?esc(rrU(pr.okul)):'……………………………………')+' '+esc(rrU(ders))+' DERSİ '+(mm?mm[1]+'. ':'')+'UYGULAMA SINAVI DEĞERLENDİRME ÖLÇEĞİ</div>'
   +'<div class="sh"><span>Sınıf : '+esc(cls)+'</span><span>Tarih: '+esc(fdt(dt))+'</span></div>'
   +'<table><colgroup><col style="width:26px"><col style="width:32px"><col>'+p.map(()=>'<col style="width:'+cw+'px">').join('')+'<col style="width:'+(cw>44?50:44)+'px"></colgroup><thead><tr><th rowspan="2">'+vt('Sıra',22)+'</th><th rowspan="2">'+vt('No',28)+'</th><th rowspan="2">Adı Soyadı</th><th colspan="'+n+'" style="height:18px">KAZANIMLAR (PUAN)</th><th rowspan="2">'+vt('Toplam<br>(100 puan)',cw>44?46:40)+'</th></tr><tr>'+lab.map(t=>'<th class="k">'+vt(esc(t),cw-6,11)+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>'
-  +'<div class="nt"><b class="h">NOTLAR:</b>'+notes.map((t,i)=>'<p>'+(i+1)+'. '+t+'</p>').join('')+'</div>'
   +'<div class="f">'+(ad?'<b>'+esc(ad)+'</b><br>':'')+'<div class="d">'+esc(ders)+' Öğretmeni</div></div></div>';
 }
 function ssStudy(ans){
