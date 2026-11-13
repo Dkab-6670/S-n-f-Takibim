@@ -173,6 +173,12 @@ body.dx-home::before{top:calc(env(safe-area-inset-top,0px) + 180px)!important}
   .sk-tx i{background:#f4dc9a!important}
   header .relative.w-full{background:#6e0a14!important}
 }
+/* Ana Ekran (iOS): üst cam perdesi başlığı beyazlatıyordu. Yazıyı perdenin altına indir, arkasına koyu zemin ver. */
+@supports (-webkit-touch-callout:none){
+  html.ios-sa header{padding-top:calc(env(safe-area-inset-top,0px) + 16px)!important}
+  html.ios-sa .sk-brand{background:rgba(60,4,10,.8);padding:4px 12px 4px 6px;border-radius:12px}
+  html.ios-sa .sk-tx b{text-shadow:0 1px 3px rgba(0,0,0,.6)!important}
+}
 </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
