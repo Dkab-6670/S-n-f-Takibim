@@ -150,6 +150,9 @@ header .sk-brand, header .sk-flag, header .sk-tx, header .sk-tx b, header .sk-tx
 .sk-tx b{text-shadow:none!important}
 /* Açılır menü, yapışkan "Ana Sayfa" kartının (z-index:60) önünde açılsın */
 #mn{z-index:200!important}
+/* iOS üst renk örneklemesi: html'in kırmızı bandını body'nin gradyanı kapatıyordu. Bandı body'nin kendisine de koy. */
+html:not(.dark):not(.dx-on) body{background:linear-gradient(#a50f1c,#a50f1c) top left/100% env(safe-area-inset-top,0px) no-repeat fixed,linear-gradient(180deg,#e4f4fc 0%,#e7f7f0 100%) fixed!important}
+html.dark:not(.dx-on) body{background-image:linear-gradient(#a50f1c,#a50f1c)!important;background-size:100% env(safe-area-inset-top,0px)!important;background-repeat:no-repeat!important;background-position:top left!important;background-attachment:fixed!important}
 header{position:relative!important;z-index:70!important}
 /* iOS 26: üst kenarda tek ve düz renkli sabit eleman (kırmızı şerit) olsun.
    Ana sayfa desen katmanı (beyaz parıltılı, sabit) üst kenardan uzak dursun; yoksa iOS üstü bulanıklaştırıyor. */
