@@ -3367,11 +3367,13 @@ function dnPosterVec(o,pv){
   return c;
 }
 
-function dnCanvas(o){try{return dnPoster(o);}catch(e){return dnCanvasOld(o);}}
-const dnPosterURL=(o,pv)=>dnPoster(o,pv||780).toDataURL('image/jpeg',.92);
+function dnCanvas(o,pv){try{return dnPoster(o,pv);}catch(e){return dnCanvasOld(o);}}
+/* Önizleme çözünürlüğü: ekranın gerçek piksel yoğunluğuna göre (iPhone ~3x) 780 yerine 1170-1440 px */
+const dnPW=()=>{const d=Math.min(window.devicePixelRatio||1,3),w=Math.min(window.innerWidth||390,480);return Math.max(780,Math.min(1440,Math.round(w*d)));};
+const dnPosterURL=(o,pv)=>dnPoster(o,pv||dnPW()).toDataURL('image/jpeg',.96);
 async function dnShare(o,text){
   try{
-    await dnFontsLoad();const c=dnCanvas(o),blob=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([blob],'dini-kart.png',{type:'image/png'});
+    await dnFontsLoad();const c=dnCanvas(o,1440),blob=await new Promise(r=>c.toBlob(r,'image/png')),f=new File([blob],'dini-kart.png',{type:'image/png'});
     if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:o.head||'',text:text||''});return;}
     if(navigator.share){await navigator.share({title:o.head||'',text:text||''});return;}
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dini-kart.png';document.body.appendChild(a);a.click();a.remove();toast('Kart görsel olarak indirildi');
