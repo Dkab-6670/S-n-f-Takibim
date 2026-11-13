@@ -179,6 +179,8 @@ body.dx-home::before{top:calc(env(safe-area-inset-top,0px) + 180px)!important}
   html.ios-sa .sk-brand{background:#4a050d;padding:4px 12px 4px 6px;border-radius:12px}
   html.ios-sa .sk-tx b{text-shadow:0 1px 3px rgba(0,0,0,.6)!important}
 }
+/* Ana Ekran (iOS): "Ana Sayfa" kartı üst kenara yapışıp iOS'un cam perdesini beyazlatıyordu. Ana Ekran uygulamasında yapışkan olmasın; üst kenarda sadece düz kırmızı şerit kalsın. */
+html.ios-sa #ptitle{position:static!important;top:auto!important}
 </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
