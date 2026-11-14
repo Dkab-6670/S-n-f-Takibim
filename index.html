@@ -183,16 +183,19 @@ body.dx-home::before{top:calc(env(safe-area-inset-top,0px) + 180px)!important}
 html.ios-sa #ptitle{position:static!important;top:auto!important}
 </style>
 <style id="header-compact">
-/* Kompakt üst başlık */
-.sk-flag{width:46px!important;height:31px!important;border-radius:6px!important;box-shadow:0 0 0 2px #f4dc9a,0 3px 8px rgba(0,0,0,.3)!important}
-.sk-tx b{font-size:21px!important}.sk-tx i{height:2px!important;margin-top:3px!important}
-header>div{padding-top:.35rem!important;padding-bottom:.35rem!important}
+/* Üst başlık: tek ve son söz bloğu. Orta boy, hilal+yıldız sağda tam görünür. */
+.sk-flag{width:50px!important;height:34px!important;border-radius:7px!important;box-shadow:0 0 0 2px #f4dc9a,0 3px 8px rgba(0,0,0,.3)!important}
+.sk-tx b{font-size:23px!important}.sk-tx i{height:3px!important;margin-top:4px!important}
+header>div{padding-top:.6rem!important;padding-bottom:.6rem!important}
+@media(min-width:768px){header{background-position:right 360px bottom 0,center,center!important}}
 @media(max-width:767px){
- header>div{flex-wrap:nowrap!important;gap:.5rem!important;padding-top:.3rem!important;padding-bottom:.3rem!important}
- .sk-flag{width:34px!important;height:23px!important;box-shadow:0 0 0 1.5px #f4dc9a,0 2px 6px rgba(0,0,0,.3)!important}
- .sk-tx b{font-size:17px!important;white-space:nowrap}.sk-brand{gap:8px!important;min-width:0}
- header .relative.w-full{width:auto!important;flex:none;margin-left:auto;padding:.2rem .5rem!important;gap:.4rem!important}
- header #stx{display:none}header #rc{font-size:12px!important}
+ header>div{flex-wrap:nowrap!important;gap:.5rem!important;padding-top:.7rem!important;padding-bottom:.7rem!important}
+ .sk-flag{width:42px!important;height:28px!important;box-shadow:0 0 0 2px #f4dc9a,0 3px 8px rgba(0,0,0,.3)!important}
+ .sk-tx b{font-size:20px!important;white-space:nowrap}.sk-tx i{height:2px!important;margin-top:3px!important}
+ .sk-brand{gap:10px!important;min-width:0}
+ header .relative.w-full{width:auto!important;flex:none;margin-left:auto;padding:.25rem .55rem!important;gap:.45rem!important}
+ header #stx{display:none}header #rc{font-size:13px!important}
+ header{background-position:right 150px bottom 0,center,center!important}
 }
 html.ios-sa header{padding-top:calc(env(safe-area-inset-top,0px) + 30px)!important}
 </style>
