@@ -182,6 +182,20 @@ body.dx-home::before{top:calc(env(safe-area-inset-top,0px) + 180px)!important}
 /* Ana Ekran (iOS): "Ana Sayfa" kartı üst kenara yapışıp iOS'un cam perdesini beyazlatıyordu. Ana Ekran uygulamasında yapışkan olmasın; üst kenarda sadece düz kırmızı şerit kalsın. */
 html.ios-sa #ptitle{position:static!important;top:auto!important}
 </style>
+<style id="header-compact">
+/* Kompakt üst başlık */
+.sk-flag{width:46px!important;height:31px!important;border-radius:6px!important;box-shadow:0 0 0 2px #f4dc9a,0 3px 8px rgba(0,0,0,.3)!important}
+.sk-tx b{font-size:21px!important}.sk-tx i{height:2px!important;margin-top:3px!important}
+header>div{padding-top:.35rem!important;padding-bottom:.35rem!important}
+@media(max-width:767px){
+ header>div{flex-wrap:nowrap!important;gap:.5rem!important;padding-top:.3rem!important;padding-bottom:.3rem!important}
+ .sk-flag{width:34px!important;height:23px!important;box-shadow:0 0 0 1.5px #f4dc9a,0 2px 6px rgba(0,0,0,.3)!important}
+ .sk-tx b{font-size:17px!important;white-space:nowrap}.sk-brand{gap:8px!important;min-width:0}
+ header .relative.w-full{width:auto!important;flex:none;margin-left:auto;padding:.2rem .5rem!important;gap:.4rem!important}
+ header #stx{display:none}header #rc{font-size:12px!important}
+}
+html.ios-sa header{padding-top:calc(env(safe-area-inset-top,0px) + 30px)!important}
+</style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-20 md:pb-6">
 <div id="iosTopBand" aria-hidden="true"></div>
